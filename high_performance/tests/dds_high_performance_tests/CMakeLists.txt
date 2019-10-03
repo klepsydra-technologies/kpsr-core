@@ -49,7 +49,7 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${${PROJ_MAIN_NAME}_PATH_LIBS} ${CMAKE_INSTALL_LIBDIR} )
+LINK_DIRECTORIES()
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} ) 
 
 #---------------------------------------------------#

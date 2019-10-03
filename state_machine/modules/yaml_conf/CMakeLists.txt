@@ -26,7 +26,6 @@ find_package(yaml-cpp REQUIRED)
 # Include directories with headers
 #---------------------------------------------------#
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${${PROJ_MAIN_NAME}_PATH_MAIN}/modules/${PROJ_MAIN_NAME}/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
 
 # Source

@@ -40,7 +40,7 @@ FILE(GLOB_RECURSE ${PROJ_NAME}_HEADERS
 
 # Create Library
 #---------------------------------------------------#
-LINK_DIRECTORIES(${CMAKE_INSTALL_LIBDIR})
+LINK_DIRECTORIES()
 
 ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 

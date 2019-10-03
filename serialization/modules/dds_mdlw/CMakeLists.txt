@@ -43,9 +43,9 @@ ENDFOREACH(idl)
 # Include directories with headers
 #---------------------------------------------------#
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${${PROJ_MAIN_NAME}_PATH_MAIN}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${Connext_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/gen )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
+INCLUDE_DIRECTORIES( ${Connext_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
 
 # Source
@@ -59,7 +59,7 @@ FILE(GLOB ${PROJ_NAME}_GEN_HEADERS
 
 # Create Library
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${${PROJ_MAIN_NAME}_PATH_LIBS} )
+LINK_DIRECTORIES()
 # ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel SHARED ${Connext_DATAMODEL})

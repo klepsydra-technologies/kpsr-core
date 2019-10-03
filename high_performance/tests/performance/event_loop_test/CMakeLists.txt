@@ -41,7 +41,7 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES(${CMAKE_INSTALL_LIBDIR})
+LINK_DIRECTORIES()
 
 # Create Library
 #---------------------------------------------------#
