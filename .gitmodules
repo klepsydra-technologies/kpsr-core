@@ -1,0 +1,15 @@
+[submodule "kpsr-build"]
+	path = kpsr-build
+	url = https://github.com/klepsydra-technologies/kpsr-build.git
+[submodule "thirdparties/googletest"]
+	path = thirdparties/googletest
+	url = https://github.com/klepsydra-technologies/googletest.git
+[submodule "thirdparties/cereal"]
+	path = thirdparties/cereal
+	url = https://github.com/klepsydra-technologies/cereal.git
+[submodule "thirdparties/concurrentqueue"]
+	path = thirdparties/concurrentqueue
+	url = https://github.com/klepsydra-technologies/concurrentqueue.git
+[submodule "thirdparties/spdlog"]
+	path = thirdparties/spdlog
+	url = https://github.com/klepsydra-technologies/spdlog.git

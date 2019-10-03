@@ -1,0 +1,16 @@
+# fundamental types and their mapping to C++11
+
+char8: 'signed char'
+uchar8: 'unsigned char'
+int16: 'short int'
+uint16: 'unsigned short int'
+int32: 'int'
+uint32: 'unsigned int'
+int64: 'long long int'
+uint64: 'unsigned long long int'
+float32: 'float'
+float64: 'double'
+boolean: 'bool'
+string: 'std::string'
+void_ptr: 'void *'
+const_void_ptr: 'const void *'

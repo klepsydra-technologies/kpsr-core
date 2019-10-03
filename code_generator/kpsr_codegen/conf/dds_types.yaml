@@ -1,0 +1,15 @@
+# fundamental types and their mapping to DDS
+
+char8: 'char'
+uchar8: 'octet'
+int16: 'short'
+uint16: 'unsigned short'
+int32: 'long'
+uint32: 'unsigned long'
+int64: 'long long'
+uint64: 'unsigned long long'
+float32: 'float'
+float64: 'double'
+boolean: 'boolean'
+string: 'string'
+enum: 'unsigned short'

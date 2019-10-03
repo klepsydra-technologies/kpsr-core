@@ -1,0 +1,24 @@
+state_machine:
+  id: "sm1"
+  states:
+  - state: # the first state is always the initial state
+      id: "st1"
+      transitions:
+        - transition:
+            destination: "st2"
+            event: "event1"
+        - transition:
+            destination: "st3"
+            event: "event2"
+  - state:
+      id: "st2" 
+      transitions:
+        - transition:
+            destination: "st1"
+            event: "event3"
+  - state:
+      id: "st3" 
+      transitions:
+        - transition:
+            destination: "st2"
+            event: "event1"

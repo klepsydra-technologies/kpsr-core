@@ -1,0 +1,6 @@
+# Type modifiers (as regexp) to all types
+
+vector: '#1[]'
+smart_pointer_vector: '#1[]'
+raw_pointer_vector: '#1[]'
+fix_size_array: '#1[#2]'

@@ -1,0 +1,8 @@
+class_name: kpsr::codegen::InheritanceVector3
+fields:
+    - name   : a
+      type   : float32
+    - name   : b
+      type   : float32
+    - name   : c
+      type   : float32

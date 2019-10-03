@@ -1,0 +1,23 @@
+class_name: kpsr::geometry::Gps
+middlewares:
+    - type: ROS
+      project_name: sensor_msgs
+      already_exists: true
+      class_name: NavSatFix
+      include_file: <sensor_msgs/NavSatFix.h>
+      ignore_fields:
+          - seq
+    - type: DDS
+      class_name: kpsr_dds_geometry::GpsData
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+fields:
+    - name   : seq
+      type   : int32
+    - name   : latitude
+      type   : float32
+    - name   : longitude
+      type   : float32
+    - name   : altitude
+      type   : float32

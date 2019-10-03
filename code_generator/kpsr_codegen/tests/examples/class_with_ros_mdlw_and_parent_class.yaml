@@ -1,0 +1,14 @@
+class_name: kpsr::codegen::ClassWithParentClass
+already_exists: false
+include_file:
+parent_class: BasicClass
+middlewares:
+    - type: ROS
+      project_name: kpsr_msgs
+      exists: false
+      class_name: ClassWithParentClassMessage
+fields:
+    - name   : name
+      type   : string
+    - name   : value
+      type   : float32

@@ -1,0 +1,17 @@
+class_name: BasicClass
+middlewares:
+    - type: ROS
+      project_name: kpsr_msgs
+      exists: false
+      class_name: BasicClassMessage
+fields:
+    - name   : a
+      type   : float32[5]
+    - name   : b
+      type   : float32[s]
+    - name   : c
+      type   : float32[2]
+    - name   : d
+      type   : float32[*]
+    - name   : e
+      type   : float32

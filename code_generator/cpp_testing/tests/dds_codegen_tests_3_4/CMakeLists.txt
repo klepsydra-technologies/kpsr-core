@@ -1,0 +1,80 @@
+#****************************************************************************
+#
+#                           Klepsydra Core Modules
+#              Copyright (C) 2019-2020  Klepsydra Technologies GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#****************************************************************************
+
+SET(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME}_tests_3_4)
+PROJECT(${PROJ_NAME})
+
+include (MacroConnext)
+find_package (Connext REQUIRED)
+SET (DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
+
+add_definitions (
+  ${Connext_DEFINITIONS}
+  ${DEFINITIONS}
+)
+
+file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/gen)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen)
+
+file(GLOB idls ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test3/dds/idl/*.idl
+               ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test4/dds/idl/*.idl)
+FOREACH(idl ${idls})
+        Connext_IDLGEN (${idl} ${CMAKE_CURRENT_SOURCE_DIR})
+        GET_FILENAME_COMPONENT(nfile ${idl} NAME)
+        Connext_GENDATAMODEL(${nfile} ${CMAKE_CURRENT_SOURCE_DIR})
+ENDFOREACH(idl)
+
+# Include directories with headers
+#---------------------------------------------------#
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/${PROJ_MAIN_NAME}/include )
+INCLUDE_DIRECTORIES( ${Connext_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test3/poco/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test3/dds/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test4/poco/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test4/dds/include )
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/gen )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../core/modules/core/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../core/modules/dds_mdlw/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../serialization/modules/serialization/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../serialization/modules/dds_mdlw/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../serialization/modules/dds_mdlw/gen)
+INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
+
+# Source
+#---------------------------------------------------#
+FILE(GLOB ${PROJ_NAME}_SRC
+    "src/*.cpp"
+)
+
+# Link libraries with Project
+#---------------------------------------------------#
+LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../core/modules/core/ ${CMAKE_BINARY_DIR}/../../../serialization/modules/dds_mdlw/)
+
+ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel_3_4 SHARED ${Connext_DATAMODEL})
+
+ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+
+#---------------------------------------------------#
+TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel_3_4 ${Connext_LIBRARIES} atomic )
+
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core gtest_main
+    kpsr_dds_serialization_datamodel kpsr_dds_${PROJ_MAIN_NAME}_datamodel_3_4 ${Connext_LIBRARIES} atomic )
+
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME})

@@ -1,0 +1,38 @@
+class_name: kpsr::codegen::PrimitiveTypesVectorSharedPtr
+create_builder: true
+middlewares:
+    - type: ROS
+      project_name: kpsr_ros_codegen
+      already_exists: false
+      class_name: PrimitiveTypesVectorSharedPtr
+    - type: DDS
+      class_name: kpsr_dds_codegen::PrimitiveTypesVectorSharedPtrData
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+fields:
+    - name   : seq
+      type   : uint32
+    - name   : aaa
+      type   : char8[s]
+    - name   : bbb
+      type   : uchar8[s]
+    - name   : ccc
+      type   : int16[s]
+    - name   : ddd
+      type   : uint16[s]
+    - name   : eee
+      type   : uint32[s]
+    - name   : fff
+      type   : int64[s]
+    - name   : ggg
+      type   : uint64[s]
+    - name   : hhh
+      type   : float32[s]
+    - name   : iii
+      type   : float64[s]
+    - name   : jjj
+      type   : boolean[s]
+    - name   : kkk
+      type   : string[s]
+

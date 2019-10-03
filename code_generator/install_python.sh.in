@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Abort on errors
+set -e
+
+@PYTHON@ setup.py bdist_wheel -d @CMAKE_BINARY_DIR@
+@PYTHON@ -m pip install --user --ignore-installed @CMAKE_BINARY_DIR@/kpsr_codegen-1.0-py3-none-any.whl
+

@@ -1,0 +1,6 @@
+# Type modifiers (as regexp) to all types
+
+vector: 'std::vector<#1>'
+smart_pointer_vector: 'std::vector<std::shared_ptr<#1>>'
+raw_pointer_vector: 'std::vector<#1 *>'
+fix_size_array: 'std::array<#1, #2>'

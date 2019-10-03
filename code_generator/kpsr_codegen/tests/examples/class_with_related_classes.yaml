@@ -1,0 +1,14 @@
+class_name: kpsr::codegen::ClassWithRelatedClasses
+already_exists: false
+include_file:
+fields:
+    - name   : i
+      type   : string
+    - name   : ii
+      type   : BasicClass
+    - name   : iii
+      type   : float32
+    - name   : iv
+      type   : BasicClass[]
+    - name   : v
+      type   : int32[]

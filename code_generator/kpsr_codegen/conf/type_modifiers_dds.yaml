@@ -1,0 +1,6 @@
+# Type modifiers (as regexp) to all types
+
+vector: 'sequence<#1> #0'
+smart_pointer_vector: 'sequence<#1> #0'
+raw_pointer_vector: 'sequence<#1> #0'
+fix_size_array: '#1 #0[#2]'

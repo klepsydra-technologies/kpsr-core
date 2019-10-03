@@ -1,0 +1,6 @@
+# Type modifiers (as regexp) to all types
+
+vector: '(.*)\[\]'
+smart_pointer_vector: '(.*)\[s\]'
+raw_pointer_vector: '(.*)\[\*\]'
+fix_size_array: '(.*)\[(\d+)\]'

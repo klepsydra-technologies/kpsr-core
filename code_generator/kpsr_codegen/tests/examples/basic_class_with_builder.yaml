@@ -1,0 +1,13 @@
+class_name: BasicClassWithBuilder
+create_builder: true
+fields:
+    - name   : a
+      type   : float32[5]
+    - name   : b
+      type   : float32[s]
+    - name   : c
+      type   : float32[2]
+    - name   : d
+      type   : float32[*]
+    - name   : e
+      type   : float32

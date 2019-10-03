@@ -1,0 +1,23 @@
+class_name: kpsr::codegen::ClassWithEnums
+already_exists: false
+include_file:
+enums:
+    - enum_name: SensorType
+      values:
+         - laser = 0
+    - enum_name: DataType
+      already_exists: true
+      include_file: "data_type.h"
+fields:
+    - name   : i
+      type   : string
+    - name   : ii
+      type   : BasicClass
+    - name   : iii
+      type   : SensorType
+    - name   : iv
+      type   : BasicClass[]
+    - name   : v
+      type   : int32[]
+    - name   : vi
+      type   : DataType

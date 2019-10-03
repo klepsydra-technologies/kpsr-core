@@ -1,0 +1,38 @@
+class_name: kpsr::codegen::PrimitiveTypesBasic
+create_builder: true
+middlewares:
+    - type: ROS
+      project_name: kpsr_ros_codegen
+      already_exists: false
+      class_name: PrimitiveTypesBasic
+    - type: DDS
+      class_name: kpsr_dds_codegen::PrimitiveTypesBasicData
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+fields:
+    - name   : seq
+      type   : uint32
+    - name   : a
+      type   : char8
+    - name   : b
+      type   : uchar8
+    - name   : c
+      type   : int16
+    - name   : d
+      type   : uint16
+    - name   : e
+      type   : uint32
+    - name   : f
+      type   : int64
+    - name   : g
+      type   : uint64
+    - name   : h
+      type   : float32
+    - name   : i
+      type   : float64
+    - name   : j
+      type   : boolean
+    - name   : k
+      type   : string
+

@@ -1,0 +1,33 @@
+# Klepsydra Core Modules
+# Copyright (C) 2019-2020  Klepsydra Technologies GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# -*- coding: utf-8 -*-
+class ClassDefinition:
+    def __init__(self, class_name, already_exists, create_builder, include_file, parent_class, enums, middlewares, fields):
+        self.class_name = class_name
+        self.already_exists = already_exists
+        self.create_builder = create_builder
+        self.include_file = include_file
+        self.parent_class = parent_class
+        self.enums = enums
+        self.middlewares = middlewares
+        self.fields = fields
+
+    def __repr__(self):
+        return "%s(class_name=%r, already_exists=%r, create_builder=%r, include_file=%r, parent_class=%r, enums=%r, " \
+               "middlewares=%r, fields=%r)" % (
+            self.__class__.__name__, self.class_name, self.already_exists, self.create_builder, self.include_file,
+            self.parent_class, self.enums, self.middlewares, self.fields)

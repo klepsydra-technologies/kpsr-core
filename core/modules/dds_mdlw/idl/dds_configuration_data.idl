@@ -1,0 +1,10 @@
+module kpsr_dds_core {
+
+    struct DDSEnvironmentData {
+        string configurationKey;
+        string configurationData;
+        long sourceId;
+    };
+
+#pragma keylist DDSEnvironmentData configurationKey
+};

@@ -1,0 +1,9 @@
+class_name: kpsr::codegen::ClassWithParentClass
+already_exists: false
+include_file:
+parent_class: BasicClass
+fields:
+    - name   : name
+      type   : string
+    - name   : value
+      type   : float32

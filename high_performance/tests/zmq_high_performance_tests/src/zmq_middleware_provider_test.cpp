@@ -1,0 +1,388 @@
+/****************************************************************************
+*
+*                           Klepsydra Core Modules
+*              Copyright (C) 2019-2020  Klepsydra Technologies GmbH
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+****************************************************************************/
+
+#include <iostream>
+#include <sstream>
+#include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include <zmq.hpp>
+
+#include <klepsydra/serialization/json_cereal_mapper.h>
+#include <klepsydra/serialization/binary_cereal_mapper.h>
+
+#include <klepsydra/zmq_core/zhelpers.hpp>
+#include <klepsydra/zmq_core/from_zmq_middleware_provider.h>
+#include <klepsydra/zmq_core/to_zmq_middleware_provider.h>
+
+#include <klepsydra/high_performance/event_loop_middleware_provider.h>
+
+#include "weather_data.h"
+#include "weather_data_serializer.h"
+
+#include "gtest/gtest.h"
+
+#define within(num) (int) ((float) num * random () / (RAND_MAX + 1.0))
+
+class WeatherDataClient {
+public:
+
+    void onWeatherDataReceived(const WeatherData & weatherData) {
+        _totalTemp += weatherData.currentTemp.value;
+        _numSamples++;
+        if (_numSamples == 100) {
+            std::cout << "Average temperature was "
+                      << (int) (_totalTemp / _numSamples) << "F"
+                      << std::endl;
+        }
+    }
+
+    int _numSamples = 0;
+private:
+    long _totalTemp = 0;
+};
+
+TEST(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
+
+    WeatherData::emptyConstructorInvokations = 0;
+    WeatherData::constructorInvokations = 0;
+    WeatherData::copyInvokations = 0;
+
+    std::string serverUrl = "tcp://*:5556";
+    std::string topic = "Weather";
+
+    //  Prepare our context and publisher
+    zmq::context_t context (1);
+    zmq::socket_t publisher (context, ZMQ_PUB);
+    publisher.bind(serverUrl);
+    publisher.bind("ipc://weather.ipc");
+
+    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
+    kpsr::Publisher<WeatherData> * toZMQPublisher = toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
+
+    std::string clientUrl = "tcp://localhost:5556";
+
+    //  Socket to talk to server
+    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    zmq::socket_t subscriber (context, ZMQ_SUB);
+
+    subscriber.connect(clientUrl);
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+
+    //  Process 100 updates
+    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
+    kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> eventloopProvider(nullptr);
+    eventloopProvider.start();
+    _jsonFromZMQProvider->start();
+
+    _jsonFromZMQProvider->registerToTopic(topic, eventloopProvider.getPublisher<WeatherData>("weatherData", 0, nullptr, nullptr));
+    WeatherDataClient weatherDataClient;
+    std::function<void(const WeatherData &)> listener = std::bind(
+                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    //  Initialize random number generator
+    srandom ((unsigned) time (NULL));
+    for (int i = 0; i < 100; i ++) {
+        std::vector<int> historyRelHumidity(0);
+        historyRelHumidity.push_back(within (50) + 10);
+        historyRelHumidity.push_back(within (50) + 10);
+
+        std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+
+        Temperature temperature(within (215) - 80, Temperature::CELSIUS);
+
+        WeatherData weatherData("100000", temperature, within (50) + 10,
+                                historyTemperature, historyRelHumidity);
+        //  Send message to all subscribers
+        toZMQPublisher->publish(weatherData);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (weatherDataClient._numSamples < 100) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    _jsonFromZMQProvider->unregisterFromTopic(topic);
+    _jsonFromZMQProvider->stop();
+    eventloopProvider.stop();
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
+
+    ASSERT_EQ(weatherDataClient._numSamples, 100);
+
+    std::cout << "FINISHED!!!" << std::endl;
+
+    ASSERT_EQ(WeatherData::emptyConstructorInvokations, 100);
+    ASSERT_EQ(WeatherData::constructorInvokations, 100);
+    ASSERT_EQ(WeatherData::copyInvokations, 0);
+}
+
+
+TEST(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
+
+    WeatherData::emptyConstructorInvokations = 0;
+    WeatherData::constructorInvokations = 0;
+    WeatherData::copyInvokations = 0;
+
+    std::string serverUrl = "tcp://*:5556";
+    std::string topic = "Weather";
+
+    //  Prepare our context and publisher
+    zmq::context_t context (1);
+    zmq::socket_t publisher (context, ZMQ_PUB);
+    publisher.bind(serverUrl);
+    publisher.bind("ipc://weather.ipc");
+
+    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
+    kpsr::Publisher<WeatherData> * toZMQPublisher =  toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
+
+    std::string clientUrl = "tcp://localhost:5556";
+
+    //  Socket to talk to server
+    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    zmq::socket_t subscriber (context, ZMQ_SUB);
+
+    subscriber.connect(clientUrl);
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+
+    //  Process 100 updates
+    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
+    kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> eventloopProvider(nullptr);
+    eventloopProvider.start();
+    _jsonFromZMQProvider->start();
+
+    _jsonFromZMQProvider->registerToTopic(topic, eventloopProvider.getPublisher<WeatherData>("weatherData", 6, nullptr, nullptr));
+    WeatherDataClient weatherDataClient;
+    std::function<void(const WeatherData &)> listener = std::bind(
+                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    //  Initialize random number generator
+    srandom ((unsigned) time (NULL));
+    for (int i = 0; i < 100; i ++) {
+        std::vector<int> historyRelHumidity(0);
+        historyRelHumidity.push_back(within (50) + 10);
+        historyRelHumidity.push_back(within (50) + 10);
+
+        std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+
+        Temperature temperature(within (215) - 80, Temperature::CELSIUS);
+
+        WeatherData weatherData("100000", temperature, within (50) + 10,
+                                historyTemperature, historyRelHumidity);
+        //  Send message to all subscribers
+        toZMQPublisher->publish(weatherData);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (weatherDataClient._numSamples < 100) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    _jsonFromZMQProvider->unregisterFromTopic(topic);
+    _jsonFromZMQProvider->stop();
+    eventloopProvider.stop();
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
+
+    ASSERT_EQ(weatherDataClient._numSamples, 100);
+
+    std::cout << "FINISHED!!!" << std::endl;
+
+    ASSERT_EQ(WeatherData::emptyConstructorInvokations, 6);
+    ASSERT_EQ(WeatherData::constructorInvokations, 100);
+    ASSERT_EQ(WeatherData::copyInvokations, 0);
+}
+
+TEST(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
+
+    WeatherData::emptyConstructorInvokations = 0;
+    WeatherData::constructorInvokations = 0;
+    WeatherData::copyInvokations = 0;
+
+    std::string serverUrl = "tcp://*:5556";
+    std::string topic = "Weather";
+
+    //  Prepare our context and publisher
+    zmq::context_t context (1);
+    zmq::socket_t publisher (context, ZMQ_PUB);
+    publisher.bind(serverUrl);
+    publisher.bind("ipc://weather.ipc");
+
+    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
+    kpsr::Publisher<WeatherData> * toZMQPublisher = toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
+
+    std::string clientUrl = "tcp://localhost:5556";
+
+    //  Socket to talk to server
+    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    zmq::socket_t subscriber (context, ZMQ_SUB);
+
+    subscriber.connect(clientUrl);
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+
+    //  Process 100 updates
+    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
+    kpsr::zmq_mdlw::FromZmqChannel<Base> * _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> eventloopProvider(nullptr);
+    eventloopProvider.start();
+    _binaryFromZMQProvider->start();
+
+    _binaryFromZMQProvider->registerToTopic(topic, eventloopProvider.getPublisher<WeatherData>("weatherData", 0, nullptr, nullptr));
+    WeatherDataClient weatherDataClient;
+    std::function<void(const WeatherData &)> listener = std::bind(
+                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    //  Initialize random number generator
+    srandom ((unsigned) time (NULL));
+    for (int i = 0; i < 100; i ++) {
+        std::vector<int> historyRelHumidity(0);
+        historyRelHumidity.push_back(within (50) + 10);
+        historyRelHumidity.push_back(within (50) + 10);
+
+        std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+
+        Temperature temperature(within (215) - 80, Temperature::CELSIUS);
+
+        WeatherData weatherData("100000", temperature, within (50) + 10,
+                                historyTemperature, historyRelHumidity);
+        //  Send message to all subscribers
+        toZMQPublisher->publish(weatherData);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (weatherDataClient._numSamples < 100) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    _binaryFromZMQProvider->unregisterFromTopic(topic);
+    _binaryFromZMQProvider->stop();
+    eventloopProvider.stop();
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
+
+    ASSERT_EQ(weatherDataClient._numSamples, 100);
+
+    std::cout << "FINISHED!!!" << std::endl;
+
+    ASSERT_EQ(WeatherData::emptyConstructorInvokations, 100);
+    ASSERT_EQ(WeatherData::constructorInvokations, 100);
+    ASSERT_EQ(WeatherData::copyInvokations, 0);
+}
+
+
+TEST(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
+
+    WeatherData::emptyConstructorInvokations = 0;
+    WeatherData::constructorInvokations = 0;
+    WeatherData::copyInvokations = 0;
+
+    std::string serverUrl = "tcp://*:5556";
+    std::string topic = "Weather";
+
+    //  Prepare our context and publisher
+    zmq::context_t context (1);
+    zmq::socket_t publisher (context, ZMQ_PUB);
+    publisher.bind(serverUrl);
+    publisher.bind("ipc://weather.ipc");
+
+    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
+    kpsr::Publisher<WeatherData> * toZMQPublisher =  toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
+
+    std::string clientUrl = "tcp://localhost:5556";
+
+    //  Socket to talk to server
+    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    zmq::socket_t subscriber (context, ZMQ_SUB);
+
+    subscriber.connect(clientUrl);
+    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+
+    //  Process 100 updates
+    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
+    kpsr::zmq_mdlw::FromZmqChannel<Base> * _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> eventloopProvider(nullptr);
+    eventloopProvider.start();
+    _binaryFromZMQProvider->start();
+
+    _binaryFromZMQProvider->registerToTopic(topic, eventloopProvider.getPublisher<WeatherData>("weatherData", 6, nullptr, nullptr));
+    WeatherDataClient weatherDataClient;
+    std::function<void(const WeatherData &)> listener = std::bind(
+                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    //  Initialize random number generator
+    srandom ((unsigned) time (NULL));
+    for (int i = 0; i < 100; i ++) {
+        std::vector<int> historyRelHumidity(0);
+        historyRelHumidity.push_back(within (50) + 10);
+        historyRelHumidity.push_back(within (50) + 10);
+
+        std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+        historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+
+        Temperature temperature(within (215) - 80, Temperature::CELSIUS);
+
+        WeatherData weatherData("100000", temperature, within (50) + 10,
+                                historyTemperature, historyRelHumidity);
+        //  Send message to all subscribers
+        toZMQPublisher->publish(weatherData);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (weatherDataClient._numSamples < 100) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    _binaryFromZMQProvider->unregisterFromTopic(topic);
+    _binaryFromZMQProvider->stop();
+    eventloopProvider.stop();
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
+
+    ASSERT_EQ(weatherDataClient._numSamples, 100);
+
+    std::cout << "FINISHED!!!" << std::endl;
+
+    ASSERT_EQ(WeatherData::emptyConstructorInvokations, 6);
+    ASSERT_EQ(WeatherData::constructorInvokations, 100);
+    ASSERT_EQ(WeatherData::copyInvokations, 0);
+}

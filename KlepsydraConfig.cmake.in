@@ -1,0 +1,22 @@
+# - Config file for the Klepsydra package
+# It defines the following variables
+#  KLEPSYDRA_INCLUDE_DIRS - include directories for Klepsydra
+#  KLEPSYDRA_LIBRARIES    - libraries to link against
+#  KLEPSYDRA_EXECUTABLE   - the bar executable
+
+# Compute paths
+get_filename_component(KLEPSYDRA_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(KLEPSYDRA_INCLUDE_DIRS "@EXPORT_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET klepsydra AND NOT Klepsydra_BINARY_DIR)
+  include("${KLEPSYDRA_CMAKE_DIR}/KlepsydraTargets.cmake")
+endif()
+
+
+# These are IMPORTED targets created by KlepsydraTargets.cmake
+set(KLEPSYDRA_CORE_LIBRARIES "@CORE_EXPORT_TARGETS@")
+set(KLEPSYDRA_DDS_LIBRARIES "@DDS_EXPORT_TARGETS@")
+set(KLEPSYDRA_ZMQ_LIBRARIES "@ZMQ_EXPORT_TARGETS@")
+set(KLEPSYDRA_CODE_GENERATOR "@INSTALL_CMAKE_DIR@/KpsrCodeGen.cmake")
+

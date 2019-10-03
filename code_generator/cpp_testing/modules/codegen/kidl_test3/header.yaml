@@ -1,0 +1,17 @@
+class_name: kpsr::geometry::Header
+middlewares:
+    - type: ROS
+      project_name: std_msgs
+      already_exists: true
+      class_name: Header
+      include_file: <std_msgs/Header.h>
+    - type: DDS
+      class_name: kpsr_dds_geometry::HeaderData
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+fields:
+    - name   : seq
+      type   : uint32
+    - name   : frame_id
+      type   : string

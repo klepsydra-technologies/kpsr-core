@@ -1,0 +1,29 @@
+class_name: kpsr::geometry::Imu
+middlewares:
+    - type: ROS
+      project_name: sensor_msgs
+      already_exists: true
+      class_name: Imu
+      include_file: <sensor_msgs/Imu.h>
+      ignore_fields:
+          - seq
+    - type: DDS
+      class_name: kpsr_dds_geometry::ImuData
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+fields:
+    - name   : seq
+      type   : uint32
+    - name   : orientation
+      type   : kpsr::geometry::Quaternion
+    - name   : orientation_covariance
+      type   : float64[9]
+    - name   : angular_velocity
+      type   : kpsr::geometry::Vector3
+    - name   : angular_velocity_covariance
+      type   : float64[9]
+    - name   : linear_acceleration
+      type   : kpsr::geometry::Vector3
+    - name   : linear_acceleration_covariance
+      type   : float64[9]

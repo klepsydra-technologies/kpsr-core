@@ -1,0 +1,177 @@
+/****************************************************************************
+*
+*                           Klepsydra Core Modules
+*              Copyright (C) 2019-2020  Klepsydra Technologies GmbH
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+****************************************************************************/
+
+#ifndef EVENT_LOOP_MIDDLEWARE_PROVIDER_H
+#define EVENT_LOOP_MIDDLEWARE_PROVIDER_H
+
+#include "disruptor4cpp/disruptor4cpp.h"
+
+#include <functional>
+
+#include "event_loop.h"
+#include "event_loop_publisher.h"
+#include "event_loop_subscriber.h"
+
+#include "event_loop_scheduler.h"
+#include "event_loop_function_exec_listener.h"
+
+namespace kpsr
+{
+namespace high_performance
+{
+template <std::size_t BufferSize>
+/**
+ * @brief The EventLoopMiddlewareProvider class
+ *
+ * @copyright Klepsydra Technologies 2019-2020.
+ *
+ * @version 2.0.1
+ *
+ * @ingroup kpsr-eventloop-composition
+ *
+ * @details Main eventloop wizard for creation of event loop and the associated pub/sub pairs. Its used is very
+ * straightfoward as shown in this example:
+ *
+@code
+    // create the provider. There can be as many as need per application.
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
+    provider.start();
+
+    // retrieve a subscriber, notice the templating API;
+    kpsr::Subscriber<ELTestEvent> * subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
+
+    // retrieve a publisher, notice the templating API;
+    kpsr::Publisher<ELTestEvent> * publisher = provider.getPublisher<ELTestEvent>("ELTestEvent", 0, nullptr, nullptr);
+
+@endcode
+ *
+ * The eventloop provider includes a new API for placing function or services in the eventloop as a singlethread scheduler.
+ * It is similar to the javascript event loop in this sense.
+ *
+ */
+class EventLoopMiddlewareProvider
+{
+public:
+    using RingBuffer = disruptor4cpp::ring_buffer<EventloopDataWrapper, BufferSize, disruptor4cpp::blocking_wait_strategy, disruptor4cpp::producer_type::multi, disruptor4cpp::sequence>;
+
+    /**
+     * @brief EventLoopMiddlewareProvider
+     * @param container
+     */
+    EventLoopMiddlewareProvider(Container * container)
+        : _container(container)
+        , _ringBuffer()
+        , _eventEmitter()
+        , _eventLoop(_eventEmitter, _ringBuffer)
+        , _scheduler(nullptr)
+    {}
+
+    template<class T>
+    /**
+     * @brief getPublisher retrieve an object pool based publisher associated to the event loop.
+     * @param eventName
+     * @param poolSize
+     * @param initializerFunction
+     * @param eventCloner
+     * @return
+     */
+    Publisher<T> * getPublisher(std::string eventName,
+                                int poolSize,
+                                std::function<void(T &)> initializerFunction,
+                                std::function<void(const T &, T &)> eventCloner) {
+        auto search = _publisherMap.find(eventName);
+        if (search != _publisherMap.end()) {
+            std::shared_ptr<void> internalPointer = search->second;
+            std::shared_ptr<Publisher<T>> publisher = std::static_pointer_cast<Publisher<T>>(internalPointer);
+            return publisher.get();
+        }
+        else {
+            std::shared_ptr<Publisher<T>> publisher(new EventLoopPublisher<T, BufferSize>(_container, _ringBuffer, eventName, poolSize, initializerFunction, eventCloner));
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
+            _publisherMap[eventName] = internalPointer;
+            return publisher.get();
+        }
+    }
+
+    template<class T>
+    /**
+     * @brief getSubscriber
+     * @param eventName
+     * @return
+     */
+    Subscriber<T> * getSubscriber(std::string eventName) {
+        auto search = _subscriberMap.find(eventName);
+        if (search != _subscriberMap.end()) {
+            std::shared_ptr<void> internalPointer = search->second;
+            std::shared_ptr<Subscriber<T>> subscriber = std::static_pointer_cast<Subscriber<T>>(internalPointer);
+            return subscriber.get();
+        }
+        else {
+            std::shared_ptr<Subscriber<T>> subscriber(new EventLoopSubscriber<T>(_container, _eventEmitter, eventName));
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(subscriber);
+            _subscriberMap[eventName] = internalPointer;
+            return subscriber.get();
+        }
+    }
+
+    /**
+     * @brief place a function into the event loop. It can be placed for once or repeated execution.
+     * @return
+     */
+    Scheduler * getScheduler(std::string name = "") {
+        std::string eventName = name.empty() ? "EVENTLOOP_SCHEDULER" : name;
+        if (_scheduler == nullptr) {
+            std::shared_ptr<EventLoopFunctionExecutorListener> subscriber(new EventLoopFunctionExecutorListener(_container, _eventEmitter, eventName));
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(subscriber);
+            _subscriberMap[eventName] = internalPointer;
+
+            Publisher<std::function<void()>> * publisher = getPublisher<std::function<void()>>(eventName, 0, nullptr, nullptr);
+
+            _scheduler = new EventLoopScheduler(publisher);
+        }
+        return _scheduler;
+    }
+
+    void start() {
+        _eventLoop.start();
+    }
+
+    void stop() {
+        _eventLoop.stop();
+    }
+
+    bool isRunning() {
+        return _eventLoop.isStarted();
+    }
+
+private:
+
+    Container * _container;
+    RingBuffer _ringBuffer;
+    EventEmitter _eventEmitter;
+    EventLoop<BufferSize> _eventLoop;
+
+    std::map<std::string, std::shared_ptr<void>> _publisherMap;
+    std::map<std::string, std::shared_ptr<void>> _subscriberMap;
+    EventLoopScheduler * _scheduler;
+};
+}
+}
+#endif
