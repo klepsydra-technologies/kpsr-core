@@ -1,24 +1,36 @@
+def kpsrThirdPartiesECR="337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-thirdparties"
+def kpsrCoreECR="337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core"
+
 pipeline {
     agent any
+    environment {
+     local_branch = env.GIT_BRANCH.replaceAll('/','_')
+    }
 
     stages {
-        stage('Build') {
+        stage('Dependencies') {
             steps {
                 echo 'Pull dependencies from repository'
                 sh 'rm  ~/.dockercfg || true'
                 sh 'rm ~/.docker/config.json || true'
 
                 script {
-                    docker.withRegistry("https://337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/kpsr-serialization:ubuntu_18_04", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-                    docker.image("337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/kpsr-serialization:ubuntu_18_04").pull()
-                    docker.image("337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/kpsr-thirdparties").pull()
+                    docker.withRegistry("https://${kpsrThirdPartiesECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+                        docker.image("${kpsrThirdPartiesECR}:ROS").pull()
+                        docker.image("${kpsrThirdPartiesECR}:ZMQ").pull()
                     }
                 }
 
-                sh 'docker tag 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/kpsr-serialization:ubuntu_18_04 kpsr-serialization:latest'
-                sh 'docker tag 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/kpsr-thirdparties kpsr-thirdparties:latest'
-
-                sh 'docker build -f Dockerfile . --build-arg="BUILD_ID=${BUILD_ID}" --no-cache'
+                sh "docker tag ${kpsrThirdPartiesECR}:ROS kpsr-thirdparties:ROS"
+                sh "docker tag ${kpsrThirdPartiesECR}:ZMQ kpsr-thirdparties:ZMQ"
+            }
+        }
+        stage('Build') {
+            steps {
+                
+                sh "docker build -f Dockerfile . --rm --build-arg=BUILD_ID=${BUILD_ID} \
+                --build-arg=kpsr-thirdparties_tag=\'ZMQ' \
+                -t kpsr-core:${local_branch}_${BUILD_ID}_ZMQ"
 
                 sh 'container_id=$(docker create $(docker images -a -f "label=kpsr-core=builder" -f  "label=BUILD_ID=${BUILD_ID}" --format "{{.ID}}")) && \
                     docker cp $container_id:/opt/kpsr-core/build/copy_cppcheck.sh . && \
@@ -26,10 +38,6 @@ pipeline {
                     docker cp $container_id:/opt/kpsr-core/build/coverage.xml . && \
                     docker cp $container_id:/opt/kpsr-core/build/code_generator/kpsr_codegen/coverage.xml code_generator/kpsr_codegen && \
                     sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml'
-
-                // Pruning
-                sh 'docker container prune --force --filter label=kpsr-core=builder  --filter  label=BUILD_ID=${BUILD_ID}'
-                sh 'docker image prune --force --filter label=kpsr-core=builder  --filter  label=BUILD_ID=${BUILD_ID}'
 
                 // Run cppcheck
                 publishCppcheck(
@@ -63,10 +71,32 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing..'
+                script {
+                    // if we are in a PR
+                    if (env.CHANGE_ID) {
+                       publishCoverageGithub(filepath:'coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [ value: 'optionFixedCoverage', fixedCoverage: '0.80' ], coverageRateType: 'Line')
+                    }
+                }
+            }
+        }
+        stage('Publish') {
+            steps {
+                echo 'Publish to ECR.'
+                script {
+                    docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+                        sh "docker tag kpsr-core:${local_branch}_${BUILD_ID}_ZMQ ${kpsrCoreECR}:${local_branch}_ZMQ && docker push ${kpsrCoreECR}:${local_branch}_ZMQ"
+                    }
+                }
             }
         }
     }
+    post {
+        always {
+          // Pruning
+          sh 'docker container prune --force --filter label=kpsr-core=builder --filter  label=BUILD_ID=${BUILD_ID}'
+          sh 'docker image prune --force --filter label=kpsr-core=builder --filter label=BUILD_ID=${BUILD_ID}'
+          sh 'docker rmi --force $(docker images --filter "reference=kpsr-core:*_${BUILD_ID}_*" -q)'
+        }
+    }
 }
-
-
 

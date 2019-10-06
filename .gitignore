@@ -1,5 +1,6 @@
 build/**
 **/build
+**/thirdparties/include
 build_ros/**
 **/build_ros
 **/kpsr_codegen.egg-info
