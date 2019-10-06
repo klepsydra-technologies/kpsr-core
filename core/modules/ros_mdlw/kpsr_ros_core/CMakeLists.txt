@@ -23,17 +23,11 @@ project(kpsr_ros_core)
 
 add_definitions(-std=c++11)
 
-#Install binaries
-IF(DEFINED CMAKE_INSTALL_PREFIX)
-ELSE()
-        SET(CMAKE_INSTALL_PREFIX /opt/klepsydra) #default install path
-ENDIF()
-message(STATUS "Main install path: " ${CMAKE_INSTALL_PREFIX})
+find_package(Klepsydra REQUIRED)
 
-IF(DEFINED THIRDPARTIES_PATH)
-ELSE()
-  SET(THIRDPARTIES_PATH /opt/klepsydra/thirdparties )
-ENDIF()
+# Must use GNUInstallDirs to install libraries into correct
+# locations on all platforms.
+include(GNUInstallDirs)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -47,8 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-set(KPSR_LIBRARY_PATH ${CMAKE_INSTALL_LIBDIR})
-set(KPSR_INCLUDE_PATH ${CMAKE_INSTALL_INCLUDEDIR})
+find_package(yaml-cpp REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -150,11 +143,10 @@ catkin_package(
 include_directories(
   include/${PROJECT_NAME}
   ${catkin_INCLUDE_DIRS}
-  ${THIRDPARTIES_PATH}/include
-  ${KPSR_INCLUDE_PATH}
+  ${KLEPSYDRA_INCLUDE_DIRS}
 )
 
-link_directories(${KPSR_LIBRARY_PATH})
+# link_directories()
 
 ## Declare a C++ library
 add_library(kpsr_ros_core
@@ -178,8 +170,7 @@ add_library(kpsr_ros_core
 target_link_libraries(kpsr_ros_core
   ${catkin_LIBRARIES}
   yaml-cpp
-  ${KPSR_LIBRARY_PATH}/libkpsr_core.so
-  ${KPSR_LIBRARY_PATH}/libkpsr_mem_core.so
+  ${KLEPSYDRA_CORE_LIBRARIES}
 )
 
 #############
@@ -222,6 +213,7 @@ install(FILES
 
 ## Add gtest based cpp test target and link libraries
 catkin_add_gtest(${PROJECT_NAME}-test test/main.cpp test/test_kpsr_ros_core.cpp)
+
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test 
   ${PROJECT_NAME}
@@ -230,5 +222,3 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-

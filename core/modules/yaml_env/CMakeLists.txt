@@ -21,8 +21,6 @@
 SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_yaml)
 PROJECT(${PROJ_NAME})
 
-find_package(yaml-cpp REQUIRED)
-
 # Include directories with headers
 #---------------------------------------------------#
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )

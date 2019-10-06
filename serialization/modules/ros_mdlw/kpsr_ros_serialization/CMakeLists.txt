@@ -23,6 +23,8 @@ project(kpsr_ros_serialization)
 
 add_definitions(-std=c++11)
 
+find_package(Klepsydra REQUIRED)
+
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
@@ -142,11 +144,10 @@ catkin_package(
 include_directories(
   include/${PROJECT_NAME}
   ${catkin_INCLUDE_DIRS}
-  ${THIRDPARTIES_PATH}/include
-  ${KPSR_INCLUDE_PATH}
+  ${KLEPSYDRA_INCLUDE_DIRS}
 )
 
-link_directories(${KPSR_LIBRARY_PATH})
+# link_directories()
 
 ## Declare a C++ library
 add_library(kpsr_ros_serialization

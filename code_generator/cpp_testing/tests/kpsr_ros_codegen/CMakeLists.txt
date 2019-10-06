@@ -23,17 +23,11 @@ project(kpsr_ros_codegen)
 
 add_definitions(-std=c++11)
 
-#Install binaries
-IF(DEFINED CMAKE_INSTALL_PREFIX)
-ELSE()
-        SET(CMAKE_INSTALL_PREFIX /opt/klepsydra) #default install path
-ENDIF()
-message(STATUS "Main install path: " ${CMAKE_INSTALL_PREFIX})
+find_package(Klepsydra REQUIRED)
 
-IF(DEFINED THIRDPARTIES_PATH)
-ELSE()
-  SET(THIRDPARTIES_PATH /opt/klepsydra/thirdparties )
-ENDIF()
+# Must use GNUInstallDirs to install libraries into correct
+# locations on all platforms.
+include(GNUInstallDirs)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -46,7 +40,6 @@ find_package(catkin REQUIRED COMPONENTS
   kpsr_ros_core
   message_generation
 )
-
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -140,10 +133,10 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES kpsr_ros_codegen
- CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
- DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES kpsr_ros_codegen
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+  DEPENDS system_lib
 )
 
 ###########
@@ -161,11 +154,10 @@ include_directories(
   ../../modules/codegen/gen_test4/poco/include
   ../../modules/codegen/include
   ${catkin_INCLUDE_DIRS}
-  ${THIRDPARTIES_PATH}/include
-  ${KPSR_INCLUDE_PATH}
+  ${KLEPSYDRA_INCLUDE_DIRS}
 )
 
-link_directories(${KPSR_LIBRARY_PATH})
+# link_directories()
 
 ## Declare a C++ library
 add_library(kpsr_ros_codegen
@@ -188,9 +180,8 @@ add_dependencies(kpsr_ros_codegen kpsr_ros_codegen_generate_messages_cpp ${${PRO
 ## Specify libraries to link a library or executable target against
 target_link_libraries(kpsr_ros_codegen
   ${catkin_LIBRARIES}
-  kpsr_core
-  kpsr_mem_core
-  kpsr_high_performance
+  yaml-cpp
+  ${KLEPSYDRA_CORE_LIBRARIES}
   atomic
 )
 
@@ -236,7 +227,7 @@ catkin_add_gtest(${PROJECT_NAME}-test test/main.cpp
                  test/kpsr_ros_codegen_test4.cpp)
 
 if(TARGET ${PROJECT_NAME}-test)
-  target_link_libraries(${PROJECT_NAME}-test
+  target_link_libraries(${PROJECT_NAME}-test 
   ${PROJECT_NAME}
   atomic)
 endif()
