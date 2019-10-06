@@ -7,57 +7,27 @@
 ## System dependencies
 
 * Ubuntu 14.04 or above
-* ConcurrentQueue (https://github.com/klepsydra-technologies/concurrentqueue)
-* Cereal (https://github.com/klepsydra-technologies/cereal)
+* Cmake 3.5.1 or above
+* gcc for C++11 5.4.0 or above.
 * ROS Indigo or above (optional)
 * ZMQ 3 or above (optional)
 * DDS (optional)
-* Cmake 3.5.1 or above
-* gcc for C++11 5.4.0 or above.
 * Doxygen (optional)
 * Moxygen (https://github.com/sourcey/moxygen) (optional)
 
-## Klepsydra dependencies
+### Dependencies installed by kpsr-core
 
-* kpsr-serialization
+* Google Test (https://github.com/klepsydra-technologies/googletest)
+* ConcurrentQueue (https://github.com/klepsydra-technologies/concurrentqueue)
+* Cereal (https://github.com/klepsydra-technologies/cereal)
+* Spdlog (https://github.com/klepsydra-technologies/spdlog)
 
 ## System installation
 
-	sudo apt install build-essentials
-	sudo apt install git
-	sudo apt install cmake
-	git clone https://github.com/google/googletest.git
-
-### Google Test
-
-Google-Tests has to be at the level of the part of the folder where Klepsydra core will be installed. For example, if Klepsydra is installed in:
-	$KLEPSYDRA_HOME/kpsr-core
-
-Then google tests has to be installed in:
-	$KLEPSYDRA_HOME/../googletest
-
-These locations can be overridden by including the variables `GTEST_PATH` and `THIRDPARTIES_PATH` in the kpsr-core cmake invocation.
-
-### Cereal
-	git clone https://github.com/klepsydra-technologies/cereal
-	sudo mkdir $THIRDPARTIES_PATH/include
-	sudo cp cereal/include/* $THIRDPARTIES_PATH/include
-
-By default, we choose the location of installation for Cereal to be /opt/klepsydra/thirdparties.
-This location can be overridden by including the variable
-
-	THIRDPARTIES_PATH
-
-### Concurrent queue
-
-	git clone https://github.com/klepsydra-technologies/concurrentqueue
-	sudo mkdir $THIRDPARTIES_PATH/include
-	sudo cp concurrentqueue/*.h $THIRDPARTIES_PATH/include
-
-By default, we choose the location of installation for ConcurrentQueue to be /opt/klepsydra/thirdparties.
-This location can be overridden by including the variable
-
-	THIRDPARTIES_PATH
+	sudo apt-get install build-essentials
+	sudo apt-get install git
+	sudo apt-get install cmake
+	sudo apt-get install python3-pip
 
 ### Yaml-cpp
 
@@ -81,6 +51,7 @@ Given ```$KLEPSYDRA_HOME```, for example ```$HOME/klepsydra```:
 cd $KLEPSYDRA_HOME
 git clone https://github.com/klepsydra-technologies/kpsr-core
 cd kpsr-core
+git submodule update --init
 mkdir build
 cd build
 cmake ..
@@ -89,17 +60,17 @@ make test
 sudo make install
 ```
 
-This will install the klespydra core in
-
-	/opt/klepsydra
+This will install the klespydra core in default locations:
+- `/usr/local/include/klepsydra` for kpsr-core include files
+- `/usr/local/include/kpsr_3parties` for third party dependencies necessary for Klepsydra package
+- `/usr/local/lib/` for kpsr-core libraries
 
 The cmake has the following options:
 
-* -DCMAKE_INSTALL_PREFIX for specifying the Klepsydra installation location (/opt/klepsydra by default)
-* -DKPSR_BUILD_UTILS_PATH location of the ```kpsr_build``` repository (../build_utils by default).
+* -DCMAKE_INSTALL_PREFIX for specifying the Klepsydra installation location (/usr/local by default)
 * -DKPSR_WITH_DOXYGEN to allow generation of documentation
-* -DGTEST_PATH for the google test path (default is ../../googletest)
-* -DTHIRDPARTIES_PATH for the ConcurrentQueue and Cereal path (default is /opt/klepsydra/thirdparties)
+* -DGTEST_PATH for the google test path (default is ./thirdparties/googletest)
+* -DTHIRDPARTIES_PATH for the ConcurrentQueue and Cereal path (default is ./thirdparties)
 * -DKPSR_WITH_DDS=true for building the DDS binding
 * -DKPSR_WITH_ZMQ=true for building the ZeroMQ binding.
 * -DKPSR_TEST_PERFORMANCE=true for building the performance tests
@@ -115,20 +86,19 @@ cmake -DKPSR_WITH_SOCKET=true ..
 
 ### ROS installation
 
-In case of a new project:
+We assume all ros environment variables are properly set up. Also kpsr-core must be installed first.
+Add the Klepsydra Core's ros projects to the ROS workspace:
 
 ```
-mkdir -p YOUR_ROS_PROJECT
-cd YOUR_ROS_PROJECT
-source /opt/ros/melodic/setup.bash
-catkin_init_workspace
+cd YOUR_ROS_WORKSPACE/src
+ln -s PATH_TO_KPSR_CORE/serialization/modules/ros_mdlw/kpsr_ros_serialization
+ln -s PATH_TO_KPSR_CORE/core/modules/ros_mdlw/kpsr_ros_core
 ```
 
-Then add the Klepsydra ROS Core project to the ROS project:
+Next compile and install the ros projects so that they are available in your ros workspace for future projects.
 
 ```
-cd YOUR_ROS_PROJECT
-ln -s ../../core_utils/kpsr-core/modules/ros_mdlw/kpsr_ros_core
+catkin_make install
 ```
 
 ## Documentation
