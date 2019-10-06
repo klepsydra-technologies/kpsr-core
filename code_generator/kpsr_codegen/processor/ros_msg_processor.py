@@ -26,7 +26,10 @@ from ros_msg_definition import MsgFieldDefinition
 from middleware_type import MiddlewareType
 from poco_processor import split_namespace_class
 
-
+## Doc for the RosMsgProcessor class
+# \ingroup kpsr-code-generator
+#
+# Processes the yaml data to create ROS msg files.
 class RosMsgProcessor:
 
     def __init__(self, configuration):

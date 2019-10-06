@@ -121,6 +121,7 @@ class Generator:
         [self.generate_code(class_definition_dict, include_path, input_dir, kidl_file,
                             output_dir, disable_ros, disable_dds, disable_zmq) for kidl_file in kidl_files]
 
+    ## Generate the code from parsed kidl data
     def generate_code(self, class_definition_dict, include_path, input_dir, main_kidl_file, output_dir,
                       disable_ros, disable_dds, disable_zmq):
         main_class_definition = self.read_kidl_file(input_dir, main_kidl_file, disable_zmq)
@@ -186,6 +187,15 @@ class Generator:
                 zmq_serializer_template_content = self.zmq_serializer_template.render(definition=zmq_serializer_definition)
                 write_contents_to_file(zmq_serializer_file_name, zmq_serializer_template_content)
 
+    ## Read the kidl file
+    #
+    # Parses the kidl file (written in YAML format).
+    #
+    # @param input_dir The input folder containing the kidl files
+    # @param kidl_file The kidl file to be processed
+    # @param disable_zmq Boolean whether to disable zmq export or not.
+    #
+    # @return data from file as a ClassDefinition object
     def read_kidl_file(self, input_dir, kidl_file, disable_zmq):
         with open("%s%s" % (input_dir, kidl_file), 'r') as stream:
             try:

@@ -96,6 +96,10 @@ def convert(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+## Doc for the DDSMapperProcessor class
+# \ingroup kpsr-code-generator
+#
+# Processes yaml fields to map them to dds compatible types.
 class DdsMapperProcessor:
 
     def __init__(self, configuration):

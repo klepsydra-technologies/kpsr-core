@@ -89,7 +89,10 @@ def process_custom_includes(class_definition, class_definition_dict, include_pat
 def split_namespace_class(class_name):
     return class_name.split("::")
 
-
+## Doc for the PocoProcessor class
+# \ingroup kpsr-code-generator
+#
+# Processes yaml fields to create a Plain Old C Object (poco).
 class PocoProcessor:
 
     def __init__(self, configuration):
