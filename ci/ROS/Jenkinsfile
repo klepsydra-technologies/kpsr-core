@@ -17,20 +17,17 @@ pipeline {
                 script {
                     docker.withRegistry("https://${kpsrThirdPartiesECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
                         docker.image("${kpsrThirdPartiesECR}:ROS").pull()
-                        docker.image("${kpsrThirdPartiesECR}:ZMQ").pull()
                     }
                 }
 
                 sh "docker tag ${kpsrThirdPartiesECR}:ROS kpsr-thirdparties:ROS"
-                sh "docker tag ${kpsrThirdPartiesECR}:ZMQ kpsr-thirdparties:ZMQ"
             }
         }
         stage('Build') {
             steps {
                 
-                sh "docker build -f Dockerfile . --rm --build-arg=BUILD_ID=${BUILD_ID} \
-                --build-arg=kpsr-thirdparties_tag=\'ZMQ' \
-                -t kpsr-core:${local_branch}_${BUILD_ID}_ZMQ"
+                sh "docker build -f ./ci/ROS/Dockerfile_ROS . --rm --build-arg=BUILD_ID=${BUILD_ID} \
+                -t kpsr-core:${local_branch}_${BUILD_ID}_ROS"
 
                 sh 'container_id=$(docker create $(docker images -a -f "label=kpsr-core=builder" -f  "label=BUILD_ID=${BUILD_ID}" --format "{{.ID}}")) && \
                     docker cp $container_id:/opt/kpsr-core/build/copy_cppcheck.sh . && \
@@ -84,7 +81,7 @@ pipeline {
                 echo 'Publish to ECR.'
                 script {
                     docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-                        sh "docker tag kpsr-core:${local_branch}_${BUILD_ID}_ZMQ ${kpsrCoreECR}:${local_branch}_ZMQ && docker push ${kpsrCoreECR}:${local_branch}_ZMQ"
+                        sh "docker tag kpsr-core:${local_branch}_${BUILD_ID}_ROS ${kpsrCoreECR}:${local_branch}_ROS && docker push ${kpsrCoreECR}:${local_branch}_ROS"
                     }
                 }
             }
