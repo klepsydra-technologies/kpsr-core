@@ -1,5 +1,5 @@
 <p align="right">
-  <img width="25%" height="25%"src="../images/klepsydra_logo.jpg">
+  <img width="25%" height="25%"src="./images/klepsydra_logo.jpg">
 </p>
 
 # Installation Instructions
@@ -22,7 +22,7 @@
 * Cereal (https://github.com/klepsydra-technologies/cereal)
 * Spdlog (https://github.com/klepsydra-technologies/spdlog)
 
-## System installation
+## System requirements
 
 	sudo apt-get install build-essentials
 	sudo apt-get install git
@@ -31,17 +31,7 @@
 
 ### Yaml-cpp
 
-If this software package is not available in the system (it is shipped with some software, e.g. ROS).
-
-Clone and install YAML-CPP:
-
-	git clone https://github.com/jbeder/yaml-cpp
-	cd yaml-cpp
-	mkdir build
-	cd build
-	cmake -DBUILD_SHARED_LIBS=ON ..
-	make
-	sudo make install
+If this software package is not available in the system (it is shipped with some software, e.g. ROS), dowload it and install it from https://github.com/jbeder/yaml-cpp. **Please make sure it is installed in a __share library mode__**.
 
 ## Installation
 
@@ -67,6 +57,7 @@ This will install the klespydra core in default locations:
 
 The cmake has the following options:
 
+* -DKPSR_WITH_YAML=true: required when used within **ROS** or when in conjunction with -DKPSR_WITH_DDS or -DKPSR_WITH_ZMQ
 * -DCMAKE_INSTALL_PREFIX for specifying the Klepsydra installation location (/usr/local by default)
 * -DKPSR_WITH_DOXYGEN to allow generation of documentation
 * -DGTEST_PATH for the google test path (default is ./thirdparties/googletest)
@@ -75,7 +66,6 @@ The cmake has the following options:
 * -DKPSR_WITH_ZMQ=true for building the ZeroMQ binding.
 * -DKPSR_TEST_PERFORMANCE=true for building the performance tests
 * -DKPSR_WITH_SOCKET for building SOCKET binding
-* -DKPSR_WITH_YAML **FIXME**: required in conjunction with -DKPSR_WITH_DDS or -DKPSR_WITH_ZMQ
 
 Example
 

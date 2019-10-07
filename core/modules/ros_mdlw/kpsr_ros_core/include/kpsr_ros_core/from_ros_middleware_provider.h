@@ -124,6 +124,22 @@ public:
         }
     }
 
+    template<class T>
+    /**
+     * @brief registerToTopic
+     * @param topicName
+     * @param queueSize
+     * @param internalPublisher
+     */
+    void registerToTopic(const char * topicName, int queueSize, Publisher<T> * internalPublisher) {
+        auto search = _subscriberMap.find(topicName);
+        if (search == _subscriberMap.end()) {
+            auto rosSubscriptionData = std::make_shared<RosSubscriptionData<T, T>>(_rosNode, topicName, queueSize, internalPublisher);
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(rosSubscriptionData);
+            _subscriberMap[topicName] = internalPointer;
+        }
+    }
+
 private:
     ros::NodeHandle & _rosNode;
     std::map<std::string, std::shared_ptr<void>> _subscriberMap;

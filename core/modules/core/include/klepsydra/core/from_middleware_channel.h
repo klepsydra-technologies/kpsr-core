@@ -23,6 +23,7 @@
 
 #include <klepsydra/core/event_transform_forwarder.h>
 #include <klepsydra/serialization/mapper.h>
+#include <klepsydra/serialization/identity_mapper.h>
 
 namespace kpsr {
 template<class KpsrClass, class MddlwClass>
