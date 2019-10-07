@@ -21,9 +21,11 @@
 #ifndef MANAGE_SERVICE_H
 #define MANAGE_SERVICE_H
 
-#include <iostream>
 #include <atomic>
 #include <map>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/core/environment.h>
 #include <klepsydra/core/service.h>
@@ -71,7 +73,7 @@ public:
 private:
 
     void onSystemMessageReceived(const SystemEventData & event) {
-        std::cout << "Service::SystemEventDataListener::onMessageReceived." << std::endl;
+        spdlog::info("Service::SystemEventDataListener::onMessageReceived.");
         if (event == SystemEventData::Start) {
             startup();
         }

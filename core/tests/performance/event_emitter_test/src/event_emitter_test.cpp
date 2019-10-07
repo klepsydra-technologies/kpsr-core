@@ -28,6 +28,9 @@
 #include <math.h>
 #include <random>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
 
@@ -126,9 +129,9 @@ int main(int argc, char **argv)
     TestResults totalForwardingTimesResult = (totalForwardingTimes);
     TestResults totalCacheListenerTimesResult = (totalCacheListenerTimes);
 
-    std::cout << "total execution time: " << totalExecutionTimesResult.average << " / " << totalExecutionTimesResult.stddev << std::endl;
-    std::cout << "total transformation time: "  << totalTransformationTimesResult.average << " / " << totalTransformationTimesResult.stddev << std::endl;
-    std::cout << "total construction time: "  << totalConstructionTimesResult.average << " / " << totalConstructionTimesResult.stddev << std::endl;
-    std::cout << "total forwarding time: "  << totalForwardingTimesResult.average << " / " << totalForwardingTimesResult.stddev << std::endl;
-    std::cout << "total cacheListener time: "  << totalCacheListenerTimesResult.average << " / " << totalCacheListenerTimesResult.stddev << std::endl;
+    spdlog::info("total execution time: {} / {}", totalExecutionTimesResult.average, totalExecutionTimesResult.stddev);
+    spdlog::info("total transformation time: {} / {}", totalTransformationTimesResult.average, totalTransformationTimesResult.stddev);
+    spdlog::info("total construction time: {} / {}", totalConstructionTimesResult.average, totalConstructionTimesResult.stddev);
+    spdlog::info("total forwarding time: {} / {}", totalForwardingTimesResult.average, totalForwardingTimesResult.stddev);
+    spdlog::info("total cacheListener time: {} / {}", totalCacheListenerTimesResult.average, totalCacheListenerTimesResult.stddev);
 }

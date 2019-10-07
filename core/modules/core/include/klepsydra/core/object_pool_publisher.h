@@ -21,7 +21,8 @@
 #ifndef OBJECT_POOL_PUBLISHER_H
 #define OBJECT_POOL_PUBLISHER_H
 
-#include <iostream>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/core/smart_object_pool.h>
@@ -84,8 +85,7 @@ public:
                 internalPublish(newEvent);
                 return;
             } catch (std::out_of_range ex) {
-                //TODO: log
-                std::cout << "ObjectPoolPublisher::internalPublish. Object Pool failure." << std::endl;
+                spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure.");
             }
         }
         this->_publicationStats._totalEventAllocations++;
@@ -118,8 +118,7 @@ public:
                 internalPublish(newEvent);
                 return;
             } catch (std::out_of_range ex) {
-                //TODO: log
-                std::cout << "ObjectPoolPublisher::processAndPublish. Object Pool failure." << std::endl;
+                spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure.");
             }
         }
         this->_publicationStats._totalEventAllocations++;

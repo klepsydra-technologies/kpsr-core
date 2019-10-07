@@ -22,6 +22,9 @@
 
 #include <gtest/gtest.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
 
@@ -82,7 +85,7 @@ TEST(KpsrDdsCodegenTest4, inheritanceMapperMapperTest) {
     kpsr::codegen::InheritanceVector4 event(5.0, 5.1, 5.2, 5.3);
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }

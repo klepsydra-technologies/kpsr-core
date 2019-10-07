@@ -28,6 +28,9 @@
 
 #include "gtest/gtest.h"
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/time_utils.h>
 
@@ -45,7 +48,7 @@ public:
     }
 
     PoolTestObject() {
-        std::cout << "new empty invocation!!!" << std::endl;
+        spdlog::info("new empty invocation!!!");
         PoolTestObject::emptyConstructorInvokations++;
     }
 
@@ -105,7 +108,7 @@ TEST(SmartObjectPoolTest, initializerFunction) {
     PoolTestObject::copyInvokations = 0;
 
     std::function<void(PoolTestObject &)> initializer = [] (PoolTestObject & object){
-        std::cout << "in initializer" << std::endl;
+        spdlog::info("in initializer");
         object._id = 0;
         object._message = "hola";
     };
@@ -193,8 +196,11 @@ TEST(SmartObjectPoolTest, performanceTest) {
     }
 
     for (int i = 0; i < 200; i++) {
-        std::cout << "Thread[" << i << "]. noAllocations: " << threadPool[i]->noAllocations
-                  << ". timeAcquiring: " << threadPool[i]->timeAcquiring
-                  << ". totalTime: " << threadPool[i]->totalTime << std::endl;
+        spdlog::info("Thread[{}]. noAllocations: {}"
+                  ". timeAcquiring: {}"
+                  ". totalTime: {}", i, threadPool[i]->noAllocations,
+                  threadPool[i]->timeAcquiring,
+                  threadPool[i]->totalTime
+        );
     }
 }

@@ -28,6 +28,9 @@
 
 #include "gtest/gtest.h"
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
 
@@ -137,6 +140,6 @@ TEST(EventEmitterTest, TransformForwaringPerformanceTest) {
         provider.getPublisher()->publish(event1);
     }
 
-    std::cout << "total forwarding time: " << provider.getSubscriber()->getSubscriptionStats("forwarderListener")->_totalProcessingTimeInNanoSecs << std::endl;
+    spdlog::info("total forwarding time: {}", provider.getSubscriber()->getSubscriptionStats("forwarderListener")->_totalProcessingTimeInNanoSecs);
 }
 

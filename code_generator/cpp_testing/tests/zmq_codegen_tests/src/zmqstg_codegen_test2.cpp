@@ -22,6 +22,9 @@
 
 #include <gtest/gtest.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <zmq.hpp>
 
 #include <klepsydra/serialization/json_cereal_mapper.h>
@@ -56,7 +59,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeBasicMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -108,7 +111,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeBasicMapperTest) {
     kpsrPublisher->publish(event);
 
     while (cacheListener.counter < 5) {
-        std::cout << "second wait..." << std::endl;
+        spdlog::info("second wait...");
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     fromZMQProvider->stop();
@@ -143,7 +146,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeArrayMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -248,7 +251,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeVectorMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -319,7 +322,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeVectorMapperTest) {
     kpsrPublisher->publish(event);
 
     while (cacheListener.counter < 5) {
-        std::cout << "waiting..." << std::endl;
+        spdlog::info("waiting...");
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     fromZMQProvider->stop();
@@ -354,7 +357,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);

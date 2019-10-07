@@ -26,6 +26,9 @@
 #include <sstream>
 #include <fstream>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/cache_listener.h>
 
 #include <klepsydra/high_performance/data_multiplexer_middleware_provider.h>
@@ -46,7 +49,7 @@ public:
     }
 
     DataMultiplexerTestEvent() {
-        std::cout << "new empty invocation!!!" << std::endl;
+        spdlog::info("new empty invocation!!!");
         DataMultiplexerTestEvent::emptyConstructorInvokations++;
     }
 
@@ -110,9 +113,9 @@ TEST(DataMultiplexerMiddlewareTest, NominalCase) {
 
     int discardedMessages = provider.getPublisher()->_publicationStats._totalDiscardedEvents;
 
-    std::cout << "discardedMessages:" << discardedMessages << std::endl;
-    std::cout << "subscriptionStats->_totalProcessed:" << subscriptionStats->_totalProcessed << std::endl;
-    std::cout << "subscriptionStats->_totalDiscardedEvents:" << subscriptionStats->_totalDiscardedEvents << std::endl;
+    spdlog::info("discardedMessages:{}", discardedMessages);
+    spdlog::info("subscriptionStats->_totalProcessed:{}", subscriptionStats->_totalProcessed);
+    spdlog::info("subscriptionStats->_totalDiscardedEvents:{}", subscriptionStats->_totalDiscardedEvents);
 
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 10);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
@@ -201,13 +204,13 @@ TEST(DataMultiplexerMiddlewareTest, TwoConsumer) {
             ((kpsr::high_performance::DataMultiplexerPublisher<DataMultiplexerTestEvent, 4> *) provider.getPublisher());
 
     int discardedMessages = high_performancePublisher->_publicationStats._totalDiscardedEvents;
-    std::cout << "discardedMessages:" << discardedMessages << std::endl;
-    std::cout << "fastListener.counter:" << fastListener.counter << std::endl;
-    std::cout << "fastSubscriptionStats->_totalProcessed:" << fastSubscriptionStats->_totalProcessed << std::endl;
-    std::cout << "fastSubscriptionStats->_totalDiscardedEvents:" << fastSubscriptionStats->_totalDiscardedEvents << std::endl;
-    std::cout << "slowListener.counter:" << slowListener.counter << std::endl;
-    std::cout << "slowSubscriptionStats->_totalProcessed:" << slowSubscriptionStats->_totalProcessed << std::endl;
-    std::cout << "slowSubscriptionStats->_totalDiscardedEvents:" << slowSubscriptionStats->_totalDiscardedEvents << std::endl;
+    spdlog::info("discardedMessages:{}", discardedMessages);
+    spdlog::info("fastListener.counter:{}", fastListener.counter);
+    spdlog::info("fastSubscriptionStats->_totalProcessed:{}", fastSubscriptionStats->_totalProcessed);
+    spdlog::info("fastSubscriptionStats->_totalDiscardedEvents:{}", fastSubscriptionStats->_totalDiscardedEvents);
+    spdlog::info("slowListener.counter:{}", slowListener.counter);
+    spdlog::info("slowSubscriptionStats->_totalProcessed:{}", slowSubscriptionStats->_totalProcessed);
+    spdlog::info("slowSubscriptionStats->_totalDiscardedEvents:{}", slowSubscriptionStats->_totalDiscardedEvents);
 
     ASSERT_GT(fastSubscriptionStats->_totalProcessed,  slowSubscriptionStats->_totalProcessed);
     ASSERT_EQ(fastListener.counter + slowListener.counter + discardedMessages + discardedMessages +

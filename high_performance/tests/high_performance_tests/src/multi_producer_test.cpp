@@ -26,6 +26,9 @@
 #include <sstream>
 #include <fstream>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/cache_listener.h>
 
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
@@ -46,7 +49,7 @@ public:
     virtual void on_shutdown() { }
     virtual void on_event(Event & event, int64_t sequence, bool end_of_batch)
     {
-        std::cout << "Received event: " << event.value << ". event ready: " << (event.ready ? "true" : "false") << ". sequence: " << sequence << ". end_of_batch: " << (end_of_batch ? "true" : "false") << std::endl;
+        spdlog::info("Received event: {}. event ready: {}. sequence: {}. end_of_batch: {}", event.value, (event.ready ? "true" : "false"), sequence, (end_of_batch ? "true" : "false"));
     }
     virtual void on_timeout(int64_t sequence) { }
     virtual void on_event_exception(const std::exception& ex, int64_t sequence, Event * event) { }

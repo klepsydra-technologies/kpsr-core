@@ -24,9 +24,11 @@
 #include <functional>
 #include <tuple>
 #include <vector>
-#include <iostream>
 #include <utility>
 #include <mutex>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/core/subscriber.h>
@@ -134,8 +136,7 @@ protected:
             }
             ++it;
         }
-        std::cout << "CallbackHandler::onReplyReceived. Reply not mapped. Callback name: " << _name
-                  << ". _publisher: " << _publisher->_publicationStats._name << std::endl;
+        spdlog::info("CallbackHandler::onReplyReceived. Reply not mapped. Callback name: {}. _publisher: {}", _name, _publisher->_publicationStats._name);
     }
 
 private:
