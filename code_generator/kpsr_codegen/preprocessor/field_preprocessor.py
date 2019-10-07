@@ -23,12 +23,25 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../k
 
 from field_definition import FieldDefinition
 
-
+## Doc for the FieldPreprocessor class
+# \ingroup kpsr-code-generator
+#
+# Class processes fields in the yaml file.
 class FieldPreprocessor:
     def __init__(self, type_modifiers, fundamental_types):
         self.type_modifiers = type_modifiers
         self.fundamental_types = fundamental_types
 
+    ## Process the fields in the kidl file
+    #
+    # For fundamental data types it does a direct mapping. The matches
+    # for pointers (raw or smart) and vectors or arrays are done using
+    # regexp. Finally if the data field is none of the above types, it
+    # is treated as an enum.
+
+    # @param field The field to be processed.
+    # @param enumeration_dict The dictionary of all enums in the file.
+    # @param is_zmq_enabled Boolean for zmq as zmq can use smart pointers.
     def process(self, field, enumeration_dict, is_zmq_enabled):
         field_type = field['type']
         is_vector = False

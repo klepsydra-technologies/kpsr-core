@@ -94,7 +94,10 @@ def convert(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
-
+## Doc for the RosMapperProcessor class
+# \ingroup kpsr-code-generator
+#
+# Processes the yaml data and maps the fields to ROS data types.
 class RosMapperProcessor:
 
     def __init__(self, configuration):

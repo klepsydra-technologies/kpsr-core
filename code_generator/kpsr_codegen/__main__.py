@@ -41,9 +41,24 @@ INPUT_DIR_SHORT_OPT = "i"
 CONF_PATH_SHORT_OPT = "c"
 TEMPLATE_PATH_SHORT_OPT = "t"
 
-
 def main(argv = None):
-    """The main routine."""
+    """The main routine.
+
+    This function accepts arguments for using the getopt python
+    module. Arguments are provided by using the long or short (shown
+    in parenthesis below) option name followed by its value. Provide
+    the following arguments:
+
+    idir (i) : Input folder name.
+    odir (o) : Output folder name.
+    include_path (p) : The prefix to the include_path for generated files.
+    disable_zmq (z) : Disable ZMQ functionality (True or False)
+    disable_dds (d) : Disable DDS functionality (True or False)
+    disable_ros (r) : Disable ROS functionality (True or False)
+    conf_path (c) : The configuration path. Currently defaults to 'conf' folder
+    template_path (t) : The template path. Currently defaults to 'templates' folder
+
+    """
     if argv is None:
         argv = sys.argv[1:]
 

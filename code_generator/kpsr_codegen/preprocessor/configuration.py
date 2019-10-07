@@ -17,7 +17,11 @@
 # -*- coding: utf-8 -*-
 import yaml
 
-
+## Doc for the Configuration class
+# \ingroup kpsr-code-generator
+#
+# Loads the yaml files containing fundamental_types and their mappings
+# to respective middlewares.
 class Configuration:
     def __init__(self, conf_path):
         with open(conf_path + "/dds_types.yaml", 'r') as stream:

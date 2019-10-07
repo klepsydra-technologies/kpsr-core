@@ -27,6 +27,10 @@ from poco_processor import split_namespace_class
 from poco_processor import convert_to_lower_case_underscores
 
 
+## Doc for the ZmqSerializerProcessor class
+# \ingroup kpsr-code-generator
+#
+# Processes yaml fields to create a serialized files for ZMQ using Cereal.
 class ZmqSerializerProcessor:
 
     def __init__(self, configuration):

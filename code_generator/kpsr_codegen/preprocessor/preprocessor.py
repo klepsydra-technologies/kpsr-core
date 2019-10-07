@@ -29,13 +29,22 @@ from field_preprocessor import FieldPreprocessor
 
 from middleware_preprocessor import MiddlewarePreprocessor
 
-
+## Doc for the Preprocessor class
+# \ingroup kpsr-code-generator
+#
+# 
 class Preprocessor:
 
     def __init__(self, configuration):
         self.fieldProcessor = FieldPreprocessor(configuration.type_modifiers, configuration.fundamental_types)
         self.middlewarePreprocessor = MiddlewarePreprocessor()
 
+    ## Process the Yaml Object into ClassDefinition object
+    #
+    # @param class_definition_data python object returned by yaml.load on reading the kidl file.
+    # @param disable_zmq Boolean on whether to enable for ZMQ or not.
+    #
+    # @return data from file as a ClassDefinition object
     def process(self, class_definition_data, disable_zmq):
         enumerations = [self.process_enum(enum) for enum in class_definition_data.get('enums', [],)]
         enumeration_dict = {enumeration.enum_name: enumeration for enumeration in enumerations}
@@ -54,7 +63,9 @@ class Preprocessor:
                                class_definition_data.get('include_file', ''),
                                class_definition_data.get('parent_class', None),
                                enumeration_dict, middleware_definition_dict, processed_fields)
-
+    ## Process enum data types
+    #
+    # @param enum Enum field in the yaml file.
     def process_enum(self, enum):
         return EnumDefinition(enum.get('enum_name'), enum.get('values'),
                               enum.get('already_exists', False), enum.get('include_file', ''))
