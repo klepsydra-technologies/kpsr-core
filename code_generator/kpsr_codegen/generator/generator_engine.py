@@ -74,8 +74,8 @@ def write_contents_to_file(poco_file_name, poco_template_content):
 # More dtails
 class Generator:
     ## The constructor
-    # @param conf_path The configuration path (I suppose)
-    # @param template_path The template path (I think)
+    # @param conf_path The configuration path
+    # @param template_path The template path
     def __init__(self, conf_path, template_path):
         configuration = Configuration(conf_path)
         self.preprocessor = Preprocessor(configuration)
@@ -103,8 +103,8 @@ class Generator:
         self.node_handler_template = env.get_template('node_handler_template.js')
 
     ## The render function
-    # @param input_dir The input directory (I suppose)
-    # @param output_dir The output directory (I suppose)
+    # @param input_dir The input directory
+    # @param output_dir The output directory
     # @param include_path
     # @param disable_ros
     # @param disable_dds

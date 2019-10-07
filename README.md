@@ -75,7 +75,7 @@ The cmake has the following options:
 * -DKPSR_WITH_ZMQ=true for building the ZeroMQ binding.
 * -DKPSR_TEST_PERFORMANCE=true for building the performance tests
 * -DKPSR_WITH_SOCKET for building SOCKET binding
-* -DKPSR_WITH_YAML **FIXME**: required in conjunction with -DKPSR_WITH_DDS
+* -DKPSR_WITH_YAML **FIXME**: required in conjunction with -DKPSR_WITH_DDS or -DKPSR_WITH_ZMQ
 
 Example
 
@@ -111,7 +111,8 @@ make doc
 
 ### Location of documentation
 
-The last built documentation is available in https://github.com/klepsydra-technologies/kpsr-api-documentation
+The last built documentation is available in [Klepsydra Robotics API DOC](./api-doc/)
+
 
 #  License
 
