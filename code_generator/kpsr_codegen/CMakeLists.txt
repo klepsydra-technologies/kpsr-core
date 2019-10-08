@@ -18,8 +18,15 @@
 #
 #****************************************************************************
 
-find_program(PYTHON "python3.6" REQUIRED)
+find_program(PYTHON "python3")
+if(${PYTHON} STREQUAL "PYTHON-NOTFOUND")
+	message(FATAL_ERROR "Python3 not found")
+endif()
+
 find_program (BASH_PROGRAM bash REQUIRED)
+if(${BASH_PROGRAM} STREQUAL "BASH_PROGRAM-NOTFOUND")
+	message(FATAL_ERROR "bash not found")
+endif()
 
 function(add_nosetests)
     if (KPSR_WITH_CODE_METRICS)
