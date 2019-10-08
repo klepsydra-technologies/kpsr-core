@@ -28,6 +28,9 @@
 
 #include "gtest/gtest.h"
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/dds_serialization/primitive_type_dds_mapper.h>
 #include <klepsydra/dds_serialization/enum_dds_mapper.h>
 
@@ -76,7 +79,7 @@ public:
     void stop() {}
 
     void execute() {
-        std::cout << "PrimitivePublisherService.runOnce" << std::endl;
+        spdlog::info("PrimitivePublisherService.runOnce");
         _seq++;
         GreetEnum greetEnum = (GreetEnum) (_seq % 4);
         _enumPublisher->publish(greetEnum);

@@ -19,7 +19,9 @@
 ****************************************************************************/
 
 #include <cstdlib>
-#include <iostream>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/socket_core/connect_socket.h>
 #include <klepsydra/socket_core/protocol_simple.h>
@@ -49,15 +51,15 @@ int main(int argc, char* argv[])
 		connect = connectF;
 	}
 	else {
-        std::cerr << "Usage: client <host> <Message>\n";
-        std::cerr<< "Or\n: client <hostIP> <port> <Message>\n";
+        spdlog::error("Usage: client <host> <Message>\n"
+        "Or\n: client <hostIP> <port> <Message>\n");
         std::exit(1);
     }
 	kpsr::socket_mdlw::ProtocolSimple   simpleConnect(connect);
 	simpleConnect.sendMessage(messageToSend);
-	
+
 	simpleConnect.recvMessage(message);
-	std::cout << message << "\n";
+    spdlog::info(message);
 }
 
 

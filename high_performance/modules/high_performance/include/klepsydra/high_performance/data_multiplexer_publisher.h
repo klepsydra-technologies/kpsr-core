@@ -22,7 +22,9 @@
 #define DATA_MULTIPLEXER_PUBLISHER_H
 
 #include <functional>
-#include <iostream>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/core/publisher.h>
 
@@ -83,7 +85,7 @@ public:
             _ringBuffer.publish(seq);
         }
         catch (disruptor4cpp::insufficient_capacity_exception& ice) {
-            std::cout << "DataMultiplexerPublisher::internalPublish. no more capacity." << std::endl;
+            spdlog::info("DataMultiplexerPublisher::internalPublish. no more capacity.");
             this->_publicationStats._totalDiscardedEvents++;
         }
     }
@@ -109,7 +111,7 @@ public:
             _ringBuffer.publish(seq);
         }
         catch (disruptor4cpp::insufficient_capacity_exception& ice) {
-            std::cout << "DataMultiplexerPublisher::internalPublish. no more capacity." << std::endl;
+            spdlog::info("DataMultiplexerPublisher::internalPublish. no more capacity.");
             this->_publicationStats._totalDiscardedEvents++;
         }
     }

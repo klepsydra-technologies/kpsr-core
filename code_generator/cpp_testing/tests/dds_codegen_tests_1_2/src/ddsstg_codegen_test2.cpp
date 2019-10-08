@@ -22,6 +22,9 @@
 
 #include <gtest/gtest.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
 
@@ -85,7 +88,7 @@ TEST(KpsrDdsCodegenTest2, primitiveTypeBasicMapperTest) {
 
     kpsr::codegen::PrimitiveTypesBasic event(seq++, 'a', 0, 1, 2 , 3, 4, 5, 6.0, 6.1, true, "a1");
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -174,7 +177,7 @@ TEST(KpsrDdsCodegenTest2, primitiveTypeArrayMapperTest) {
     {{ "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "e10", "e11", "e12"}});
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -263,7 +266,7 @@ TEST(KpsrDdsCodegenTest2, primitiveTypeVectorMapperTest) {
     { "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "e10", "e11", "e12"});
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -387,7 +390,7 @@ TEST(KpsrDdsCodegenTest2, primitiveTypeVectorSharedPtrMapperTest) {
     {std::shared_ptr<std::string>(new std::string("hola"))});
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -471,7 +474,7 @@ TEST(KpsrDdsCodegenTest2, primitiveTypeVectorPointerMapperTest) {
     {new double(6.2)}, {new bool(true)}, {new std::string("hola")});
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }

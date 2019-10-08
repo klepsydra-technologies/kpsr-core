@@ -22,6 +22,9 @@
 
 #include <gtest/gtest.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
 
@@ -82,7 +85,7 @@ TEST(KpsrDdsCodegeTest, headerMapperTest) {
     kpsrPublisher->publish(event);
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         event.seq = 5;
         event.frame_id = "hola.5";
         kpsrPublisher->publish(event);
@@ -149,7 +152,7 @@ TEST(KpsrDdsCodegenTest1, gpsMapperTest) {
 
     event.seq++;
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         event.altitude = 4.0;
         event.latitude = 4.1;
         event.longitude = 4.2;
@@ -220,7 +223,7 @@ TEST(KpsrDdsCodegenTest1, vector3MapperTest) {
     kpsrPublisher->publish(event);
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         event.seq++;
         event.x = 4.0;
         event.y = 4.1;
@@ -293,7 +296,7 @@ TEST(KpsrDdsCodegenTest1, quaternionMapperTest) {
     kpsrPublisher->publish(event);
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         event.seq ++;
         event.x = 4.0;
         event.y = 4.1;
@@ -395,7 +398,7 @@ TEST(KpsrDdsCodegenTest1, imuMapperTest) {
     }
 
     while (cacheListener.counter < 5) {
-        std::cout << "publishing loop... " << std::endl;
+        spdlog::info("publishing loop... ");
         {
             kpsr::geometry::Quaternion orientation(seq++, 40.1, 40.2, 40.3, 40.4);
             std::array<double, 9> orientation_covariance{{41.1, 41.2, 41.3, 41.4, 41.5, 41.6, 41.7, 41.8, 41.9}};

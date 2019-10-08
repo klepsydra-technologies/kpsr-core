@@ -24,6 +24,9 @@
 #include <map>
 #include <memory>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <zmq.hpp>
 
 #include <klepsydra/core/from_middleware_channel.h>
@@ -123,7 +126,7 @@ private:
 @code
     //  Example of ZMQ socket creation
     zmq::context_t context (1);
-    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    spdlog::info("Collecting updates from weather server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(url);

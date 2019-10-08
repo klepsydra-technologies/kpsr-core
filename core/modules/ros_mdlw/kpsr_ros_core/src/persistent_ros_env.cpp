@@ -21,6 +21,9 @@
 #include "persistent_ros_env.h"
 #include <string.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 kpsr::ros_mdlw::PersistentRosEnv::PersistentRosEnv(ros::NodeHandle * nodeHandle, const std::string yamlFileName, const PersitancePolicy persitancePolicy) {
     _nodeHandle = nodeHandle;
     _persistentEnv = new YamlEnvironment(yamlFileName);
@@ -39,7 +42,7 @@ void kpsr::ros_mdlw::PersistentRosEnv::getPropertyString(const std::string key, 
                 _persistentEnv->persist();
             }
         } catch (const YAML::TypedBadConversion<std::string>&) {
-            std::cout << "kpsr::ros_mdlw::PersistentRosEnv::getPropertyString. Property " << key << " does not exist." << std::endl;
+            spdlog::info("kpsr::ros_mdlw::PersistentRosEnv::getPropertyString. Property {} does not exist.", key);
         }
     }
 }
@@ -56,7 +59,7 @@ void kpsr::ros_mdlw::PersistentRosEnv::getPropertyInt(const std::string key, int
                 _persistentEnv->persist();
             }
         } catch (const YAML::TypedBadConversion<int>&) {
-            std::cout << "kpsr::ros_mdlw::PersistentRosEnv::getPropertyInt. Property " << key << " does not exist." << std::endl;
+            spdlog::info("kpsr::ros_mdlw::PersistentRosEnv::getPropertyInt. Property {} does not exist.", key);
         }
     }
 }
@@ -73,7 +76,7 @@ void kpsr::ros_mdlw::PersistentRosEnv::getPropertyFloat(const std::string key, f
                 _persistentEnv->persist();
             }
         } catch (const YAML::TypedBadConversion<float>&) {
-            std::cout << "kpsr::ros_mdlw::PersistentRosEnv::getPropertyFloat. Property " << key << " does not exist." << std::endl;
+            spdlog::info("kpsr::ros_mdlw::PersistentRosEnv::getPropertyFloat. Property {} does not exist.", key);
         }
     }
 }
@@ -90,7 +93,7 @@ void kpsr::ros_mdlw::PersistentRosEnv::getPropertyBool(const std::string key, bo
                 _persistentEnv->persist();
             }
         } catch (const YAML::TypedBadConversion<bool>&) {
-            std::cout << "kpsr::ros_mdlw::PersistentRosEnv::getPropertyBool. Property " << key << " does not exist." << std::endl;
+            spdlog::info("kpsr::ros_mdlw::PersistentRosEnv::getPropertyBool. Property {} does not exist.", key);
         }
     }
 }

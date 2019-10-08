@@ -18,12 +18,14 @@
 *
 ****************************************************************************/
 
-#include <iostream>
 #include <sstream>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <zmq.hpp>
 
@@ -50,9 +52,7 @@ public:
         _totalTemp += weatherData.currentTemp.value;
         _numSamples++;
         if (_numSamples == 100) {
-            std::cout << "Average temperature was "
-                      << (int) (_totalTemp / _numSamples) << "F"
-                      << std::endl;
+            spdlog::info("Average temperature was {}F", (int) (_totalTemp / _numSamples));
         }
     }
 
@@ -82,7 +82,7 @@ TEST(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    spdlog::info("Collecting updates from weather server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -135,7 +135,7 @@ TEST(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
 
     ASSERT_EQ(weatherDataClient._numSamples, 100);
 
-    std::cout << "FINISHED!!!" << std::endl;
+    spdlog::info("FINISHED!!!");
 
     ASSERT_EQ(WeatherData::emptyConstructorInvokations, 100);
     ASSERT_EQ(WeatherData::constructorInvokations, 100);
@@ -164,7 +164,7 @@ TEST(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    spdlog::info("Collecting updates from weather server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -217,7 +217,7 @@ TEST(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
 
     ASSERT_EQ(weatherDataClient._numSamples, 100);
 
-    std::cout << "FINISHED!!!" << std::endl;
+    spdlog::info("FINISHED!!!");
 
     ASSERT_EQ(WeatherData::emptyConstructorInvokations, 6);
     ASSERT_EQ(WeatherData::constructorInvokations, 100);
@@ -245,7 +245,7 @@ TEST(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    spdlog::info("Collecting updates from weather server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -298,7 +298,7 @@ TEST(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
 
     ASSERT_EQ(weatherDataClient._numSamples, 100);
 
-    std::cout << "FINISHED!!!" << std::endl;
+    spdlog::info("FINISHED!!!");
 
     ASSERT_EQ(WeatherData::emptyConstructorInvokations, 100);
     ASSERT_EQ(WeatherData::constructorInvokations, 100);
@@ -327,7 +327,7 @@ TEST(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from weather server...\n" << std::endl;
+    spdlog::info("Collecting updates from weather server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -380,7 +380,7 @@ TEST(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
 
     ASSERT_EQ(weatherDataClient._numSamples, 100);
 
-    std::cout << "FINISHED!!!" << std::endl;
+    spdlog::info("FINISHED!!!");
 
     ASSERT_EQ(WeatherData::emptyConstructorInvokations, 6);
     ASSERT_EQ(WeatherData::constructorInvokations, 100);

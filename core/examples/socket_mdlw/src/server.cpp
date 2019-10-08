@@ -18,8 +18,10 @@
 *
 ****************************************************************************/
 
-#include <iostream>
 #include <thread>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/socket_core/server_socket.h>
 #include <klepsydra/socket_core/protocol_simple.h>
@@ -54,14 +56,14 @@ int main(int argc, char* argv[])
 			serverPtr = server;
 		}
 		else {
-			std::cerr << "Usage: server path <hostpath>\n";
-			std::cerr<< "Or\n:   server port <port>\n";
+            spdlog::error("Usage: server path <hostpath>\n"
+			"Or\n:   server port <port>\n");
 			std::exit(1);
 		}
 	}
 	else {
-		std::cerr << "Usage: server path <hostpath>\n";
-		std::cerr<< "Or\n:   server port <port>\n";
+        spdlog::error("Usage: server path <hostpath>\n"
+		"Or\n:   server port <port>\n");
 		std::exit(1);
 	}
     int finished = 0;
@@ -73,7 +75,7 @@ int main(int argc, char* argv[])
             kpsr::socket_mdlw::ProtocolSimple acceptSimple(accept);
             std::string message;
             acceptSimple.recvMessage(message);
-            std::cout << message << "\n";
+            spdlog::info(message);
 
             acceptSimple.sendMessage("OK");
         });

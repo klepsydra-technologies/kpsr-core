@@ -20,8 +20,10 @@
 
 #include <memory>
 #include <vector>
-#include <iostream>
 #include <functional>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/cache_listener.h>
@@ -38,17 +40,17 @@ public:
     SensorData(int id, std::vector<double> data)
         : id(id)
         , data(data) {
-        std::cout << "SensorData::SensorData. Main" << std::endl;
+        spdlog::info("SensorData::SensorData. Main");
     }
 
     SensorData() {
-        std::cout << "SensorData::SensorData. Empty" << std::endl;
+        spdlog::info("SensorData::SensorData. Empty");
     }
 
     SensorData(const SensorData & that)
         : id(that.id)
         , data(that.data) {
-        std::cout << "SensorData::SensorData. Copy" << std::endl;
+        spdlog::info("SensorData::SensorData. Copy");
     }
 };
 
@@ -311,10 +313,10 @@ TEST(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
 
     t1.join();
     t2.join();
-    std::cout << "EventLoopTest::SingleEventEmitterTwoTopicsWithPool. Finishing.1" << std::endl;
+    spdlog::info("EventLoopTest::SingleEventEmitterTwoTopicsWithPool. Finishing.1");
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     provider.stop();
-    std::cout << "EventLoopTest::SingleEventEmitterTwoTopicsWithPool. Finishing.2" << std::endl;
+    spdlog::info("EventLoopTest::SingleEventEmitterTwoTopicsWithPool. Finishing.2");
 
 
     if (publisher->_discardedMessages == 0) {

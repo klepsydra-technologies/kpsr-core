@@ -19,9 +19,11 @@
 ****************************************************************************/
 
 #include <string.h>
-#include <iostream>
 #include <chrono>
 #include <algorithm>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/zmq_core/zhelpers.hpp>
 #include <klepsydra/zmq_core/zmq_env.h>
@@ -153,11 +155,11 @@ void kpsr::zmq_mdlw::ZMQConfigurationPoller::poll() {
     if (items[0].revents & ZMQ_POLLIN) {
         std::string topic = s_recv (_zmqEnv->_zmqSubscriber);
         std::string contents = s_recv (_zmqEnv->_zmqSubscriber);
-        std::cout << "kpsr::zmq_mdlw::ZMQConfigurationPoller::on_data_available." << std::endl;
+        spdlog::info("kpsr::zmq_mdlw::ZMQConfigurationPoller::on_data_available.");
         ZMQEnvironmentData environmentData;
         mapper.fromMiddleware(contents, environmentData);
         if ((environmentData._configurationKey == _zmqKey) && (environmentData._sourceId != _sourceId)) {
-            std::cout << "kpsr::zmq_mdlw::ZMQConfigurationPoller::poll. new data: " << environmentData._configurationData << std::endl;
+            spdlog::info("kpsr::zmq_mdlw::ZMQConfigurationPoller::poll. new data: {}", environmentData._configurationData);
             this->_zmqEnv->updateConfiguration(environmentData._configurationData);
         }
     }

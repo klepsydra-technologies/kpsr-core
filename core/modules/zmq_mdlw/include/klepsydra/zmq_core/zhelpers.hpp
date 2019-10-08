@@ -5,7 +5,6 @@
 
 #include <zmq.hpp> // https://github.com/zeromq/cppzmq
 
-#include <iostream>
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -22,6 +21,9 @@
 #   include <unistd.h>
 #endif
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 //  Bring Windows MSVC up to C99 scratch
 #if (defined (WIN32))
     typedef unsigned long ulong;
@@ -31,7 +33,7 @@
 
 //  On some version of Windows, POSIX subsystem is not installed by default.
 //  So define srandom and random ourself.
-//  
+//
 #if (defined (WIN32))
 #   define srandom srand
 #   define random rand
@@ -110,7 +112,7 @@ s_sendmore (zmq::socket_t & socket, const std::string & string) {
 static void
 s_dump (zmq::socket_t & socket)
 {
-    std::cout << "----------------------------------------" << std::endl;
+    spdlog::info("----------------------------------------");
 
     while (1) {
         //  Process all parts of the message
@@ -130,15 +132,16 @@ s_dump (zmq::socket_t & socket)
             if (byte < 32 || byte > 127)
                 is_text = false;
         }
-        std::cout << "[" << std::setfill('0') << std::setw(3) << size << "]";
+        std::stringstream ss;
+        ss << "[" << std::setfill('0') << std::setw(3) << size << "]";
         for (char_nbr = 0; char_nbr < size; char_nbr++) {
             if (is_text)
-                std::cout << (char)data [char_nbr];
+                ss << (char)data [char_nbr];
             else
-                std::cout << std::setfill('0') << std::setw(2)
+                ss << std::setfill('0') << std::setw(2)
                    << std::hex << (unsigned int) data [char_nbr];
         }
-        std::cout << std::endl;
+        spdlog::info(ss.str().c_str());
 
         int more = 0;           //  Multipart detection
         size_t more_size = sizeof (more);
@@ -152,7 +155,7 @@ s_dump (zmq::socket_t & socket)
 //  Set simple random printable identity on socket
 //  Caution:
 //    DO NOT call this version of s_set_id from multiple threads on MS Windows
-//    since s_set_id will call rand() on MS Windows. rand(), however, is not 
+//    since s_set_id will call rand() on MS Windows. rand(), however, is not
 //    reentrant or thread-safe. See issue #521.
 inline std::string
 s_set_id (zmq::socket_t & socket)
@@ -184,7 +187,7 @@ s_version (void)
 {
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
-    std::cout << "Current 0MQ version is " << major << "." << minor << "." << patch << std::endl;
+    spdlog::info("Current 0MQ version is {}.{}.{}", major, minor, patch);
 }
 
 static void
@@ -194,9 +197,8 @@ s_version_assert (int want_major, int want_minor)
     zmq_version (&major, &minor, &patch);
     if (major < want_major
     || (major == want_major && minor < want_minor)) {
-        std::cout << "Current 0MQ version is " << major << "." << minor << std::endl;
-        std::cout << "Application needs at least " << want_major << "." << want_minor
-              << " - cannot continue" << std::endl;
+        spdlog::info("Current 0MQ version is {}.{}", major, minor);
+        spdlog::info("Application needs at least {}.{} - cannot continue", want_major, want_minor);
         exit (EXIT_FAILURE);
     }
 }

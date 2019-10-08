@@ -22,6 +22,9 @@
 
 #include <gtest/gtest.h>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <zmq.hpp>
 
 #include <klepsydra/serialization/json_cereal_mapper.h>
@@ -57,7 +60,7 @@ TEST(KpsrZmqCodegeTest, headerMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from zmq server...\n" << std::endl;
+    spdlog::info("Collecting updates from zmq server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -132,7 +135,7 @@ TEST(KpsrZmqCodegeTest, gpsMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -218,7 +221,7 @@ TEST(KpsrZmqCodegeTest, vector3MapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -303,7 +306,7 @@ TEST(KpsrZmqCodegeTest, quaternionMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
@@ -394,7 +397,7 @@ TEST(KpsrZmqCodegeTest, imuMapperTest) {
     std::string clientUrl = "tcp://localhost:5556";
 
     //  Socket to talk to server
-    std::cout << "Collecting updates from test server...\n" << std::endl;
+    spdlog::info("Collecting updates from test server...\n");
     zmq::socket_t subscriber (context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);

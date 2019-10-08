@@ -22,6 +22,9 @@
 #include <chrono>
 #include<algorithm>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/dds_core/dds_env.h>
 
 kpsr::dds_mdlw::DDSEnv::DDSEnv(const std::string yamlFileName, std::string ddsKey,
@@ -100,12 +103,12 @@ void kpsr::dds_mdlw::DDSEnv::publishConfiguration() {
 }
 
 void kpsr::dds_mdlw::DDSConfigurationListener::on_data_available(dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> & dataReader) {
-    std::cout << "kpsr::dds_mdlw::DDSConfigurationListener::on_data_available." << std::endl;
+    spdlog::info("kpsr::dds_mdlw::DDSConfigurationListener::on_data_available.");
     auto samples =  dataReader.select().state(dds::sub::status::DataState::new_data()).read();
     std::for_each(samples.begin(), samples.end(),
                   [this](const rti::sub::LoanedSample<kpsr_dds_core::DDSEnvironmentData>& s) {
         if ((s.data().configurationKey() == _ddsKey)&&(s.data().sourceId() != _sourceId)) {
-            std::cout << "kpsr::dds_mdlw::DDSConfigurationListener::on_data_available. new data: " << s.data().configurationData() << std::endl;
+            spdlog::info("kpsr::dds_mdlw::DDSConfigurationListener::on_data_available. new data: {}", s.data().configurationData());
             this->_ddsEnv->updateConfiguration(s.data().configurationData());
         }
     });

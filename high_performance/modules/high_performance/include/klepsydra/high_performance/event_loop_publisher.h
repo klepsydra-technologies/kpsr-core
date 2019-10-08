@@ -24,7 +24,9 @@
 #include <functional>
 #include <memory>
 #include <tuple>
-#include <iostream>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include <klepsydra/core/object_pool_publisher.h>
 
@@ -103,7 +105,7 @@ public:
             _ringBuffer.publish(seq);
         }
         catch (disruptor4cpp::insufficient_capacity_exception& ice) {
-            std::cout << "EventLoopPublisher::internalPublish. no more capacity." << _eventName << std::endl;
+            spdlog::info("EventLoopPublisher::internalPublish. no more capacity.{}", _eventName);
             _discardedMessages++;
         }
     }

@@ -32,6 +32,9 @@
 
 #include "gtest/gtest.h"
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include <klepsydra/core/event_transform_forwarder.h>
 
 #include <klepsydra/high_performance/event_loop_middleware_provider.h>
@@ -117,7 +120,7 @@ public:
 
         eventLoop.stop();
 
-        std::cout << "totalProcessedLaserScans: " << totalProcessedLaserScans << std::endl;
+        spdlog::info("totalProcessedLaserScans: {}", totalProcessedLaserScans);
 
         long after = kpsr::TimeUtils::getCurrentNanoseconds();
         totalExecutionTime += after - before;
@@ -152,7 +155,7 @@ int main(int argc, char **argv)
             break;
         }
     }
-    std::cout << "PerformanceTest::test/ objectPoolSize: " << objectPoolSize << " . withInitializer: " << (withInitializer ? "true" : "false") << std::endl;
+    spdlog::info("PerformanceTest::test/ objectPoolSize: {} . withInitializer: {}", objectPoolSize, (withInitializer ? "true" : "false"));
 
     std::vector<long> totalExecutionTimes;
     std::vector<long> totalTransformationTimes;
@@ -174,8 +177,8 @@ int main(int argc, char **argv)
     TestResults totalConstructionTimesResult = (totalConstructionTimes);
     TestResults totalForwardingTimesResult = (totalForwardingTimes);
 
-    std::cout << "total execution time: " << totalExecutionTimesResult.average << " / " << totalExecutionTimesResult.stddev << std::endl;
-    std::cout << "total transformation time: "  << totalTransformationTimesResult.average << " / " << totalTransformationTimesResult.stddev << std::endl;
-    std::cout << "total construction time: "  << totalConstructionTimesResult.average << " / " << totalConstructionTimesResult.stddev << std::endl;
-    std::cout << "total forwarding time: "  << totalForwardingTimesResult.average << " / " << totalForwardingTimesResult.stddev << std::endl;
+    spdlog::info("total execution time: {} / {}", totalExecutionTimesResult.average, totalExecutionTimesResult.stddev);
+    spdlog::info("total transformation time: {} / {}", totalTransformationTimesResult.average, totalTransformationTimesResult.stddev);
+    spdlog::info("total construction time: {} / {}", totalConstructionTimesResult.average, totalConstructionTimesResult.stddev);
+    spdlog::info("total forwarding time: {} / {}", totalForwardingTimesResult.average, totalForwardingTimesResult.stddev);
 }
