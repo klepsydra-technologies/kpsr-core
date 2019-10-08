@@ -192,7 +192,7 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    while (cacheListener.counter < 5 && ros::ok()) {
         ros::spinOnce();
         rate.sleep();
     }

@@ -57,7 +57,7 @@ public:
 
 protected:
     void internalPublish(std::shared_ptr<const M> message) override {
-        _rosPublisher.publish(* message.get());
+        _rosPublisher.publish(*message);
     }
 private:
     ros::Publisher & _rosPublisher;
