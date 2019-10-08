@@ -77,4 +77,4 @@ TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel_3_4 ${Connext_LIBRARI
 TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core gtest_main
     kpsr_dds_serialization_datamodel kpsr_dds_${PROJ_MAIN_NAME}_datamodel_3_4 ${Connext_LIBRARIES} atomic )
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME})
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

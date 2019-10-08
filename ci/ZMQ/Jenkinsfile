@@ -65,7 +65,10 @@ pipeline {
             docker commit ${name_container} ${building_image} ;\
             docker rm -f ${name_container};'
 
-        // Run cppcheck
+        // Publish JUnit test results
+        junit(testResults: '**/gtestresults.xml', keepLongStdio: true)
+
+         // Run cppcheck
         publishCppcheck(
           pattern: '**/cppcheck-result.xml',
           ignoreBlankFiles: false, threshold: '19',
