@@ -1,14 +1,10 @@
-FROM ubuntu:18.04 AS builder
+# Compile docker
+FROM kpsr-core:sys_dep_ubuntu_18.04 as compile_docker
 
-# System Dependencies.
-
-RUN apt update && apt-get install libssl-dev libcurl4-gnutls-dev build-essential git cmake python cppcheck doxygen python3-pip gcovr lcov curl -y --fix-missing
-RUN curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh && bash nodesource_setup.sh && apt install nodejs
-
-# Internal dependencies
-
-# Install pip packages (Optimizing cache building)
-RUN npm install -g moxygen
+ARG BUILD_ID
+LABEL kpsr-core=compile_docker
+LABEL BUILD_ID=${BUILD_ID}
+LABEL method=Vanilla
 
 WORKDIR /opt
 
@@ -23,21 +19,20 @@ RUN cd kpsr-core \
        -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false\
        -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties\
        -DCMAKE_BUILD_TYPE=Debug ..\
-    && make \
-    && bash ../kpsr-build/scripts/make_cppcheck.sh \
-    && make test_coverage_cobertura ARGS="-V" \
-    && make doc \
-    && make install
+    && make
 
+# Install
+FROM compile_docker as install_docker
 ARG BUILD_ID
-LABEL kpsr-core=builder
+LABEL kpsr-core=install_docker
 LABEL BUILD_ID=${BUILD_ID}
+RUN make install
 
+# Clean the image
 FROM ubuntu:18.04
 
-COPY --from=builder /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
-COPY --from=builder /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
-COPY --from=builder /usr/local/lib/libkpsr* /usr/local/lib/
+COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
+COPY --from=install_docker /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
+COPY --from=install_docker /usr/local/lib/libkpsr* /usr/local/lib/
 
 WORKDIR /opt/
-
