@@ -38,15 +38,14 @@ pipeline {
           -f "label=BUILD_ID=${BUILD_ID}" \
           -f "label=method=${method}" --format "{{.ID}}"))'
 
-        sh '
-        name_container=kpsr-core_test_${method}_${BUILD_ID};
-        docker run -d --name ${name_container} ${imageid} tail -f /dev/null;
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash ../kpsr-build/scripts/make_cppcheck.sh;
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} make test_coverage_cobertura && export test_passed=1;
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} make doc && export docs_generated=1;
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml;
-        docker cp ${name_container}:/opt/kpsr-core/build/ .
-        docker rm -f ${name_container};
+        sh 'name_container=kpsr-core_test_${method}_${BUILD_ID}; \
+        docker run -d --name ${name_container} ${imageid} tail -f /dev/null; \
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash ../kpsr-build/scripts/make_cppcheck.sh; \
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} make test_coverage_cobertura && export test_passed=1; \
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} make doc && export docs_generated=1; \
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml; \
+        docker cp ${name_container}:/opt/kpsr-core/build/ . \
+        docker rm -f ${name_container}; \
         '
         // Run cppcheck
         publishCppcheck(
