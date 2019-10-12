@@ -17,11 +17,13 @@ pipeline {
     }
     stage('Download System Dependencies') {
       steps {
-        docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-          docker.image("${kpsrCoreECR}:sys_dep_ubuntu_18").pull()
+        script {
+          docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+            docker.image("${kpsrCoreECR}:sys_dep_ubuntu_18").pull()
+          }
         }
 
-      sh "docker tag ${kpsrCoreECR}:sys_dep_ubuntu_18 kpsr-core:sys_dep_ubuntu_18"
+        sh "docker tag ${kpsrCoreECR}:sys_dep_ubuntu_18 kpsr-core:sys_dep_ubuntu_18"
       }
     }
     stage('Compile') {
