@@ -8,7 +8,7 @@ pipeline {
     method = 'Vanilla'
   }
   stages {
-    stage('Download System Dependencies') {
+    stage('Download ThirdParties Dependencies') {
       steps {
         echo 'Pull dependencies from repository'
         sh 'rm  ~/.dockercfg || true'
@@ -76,10 +76,6 @@ pipeline {
 
         cobertura(coberturaReportFile: 'build/coverage.xml,build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
 
-        if (env.test_passed == null || env.docs_generated == null )  {
-          currentBuild.result = 'FAILED'
-          return
-        }
       }
     }
     stage('Publish test_results') {
