@@ -6,9 +6,12 @@ pipeline {
   environment {
     local_branch = env.GIT_BRANCH.replaceAll('/', '_')
     method = 'ROS'
-    name_container = """kpsr-core_test_${local_branch}_${method}_${BUILD_ID}"""
     tag = """${local_branch}_${method}"""
+    name_container = """kpsr-core_test_${tag}_${BUILD_ID}"""
+    name_container_ROS = """kpsr-core_test_${tag}_${BUILD_ID}"""
+
     test_image = """kpsr-core:test_${tag}_${BUILD_ID}"""
+    test_image_ROS = """kpsr-core:test_ROS_${tag}_${BUILD_ID}"""
     final_image = """kpsr-core:${tag}_${BUILD_ID}"""
   }
   stages {
@@ -102,10 +105,25 @@ pipeline {
         }
       }
     }
+    stage('Compile ROS') {
+      steps {
+        sh "docker build -f ./ci/${method}/Dockerfile_test_ros . \
+            --build-arg=test_image=${test_image} \
+                --target compile_docker \
+                -t ${test_image_ROS}"
+      }
+    }
+    stage('Test') {
+      steps {
+        sh 'docker run -d --name ${name_container_ROS} ${test_image_ROS} tail -f /dev/null'
+        echo 'Do tests here'
+        sh 'docker rm -f ${name_container_ROS};'
+      }
+
     stage('Install') {
       steps {
         sh "docker build -f ./ci/${method}/Dockerfile_install . \
-                --build-arg=test_image=${test_image} \
+                --build-arg=test_image=${test_image_ROS} \
                 -t ${final_image}"
       }
     }

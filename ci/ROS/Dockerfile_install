@@ -1,21 +1,7 @@
 ARG test_image
 
 # Install
-FROM $test_image as install_docker
-LABEL kpsr-core=install_docker
-RUN cd kpsr-core/build/ && make install
-
-RUN cd / \
-    && /opt/ros/melodic/setup.sh \
-    && mkdir -p kpsr-ros/src \
-    && cd kpsr-ros/src \
-    && catkin_init_workspace \
-    && ln -s ../../kpsr-core/core/modules/ros_mdlw/kpsr_ros_core . \
-    && ln -s ../../kpsr-core/serialization/modules/ros_mdlw/kpsr_ros_serialization . \
-    && ln -s ../../kpsr-core/code_generator/cpp_testing/tests/kpsr_ros_codegen . \
-    && cd .. \
-    && catkin_make -DCMAKE_INSTALL_PREFIX=/opt/klepsydra \
-    && catkin_make tests \
+RUN cd kpsr-ros \
     && catkin_make install
 
 # Clean the image
