@@ -31,7 +31,7 @@ pipeline {
     }
     stage('Compile') {
       steps {
-        sh "docker build -f ./ci/${method}/Dockerfile_Vanilla . \
+        sh "docker build -f ./ci/${method}/Dockerfile_test . \
             --build-arg=BUILD_ID=${BUILD_ID} \
                 --target compile_docker \
                 -t ${test_image}"
@@ -53,12 +53,12 @@ pipeline {
           sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml;'
         }
 
-        sh 'docker cp ${name_container}:/opt/kpsr-core/build/ . ;\
+        sh 'docker cp ${name_container}:/opt/kpsr-core/build/ ../ ;\
             docker rm -f ${name_container};'
 
         // Run cppcheck
         publishCppcheck(
-          pattern: '**/cppcheck-result.xml',
+          pattern: '../build/**/cppcheck-result.xml',
           ignoreBlankFiles: false, threshold: '19',
           allowNoReport: false,
           newThreshold: '', failureThreshold: '',
@@ -81,12 +81,12 @@ pipeline {
           displayWarningSeverity: true
         )
 
-        cobertura(coberturaReportFile: 'build/coverage.xml,build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
+        cobertura(coberturaReportFile: '../build/coverage.xml,../build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
         echo currentBuild.result
 
         script {
           if (env.CHANGE_ID) {
-            publishCoverageGithub(filepath: 'build/coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [value: 'optionFixedCoverage', fixedCoverage: '0.80'], coverageRateType: 'Line')
+            publishCoverageGithub(filepath: '../build/coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [value: 'optionFixedCoverage', fixedCoverage: '0.80'], coverageRateType: 'Line')
           }
           // Exit if failure.
           if (currentBuild.result == 'FAILURE') {
@@ -97,8 +97,8 @@ pipeline {
     }
     stage('Install') {
       steps {
-        sh "docker build -f ./ci/${method}/Dockerfile_Vanilla . \
-                --build-arg=BUILD_ID=${BUILD_ID} \
+        sh "docker build -f ./ci/${method}/Dockerfile_install . \
+                --build-arg=test_image=${test_image} \
                 -t ${final_image}"
       }
     }
@@ -106,7 +106,7 @@ pipeline {
       steps {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-            sh "docker tag ${${final_image}} ${kpsrCoreECR}:${${final_image}} && docker push ${kpsrCoreECR}:${${final_image}}"
+            sh "docker tag ${final_image} ${kpsrCoreECR}:${final_image} && docker push ${kpsrCoreECR}:${final_image}"
           }
         }
       }
