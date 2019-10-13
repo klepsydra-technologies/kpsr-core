@@ -113,7 +113,7 @@ pipeline {
                 -t ${test_image_ROS}"
       }
     }
-    stage('Test') {
+    stage('Test ROS') {
       steps {
         sh 'docker run -d --name ${name_container_ROS} ${test_image_ROS} tail -f /dev/null'
         echo 'Do tests here'
