@@ -7,7 +7,7 @@ LABEL kpsr-core=compile_ros
 RUN cd kpsr-core/build/ && make install
 
 RUN cd / \
-    && /opt/ros/melodic/setup.sh \
+    && . /opt/ros/melodic/setup.sh \
     && mkdir -p kpsr-ros/src \
     && cd kpsr-ros/src \
     && catkin_init_workspace \
