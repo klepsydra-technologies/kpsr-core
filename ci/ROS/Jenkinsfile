@@ -107,7 +107,7 @@ pipeline {
     }
     stage('Compile ROS') {
       steps {
-        sh "docker build -f ./ci/${method}/Dockerfile_test_ros . \
+        sh "docker build -f ./ci/${method}/Dockerfile_test_ROS . \
             --build-arg=test_image=${test_image} \
                 --target compile_docker \
                 -t ${test_image_ROS}"
@@ -119,6 +119,7 @@ pipeline {
         echo 'Do tests here'
         sh 'docker rm -f ${name_container_ROS};'
       }
+    }
 
     stage('Install') {
       steps {
