@@ -9,7 +9,7 @@ LABEL method=Vanilla
 WORKDIR /opt
 
 # Klepsydra
-COPY kpsr-core kpsr-core
+COPY . kpsr-core
 
 RUN cd kpsr-core \
     && git submodule update --init \
