@@ -1,5 +1,6 @@
 ARG test_image
 
+FROM $test_image as install_docker
 # Install
 RUN cd kpsr-ros \
     && catkin_make install
