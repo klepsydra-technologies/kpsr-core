@@ -2,7 +2,7 @@ ARG test_image
 
 FROM $test_image as install_docker
 # Install
-RUN cd kpsr-ros \
+RUN cd /kpsr-ros \
     && . /opt/ros/melodic/setup.sh \
     && catkin_make install
 
