@@ -1,99 +1,122 @@
-def kpsrThirdPartiesECR="337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-thirdparties"
-def kpsrCoreECR="337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core"
+def kpsrThirdPartiesECR = "337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-thirdparties"
+def kpsrCoreECR = "337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core"
 
 pipeline {
-    agent any
-    environment {
-     local_branch = env.GIT_BRANCH.replaceAll('/','_')
+  agent any
+  environment {
+    local_branch = env.GIT_BRANCH.replaceAll('/', '_')
+    method = 'ROS'
+    name_container = """kpsr-core_test_${local_branch}_${method}_${BUILD_ID}"""
+    tag = """${local_branch}_${method}"""
+    test_image = """kpsr-core:test_${tag}_${BUILD_ID}"""
+    final_image = """kpsr-core:${tag}_${BUILD_ID}"""
+  }
+  stages {
+    stage('Download ThirdParties Dependencies') {
+      steps {
+        echo 'Pull dependencies from repository'
+        sh 'rm  ~/.dockercfg || true'
+        sh 'rm ~/.docker/config.json || true'
+
+        script {
+            docker.withRegistry("https://${kpsrThirdPartiesECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+                docker.image("${kpsrThirdPartiesECR}:ROS").pull()
+            }
+        }
+        sh "docker tag ${kpsrThirdPartiesECR}:ROS kpsr-thirdparties:ROS"
+      }
     }
-
-    stages {
-        stage('Dependencies') {
-            steps {
-                echo 'Pull dependencies from repository'
-                sh 'rm  ~/.dockercfg || true'
-                sh 'rm ~/.docker/config.json || true'
-
-                script {
-                    docker.withRegistry("https://${kpsrThirdPartiesECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-                        docker.image("${kpsrThirdPartiesECR}:ROS").pull()
-                    }
-                }
-
-                sh "docker tag ${kpsrThirdPartiesECR}:ROS kpsr-thirdparties:ROS"
-            }
+    stage('Download System Dependencies') {
+      steps {
+        script {
+          docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+            docker.image("${kpsrCoreECR}:sys_dep_ubuntu_18.04").pull()
+          }
         }
-        stage('Build') {
-            steps {
-                
-                sh "docker build -f ./ci/ROS/Dockerfile_ROS . --rm --build-arg=BUILD_ID=${BUILD_ID} \
-                -t kpsr-core:${local_branch}_${BUILD_ID}_ROS"
 
-                sh 'container_id=$(docker create $(docker images -a -f "label=kpsr-core=builder" -f  "label=BUILD_ID=${BUILD_ID}" --format "{{.ID}}")) && \
-                    docker cp $container_id:/opt/kpsr-core/build/copy_cppcheck.sh . && \
-                    bash copy_cppcheck.sh $container_id && \
-                    docker cp $container_id:/opt/kpsr-core/build/coverage.xml . && \
-                    docker cp $container_id:/opt/kpsr-core/build/code_generator/kpsr_codegen/coverage.xml code_generator/kpsr_codegen && \
-                    sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml'
-
-                // Run cppcheck
-                publishCppcheck(
-                    pattern: '**/cppcheck-result.xml',
-                    ignoreBlankFiles: false, threshold: '19',
-                    allowNoReport: false,
-                    newThreshold: '', failureThreshold: '',
-                    newFailureThreshold: '', healthy: '', unHealthy: '',
-                    severityError: true,
-                    severityWarning: true,
-                    severityStyle: true,
-                    severityPerformance: true,
-                    severityInformation: true,
-                    severityNoCategory: true,
-                    severityPortability: true,
-                    XSize: 1000, YSize: 200,
-                    numBuildsInGraph: 0,
-                    displayAllErrors: true,
-                    displayErrorSeverity: true,
-                    displayNoCategorySeverity: true,
-                    displayPerformanceSeverity: true,
-                    displayPortabilitySeverity: true,
-                    displayStyleSeverity: true,
-                    displayWarningSeverity: true
-                )
-
-                cobertura(coberturaReportFile: 'coverage.xml,code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
-
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-                script {
-                    // if we are in a PR
-                    if (env.CHANGE_ID) {
-                       publishCoverageGithub(filepath:'coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [ value: 'optionFixedCoverage', fixedCoverage: '0.80' ], coverageRateType: 'Line')
-                    }
-                }
-            }
-        }
-        stage('Publish') {
-            steps {
-                echo 'Publish to ECR.'
-                script {
-                    docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-                        sh "docker tag kpsr-core:${local_branch}_${BUILD_ID}_ROS ${kpsrCoreECR}:${local_branch}_ROS && docker push ${kpsrCoreECR}:${local_branch}_ROS"
-                    }
-                }
-            }
-        }
+        sh "docker tag ${kpsrCoreECR}:sys_dep_ubuntu_18.04 kpsr-core:sys_dep_ubuntu_18.04"
+      }
     }
-    post {
-        always {
-          // Pruning
-          sh 'docker container prune --force --filter label=kpsr-core=builder --filter  label=BUILD_ID=${BUILD_ID}'
-          sh 'docker image prune --force --filter label=kpsr-core=builder --filter label=BUILD_ID=${BUILD_ID}'
-          sh 'docker rmi --force $(docker images --filter "reference=kpsr-core:*_${BUILD_ID}_*" -q)'
-        }
+    stage('Compile') {
+      steps {
+        sh "docker build -f ./ci/${method}/Dockerfile_test . \
+            --build-arg=BUILD_ID=${BUILD_ID} \
+                --target compile_docker \
+                -t ${test_image}"
+      }
     }
+    stage('Test') {
+      steps {
+        sh 'docker run -d --name ${name_container} ${test_image} tail -f /dev/null; \
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash ../kpsr-build/scripts/make_cppcheck.sh;'
+
+        catchError {
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} make test_coverage_cobertura;'
+        }
+        catchError {
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} make doc;'
+        }
+        catchError {
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml;'
+        }
+
+        sh 'docker cp ${name_container}:/opt/kpsr-core/build/ . ;\
+            docker rm -f ${name_container};'
+
+        // Run cppcheck
+        publishCppcheck(
+          pattern: '**/cppcheck-result.xml',
+          ignoreBlankFiles: false, threshold: '19',
+          allowNoReport: false,
+          newThreshold: '', failureThreshold: '',
+          newFailureThreshold: '', healthy: '', unHealthy: '',
+          severityError: true,
+          severityWarning: true,
+          severityStyle: true,
+          severityPerformance: true,
+          severityInformation: true,
+          severityNoCategory: true,
+          severityPortability: true,
+          XSize: 1000, YSize: 200,
+          numBuildsInGraph: 0,
+          displayAllErrors: true,
+          displayErrorSeverity: true,
+          displayNoCategorySeverity: true,
+          displayPerformanceSeverity: true,
+          displayPortabilitySeverity: true,
+          displayStyleSeverity: true,
+          displayWarningSeverity: true
+        )
+
+        cobertura(coberturaReportFile: 'build/coverage.xml,build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
+        echo currentBuild.result
+
+        script {
+          if (env.CHANGE_ID) {
+            publishCoverageGithub(filepath: 'build/coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [value: 'optionFixedCoverage', fixedCoverage: '0.80'], coverageRateType: 'Line')
+          }
+          // Exit if failure.
+          if (currentBuild.result == 'FAILURE') {
+              error('Test failed')
+          }
+        }
+      }
+    }
+    stage('Install') {
+      steps {
+        sh "docker build -f ./ci/${method}/Dockerfile_install . \
+                --build-arg=test_image=${test_image} \
+                -t ${final_image}"
+      }
+    }
+    stage('Publish to ECR') {
+      steps {
+        script {
+          docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+            sh "docker tag ${final_image} ${kpsrCoreECR}:${tag} && docker push ${kpsrCoreECR}:${tag}"
+          }
+        }
+      }
+    }
+  }
 }
-
