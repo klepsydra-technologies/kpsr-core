@@ -6,6 +6,9 @@ pipeline {
   environment {
     local_branch = env.GIT_BRANCH.replaceAll('/', '_')
     method = 'Vanilla'
+    name_container = """kpsr-core_test_${local_branch}_${method}_${BUILD_ID}"""
+    test_image = """kpsr-core:test_${local_branch}_${method}_${BUILD_ID}"""
+    final_image = """kpsr-core:${local_branch}_${BUILD_ID}_${method}"""
   }
   stages {
     stage('Download ThirdParties Dependencies') {
@@ -19,36 +22,40 @@ pipeline {
       steps {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-            docker.image("${kpsrCoreECR}:sys_dep_ubuntu_18").pull()
+            docker.image("${kpsrCoreECR}:sys_dep_ubuntu_18.04").pull()
           }
         }
 
-        sh "docker tag ${kpsrCoreECR}:sys_dep_ubuntu_18 kpsr-core:sys_dep_ubuntu_18"
+        sh "docker tag ${kpsrCoreECR}:sys_dep_ubuntu_18.04 kpsr-core:sys_dep_ubuntu_18.04"
       }
     }
     stage('Compile') {
       steps {
-        sh "docker build -f ./ci/${method}/Dockerfile . \
-                --build-arg=BUILD_ID=${BUILD_ID} \
-                --target compile_docker"
+        sh "docker build -f ./ci/${method}/Dockerfile_Vanilla . \
+            --build-arg=BUILD_ID=${BUILD_ID} \
+                --target compile_docker \
+                -t ${test_image}"
+        echo 'sh'
       }
     }
     stage('Test') {
       steps {
-        sh 'imageid=$(docker images -a \
-          -f "label=kpsr-core=compile_docker" \
-          -f "label=BUILD_ID=${BUILD_ID}" \
-          -f "label=method=${method}" --format "{{.ID}}"))'
+        sh 'docker run -d --name ${name_container} ${test_image} tail -f /dev/null; \
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash ../kpsr-build/scripts/make_cppcheck.sh;'
 
-        sh 'name_container=kpsr-core_test_${method}_${BUILD_ID}; \
-        docker run -d --name ${name_container} ${imageid} tail -f /dev/null; \
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash ../kpsr-build/scripts/make_cppcheck.sh; \
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} make test_coverage_cobertura && export test_passed=1; \
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} make doc && export docs_generated=1; \
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml; \
-        docker cp ${name_container}:/opt/kpsr-core/build/ . \
-        docker rm -f ${name_container}; \
-        '
+        catchError {
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} make test_coverage_cobertura;'
+        }
+        catchError {
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} make doc;'
+        }
+        catchError {
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml;'
+        }
+
+        sh 'docker cp ${name_container}:/opt/kpsr-core/build/ . ;\
+            docker rm -f ${name_container};'
+
         // Run cppcheck
         publishCppcheck(
           pattern: '**/cppcheck-result.xml',
@@ -75,33 +82,31 @@ pipeline {
         )
 
         cobertura(coberturaReportFile: 'build/coverage.xml,build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
+        echo currentBuild.result
 
-      }
-    }
-    stage('Publish test_results') {
-      steps {
-        echo 'Testing..'
         script {
-          // if we are in a PR
           if (env.CHANGE_ID) {
             publishCoverageGithub(filepath: 'build/coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [value: 'optionFixedCoverage', fixedCoverage: '0.80'], coverageRateType: 'Line')
+          }
+          // Exit if failure.
+          if (currentBuild.result == 'FAILURE') {
+              error('Test failed')
           }
         }
       }
     }
     stage('Install') {
       steps {
-        sh "docker build -f ./ci/${method}/Dockerfile . \
+        sh "docker build -f ./ci/${method}/Dockerfile_Vanilla . \
                 --build-arg=BUILD_ID=${BUILD_ID} \
-                -t kpsr-core:${local_branch}_${BUILD_ID}_${method}"
+                -t ${final_image}"
       }
     }
     stage('Publish to ECR') {
       steps {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-            sh "name_docker=kpsr-core:${local_branch}_${BUILD_ID}_${method}"
-            sh "docker tag ${name_docker} ${kpsrCoreECR}:${name_docker} && docker push ${kpsrCoreECR}:${name_docker}"
+            sh "docker tag ${${final_image}} ${kpsrCoreECR}:${${final_image}} && docker push ${kpsrCoreECR}:${${final_image}}"
           }
         }
       }
