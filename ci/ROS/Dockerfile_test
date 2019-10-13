@@ -6,7 +6,7 @@ FROM kpsr-core:sys_dep_ubuntu_18.04 as compile_docker
 ARG BUILD_ID
 LABEL kpsr-core=compile_docker
 LABEL BUILD_ID=${BUILD_ID}
-LABEL method=ZMQ
+LABEL method=ROS
 
 WORKDIR /opt
 
@@ -42,9 +42,8 @@ RUN cd / \
     && ln -s ../../kpsr-core/code_generator/cpp_testing/tests/kpsr_ros_codegen . \
     && cd .. \
     && catkin_make -DCMAKE_INSTALL_PREFIX=/opt/klepsydra \
-    && catkin_make tests
+    && catkin_make tests \
     && catkin_make install
-
 
 # Clean the image
 FROM ubuntu:18.04
