@@ -7,8 +7,9 @@ pipeline {
     local_branch = env.GIT_BRANCH.replaceAll('/', '_')
     method = 'Vanilla'
     name_container = """kpsr-core_test_${local_branch}_${method}_${BUILD_ID}"""
-    test_image = """kpsr-core:test_${local_branch}_${method}_${BUILD_ID}"""
-    final_image = """kpsr-core:${local_branch}_${BUILD_ID}_${method}"""
+    tag = """${local_branch}_${method}"""
+    test_image = """kpsr-core:test_${tag}_${BUILD_ID}"""
+    final_image = """kpsr-core:${tag}_${BUILD_ID}"""
   }
   stages {
     stage('Download ThirdParties Dependencies') {
@@ -35,7 +36,6 @@ pipeline {
             --build-arg=BUILD_ID=${BUILD_ID} \
                 --target compile_docker \
                 -t ${test_image}"
-        echo 'sh'
       }
     }
     stage('Test') {
@@ -53,12 +53,12 @@ pipeline {
           sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} sed -i -e "s@[./]opt[./]kpsr-core[./]@@g" code_generator/kpsr_codegen/coverage.xml;'
         }
 
-        sh 'docker cp ${name_container}:/opt/kpsr-core/build/ ../ ;\
+        sh 'docker cp ${name_container}:/opt/kpsr-core/build/ . ;\
             docker rm -f ${name_container};'
 
         // Run cppcheck
         publishCppcheck(
-          pattern: '../build/**/cppcheck-result.xml',
+          pattern: '**/cppcheck-result.xml',
           ignoreBlankFiles: false, threshold: '19',
           allowNoReport: false,
           newThreshold: '', failureThreshold: '',
@@ -81,12 +81,12 @@ pipeline {
           displayWarningSeverity: true
         )
 
-        cobertura(coberturaReportFile: '../build/coverage.xml,../build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
+        cobertura(coberturaReportFile: 'build/coverage.xml,build/code_generator/kpsr_codegen/coverage.xml', failUnhealthy: false, failUnstable: false, onlyStable: false)
         echo currentBuild.result
 
         script {
           if (env.CHANGE_ID) {
-            publishCoverageGithub(filepath: '../build/coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [value: 'optionFixedCoverage', fixedCoverage: '0.80'], coverageRateType: 'Line')
+            publishCoverageGithub(filepath: 'build/coverage.xml', coverageXmlType: 'cobertura', comparisonOption: [value: 'optionFixedCoverage', fixedCoverage: '0.80'], coverageRateType: 'Line')
           }
           // Exit if failure.
           if (currentBuild.result == 'FAILURE') {
@@ -106,7 +106,7 @@ pipeline {
       steps {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-            sh "docker tag ${final_image} ${kpsrCoreECR}:${final_image} && docker push ${kpsrCoreECR}:${final_image}"
+            sh "docker tag ${final_image} ${kpsrCoreECR}:${tag} && docker push ${kpsrCoreECR}:${tag}"
           }
         }
       }
