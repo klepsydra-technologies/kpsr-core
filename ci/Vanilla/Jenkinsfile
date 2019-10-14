@@ -97,9 +97,8 @@ pipeline {
     }
     stage('Install') {
       steps {
-
-        sh "echo */build' >> .dockerignore"
-        sh "docker build -f ./ci/${method}/Dockerfile_test . \
+        sh "docker build -f ./ci/${method}/Dockerfile_install . \
+                --build-arg=test_image=${test_image} \
                 -t ${final_image}"
       }
     }

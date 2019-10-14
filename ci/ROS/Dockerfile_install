@@ -9,9 +9,9 @@ RUN cd /kpsr-ros \
 # Clean the image
 FROM ubuntu:18.04
 
-COPY --from=builder /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
-COPY --from=builder /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
-COPY --from=builder /usr/local/lib/libkpsr* /usr/local/lib/
-COPY --from=builder /opt/klepsydra/ /opt/klepsydra/
+COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
+COPY --from=install_docker /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
+COPY --from=install_docker /usr/local/lib/libkpsr* /usr/local/lib/
+COPY --from=install_docker /opt/klepsydra/ /opt/klepsydra/
 
 WORKDIR /opt/
