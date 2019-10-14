@@ -20,17 +20,3 @@ RUN cd kpsr-core \
        -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties\
        -DCMAKE_BUILD_TYPE=Debug ..\
     && make
-
-# Install
-FROM compile_docker as install_docker
-LABEL kpsr-core=install_docker
-RUN cd kpsr-core/build/ && make install
-
-# Clean the image
-FROM ubuntu:18.04
-
-COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
-COPY --from=install_docker /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
-COPY --from=install_docker /usr/local/lib/libkpsr* /usr/local/lib/
-
-WORKDIR /opt/
