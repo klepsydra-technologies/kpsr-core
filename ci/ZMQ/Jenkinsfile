@@ -114,6 +114,7 @@ pipeline {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
             sh "docker tag ${final_image} ${kpsrCoreECR}:${tag} && docker push ${kpsrCoreECR}:${tag}"
+            sh "docker rmi ${final_image} --no-prune"
           }
         }
       }

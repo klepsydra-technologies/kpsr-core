@@ -97,8 +97,9 @@ pipeline {
     }
     stage('Install') {
       steps {
-        sh "docker build -f ./ci/${method}/Dockerfile_install . \
-                --build-arg=test_image=${test_image} \
+
+        sh "echo */build' >> .dockerignore"
+        sh "docker build -f ./ci/${method}/Dockerfile_test . \
                 -t ${final_image}"
       }
     }
@@ -107,6 +108,8 @@ pipeline {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
             sh "docker tag ${final_image} ${kpsrCoreECR}:${tag} && docker push ${kpsrCoreECR}:${tag}"
+            // Remove tag.
+            sh "docker rmi ${final_image} --no-prune"
           }
         }
       }
