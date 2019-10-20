@@ -9,6 +9,7 @@ pipeline {
     name_container = """kpsr-core_test_${local_branch}_${method}_${BUILD_ID}"""
     tag = """${local_branch}_${method}"""
     test_image = """kpsr-core:test_${tag}_${BUILD_ID}"""
+    building_image = """kpsr-core:build_${tag}_${BUILD_ID}"""
     final_image = """kpsr-core:${tag}_${BUILD_ID}"""
   }
   stages {
@@ -61,6 +62,7 @@ pipeline {
         }
 
         sh 'docker cp ${name_container}:/opt/kpsr-core/build/ . ;\
+            docker commit ${name_container} ${building_image} ;\
             docker rm -f ${name_container};'
 
         // Run cppcheck
@@ -105,7 +107,7 @@ pipeline {
     stage('Install') {
       steps {
         sh "docker build -f ./ci/${method}/Dockerfile_install . \
-                --build-arg=test_image=${test_image} \
+                --build-arg=test_image=${building_image} \
                 -t ${final_image}"
       }
     }
