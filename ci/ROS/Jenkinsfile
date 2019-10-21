@@ -11,6 +11,7 @@ pipeline {
     name_container_ROS = """kpsr-core_test_${tag}_${BUILD_ID}"""
 
     test_image = """kpsr-core:test_${tag}_${BUILD_ID}"""
+    building_image = """kpsr-core:build_${tag}_${BUILD_ID}"""
     test_image_ROS = """kpsr-core:test_ROS_${tag}_${BUILD_ID}"""
     final_image = """kpsr-core:${tag}_${BUILD_ID}"""
   }
@@ -64,6 +65,7 @@ pipeline {
         }
 
         sh 'docker cp ${name_container}:/opt/kpsr-core/build/ . ;\
+            docker commit ${name_container} ${building_image} ;\
             docker rm -f ${name_container};'
 
         // Run cppcheck
@@ -108,7 +110,7 @@ pipeline {
     stage('Compile ROS') {
       steps {
         sh "docker build -f ./ci/${method}/Dockerfile_test_ROS . \
-            --build-arg=test_image=${test_image} \
+            --build-arg=test_image=${building_image} \
                 -t ${test_image_ROS}"
       }
     }

@@ -13,5 +13,6 @@ COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klep
 COPY --from=install_docker /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
 COPY --from=install_docker /usr/local/lib/libkpsr* /usr/local/lib/
 COPY --from=install_docker /opt/klepsydra/ /opt/klepsydra/
+COPY --from=install_docker /root/ /root/
 
 WORKDIR /opt/
