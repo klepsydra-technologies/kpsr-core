@@ -12,6 +12,8 @@ FROM ubuntu:18.04
 COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
 COPY --from=install_docker /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/
 COPY --from=install_docker /usr/local/lib/libkpsr* /usr/local/lib/
+COPY --from=install_docker /opt/ /opt/
+COPY --from=install_docker /kpsr-ros/ /kpsr-ros/
 COPY --from=install_docker /root/ /root/
 
 WORKDIR /opt/
