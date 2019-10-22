@@ -5,7 +5,7 @@ pipeline {
   agent any
   environment {
     local_branch = env.GIT_BRANCH.replaceAll('/', '_')
-    method = 'ROS'
+    method = 'ROS_16.04'
     tag = """${local_branch}_${method}"""
     name_container = """kpsr-core_test_${tag}_${BUILD_ID}"""
     name_container_ROS = """kpsr-core_test_${tag}_${BUILD_ID}"""
@@ -27,11 +27,11 @@ pipeline {
       steps {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-            docker.image("${kpsrCoreECR}:sys_dep_ros_ubuntu_18.04").pull()
+            docker.image("${kpsrCoreECR}:sys_dep_ros_ubuntu_16.04").pull()
           }
         }
 
-        sh "docker tag ${kpsrCoreECR}:sys_dep_ros_ubuntu_18.04 kpsr-core:sys_dep_ros_ubuntu_18.04"
+        sh "docker tag ${kpsrCoreECR}:sys_dep_ros_ubuntu_16.04 kpsr-core:sys_dep_ros_ubuntu_16.04"
       }
     }
     stage('Compile') {
