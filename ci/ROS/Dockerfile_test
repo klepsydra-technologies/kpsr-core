@@ -1,7 +1,4 @@
-FROM kpsr-thirdparties:ROS as thirdparties
-
-# Compile docker
-FROM kpsr-core:sys_dep_ubuntu_18.04 as compile_docker
+FROM kpsr-core:sys_dep_ros_ubuntu_18.04 as compile_docker
 
 ARG BUILD_ID
 LABEL kpsr-core=compile_docker
@@ -10,14 +7,10 @@ LABEL method=ROS
 
 WORKDIR /opt
 
-# Internal dependencies
-COPY --from=thirdparties /opt/ /opt/
-COPY --from=thirdparties /usr/ /usr/
-
 # Klepsydra
 COPY . kpsr-core
 
-RUN cd kpsr-core \
+RUN cd /opt/kpsr-core \
     && git submodule update --init \
     && mkdir build \
     && cd build \
