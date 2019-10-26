@@ -1,0 +1,21 @@
+FROM kpsr-core:sys_dep_ros_ubuntu_16.04 as compile_docker
+
+ARG BUILD_ID
+LABEL kpsr-core=compile_docker
+LABEL BUILD_ID=${BUILD_ID}
+LABEL method=ROS
+
+WORKDIR /opt
+
+# Klepsydra
+COPY . kpsr-core
+
+RUN cd /opt/kpsr-core \
+    && git submodule update --init \
+    && mkdir build \
+    && cd build \
+    && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false\
+       -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true\
+       -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties\
+       -DCMAKE_BUILD_TYPE=Debug ..\
+    && make

@@ -1,0 +1,12 @@
+FROM osrf/ros:melodic-desktop-full-bionic
+LABEL system_dependency=ubuntu_ROS:18.04
+
+# System Dependencies.
+RUN apt update && apt-get install libssl-dev libcurl4-gnutls-dev build-essential git cmake python cppcheck doxygen python3-pip gcovr lcov curl -y --fix-missing
+RUN curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh && bash nodesource_setup.sh && apt install nodejs
+
+# Install pip packages (Optimizing cache building)
+RUN npm install -g moxygen
+
+# Install ROS plugins.
+RUN apt install ros-melodic-mavros ros-melodic-mavros-extras -y
