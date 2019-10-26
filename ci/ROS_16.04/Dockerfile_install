@@ -3,11 +3,11 @@ ARG test_image
 FROM $test_image as install_docker
 # Install
 RUN cd /kpsr-ros \
-    && . /opt/ros/melodic/setup.sh \
+    && . /opt/ros/kinetic/setup.sh \
     && catkin_make install
 
 # Clean the image
-FROM ubuntu:18.04
+FROM ubuntu:16.04
 
 COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
 COPY --from=install_docker /usr/local/lib/cmake/klepsydra/ /usr/local/lib/cmake/klepsydra/

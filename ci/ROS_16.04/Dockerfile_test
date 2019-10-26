@@ -1,4 +1,4 @@
-FROM kpsr-core:sys_dep_ros_ubuntu_18.04 as compile_docker
+FROM kpsr-core:sys_dep_ros_ubuntu_16.04 as compile_docker
 
 ARG BUILD_ID
 LABEL kpsr-core=compile_docker
