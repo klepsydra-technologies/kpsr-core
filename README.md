@@ -2,6 +2,13 @@
   <img width="25%" height="25%"src="./images/klepsydra_logo.jpg">
 </p>
 
+Setup | Status
+--- | ---
+Minimal | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-core%2Fmaster)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-core/job/master/)
+ZMQ | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-zmq-core%2Fmaster)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-zmq-core/job/master/)
+ROS 16.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-ros-core-16.04%2Fmaster)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-ros-core-16.04/job/master/)
+ROS 18.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-ros-core-18.04%2Fmaster)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-ros-core-18.04/job/master/)
+
 # Installation Instructions
 
 ## System dependencies
