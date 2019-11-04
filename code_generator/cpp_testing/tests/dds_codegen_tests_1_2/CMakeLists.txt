@@ -65,7 +65,7 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../core/modules/core/ ${CMAKE_BINARY_DIR}/../../../serialization/modules/dds_mdlw/)
+LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../bin/ )
 
 ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel_1_2 SHARED ${Connext_DATAMODEL})
 

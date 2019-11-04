@@ -45,10 +45,11 @@ pipeline {
     stage('Test') {
       steps {
         sh 'docker run -d --name ${name_container} ${test_image} tail -f /dev/null; \
-        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash ../kpsr-build/scripts/make_cppcheck.sh kpsr-core;'
+        docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash -x ../kpsr-build/scripts/make_cppcheck.sh kpsr-core;'
 
         catchError {
           sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} make test_coverage_cobertura;'
+          sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} bash -x ../kpsr-build/scripts/make_extract_gtestresults.sh;'
         }
         catchError {
           sh 'docker exec --workdir /opt/kpsr-core/build/ ${name_container} make doc;'
@@ -134,6 +135,14 @@ pipeline {
           }
         }
       }
+    }
+  }
+  post {
+    always {
+      recordIssues(
+        enabledForFailure: true,
+        tool: gcc()
+      )
     }
   }
 }

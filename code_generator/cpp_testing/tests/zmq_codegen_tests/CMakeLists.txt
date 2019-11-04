@@ -48,7 +48,7 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../core/modules/core/ )
+LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../bin/ )
 
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 

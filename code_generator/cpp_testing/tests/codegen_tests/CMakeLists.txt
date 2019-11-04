@@ -39,7 +39,7 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../core/modules/core/ )
+LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../bin/ )
 
 # Create Library
 #---------------------------------------------------#
