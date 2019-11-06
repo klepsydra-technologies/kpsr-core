@@ -65,7 +65,7 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../core/modules/core/ ${CMAKE_BINARY_DIR}/../../../serialization/modules/dds_mdlw/)
+LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../bin/ )
 
 ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel_1_2 SHARED ${Connext_DATAMODEL})
 
@@ -77,4 +77,4 @@ TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel_1_2 atomic ${Connext_
 TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core gtest_main
     kpsr_dds_serialization_datamodel kpsr_dds_${PROJ_MAIN_NAME}_datamodel_1_2 atomic ${Connext_LIBRARIES})
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME})
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

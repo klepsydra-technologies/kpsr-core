@@ -48,11 +48,11 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../core/modules/core/ )
+LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../bin/ )
 
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 #---------------------------------------------------#
 TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core cppzmq gtest_main atomic )
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME})
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)
