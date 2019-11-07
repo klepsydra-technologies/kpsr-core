@@ -1,0 +1,85 @@
+#!/usr/bin/python
+"""
+Referencing current branch in github readme.md[1]
+
+This pre-commit hook[2] updates the README.md file's
+Travis badge with the current branch
+
+[1] http://stackoverflow.com/questions/18673694/referencing-current-branch-in-github-readme-md
+[2] http://www.git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
+[3] https://docs.jenkins-ci.com/user/status-images/
+"""
+import subprocess,urllib
+
+# Hard-Coded for your repo (ToDo: get from remote?)
+REPO_CORE="kpsr-core"
+REPO_ZMQ_CORE="kpsr-zmq-core"
+REPO_ROS18_CORE="kpsr-ros-core-18.04"
+REPO_ROS16_CORE="kpsr-ros-core-16.04"
+
+print "Starting pre-commit hook..."
+
+BRANCH=subprocess.check_output(["git",
+                                "rev-parse",
+                                "--abbrev-ref",
+                                "HEAD"]).strip()
+BRANCH=urllib.quote_plus(BRANCH)
+BRANCH_URL=urllib.quote_plus(BRANCH)
+
+# String with hard-coded values
+# See Embedding Status Images[3] for alternate formats (private repos, svg, etc)
+
+# [![Build Status]
+# (https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-core%2Ffeature%252Fadd-build-badges)]
+# (https://jenkins1.klepsydra.com/view/Core/job/kpsr-core/job/feature%252Fadd-build-badges/)  
+
+# Output String with Variable substitution
+jenkins_core="Minimal | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job={REPO_CORE}%2F{BRANCH_URL})]" \
+             "(https://jenkins1.klepsydra.com/view/Core/job/{REPO_CORE}/job/{BRANCH}/)\n".format(BRANCH=BRANCH, BRANCH_URL=BRANCH_URL, REPO_CORE=REPO_CORE)
+
+jenkins_zmq="ZMQ | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job={REPO_ZMQ_CORE}%2F{BRANCH_URL})]" \
+             "(https://jenkins1.klepsydra.com/view/Core/job/{REPO_ZMQ_CORE}/job/{BRANCH}/)\n".format(BRANCH=BRANCH, BRANCH_URL=BRANCH_URL, REPO_ZMQ_CORE=REPO_ZMQ_CORE)
+
+jenkins_ros_16="ROS 16.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job={REPO_ROS16_CORE}%2F{BRANCH_URL})]" \
+             "(https://jenkins1.klepsydra.com/view/Core/job/{REPO_ROS16_CORE}/job/{BRANCH}/)\n".format(BRANCH=BRANCH, BRANCH_URL=BRANCH_URL, REPO_ROS16_CORE=REPO_ROS16_CORE)
+
+jenkins_ros_18="ROS 18.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job={REPO_ROS18_CORE}%2F{BRANCH_URL})]" \
+             "(https://jenkins1.klepsydra.com/view/Core/job/{REPO_ROS18_CORE}/job/{BRANCH}/)\n".format(BRANCH=BRANCH, BRANCH_URL=BRANCH_URL, REPO_ROS18_CORE=REPO_ROS18_CORE)
+
+sentinal_core_str="Minimal | [![Build Status]"
+
+sentinal_zmq_str="ZMQ | [![Build Status]"
+
+sentinal_ros16_str="ROS 16.04 | [![Build Status]"
+
+sentinal_ros18_str="ROS 18.04 | [![Build Status]"
+
+readmelines=open("README.md").readlines()
+with open("README.md", "w") as fh:
+    for aline in readmelines:
+        if sentinal_core_str in aline and jenkins_core != aline:
+            print "Replacing:\n\t{aline}\nwith:\n\t{jenkins_core}".format(
+                   aline=aline,
+                   jenkins_core=jenkins_core)
+            fh.write(jenkins_core)
+        elif sentinal_zmq_str in aline and jenkins_zmq != aline:
+            print "Replacing:\n\t{aline}\nwith:\n\t{jenkins_zmq}".format(
+                   aline=aline,
+                   jenkins_zmq=jenkins_zmq)
+            fh.write(jenkins_zmq)
+        elif sentinal_ros16_str in aline and jenkins_ros_16 != aline:
+            print "Replacing:\n\t{aline}\nwith:\n\t{jenkins_ros_16}".format(
+                   aline=aline,
+                   jenkins_ros_16=jenkins_ros_16)
+            fh.write(jenkins_ros_16)
+        elif sentinal_ros18_str in aline and jenkins_ros_18 != aline:
+            print "Replacing:\n\t{aline}\nwith:\n\t{jenkins_ros_18}".format(
+                   aline=aline,
+                   jenkins_ros_18=jenkins_ros_18)
+            fh.write(jenkins_ros_18)
+        else:
+            fh.write(aline)
+
+subprocess.check_output(["git", "add", "README.md" ])
+
+print "pre-commit hook complete."
