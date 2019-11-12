@@ -173,7 +173,13 @@ TEST(ConcurrentEventEmitterTest, multithreadPublishTest) {
     for (auto &t: T) {
         t.join();
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < queueSize)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
     provider.stop();
     ASSERT_EQ(eventListener.counter, queueSize);
 }
@@ -197,16 +203,23 @@ TEST(ConcurrentEventEmitterTest, SingleEventEmitterTopic) {
         event2._id = 3;
         event2._message = "hola";
         provider.getPublisher()->publish(event2);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        provider.stop();
     });
 
     t2.join();
 
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < 3)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
+    provider.stop();
+
+    ASSERT_EQ(eventListener.counter, 3);
+
     ASSERT_EQ(3, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
 
-    ASSERT_EQ(eventListener.counter, 3);
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations,0);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, 2);
     ASSERT_EQ(ConcurrentSQTestEvent::copyInvokations, 6);
@@ -234,15 +247,24 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolNoFailures) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        provider.stop();
     });
-    
+
     t2.join();
+
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < numPublish)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
+    provider.stop();
+
+    ASSERT_EQ(eventListener.counter, numPublish);
 
     ASSERT_EQ(numPublish - 1, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
-    ASSERT_EQ(eventListener.counter, numPublish);
+
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_EQ(ConcurrentSQTestEvent::copyInvokations, numPublish);
@@ -273,15 +295,24 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresBlocking) {
         while (!(provider._internalQueue.size_approx()==0)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        provider.stop();
     });
 
     t2.join();
 
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < numPublish)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
+    provider.stop();
+
+    ASSERT_EQ(eventListener.counter, numPublish);
+
     ASSERT_EQ(numPublish - 1, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
-    ASSERT_EQ(eventListener.counter, numPublish);
+
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_GE(ConcurrentSQTestEvent::copyInvokations, numPublish);
@@ -311,15 +342,22 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresNonBlocking) {
         while (!(provider._internalQueue.size_approx()==0)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        provider.stop();
     });
 
     t2.join();
 
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < queueSize)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
+    provider.stop();
+    ASSERT_GE(eventListener.counter, queueSize);
+
     ASSERT_EQ(numPublish - 1, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
-    ASSERT_GE(eventListener.counter, queueSize);
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_GE(ConcurrentSQTestEvent::copyInvokations, queueSize);
@@ -363,16 +401,26 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestNoPool) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        provider.stop();
-        newProvider.stop();
+
     });
 
     t2.join();
 
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < numPublish)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
+    provider.stop();
+    newProvider.stop();
+
+    ASSERT_EQ(eventListener.counter, numPublish);
+
+
     ASSERT_EQ(numPublish - 1, eventListener.getLastReceivedEvent()->_values[0]);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_label);
 
-    ASSERT_EQ(eventListener.counter, numPublish);
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_EQ(ConcurrentSQTestEvent::copyInvokations, numPublish);
@@ -418,16 +466,26 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestWithPool) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        provider.stop();
-        newProvider.stop();
     });
 
     t2.join();
 
+    int timeout = 0;
+    while (timeout < 100 && eventListener.counter < numPublish)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        timeout++;
+    }
+
+    provider.stop();
+    newProvider.stop();
+
+    ASSERT_EQ(eventListener.counter, numPublish);
+
     ASSERT_EQ(numPublish - 1, eventListener.getLastReceivedEvent()->_values[0]);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_label);
 
-    ASSERT_EQ(eventListener.counter, numPublish);
+
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_EQ(ConcurrentSQTestEvent::copyInvokations, 0);
