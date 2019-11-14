@@ -143,3 +143,28 @@ TEST(EventEmitterTest, TransformForwaringPerformanceTest) {
     spdlog::info("total forwarding time: {}", provider.getSubscriber()->getSubscriptionStats("forwarderListener")->_totalProcessingTimeInNanoSecs);
 }
 
+TEST(EventEmitterDeathTest, noSegmentationFault) {
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
+
+    auto subscriber = provider.getSubscriber();
+    subscriber->registerListener("stats_test", [&] (const EETestEvent & event) {
+                                                   subscriber->removeListener("stats_test");});
+
+    EETestEvent event1(0, "hello");
+    ASSERT_EXIT((provider.getPublisher()->publish(event1), exit(0)),::testing::ExitedWithCode(0),".*");
+}
+
+TEST(EventEmitterTest, listenerStatsNullAtEnd) {
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
+
+    auto subscriber = provider.getSubscriber();
+
+    subscriber->registerListener("stats_test", [&] (const EETestEvent & event) {
+                                                   subscriber->removeListener("stats_test");});
+
+    EETestEvent event1(0, "hello");
+    provider.getPublisher()->publish(event1);
+    // Ensure that listener stats are removed AFTER the publish action has completely terminated.
+    ASSERT_EQ(subscriber->getSubscriptionStats("stats_test"), nullptr);
+
+}

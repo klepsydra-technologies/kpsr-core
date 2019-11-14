@@ -29,6 +29,7 @@
 #include <algorithm>
 
 #include <klepsydra/core/subscription_stats.h>
+#include <spdlog/spdlog.h>
 
 namespace kpsr {
 /**
@@ -231,12 +232,21 @@ void kpsr::EventEmitter::emitEvent(std::string event_id, long long unsigned int 
             continue;
         }
 
-        _listenerStats[h->id]->startProcessMeassure();
-        if (enqueuedTimeNs > 0) {
-            _listenerStats[h->id]->_totalEnqueuedTimeInNs += (TimeUtils::getCurrentNanosecondsAsLlu() - enqueuedTimeNs);
+        try {
+            auto listenerStatistic = _listenerStats.at(h->id);
+            if (!listenerStatistic) {
+                continue;
+            }
+            listenerStatistic->startProcessMeassure();
+            if (enqueuedTimeNs > 0) {
+                listenerStatistic->_totalEnqueuedTimeInNs += (TimeUtils::getCurrentNanosecondsAsLlu() - enqueuedTimeNs);
+            }
+            h->cb(args...);
+            listenerStatistic->stopProcessMeassure();
+        } catch (std::out_of_range &ex) {
+            // Nothing to do. If statics are removed then the handler & callback function have also been removed from map.
+            spdlog::info("Listener already removed from list");
         }
-        h->cb(args...);
-        _listenerStats[h->id]->stopProcessMeassure();
     }
 }
 
