@@ -7,7 +7,7 @@ RUN cd /kpsr-ros \
     && catkin_make install
 
 # Clean the image
-FROM ubuntu:16.04
+FROM osrf/ros:kinetic-desktop-full-xenial
 
 COPY --from=install_docker /usr/local/include/klepsydra/ /usr/local/include/klepsydra/
 COPY --from=install_docker /usr/local/include/kpsr_3parties/ /usr/local/include/kpsr_3parties/
