@@ -89,6 +89,7 @@ TYPED_TEST(KpsrRosWrapperTest, DefaultConstructor)
 TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
 	// Set up ros node.
 	int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_test");
@@ -131,15 +132,21 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
 	    ++item;
 	    // This raises warning for boolean, but sets the boolean to False.
     }
-		    
+
+    rate.sleep();
     kpsrPublisher->publish(item);
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter != 1) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 1){
+            break;
+        }
         rate.sleep();
     }
+
 
     safeQueueProvider.stop();
 
@@ -152,6 +159,7 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
 TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_test");
@@ -176,6 +184,7 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
 
     ASSERT_EQ(cacheListener.counter, 0);
 
+    rate.sleep();
     kpsrPublisher->publish("hola.1");
     ros::spinOnce();
     rate.sleep();
@@ -192,8 +201,12 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5 && ros::ok()) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5 || !ros::ok()){
+            break;
+        }
         rate.sleep();
     }
 
@@ -202,4 +215,5 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
     ASSERT_EQ(cacheListener.counter, 5);
     ASSERT_EQ(*cacheListener.getLastReceivedEvent().get(), "hola.5");
 }
+
 

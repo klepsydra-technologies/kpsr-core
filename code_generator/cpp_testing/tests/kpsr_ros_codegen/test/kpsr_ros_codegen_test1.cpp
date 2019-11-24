@@ -16,7 +16,6 @@
 *  Klepsydra Technologies GmbH.
 *
 ****************************************************************************/
-
 #include <string>
 
 #include "std_msgs/String.h"
@@ -39,6 +38,7 @@
 TEST(KpsrRosCodegeTest, headerMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -63,29 +63,36 @@ TEST(KpsrRosCodegeTest, headerMapperTest) {
 
     kpsr::geometry::Header event;
 
+    ros::spinOnce();
+    rate.sleep();
+    ros::spinOnce();
+
     event.seq = 1;
     event.frame_id = "hola.1";
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
+
 
     event.seq = 2;
     event.frame_id = "hola.2";
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
+
 
     event.seq = 3;
     event.frame_id = "hola.3";
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
     event.seq = 4;
     event.frame_id = "hola.4";
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
+
 
     event.seq = 5;
     event.frame_id = "hola.5";
@@ -93,8 +100,12 @@ TEST(KpsrRosCodegeTest, headerMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -106,6 +117,7 @@ TEST(KpsrRosCodegeTest, headerMapperTest) {
 TEST(KpsrRosCodegeTest, gpsMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -135,43 +147,48 @@ TEST(KpsrRosCodegeTest, gpsMapperTest) {
     event.latitude = 0.1;
     event.longitude = 0.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
+
 	
     event.seq++;
     event.altitude = 1.0;
     event.latitude = 1.1;
     event.longitude = 1.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 	
     event.seq++;
     event.altitude = 2.0;
     event.latitude = 2.1;
     event.longitude = 2.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 	
     event.seq++;
     event.altitude = 3.0;
     event.latitude = 3.1;
     event.longitude = 3.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 	
     event.seq++;
     event.altitude = 4.0;
     event.latitude = 4.1;
     event.longitude = 4.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -185,6 +202,7 @@ TEST(KpsrRosCodegeTest, gpsMapperTest) {
 TEST(KpsrRosCodegeTest, vector3MapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -214,16 +232,16 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
     event.y = 0.1;
     event.z = 0.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 	
     event.seq++;
     event.x = 1.0;
     event.y = 1.1;
     event.z = 1.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
 	
     event.seq++;
@@ -231,8 +249,8 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
     event.y = 2.1;
     event.z = 2.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
 	
     event.seq++;
@@ -240,8 +258,8 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
     event.y = 3.1;
     event.z = 3.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
 	
     event.seq++;
@@ -249,11 +267,15 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
     event.y = 4.1;
     event.z = 4.2;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -266,6 +288,7 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
 TEST(KpsrRosCodegeTest, quaternionMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -306,8 +329,8 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
     event.z = 1.2;
     event.w = 1.3;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
 	
     event.seq++;
@@ -316,8 +339,8 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
     event.z = 2.2;
     event.w = 2.3;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
 	
     event.seq++;
@@ -326,9 +349,8 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
     event.z = 3.2;
     event.w = 3.3;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
-
+    ros::spinOnce();
 	
     event.seq++;
     event.x = 4.0;
@@ -336,11 +358,15 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
     event.z = 4.2;
     event.w = 4.3;
     kpsrPublisher->publish(event);
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -354,6 +380,7 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
 TEST(KpsrRosCodegeTest, imuMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -422,8 +449,8 @@ TEST(KpsrRosCodegeTest, imuMapperTest) {
                                   linear_acceleration_covariance);
         kpsrPublisher->publish(event);
     }
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
     {
         kpsr::geometry::Quaternion orientation(seq++, 30.1, 30.2, 30.3, 30.4);
@@ -438,8 +465,8 @@ TEST(KpsrRosCodegeTest, imuMapperTest) {
                                   linear_acceleration_covariance);
         kpsrPublisher->publish(event);
     }
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
     {
         kpsr::geometry::Quaternion orientation(seq++, 40.1, 40.2, 40.3, 40.4);
@@ -454,11 +481,15 @@ TEST(KpsrRosCodegeTest, imuMapperTest) {
                                   linear_acceleration_covariance);
         kpsrPublisher->publish(event);
     }
-    ros::spinOnce();
     rate.sleep();
+    ros::spinOnce();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 

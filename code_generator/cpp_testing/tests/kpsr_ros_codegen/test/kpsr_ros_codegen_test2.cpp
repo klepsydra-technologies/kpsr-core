@@ -39,6 +39,7 @@
 TEST(KpsrRosCodegeTest, primitiveTypeBasicMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -95,8 +96,12 @@ TEST(KpsrRosCodegeTest, primitiveTypeBasicMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -117,6 +122,7 @@ TEST(KpsrRosCodegeTest, primitiveTypeBasicMapperTest) {
 TEST(KpsrRosCodegeTest, primitiveTypeArrayMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -193,8 +199,12 @@ TEST(KpsrRosCodegeTest, primitiveTypeArrayMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -215,6 +225,7 @@ TEST(KpsrRosCodegeTest, primitiveTypeArrayMapperTest) {
 TEST(KpsrRosCodegeTest, primitiveTypeVectorMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -291,8 +302,12 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -313,6 +328,7 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorMapperTest) {
 TEST(KpsrRosCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -424,8 +440,12 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
@@ -446,6 +466,7 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
 TEST(KpsrRosCodegeTest, primitiveTypeVectorPointerMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -517,8 +538,12 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorPointerMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 

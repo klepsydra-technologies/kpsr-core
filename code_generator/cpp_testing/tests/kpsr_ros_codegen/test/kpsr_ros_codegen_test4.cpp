@@ -35,6 +35,7 @@
 TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
 
     int argc = 0;
+    int max_attempts = 100;
     char ** argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
@@ -90,8 +91,12 @@ TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    for (int attempt = 0; attempt < max_attempts; attempt++){
         ros::spinOnce();
+
+        if (cacheListener.counter == 5){
+            break;
+        }
         rate.sleep();
     }
 
