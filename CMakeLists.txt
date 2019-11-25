@@ -225,8 +225,8 @@ configure_file(KlepsydraConfig.cmake.in
 configure_file(KlepsydraConfigVersion.cmake.in
   "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake" @ONLY)
 
-configure_file(.githooks/pre-commit.in
-  ".git/hooks/pre-commit" @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/.githooks/pre-commit.in
+  "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit" @ONLY)
 
 # Install the KlepsydraConfig.cmake and KlepsydraConfigVersion.cmake
 install(FILES
