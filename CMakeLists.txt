@@ -177,11 +177,11 @@ else()
            SET(${return_list} ${dir_list})
        ENDMACRO()
        PYTHON_DIRECTORIES(PY_DOC_DIRS)
-       string(REGEX REPLACE ";" " " PY_DOC_DIRS "${PY_DOC_DIRS}")
 
        file(GLOB_RECURSE DOC_DIRS "*/modules/group_definitions.h")
        string(REGEX REPLACE "/group_definitions.h[;]?" " " DOC_DIRS "${DOC_DIRS}")
        list (APPEND DOC_DIRS ${PY_DOC_DIRS})
+       string(REGEX REPLACE ";" " " DOC_DIRS "${DOC_DIRS}")
 
        configure_file(${KPSR_BUILD_PATH}/docs/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
        add_custom_target(doc
