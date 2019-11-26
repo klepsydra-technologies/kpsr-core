@@ -5,7 +5,7 @@
 #                            All Rights Reserved.
 #
 #  This file is subject to the terms and conditions defined in
-#  file ‘LICENSE.md’, which is part of this source code package.
+#  file 'LICENSE.md', which is part of this source code package.
 #
 #  NOTICE:  All information contained herein is, and remains the property of Klepsydra
 #  Technologies GmbH and its suppliers, if any. The intellectual and technical concepts
