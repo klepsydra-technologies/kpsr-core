@@ -19,8 +19,8 @@
 
 #include <thread>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include <klepsydra/socket_core/server_socket.h>
 #include <klepsydra/socket_core/protocol_simple.h>

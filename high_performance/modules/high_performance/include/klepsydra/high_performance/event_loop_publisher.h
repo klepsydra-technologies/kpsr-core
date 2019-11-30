@@ -24,8 +24,8 @@
 #include <memory>
 #include <tuple>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+
 
 #include <klepsydra/core/object_pool_publisher.h>
 

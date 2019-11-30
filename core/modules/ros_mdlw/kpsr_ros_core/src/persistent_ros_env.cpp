@@ -20,8 +20,8 @@
 #include "persistent_ros_env.h"
 #include <string.h>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+
 
 kpsr::ros_mdlw::PersistentRosEnv::PersistentRosEnv(ros::NodeHandle * nodeHandle, const std::string yamlFileName, const PersitancePolicy persitancePolicy) {
     _nodeHandle = nodeHandle;

@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include <zmq.hpp>
 
