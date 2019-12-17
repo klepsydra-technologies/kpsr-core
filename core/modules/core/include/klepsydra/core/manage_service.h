@@ -23,8 +23,8 @@
 #include <atomic>
 #include <map>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+
 
 #include <klepsydra/core/environment.h>
 #include <klepsydra/core/service.h>

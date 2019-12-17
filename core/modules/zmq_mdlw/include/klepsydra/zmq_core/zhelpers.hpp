@@ -21,8 +21,8 @@
 #   include <unistd.h>
 #endif
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+
 
 //  Bring Windows MSVC up to C99 scratch
 #if (defined (WIN32))

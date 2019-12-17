@@ -20,8 +20,8 @@
 #ifndef OBJECT_POOL_PUBLISHER_H
 #define OBJECT_POOL_PUBLISHER_H
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+
 
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/core/smart_object_pool.h>

@@ -21,8 +21,8 @@
 #include <vector>
 #include <functional>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/cache_listener.h>

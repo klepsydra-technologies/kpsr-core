@@ -28,7 +28,7 @@
 #include "gtest/gtest.h"
 
 #include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include <klepsydra/dds_serialization/primitive_type_dds_mapper.h>
 #include <klepsydra/dds_serialization/enum_dds_mapper.h>

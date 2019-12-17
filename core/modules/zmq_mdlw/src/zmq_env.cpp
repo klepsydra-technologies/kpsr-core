@@ -21,8 +21,8 @@
 #include <chrono>
 #include <algorithm>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/spdlog.h>
+
 
 #include <klepsydra/zmq_core/zhelpers.hpp>
 #include <klepsydra/zmq_core/zmq_env.h>
