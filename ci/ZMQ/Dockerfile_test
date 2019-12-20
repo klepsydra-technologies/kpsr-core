@@ -1,7 +1,7 @@
 FROM kpsr-thirdparties:ZMQ as thirdparties
 
 # Compile docker
-FROM kpsr-core:sys_dep_ubuntu_18.04 as compile_docker
+FROM kpsr-thirdparties:sys_dep_ubuntu_18.04 as compile_docker
 
 ARG BUILD_ID
 LABEL kpsr-core=compile_docker
