@@ -31,11 +31,11 @@ pipeline {
       steps {
         script {
           docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
-            docker.image("${kpsrCoreECR}:sys_dep_ubuntu_18.04").pull()
+            docker.image("${kpsrThirdPartiesECR}:sys_dep_ubuntu_18.04").pull()
           }
         }
 
-        sh "docker tag ${kpsrCoreECR}:sys_dep_ubuntu_18.04 kpsr-core:sys_dep_ubuntu_18.04"
+        sh "docker tag ${kpsrThirdPartiesECR}:sys_dep_ubuntu_18.04 kpsr-thirdparties:sys_dep_ubuntu_18.04"
       }
     }
     stage('Compile') {
