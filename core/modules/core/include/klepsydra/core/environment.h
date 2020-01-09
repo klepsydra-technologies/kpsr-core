@@ -25,6 +25,9 @@
 namespace kpsr
 {
 
+std::string const DEFAULT_ROOT("default");
+
+
 /**
  * @brief The Environment interface.
  *
@@ -47,64 +50,67 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyString(const std::string key, std::string & value) = 0;
+    virtual void getPropertyString(const std::string& key, std::string & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    virtual void getPropertyInt(const std::string key, int & value) = 0;
+    virtual void getPropertyInt(const std::string& key, int & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    virtual void getPropertyFloat(const std::string key, float & value) = 0;
+    virtual void getPropertyFloat(const std::string& key, float & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    virtual void getPropertyBool(const std::string key, bool & value) = 0;
+    virtual void getPropertyBool(const std::string& key, bool & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    virtual void setPropertyString(const std::string key, const std::string value) = 0;
+    virtual void setPropertyString(const std::string& key, const std::string value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    virtual void setPropertyInt(const std::string key, const int & value) = 0;
+    virtual void setPropertyInt(const std::string& key, const int & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    virtual void setPropertyFloat(const std::string key, const float & value) = 0;
+    virtual void setPropertyFloat(const std::string& key, const float & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    virtual void setPropertyBool(const std::string key, const bool & value) = 0;
+    virtual void setPropertyBool(const std::string& key, const bool & value, std::string const& rootNode = DEFAULT_ROOT) = 0;
 
     /**
-     * @brief persist
+     * @brief loadFile
+     * @param fileName
+     * @param nodeName
      *
-     * This method is used to invoke persistence of the properties. I might be used in cases where
-     * the persistance does not happen automatically, for example in the kpsr::YamlEnvironment.
+     * This method is used to load additional configuration data from another file. It might be used in cases where
+     * additional data may be loaded later, like in kpsr::YamlEnvironment
      */
-    virtual void persist() = 0;
+    virtual void loadFile(const std::string& fileName, const std::string& nodeName) = 0;
+
 };
 }
 #endif

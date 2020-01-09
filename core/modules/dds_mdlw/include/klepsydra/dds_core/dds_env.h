@@ -96,14 +96,15 @@ class DDSEnv : public Environment
 public:
     /**
      * @brief DDSEnv
-     * @param yamlFileName file name to persist to. If empty, no persistent service.
+     * @param yamlFileName file name to load configuration from.
      * @param ddsKey key to identify environment changes messages.
      * @param dataWriter
      * @param dataReader
      */
     DDSEnv(const std::string yamlFileName, std::string ddsKey,
            dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> * dataWriter,
-           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader);
+           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader,
+           const std::string& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief DDSEnv
@@ -113,71 +114,80 @@ public:
      */
     DDSEnv(YamlEnvironment * yamlEnvironment,
            dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> * dataWriter,
-           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader);
+           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader,
+           const std::string& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyString
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string key, std::string & value) override;
+    void getPropertyString(const std::string& key, std::string & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string key, int & value) override;
+    void getPropertyInt(const std::string& key, int & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string key, float & value) override;
+    void getPropertyFloat(const std::string& key, float & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string key, bool & value) override;
+    void getPropertyBool(const std::string& key, bool & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    void setPropertyString(const std::string key, const std::string value) override;
+    void setPropertyString(const std::string& key, const std::string value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    void setPropertyInt(const std::string key, const int & value) override;
+    void setPropertyInt(const std::string& key, const int & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    void setPropertyFloat(const std::string key, const float & value) override;
+    void setPropertyFloat(const std::string& key, const float & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    void setPropertyBool(const std::string key, const bool & value) override;
+    void setPropertyBool(const std::string& key, const bool & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
 
-    void persist() override;
+    virtual void loadFile(const std::string& fileName, const std::string& nodeName);
 
     /**
      * @brief updateConfiguration
      * @param configurationData
      */
     void updateConfiguration(std::string configurationData);
+
+    /**
+     * @brief updateConfiguration
+     * @param configurationData
+     * @param rootNode
+     */
+    void updateConfiguration(std::string configurationData, std::string const& rootNode);
+
 private:
     void publishConfiguration();
 

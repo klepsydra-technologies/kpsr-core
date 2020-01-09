@@ -34,8 +34,19 @@ endif()
 # later. Otherwise we have to add them here ourselves.
 include_directories("${GTEST_PATH}/googletest/include")
 
+set(TEST_DATA ${CMAKE_CURRENT_SOURCE_DIR}/data )
+
+# Configure modules header with variables configured, last position to work!
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/common/config.h.in"
+                "${CMAKE_CURRENT_SOURCE_DIR}/common/config.h" )
+
+
 add_subdirectory(${PROJ_MAIN_NAME}_tests)
 add_subdirectory(mem_${PROJ_MAIN_NAME}_tests)
+IF(KPSR_WITH_YAML)
+   ADD_SUBDIRECTORY(yaml_${PROJ_MAIN_NAME}_tests)
+ENDIF()
+
 IF(KPSR_WITH_ZMQ)
    ADD_SUBDIRECTORY(zmq_${PROJ_MAIN_NAME}_tests)
 ENDIF()

@@ -1,0 +1,4 @@
+// data
+#cmakedefine TEST_DATA "@TEST_DATA@"
+
+// some useful macros

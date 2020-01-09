@@ -150,7 +150,6 @@ include_directories(
 ## Declare a C++ library
 add_library(kpsr_ros_core
   src/ros_env.cpp
-  src/persistent_ros_env.cpp
 )
 
 ## Add cmake target dependencies of the library
