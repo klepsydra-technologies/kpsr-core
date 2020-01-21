@@ -88,7 +88,12 @@ public:
             return publisher.get();
         }
         else {
-            std::function<void(Base &)> _initializerFunction = [](Base & event) { event = new std::stringbuf; };
+            std::function<void(Base &)> _initializerFunction = [](Base & event) {
+                                                                   if (!event) {
+                                                                       event = new std::stringbuf;
+                                                                   }
+                                                                   event->pubseekpos(0);
+                                                               };
             BinaryToZMQChannel * toZmqChannel = new BinaryToZMQChannel(_container, topic, poolSize, _initializerFunction, _zmqPublisher);
             std::shared_ptr<Publisher<T>> publisher(new ToMiddlewareChannel<T, Base>(_container, topic + "_zmq", toZmqChannel));
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
