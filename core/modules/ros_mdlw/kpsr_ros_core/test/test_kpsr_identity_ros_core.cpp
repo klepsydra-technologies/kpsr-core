@@ -7,6 +7,7 @@
 #include <klepsydra/core/cache_listener.h>
 
 #include <kpsr_ros_serialization/primitive_type_ros_mapper.h>
+#include <klepsydra/serialization/identity_mapper.h>
 
 #include "to_ros_middleware_provider.h"
 #include "from_ros_middleware_provider.h"
