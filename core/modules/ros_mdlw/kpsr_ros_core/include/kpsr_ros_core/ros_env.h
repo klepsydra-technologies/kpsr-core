@@ -55,65 +55,74 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string key, std::string & value);
+    void getPropertyString(const std::string& key, std::string & value, const std::string& rootNode="");
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string key, int & value);
+    void getPropertyInt(const std::string& key, int & value, const std::string& rootNode="");
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string key, float & value);
+    void getPropertyFloat(const std::string& key, float & value, const std::string& rootNode="");
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string key, bool & value);
+    void getPropertyBool(const std::string& key, bool & value, const std::string& rootNode="");
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    void setPropertyString(const std::string key, const std::string value);
+    void setPropertyString(const std::string& key, const std::string value, const std::string& rootNode="");
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    void setPropertyInt(const std::string key, const int & value);
+    void setPropertyInt(const std::string& key, const int & value, const std::string& rootNode="");
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    void setPropertyFloat(const std::string key, const float & value);
+    void setPropertyFloat(const std::string& key, const float & value, const std::string& rootNode="");
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    void setPropertyBool(const std::string key, const bool & value);
+    void setPropertyBool(const std::string& key, const bool & value, const std::string& rootNode="");
 
-    /**
-     * @brief persist empty implementation
+    /*
+     * @brief loadFile
+     * @param fileName
+     * @param nodeName
+     *
+     * This method is used to load additional configuration data from another file. It might be used in cases where
+     * additional data may be loaded later, like in kpsr::YamlEnvironment
+     *
+     * Currently unsupported for ROS
      */
-    void persist() {}
+
+    void loadFile(const std::string& fileName, const std::string& nodeName);
+
 
 private:
     ros::NodeHandle * nodeHandle;
-
+    std::string getKey(const std::string& key, const std::string& rootNode);
 };
 }
 }

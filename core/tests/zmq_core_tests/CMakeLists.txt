@@ -30,6 +30,7 @@ include_directories( ${cppzmq_INCLUDE_DIR})
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/zmq_mdlw/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/mem_mdlw/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/yaml_env/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/serialization/modules/serialization/include )
 INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
 
@@ -48,6 +49,6 @@ LINK_DIRECTORIES()
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 #---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_mem_core cppzmq atomic gtest_main)
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_mem_core kpsr_zmq_${PROJ_MAIN_NAME} cppzmq atomic gtest_main)
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

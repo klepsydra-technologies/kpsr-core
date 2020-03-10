@@ -28,6 +28,7 @@
 #include "gtest/gtest.h"
 
 #include <klepsydra/dds_core/dds_env.h>
+#include "config.h"
 
 TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
     dds::domain::DomainParticipant dp(0);
@@ -42,11 +43,11 @@ TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
     dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> datareader2(sub, topic);
 
     kpsr::YamlEnvironment yamlEnvSub;
-    yamlEnvSub.reload("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
+    yamlEnvSub.updateConfiguration("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
     kpsr::dds_mdlw::DDSEnv envSub(&yamlEnvSub, &datawriter1, &datareader1);
 
     kpsr::YamlEnvironment yamlEnvPub;
-    yamlEnvPub.reload("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
+    yamlEnvPub.updateConfiguration("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
     kpsr::dds_mdlw::DDSEnv envPub(&yamlEnvPub, &datawriter2, &datareader2);
 
     envPub.setPropertyString("greeting", "hola");
@@ -71,4 +72,65 @@ TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
         ASSERT_GT(attempts, 0);
         ASSERT_EQ(iter, i);
     }
+}
+
+TEST(DdsEnvironmentTest, MultiYamlTestSingle) {
+    std::string basename("testfile1.yaml");
+    std::string folderName(TEST_DATA);
+    std::string filename = folderName + "/" + basename;
+
+    dds::domain::DomainParticipant dp(0);
+    dds::pub::Publisher pub(dp);
+    dds::sub::Subscriber sub(dp);
+
+    dds::topic::Topic<kpsr_dds_core::DDSEnvironmentData> topic(dp, "kpsrConfigurationTopic");
+
+    dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> datawriter1(pub, topic);
+    dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> datareader1(sub, topic);
+    kpsr::dds_mdlw::DDSEnv envSub(filename, "test", &datawriter1, &datareader1, "file1");
+
+    std::string nameInFile;
+    // get property should not work if rootnode "file1" is not provided.
+    ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile));
+
+    envSub.getPropertyString("filename", nameInFile, "file1");
+    ASSERT_EQ(nameInFile, basename);
+}
+
+TEST(DdsEnvironmentTest, MultiYamlUpdateConfigurationTest) {
+    std::string basename("testfile1.yaml");
+    std::string folderName(TEST_DATA);
+    std::string filename = folderName + "/" + basename;
+
+    dds::domain::DomainParticipant dp(0);
+    dds::pub::Publisher pub(dp);
+    dds::sub::Subscriber sub(dp);
+
+    dds::topic::Topic<kpsr_dds_core::DDSEnvironmentData> topic(dp, "kpsrConfigurationTopic");
+
+    dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> datawriter1(pub, topic);
+    dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> datareader1(sub, topic);
+    kpsr::dds_mdlw::DDSEnv envSub(filename, "test", &datawriter1, &datareader1, "file1");
+
+    // upload new file and see if updates other environments with same ddsKey
+    // first set up new environment with same ddskey.
+    dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> datawriter2(pub, topic);
+    dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> datareader2(sub, topic);
+    kpsr::YamlEnvironment yamlEnvPub;
+    yamlEnvPub.updateConfiguration("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"", kpsr::DEFAULT_ROOT);
+    kpsr::dds_mdlw::DDSEnv envPub(&yamlEnvPub, &datawriter2, &datareader2);
+
+    std::string basename2("testfile2.yaml");
+    std::string filename2 = folderName + "/" + basename2;
+    envSub.loadFile(filename2, "file2");
+
+    std::string nameFile2;
+    envPub.getPropertyString("filename", nameFile, "file2");
+    ASSERT_EQ(nameFile2, basename2);
+
+    std::string nameInFile;
+    envPub.getPropertyString("filename", nameInFile, "file1");
+    ASSERT_EQ(nameInFile, basename);
+    std::string greeting;
+    ASSERT_ANY_THROW(envPub.getPropertyString("greeting", greeting));
 }
