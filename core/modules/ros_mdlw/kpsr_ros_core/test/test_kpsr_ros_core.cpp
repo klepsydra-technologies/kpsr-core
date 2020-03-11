@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 
 #include "std_msgs/String.h"
 #include <gtest/gtest.h>
@@ -10,6 +11,7 @@
 
 #include "to_ros_middleware_provider.h"
 #include "from_ros_middleware_provider.h"
+#include "ros_env.h"
 #include <typeinfo>  // Needed to check type.
 
 // Setting up templates and params for google typed parameter tests.
@@ -203,3 +205,50 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
     ASSERT_EQ(*cacheListener.getLastReceivedEvent().get(), "hola.5");
 }
 
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRoot) {
+
+    int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_core_env_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+    kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
+
+    const std::string testKey("testkey");
+    const int sampleValue(10);
+
+    environment.setPropertyInt(testKey, sampleValue);
+
+    int checkValue;
+    ASSERT_TRUE(nodeHandle.hasParam(testKey));
+    nodeHandle.getParam(testKey, checkValue);
+    ASSERT_EQ(sampleValue, checkValue);
+    nodeHandle.deleteParam(testKey);
+}
+
+TEST(KpsrRosCoreTest, EnvironmentTestRoot) {
+
+    int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_core_env_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+    kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
+
+    const std::string testRootNode("testroot");
+    const std::string testKey("testkey");
+    const int sampleValue(10);
+
+    environment.setPropertyInt(testKey, sampleValue, testRootNode);
+
+    int checkValue;
+    ASSERT_FALSE(nodeHandle.hasParam(testKey));
+    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    ASSERT_TRUE(nodeHandle.hasParam(actualKey));
+    nodeHandle.getParam(actualKey, checkValue);
+    ASSERT_EQ(sampleValue, checkValue);
+    nodeHandle.deleteParam(actualKey);
+
+}
