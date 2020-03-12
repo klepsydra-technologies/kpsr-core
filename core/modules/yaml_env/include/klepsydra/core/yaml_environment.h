@@ -54,56 +54,56 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyString(const std::string& key, std::string & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void getPropertyString(const std::string key, std::string & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    virtual void getPropertyInt(const std::string& key, int & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void getPropertyInt(const std::string key, int & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    virtual void getPropertyFloat(const std::string& key, float & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void getPropertyFloat(const std::string key, float & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    virtual void getPropertyBool(const std::string& key, bool & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void getPropertyBool(const std::string key, bool & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    virtual void setPropertyString(const std::string& key, const std::string value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void setPropertyString(const std::string key, const std::string value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    virtual void setPropertyInt(const std::string& key, const int & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void setPropertyInt(const std::string key, const int & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    virtual void setPropertyFloat(const std::string& key, const float & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void setPropertyFloat(const std::string key, const float & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    virtual void setPropertyBool(const std::string& key, const bool & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
+    virtual void setPropertyBool(const std::string key, const bool & value, std::string const& rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * \brief reload

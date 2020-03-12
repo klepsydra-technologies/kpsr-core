@@ -580,3 +580,97 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetString) {
     ASSERT_EQ(sampleValue, checkValue);
     nodeHandle.deleteParam(actualKey);
 }
+
+////// Char String test ///////////////
+/// Set params ///////////////
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetCharString) {
+
+    int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_core_env_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+    kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
+
+    // const std::string testKey("testkey");
+    const std::string sampleValue("sampleValue");
+
+    environment.setPropertyString("testKey", sampleValue);
+
+    std::string checkValue;
+    ASSERT_TRUE(nodeHandle.hasParam("testKey"));
+    nodeHandle.getParam("testKey", checkValue);
+    ASSERT_EQ(sampleValue, checkValue);
+    nodeHandle.deleteParam("testKey");
+}
+
+TEST(KpsrRosCoreTest, EnvironmentTestRootSetCharString) {
+
+    int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_core_env_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+    kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
+
+    const std::string testRootNode("testroot");
+    const std::string testKey("testkey");
+    const std::string sampleValue("sampleValue");
+
+    environment.setPropertyString("testkey", sampleValue, "testroot");
+
+    std::string checkValue;
+    ASSERT_FALSE(nodeHandle.hasParam(testKey));
+    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    ASSERT_TRUE(nodeHandle.hasParam(actualKey));
+    nodeHandle.getParam(actualKey, checkValue);
+    ASSERT_EQ(sampleValue, checkValue);
+    nodeHandle.deleteParam(actualKey);
+}
+
+// /// Get params ///////////////
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetCharString) {
+
+    int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_core_env_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+    kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
+
+    
+    const std::string sampleValue("sampleValue");
+
+    nodeHandle.setParam("testKey", sampleValue);
+
+    std::string checkValue;
+    environment.getPropertyString("testKey", checkValue);
+    ASSERT_EQ(sampleValue, checkValue);
+    nodeHandle.deleteParam("testKey");
+}
+
+TEST(KpsrRosCoreTest, EnvironmentTestRootGetCharString) {
+
+    int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_core_env_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+    kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
+
+    const std::string testRootNode("testroot");
+    const std::string testKey("testkey");
+    const std::string sampleValue("sampleValue");
+    std::string actualKey ("/" + testRootNode + "/" + testKey);
+
+    nodeHandle.setParam(actualKey, sampleValue);
+
+    std::string checkValue;
+    environment.getPropertyString("testkey", checkValue, "testroot");
+    ASSERT_EQ(sampleValue, checkValue);
+    nodeHandle.deleteParam(actualKey);
+}

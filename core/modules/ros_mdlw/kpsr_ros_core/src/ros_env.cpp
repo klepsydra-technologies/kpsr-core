@@ -25,42 +25,42 @@ kpsr::ros_mdlw::RosEnv::RosEnv(ros::NodeHandle * nodeHandle) {
 	this->nodeHandle = nodeHandle;
 }
 
-void kpsr::ros_mdlw::RosEnv::getPropertyString(const std::string& key, std::string & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::getPropertyString(const std::string key, std::string & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->getParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::getPropertyInt(const std::string& key, int & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::getPropertyInt(const std::string key, int & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->getParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::getPropertyFloat(const std::string& key, float & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::getPropertyFloat(const std::string key, float & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->getParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::getPropertyBool(const std::string& key, bool & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::getPropertyBool(const std::string key, bool & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->getParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::setPropertyString(const std::string& key, const std::string value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::setPropertyString(const std::string key, const std::string value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->setParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::setPropertyInt(const std::string& key, const int & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::setPropertyInt(const std::string key, const int & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->setParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::setPropertyFloat(const std::string& key, const float & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::setPropertyFloat(const std::string key, const float & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->setParam(newKey, value);
 }
 
-void kpsr::ros_mdlw::RosEnv::setPropertyBool(const std::string& key, const bool & value, const std::string& rootNode) {
+void kpsr::ros_mdlw::RosEnv::setPropertyBool(const std::string key, const bool & value, const std::string& rootNode) {
     auto newKey = getKey(key, rootNode);
     nodeHandle->setParam(newKey, value);
 }
@@ -69,7 +69,7 @@ void kpsr::ros_mdlw::RosEnv::loadFile(const std::string& fileName, const std::st
     throw "Unsupported operation.";
 }
 
-std::string kpsr::ros_mdlw::RosEnv::getKey(const std::string& key, const std::string& rootNode) {
+std::string kpsr::ros_mdlw::RosEnv::getKey(const std::string key, const std::string& rootNode) {
     std::string newKey(key);
     if (0 != rootNode.size()) {
         newKey = "/" + rootNode + "/" + key;
