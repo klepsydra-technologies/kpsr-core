@@ -27,35 +27,35 @@ kpsr::PropertyFileEnvironment::PropertyFileEnvironment(std::istream & propertyFi
      : _configFile(propertyFileContent)
 {}
 
-void kpsr::PropertyFileEnvironment::getPropertyString(const std::string key, std::string & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::getPropertyString(const std::string& key, std::string & value, std::string const& rootNode) {
 	value = _configFile.getValueOfKey<std::string>(key);
 }
 
-void kpsr::PropertyFileEnvironment::getPropertyInt(const std::string key, int & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::getPropertyInt(const std::string& key, int & value, std::string const& rootNode) {
 	value = _configFile.getValueOfKey<int>(key);
 }
 
-void kpsr::PropertyFileEnvironment::getPropertyFloat(const std::string key, float & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::getPropertyFloat(const std::string& key, float & value, std::string const& rootNode) {
 	value = _configFile.getValueOfKey<float>(key);
 }
 
-void kpsr::PropertyFileEnvironment::getPropertyBool(const std::string key, bool & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::getPropertyBool(const std::string& key, bool & value, std::string const& rootNode) {
 	value = _configFile.getValueOfKey<bool>(key);
 }
 
-void kpsr::PropertyFileEnvironment::setPropertyString(const std::string key, const std::string value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::setPropertyString(const std::string& key, const std::string value, std::string const& rootNode) {
 	// Unsupported
 }
 
-void kpsr::PropertyFileEnvironment::setPropertyInt(const std::string key, const int & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::setPropertyInt(const std::string& key, const int & value, std::string const& rootNode) {
 	// Unsupported
 }
 
-void kpsr::PropertyFileEnvironment::setPropertyFloat(const std::string key, const float & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::setPropertyFloat(const std::string& key, const float & value, std::string const& rootNode) {
 	// Unsupported
 }
 
-void kpsr::PropertyFileEnvironment::setPropertyBool(const std::string key, const bool & value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::setPropertyBool(const std::string& key, const bool & value, std::string const& rootNode) {
 	// Unsupported
 }
 

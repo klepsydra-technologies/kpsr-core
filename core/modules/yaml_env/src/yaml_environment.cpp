@@ -34,35 +34,35 @@ kpsr::YamlEnvironment::YamlEnvironment()
     , _node() {
 }
 
-void kpsr::YamlEnvironment::getPropertyString(const std::string key, std::string & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyString(const std::string& key, std::string & value, std::string const& rootNode) {
     value = _node[rootNode][key].as<std::string>();
 }
 
-void kpsr::YamlEnvironment::getPropertyInt(const std::string key, int & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyInt(const std::string& key, int & value, std::string const& rootNode) {
     value = _node[rootNode][key].as<int>();
 }
 
-void kpsr::YamlEnvironment::getPropertyFloat(const std::string key, float & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyFloat(const std::string& key, float & value, std::string const& rootNode) {
     value = _node[rootNode][key].as<float>();
 }
 
-void kpsr::YamlEnvironment::getPropertyBool(const std::string key, bool & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyBool(const std::string& key, bool & value, std::string const& rootNode) {
     value = _node[rootNode][key].as<bool>();
 }
 
-void kpsr::YamlEnvironment::setPropertyString(const std::string key, const std::string value, std::string const& rootNode){
+void kpsr::YamlEnvironment::setPropertyString(const std::string& key, const std::string value, std::string const& rootNode){
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::setPropertyInt(const std::string key, const int & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::setPropertyInt(const std::string& key, const int & value, std::string const& rootNode) {
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::setPropertyFloat(const std::string key, const float & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::setPropertyFloat(const std::string& key, const float & value, std::string const& rootNode) {
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::setPropertyBool(const std::string key, const bool & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::setPropertyBool(const std::string& key, const bool & value, std::string const& rootNode) {
     _node[rootNode][key] = value;
 }
 
