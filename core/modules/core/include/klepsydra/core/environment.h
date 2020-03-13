@@ -25,7 +25,7 @@
 namespace kpsr
 {
 
-std::string const DEFAULT_ROOT("default");
+std::string const DEFAULT_ROOT("");
 
 
 /**
