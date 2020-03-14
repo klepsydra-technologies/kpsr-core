@@ -91,7 +91,7 @@ TEST(DdsEnvironmentTest, MultiYamlTestSingle) {
 
     std::string nameInFile;
     // get property should not work if rootnode "file1" is not provided.
-    ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile));
+    ASSERT_ANY_THROW(envSub.getPropertyString("filename", nameInFile));
 
     envSub.getPropertyString("filename", nameInFile, "file1");
     ASSERT_EQ(nameInFile, basename);
@@ -125,7 +125,7 @@ TEST(DdsEnvironmentTest, MultiYamlUpdateConfigurationTest) {
     envSub.loadFile(filename2, "file2");
 
     std::string nameFile2;
-    envPub.getPropertyString("filename", nameFile, "file2");
+    envPub.getPropertyString("filename", nameFile2, "file2");
     ASSERT_EQ(nameFile2, basename2);
 
     std::string nameInFile;
