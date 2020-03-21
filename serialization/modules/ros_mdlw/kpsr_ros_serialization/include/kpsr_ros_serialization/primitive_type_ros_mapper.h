@@ -168,6 +168,39 @@ public:
 
 template<>
 /**
+ * @brief The Mapper<double, std_msgs::Float64> class
+ *
+ * @copyright Klepsydra Technologies 2019-2020.
+ *
+ * @version 2.0.1
+ *
+ * @ingroup kpsr-rosstg-serialization
+ *
+ */
+class Mapper<double, std_msgs::Float64>
+{
+public:
+    /**
+     * @brief fromMiddleware
+     * @param message
+     * @param event
+     */
+    void fromMiddleware(const std_msgs::Float64& message, double& event) {
+        event  = message.data;
+    }
+
+    /**
+     * @brief toMiddleware
+     * @param event
+     * @param message
+     */
+    void toMiddleware(const double& event, std_msgs::Float64& message) {
+        message.data = event;
+    }
+};
+
+template<>
+/**
  * @brief The Mapper<std::string, std_msgs::String> class
  *
  * @copyright Klepsydra Technologies 2019-2020.
