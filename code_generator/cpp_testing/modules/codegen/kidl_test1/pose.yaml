@@ -1,0 +1,12 @@
+class_name: kpsr::geometry::Pose
+middlewares:
+    - type: ROS
+      project_name: geometry_msgs
+      already_exists: true
+      class_name: Pose
+      include_file: <geometry_msgs/Pose.h>
+fields:
+   - name : position
+     type : kpsr::geometry::Point
+   - name : orientation
+     type : kpsr::geometry::Quaternion

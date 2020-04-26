@@ -35,6 +35,7 @@
 #include "vector3_ros_mapper.h"
 #include "quaternion_ros_mapper.h"
 #include "imu_ros_mapper.h"
+#include "pose_stamped_ros_mapper.h"
 
 TEST(KpsrRosCodegeTest, headerMapperTest) {
 
@@ -493,4 +494,110 @@ TEST(KpsrRosCodegeTest, imuMapperTest) {
     ASSERT_EQ(event.linear_acceleration.y, cacheListener.getLastReceivedEvent()->linear_acceleration.y);
     ASSERT_EQ(event.linear_acceleration.z, cacheListener.getLastReceivedEvent()->linear_acceleration.z);
 
+}
+
+TEST(KpsrRosCodegeTest, poseStampedTest) {
+        int argc = 0;
+    char ** argv = nullptr;
+
+    ros::init(argc, argv, "kpsr_ros_codegen_test");
+    ros::NodeHandle nodeHandle;
+    ros::Rate rate(100);
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<geometry_msgs::PoseStamped>("kpsr_ros_codegen_test_topicE", 1);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::geometry::PoseStamped> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::geometry::PoseStamped, geometry_msgs::PoseStamped>("kpsr_ros_codegen_test_topicE", 1, nullptr, stringPublisher);
+
+    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::PoseStamped> basicProvider(nullptr, "test", 0, nullptr, nullptr);
+
+    kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
+    fromRosProvider.registerToTopic<kpsr::geometry::PoseStamped, geometry_msgs::PoseStamped>("kpsr_ros_codegen_test_topicE", 1, basicProvider.getPublisher());
+
+    kpsr::mem::CacheListener<kpsr::geometry::PoseStamped> cacheListener;
+    basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    ASSERT_EQ(cacheListener.counter, 0);
+
+    kpsr::geometry::PoseStamped event;
+
+    event.header.seq = 1;
+    event.header.frame_id = "hola.1";
+    event.pose.position.x = 1;
+    event.pose.position.y = 2;
+    event.pose.position.z = 3;
+    event.pose.orientation.seq = 1;
+    event.pose.orientation.x = 0.0;
+    event.pose.orientation.y = 0.1;
+    event.pose.orientation.z = 0.2;
+    event.pose.orientation.w = 0.3;
+    kpsrPublisher->publish(event);
+    ros::spinOnce();
+    rate.sleep();
+
+    event.header.seq = 2;
+    event.header.frame_id = "hola.2";
+    event.pose.position.x = 1;
+    event.pose.position.y = 2;
+    event.pose.position.z = 3;
+    event.pose.orientation.seq = 2;
+    event.pose.orientation.x = 0.0;
+    event.pose.orientation.y = 0.1;
+    event.pose.orientation.z = 0.2;
+    event.pose.orientation.w = 0.3;
+    kpsrPublisher->publish(event);
+    ros::spinOnce();
+    rate.sleep();
+
+    event.header.seq = 3;
+    event.header.frame_id = "hola.3";
+    event.pose.position.x = 1;
+    event.pose.position.y = 2;
+    event.pose.position.z = 3;
+    event.pose.orientation.seq = 1;
+    event.pose.orientation.x = 0.0;
+    event.pose.orientation.y = 0.1;
+    event.pose.orientation.z = 0.2;
+    event.pose.orientation.w = 0.3;
+    kpsrPublisher->publish(event);
+    ros::spinOnce();
+    rate.sleep();
+
+    event.header.seq = 4;
+    event.header.frame_id = "hola.4";
+    event.pose.position.x = 1;
+    event.pose.position.y = 2;
+    event.pose.position.z = 3;
+    event.pose.orientation.seq = 1;
+    event.pose.orientation.x = 0.0;
+    event.pose.orientation.y = 0.1;
+    event.pose.orientation.z = 0.2;
+    event.pose.orientation.w = 0.3;
+    kpsrPublisher->publish(event);
+    ros::spinOnce();
+    rate.sleep();
+
+    event.header.seq = 5;
+    event.header.frame_id = "hola.5";
+    event.pose.position.x = 1;
+    event.pose.position.y = 2;
+    event.pose.position.z = 3;
+    event.pose.orientation.seq = 1;
+    event.pose.orientation.x = 0.0;
+    event.pose.orientation.y = 0.1;
+    event.pose.orientation.z = 0.2;
+    event.pose.orientation.w = 0.3;
+    kpsrPublisher->publish(event);
+    ros::spinOnce();
+    rate.sleep();
+
+    while (cacheListener.counter < 5) {
+        ros::spinOnce();
+        rate.sleep();
+    }
+
+    ASSERT_EQ(cacheListener.counter, 5);
+    ASSERT_EQ(cacheListener.getLastReceivedEvent()->header.seq, 5);
+    ASSERT_EQ(cacheListener.getLastReceivedEvent()->header.frame_id, "hola.5");
 }

@@ -151,6 +151,10 @@ include_directories(
   ../../modules/codegen/gen_test2/poco/include
   ../../modules/codegen/gen_test3/poco/include
   ../../modules/codegen/gen_test4/poco/include
+  ../../modules/codegen/gen_test1/rosstg/include
+  ../../modules/codegen/gen_test2/rosstg/include
+  ../../modules/codegen/gen_test3/rosstg/include
+  ../../modules/codegen/gen_test4/rosstg/include
   ../../modules/codegen/include
   ${catkin_INCLUDE_DIRS}
   ${KLEPSYDRA_INCLUDE_DIRS}

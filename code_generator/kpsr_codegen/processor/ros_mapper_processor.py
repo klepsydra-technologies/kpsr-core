@@ -84,8 +84,8 @@ def process_mapper_instances(class_definition, class_definition_dict):
                 include_file = ros_middleware_definition.mapper_include_file
             else:
                 class_name = split_namespace_class(field.field_type)[-1]
-                include_file = "\"%s%s\"" % (convert_to_lower_case_underscores(class_name), "_ros_mapper.h")
-
+                include_filename = "%s%s" % (convert_to_lower_case_underscores(class_name), "_ros_mapper.h")
+                include_file = "<" + os.path.join(project_name, include_filename) + ">"
             ros_mapper_definition = RosMapperInstanceDefinition(mapper_name, field.field_type, ros_type, include_file)
 
             mapper_instances[mapper_name] = ros_mapper_definition

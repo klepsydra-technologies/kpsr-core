@@ -1,0 +1,12 @@
+class_name: kpsr::geometry::PoseStamped
+middlewares:
+    - type: ROS
+      project_name: geometry_msgs
+      already_exists: true
+      class_name: PoseStamped
+      include_file: <geometry_msgs/PoseStamped.h>
+fields:
+   - name : header
+     type : kpsr::geometry::Header
+   - name : pose
+     type : kpsr::geometry::Pose
