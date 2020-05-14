@@ -75,6 +75,8 @@ def process_custom_includes(class_definition, class_definition_dict, include_pat
 
         if field.is_related_class:
             related_class_definition = class_definition_dict.get(field.field_type)
+            if related_class_definition is None:
+                related_class_definition = class_definition.related_classes.get(field.field_type)
             if related_class_definition.already_exists:
                 include_file = "\"%s\"" % related_class_definition.include_file
                 custom_includes.add(include_file.replace("\"<", "<").replace(">\"", ">").replace("\"\"", "\""))

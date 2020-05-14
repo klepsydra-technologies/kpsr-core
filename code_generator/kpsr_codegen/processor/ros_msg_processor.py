@@ -49,7 +49,7 @@ class RosMsgProcessor:
         else:
             ros_fields = [field for field in class_definition.fields if field.field_name
                           not in ros_middleware_definition.ignore_fields]
-        poco_field_definitions = [self.process_field(field, class_definition_dict, class_definition.enums)
+        poco_field_definitions = [self.process_field(field, class_definition_dict, class_definition.enums, class_definition.related_classes)
                                   for field in ros_fields]
         if class_definition.parent_class is not None:
             parent_class_definition = self.process(class_definition.parent_class, class_definition_dict)
@@ -58,7 +58,7 @@ class RosMsgProcessor:
 
         return MsgDefinition(class_definition.class_name, parent_class_definition, poco_field_definitions)
 
-    def process_field(self, field, class_definition_dict, enums):
+    def process_field(self, field, class_definition_dict, enums, related_classes):
         if field.field_type in self.fundamental_types:
             project_name = None
             field_ros_type = split_namespace_class(self.ros_types.get(field.field_type))[-1]
@@ -67,7 +67,10 @@ class RosMsgProcessor:
                 project_name = None
                 field_ros_type = self.ros_types.get('enum')
             else:
-                ros_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.ROS]
+                related_class_definition = class_definition_dict.get(field.field_type)
+                if related_class_definition is None:
+                    related_class_definition = related_classes.get(field.field_type)
+                ros_middleware_definition = related_class_definition.middlewares[MiddlewareType.ROS]
                 project_name = ros_middleware_definition.project_name
                 field_ros_type = ros_middleware_definition.class_name
 

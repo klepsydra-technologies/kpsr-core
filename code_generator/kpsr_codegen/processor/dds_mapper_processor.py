@@ -74,7 +74,10 @@ def process_mapper_instances(class_definition, class_definition_dict, include_pa
 
     for field in class_definition.fields:
         if field.is_related_class:
-            dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
+            related_class_definition = class_definition_dict.get(field.field_type)
+            if related_class_definition is None:
+                related_class_definition = class_definition.related_classes.get(field.field_type)
+            dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
             field_dds_type = dds_middleware_definition.class_name
             dds_type = field_dds_type
             mapper_name = '_%s_mapper' % field.field_type.replace('::', '_').lower()
@@ -118,7 +121,7 @@ class DdsMapperProcessor:
         field_definitions = [self.process_field(field, class_definition_dict) for field in class_definition.fields]
         if class_definition.parent_class is not None:
             parent_class_definition = class_definition_dict.get(class_definition.parent_class)
-            parent_field_definitions = [self.process_field(field, class_definition_dict)
+            parent_field_definitions = [self.process_field(field, class_definition_dict, class_definition)
                                         for field in parent_class_definition.fields]
             field_definitions = field_definitions + parent_field_definitions
 
@@ -129,14 +132,17 @@ class DdsMapperProcessor:
         return DdsMapperDefinition(class_definition.class_name, define_class_name , dds_type, custom_includes,
                                    mapper_instances, field_definitions)
 
-    def process_field(self, field, class_definition_dict):
+    def process_field(self, field, class_definition_dict, class_definition):
         if field.is_related_class:
             mapper_name = '_%s_mapper' % field.field_type.replace('::', '_').lower()
         else:
             mapper_name = None
 
         if field.is_related_class:
-            dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
+            related_class_definition = class_definition_dict.get(field.field_type)
+            if related_class_definition is None:
+                related_class_definition = class_definition.related_classes.get(field.field_type)
+            dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
             field_dds_type = dds_middleware_definition.class_name
         elif field.is_enum:
             field_dds_type = self.dds_types.get('int16')

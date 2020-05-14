@@ -4,10 +4,10 @@
 
 Setup | Status
 --- | ---
-Minimal | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-core%2FupdateCereal)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-core/job/updateCereal/)
-ZMQ | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-zmq-core%2FupdateCereal)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-zmq-core/job/updateCereal/)
-ROS 16.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-ros-core-16.04%2FupdateCereal)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-ros-core-16.04/job/updateCereal/)
-ROS 18.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-ros-core-18.04%2FupdateCereal)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-ros-core-18.04/job/updateCereal/)
+Minimal | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-core%2Ffeature%252Fcodegen_related_class)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-core/job/feature%2Fcodegen_related_class/)
+ZMQ | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-zmq-core%2Ffeature%252Fcodegen_related_class)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-zmq-core/job/feature%2Fcodegen_related_class/)
+ROS 16.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-ros-core-16.04%2Ffeature%252Fcodegen_related_class)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-ros-core-16.04/job/feature%2Fcodegen_related_class/)
+ROS 18.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job=kpsr-ros-core-18.04%2Ffeature%252Fcodegen_related_class)](https://jenkins1.klepsydra.com/view/Core/job/kpsr-ros-core-18.04/job/feature%2Fcodegen_related_class/)
 
 # Installation Instructions
 

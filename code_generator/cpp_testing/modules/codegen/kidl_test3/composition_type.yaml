@@ -18,6 +18,22 @@ enums:
     - enum_name: kpsr::codegen::OldEnum
       already_exists: true
       include_file: <klepsydra/codegen/old_enum.h>
+
+related_classes:
+    - class_name: kpsr::geometry::Quaternion
+      include_file: <klepsydra/codegen/quaternion.h>
+      middlewares:
+        - type: ROS  
+          project_name: geometry_msgs
+          already_exists: true
+          class_name: Quaternion
+          include_file: <geometry_msgs/Quaternion.h>
+          mapper_include_file: <geometry_msgs/quaternion_ros_mapper.h>
+        - type: DDS
+          class_name: kpsr_dds_geometry::QuaternionData
+          already_exists: true
+          mapper_include_file: <klepsydra/codegen/dds/quaternion_dds_mapper.h>
+          idl_file: <quaternion_data.idl>
 fields:
     - name   : seq
       type   : uint32
@@ -57,4 +73,5 @@ fields:
       type   : kpsr::codegen::OldEnum[s]
     - name   : oldEnumVectorPointer
       type   : kpsr::codegen::OldEnum[*]
-
+    - name   : quat
+      type   : kpsr::geometry::Quaternion

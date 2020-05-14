@@ -45,7 +45,7 @@ class DdsIdlProcessor:
     def process(self, class_definition_name, class_definition_dict):
         class_definition = class_definition_dict.get(class_definition_name)
 
-        idl_field_definitions = [self.process_field(field, class_definition_dict, class_definition.enums)
+        idl_field_definitions = [self.process_field(field, class_definition_dict, class_definition.enums, class_definition.related_classes)
                                   for field in class_definition.fields]
 
         include_list = self.process_includes(class_definition, class_definition_dict)
@@ -72,7 +72,10 @@ class DdsIdlProcessor:
         include_list = set()
         for field in class_definition.fields:
             if not field.is_enum and field.field_type not in self.fundamental_types:
-                dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
+                related_class_definition = class_definition_dict.get(field.field_type)
+                if related_class_definition is None:
+                    related_class_definition = class_definition.related_classes.get(field.field_type)
+                dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
                 if dds_middleware_definition.idl_file:
                     include_list.add("\"%s\"", dds_middleware_definition.idl_file)
                 else:
@@ -81,14 +84,17 @@ class DdsIdlProcessor:
 
         return include_list
 
-    def process_field(self, field, class_definition_dict, enums):
+    def process_field(self, field, class_definition_dict, enums, related_classes):
         if field.field_type in self.fundamental_types:
             field_dds_type = split_namespace_class(self.dds_types.get(field.field_type))[-1]
         else:
             if field.field_type in enums:
                 field_dds_type = self.dds_types.get('enum')
             else:
-                dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
+                related_class_definition = class_definition_dict.get(field.field_type)
+                if related_class_definition is None:
+                    related_class_definition = related_classes.get(field.field_type)
+                dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
                 field_dds_type = dds_middleware_definition.class_name
 
         if field.is_vector:
