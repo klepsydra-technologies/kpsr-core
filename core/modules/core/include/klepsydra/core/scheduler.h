@@ -29,7 +29,7 @@
 namespace kpsr {
 class Scheduler {
 public:
-
+    virtual ~Scheduler() {}
     /**
      * @brief addToSchedule
      * @param name
@@ -37,7 +37,7 @@ public:
      * @param repeat
      * @param function
      */
-    virtual void startScheduledTask(std::string name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) = 0;
+    virtual void startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) = 0;
 
     /**
      * @brief startScheduledService
@@ -51,7 +51,7 @@ public:
      * @brief deleteFromSchedule
      * @param name
      */
-    virtual void stopScheduledTask(std::string name) = 0;
+    virtual void stopScheduledTask(const std::string & name) = 0;
 
     /**
      * @brief stopScheduledService

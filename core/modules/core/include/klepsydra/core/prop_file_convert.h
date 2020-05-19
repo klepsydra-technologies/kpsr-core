@@ -39,7 +39,7 @@ public:
     }
 
     template <typename T>
-    static T string_to_T(std::string const &val) {
+    static T string_to_T(const std::string & val) {
         T returnVal;
         std::istringstream iss(val);
         std::string::size_type hexCode = val.find( "0x", 0 );

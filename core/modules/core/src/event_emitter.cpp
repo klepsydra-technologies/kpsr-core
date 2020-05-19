@@ -24,7 +24,7 @@ kpsr::EventEmitter::EventEmitter() {}
 
 kpsr::EventEmitter::~EventEmitter() {}
 
-unsigned int kpsr::EventEmitter::add_listener(std::string event_id, std::string listener_name, bool isOnce, std::function<void ()> cb)
+unsigned int kpsr::EventEmitter::add_listener(const std::string & event_id, const std::string & listener_name, bool isOnce, std::function<void ()> cb)
 {
     if (!cb)
     {
@@ -42,12 +42,12 @@ unsigned int kpsr::EventEmitter::add_listener(std::string event_id, std::string 
     return listener_id;       
 }
 
-unsigned int kpsr::EventEmitter::on(std::string event_id, std::string listener_name, std::function<void ()> cb)
+unsigned int kpsr::EventEmitter::on(const std::string & event_id, const std::string & listener_name, std::function<void ()> cb)
 {
     return add_listener(event_id, listener_name, false, cb);
 }
 
-unsigned int kpsr::EventEmitter::once(std::string event_id, std::function<void ()> cb)
+unsigned int kpsr::EventEmitter::once(const std::string & event_id, std::function<void ()> cb)
 {
     return add_listener(event_id, "once", true, cb);
 }

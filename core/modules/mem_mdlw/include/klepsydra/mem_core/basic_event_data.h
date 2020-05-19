@@ -40,11 +40,11 @@ struct EventData {
     /**
      * @brief eventData actual event
      */
-    std::shared_ptr<T> eventData;
+    std::shared_ptr<T> eventData = nullptr;
     /**
      * @brief enqueuedTimeInNs timestamp at which the event was placed in the queue.
      */
-    long long unsigned int enqueuedTimeInNs;
+    long long unsigned int enqueuedTimeInNs = 0;
 };
 }
 }

@@ -27,6 +27,7 @@ kpsr::mem::BasicScheduler::ScheduledThread::ScheduledThread(int after, bool repe
 {}
 
 void kpsr::mem::BasicScheduler::ScheduledThread::start() {
+
     _isRunning = true;
     std::function<void ()> scheduledTask = [this]() {
         if (_repeat) {
@@ -51,12 +52,12 @@ void kpsr::mem::BasicScheduler::ScheduledThread::stop() {
     }
 }
 
-void kpsr::mem::BasicScheduler::startScheduledTask(std::string name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) {
+void kpsr::mem::BasicScheduler::startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) {
     _threadMap[name] = std::shared_ptr<ScheduledThread>(new ScheduledThread(after, repeat, task));
     _threadMap[name]->start();
 }
 
-void kpsr::mem::BasicScheduler::stopScheduledTask(std::string name) {
+void kpsr::mem::BasicScheduler::stopScheduledTask(const std::string & name) {
     if (_threadMap.find(name) != _threadMap.end()) {
         _threadMap[name]->stop();
         _threadMap.erase(name);

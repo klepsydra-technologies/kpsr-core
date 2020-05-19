@@ -50,7 +50,7 @@ public:
      * @param eventEmitter The event emitter instance.
      * @param eventName A name to be assigned to this subscriber.
      */
-    EventEmitterSubscriber(Container * container, EventEmitter & eventEmitter, std::string eventName)
+    EventEmitterSubscriber(Container * container, EventEmitter & eventEmitter, const std::string & eventName)
         : Subscriber<T>(container, eventName, "EVENT_EMITTER")
         , _eventEmitter(eventEmitter)
     {}
@@ -68,7 +68,7 @@ public:
      * @param name
      * @param listener
      */
-    void registerListener(const std::string name, const std::function<void(const T &)> listener) {
+    void registerListener(const std::string & name, const std::function<void(const T &)> listener) {
         unsigned int listenerId = _eventEmitter.on(this->_name, name, listener);
         _listenersMap[name] = listenerId;
         if (this->_container != nullptr) {
@@ -80,7 +80,7 @@ public:
      * @brief removeListener
      * @param name
      */
-    void removeListener(const std::string name) {
+    void removeListener(const std::string & name) {
         if (_listenersMap.find(name) != _listenersMap.end()) {
             unsigned int listenerId = _listenersMap[name];
             if (this->_container != nullptr) {
@@ -95,7 +95,7 @@ public:
      * @brief getSubscriptionStats retrieves the performance information of the listener.
      * @param name
      */
-    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string name) {
+    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string & name) {
         return _eventEmitter._listenerStats[_listenersMap[name]];
     }
 

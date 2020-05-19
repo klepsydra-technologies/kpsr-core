@@ -111,7 +111,7 @@ TEST(ZmqCVTest, ZmqTestIntBinary) {
     imageDataProvider.getSubscriber()->registerListener("simple_reader", cacheListener.cacheListenerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    for (unsigned int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i) {
         int matToSend = i+1;
         toZMQPublisher->publish(matToSend);
         

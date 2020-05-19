@@ -62,7 +62,7 @@ public:
      * @param cb
      * @return
      */
-    unsigned int add_listener(std::string event_id, std::string listener_name, bool isOnce, std::function<void (const Args & ...)> cb);
+    unsigned int add_listener(const std::string & event_id, const std::string & listener_name, bool isOnce, std::function<void (const Args & ...)> cb);
 
     /**
      * @brief add_listener
@@ -72,7 +72,7 @@ public:
      * @param cb
      * @return
      */
-    unsigned int add_listener(std::string event_id, std::string listener_name, bool isOnce, std::function<void ()> cb);
+    unsigned int add_listener(const std::string & event_id, const std::string & listener_name, bool isOnce, std::function<void ()> cb);
 
     template <typename... Args>
     /**
@@ -82,7 +82,7 @@ public:
      * @param cb
      * @return
      */
-    unsigned int on(std::string event_id, std::string listener_name, std::function<void (const Args & ...)> cb);
+    unsigned int on(const std::string & event_id, const std::string & listener_name, std::function<void (const Args & ...)> cb);
     
     /**
      * @brief on
@@ -91,7 +91,7 @@ public:
      * @param cb
      * @return
      */
-    unsigned int on(std::string event_id, std::string listener_name, std::function<void ()> cb);
+    unsigned int on(const std::string & event_id, const std::string & listener_name, std::function<void ()> cb);
 
     template <typename... Args>
     /**
@@ -100,7 +100,7 @@ public:
      * @param cb
      * @return
      */
-    unsigned int once(std::string event_id, std::function<void (const Args & ...)> cb);
+    unsigned int once(const std::string & event_id, std::function<void (const Args & ...)> cb);
 
     /**
      * @brief once
@@ -108,7 +108,7 @@ public:
      * @param cb
      * @return
      */
-    unsigned int once(std::string event_id, std::function<void ()> cb);
+    unsigned int once(const std::string & event_id, std::function<void ()> cb);
 
     /**
      * @brief remove_listener
@@ -123,7 +123,7 @@ public:
      * @param enqueuedTimeNs
      * @param args
      */
-    void emitEvent(std::string event_id, long long unsigned int enqueuedTimeNs, const Args & ... args);
+    void emitEvent(const std::string & event_id, long long unsigned int enqueuedTimeNs, const Args & ... args);
 
     /**
      * @brief _listenerStats
@@ -171,7 +171,7 @@ private:
 
 
 template <typename... Args>
-unsigned int kpsr::EventEmitter::add_listener(std::string event_id, std::string listener_name, bool isOnce, std::function<void (const Args & ...)> cb)
+unsigned int kpsr::EventEmitter::add_listener(const std::string & event_id, const std::string & listener_name, bool isOnce, std::function<void (const Args & ...)> cb)
 {
     if (!cb)
     {
@@ -190,27 +190,27 @@ unsigned int kpsr::EventEmitter::add_listener(std::string event_id, std::string 
 }
 
 template <typename... Args>
-unsigned int kpsr::EventEmitter::on(std::string event_id, std::string listener_name, std::function<void (const Args & ...)> cb)
+unsigned int kpsr::EventEmitter::on(const std::string & event_id, const std::string & listener_name, std::function<void (const Args & ...)> cb)
 {
     return add_listener(event_id, listener_name, false, cb);
 }
 
 template <typename... Args>
-unsigned int kpsr::EventEmitter::once(std::string event_id, std::function<void (const Args & ...)> cb)
+unsigned int kpsr::EventEmitter::once(const std::string & event_id, std::function<void (const Args & ...)> cb)
 {
     return add_listener(event_id, "once", true, cb);
 }
 
 template <typename... Args>
-void kpsr::EventEmitter::emitEvent(std::string event_id, long long unsigned int enqueuedTimeNs, const Args & ... args)
+void kpsr::EventEmitter::emitEvent(const std::string & event_id, long long unsigned int enqueuedTimeNs, const Args & ... args)
 {
-    std::list<std::shared_ptr<Listener<Args...>>> handlers;
+    std::vector<std::shared_ptr<Listener<Args...>>> handlers(listeners.size());
     {
         std::lock_guard<std::mutex> lock(mutex);
 
         auto range = listeners.equal_range(event_id);
         handlers.resize(std::distance(range.first, range.second));
-        std::transform(range.first, range.second, handlers.begin(), [] (std::pair<const std::string, std::shared_ptr<ListenerBase>> p) {
+        std::transform(range.first, range.second, handlers.begin(), [] (const std::pair<const std::string, std::shared_ptr<ListenerBase>> &p) {
             auto l = std::dynamic_pointer_cast<Listener<Args...>>(p.second);
             if (l)
             {

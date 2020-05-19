@@ -54,6 +54,7 @@ endif()
 # Install
 #---------------------------------------------------#
 INSTALL(TARGETS ${PROJ_NAME}
+    EXPORT KlepsydraTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
 INSTALL(DIRECTORY "include/klepsydra"

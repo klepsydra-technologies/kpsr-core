@@ -72,7 +72,7 @@ public:
      * @param container
      * @param name
      */
-    DataMultiplexerMiddlewareProvider(Container * container, std::string name)
+    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name)
         : _ringBuffer()
         , _publisher(container, name, nullptr, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
@@ -84,7 +84,7 @@ public:
      * @param name
      * @param eventInitializer function to initialize the events allocated in the ring buffer
      */
-    DataMultiplexerMiddlewareProvider(Container * container, std::string name,
+    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
                                 std::function<void(TEvent &)> eventInitializer)
         : _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
         , _publisher(container, name, nullptr, _ringBuffer)
@@ -97,7 +97,7 @@ public:
      * @param name
      * @param event used as event to clone the events allocated in the ring buffer.
      */
-    DataMultiplexerMiddlewareProvider(Container * container, std::string name, const TEvent & event)
+    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name, const TEvent & event)
         : _modelEvent(new EventData<TEvent>(event))
         , _ringBuffer(_modelEvent)
         , _publisher(container, name, nullptr, _ringBuffer)
@@ -111,7 +111,7 @@ public:
      * @param eventInitializer function to initialize the events allocated in the ring buffer
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
      */
-    DataMultiplexerMiddlewareProvider(Container * container, std::string name,
+    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
                                 std::function<void(TEvent &)> eventInitializer,
                                 std::function<void(const TEvent &, TEvent &)> eventCloner)
         : _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
@@ -126,7 +126,7 @@ public:
      * @param event used as event to clone the events allocated in the ring buffer.
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
      */
-    DataMultiplexerMiddlewareProvider(Container * container, std::string name,
+    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
                                 const TEvent & event,
                                 std::function<void(const TEvent &, TEvent &)> eventCloner)
         : _modelEvent(new EventData<TEvent>(event))

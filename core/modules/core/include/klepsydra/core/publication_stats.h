@@ -42,7 +42,7 @@ struct PublicationStats : public FunctionStats {
      * @param name service name to gather stats for.
      * @param type service name to gather stats for.
      */
-    PublicationStats(const std::string name, const std::string type)
+    PublicationStats(const std::string & name, const std::string & type)
         : FunctionStats(name)
         , _type(type)
         , _totalEventAllocations(0)

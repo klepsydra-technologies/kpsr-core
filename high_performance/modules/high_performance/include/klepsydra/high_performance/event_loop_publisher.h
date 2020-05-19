@@ -80,8 +80,6 @@ public:
         , _eventName(eventName)
         , _poolSize(poolSize)
     {
-        poolSize == 0 ? _releaseFunction = nullptr :
-                _releaseFunction = std::bind(&EventLoopPublisher<T, BufferSize>::release, this, std::placeholders::_1);
     }
 
     /**
@@ -93,13 +91,10 @@ public:
         {
             int64_t seq = _ringBuffer.try_next();
             if (_ringBuffer[seq].eventData) {
-                if (_ringBuffer[seq].releaseFunction != nullptr) {
-                    (*_ringBuffer[seq].releaseFunction)(_ringBuffer[seq].eventData);
-                }
+                _ringBuffer[seq].eventData.reset();
             }
             _ringBuffer[seq].eventData = std::static_pointer_cast<const void>(event);
             _ringBuffer[seq].eventName = _eventName;
-            _ringBuffer[seq].releaseFunction = _poolSize == 0 ? nullptr : &_releaseFunction;
             _ringBuffer[seq].enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
             _ringBuffer.publish(seq);
         }
@@ -115,14 +110,9 @@ public:
     long long unsigned int _discardedMessages;
 
 private:
-    void release(std::shared_ptr<const void> & event) {
-        std::shared_ptr<const T> reinterpreted = std::static_pointer_cast<const T>(event);
-        event = std::shared_ptr<const void>();
-    }
 
     RingBuffer & _ringBuffer;
     std::string _eventName;
-    std::function<void(std::shared_ptr<const void> &)> _releaseFunction;
     int _poolSize;
 };
 }

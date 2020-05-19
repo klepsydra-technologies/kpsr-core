@@ -60,7 +60,7 @@ public:
     static int emptyConstructorInvokations;
     static int copyInvokations;
 
-    ELTestEvent(int id, std::string message)
+    ELTestEvent(int id, const std::string & message)
         : _id(id)
         , _message(message) {
         ELTestEvent::constructorInvokations++;
@@ -83,7 +83,7 @@ public:
 class ELTestNewEvent {
 public:
 
-    ELTestNewEvent(std::string label, std::vector<double> values)
+    ELTestNewEvent(const std::string & label, std::vector<double> values)
         : _label(label)
         , _values(values) {
     }

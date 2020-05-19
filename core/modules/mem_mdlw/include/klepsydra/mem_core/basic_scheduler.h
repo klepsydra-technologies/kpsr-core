@@ -30,9 +30,9 @@ namespace kpsr {
 namespace mem {
 class BasicScheduler : public Scheduler {
 public:
-    void startScheduledTask(std::string name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) override;
+    void startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) override;
     void startScheduledService(int after, bool repeat, Service * service) override;
-    void stopScheduledTask(std::string name) override;
+    void stopScheduledTask(const std::string & name) override;
     void stopScheduledService(Service * service) override;
 
 private:

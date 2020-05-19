@@ -97,7 +97,7 @@ public:
      * @param subscriber Used to register the reply listener on.
      * @param correlationFunction Used to determine if a request and a reply are correlated.
      */
-    CallbackHandler(std::string name,
+    CallbackHandler(const std::string & name,
                     Publisher<Request> * publisher,
                     Subscriber<Reply> * subscriber,
                     std::function<bool(const Request &, const Reply &)> correlationFunction)
@@ -212,7 +212,7 @@ public:
      * @param subscriber Used to register the reply listener on.
      * @param correlationFunction Used to determine if a request and a reply are correlated.
      */
-    MultiThreadCallbackHandler(std::string name,
+    MultiThreadCallbackHandler(const std::string & name,
                                Publisher<Request> * publisher,
                                Subscriber<Reply> * subscriber,
                                std::function<bool(const Request &, const Reply &)> correlationFunction)

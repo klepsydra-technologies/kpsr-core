@@ -78,7 +78,7 @@ public:
      */
     void stop();
 
-    ~InMemoryQueuePoller();
+    virtual ~InMemoryQueuePoller();
 
     /**
      * @brief _running

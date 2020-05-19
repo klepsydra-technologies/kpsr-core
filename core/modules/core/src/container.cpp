@@ -20,11 +20,19 @@
 #include <klepsydra/core/container.h>
 
 kpsr::Container::Container(Environment * env,
-          std::string applicationName)
+          const std::string & applicationName)
     : _env(env)
     , _applicationName(applicationName)
     , _running(false)
 {}
+
+kpsr::Container::~Container() {
+    _managedServices.clear();
+    _serviceStats.clear();
+    _functionStats.clear();
+    _publicationStats.clear();
+    _subscriptionStats.clear();
+}
 
 void kpsr::Container::start() {
     _running = true;
@@ -38,6 +46,26 @@ void kpsr::Container::attach(Service * service) {
     std::lock_guard<std::mutex> lock (_serviceMutex);
     _managedServices.push_back(service);
     _serviceStats.push_back(&service->_serviceStats);
+}
+
+void kpsr::Container::detach(Service * service) {
+    std::lock_guard<std::mutex> lock (_serviceMutex);
+    {
+        auto itr = std::find_if(_managedServices.begin(),
+                                _managedServices.end(),
+                                [service](Service *item) { return item->_serviceStats._name == service->_serviceStats._name;});
+        if (itr != _managedServices.end()) {
+            _managedServices.erase(itr);
+        }
+    }
+    {
+        auto itr = std::find_if(_serviceStats.begin(),
+                                _serviceStats.end(),
+                                [service](ServiceStats *item) { return item->_name == service->_serviceStats._name;});
+        if (itr != _serviceStats.end()) {
+            _serviceStats.erase(itr);
+        }
+    }
 }
 
 void kpsr::Container::attach(FunctionStats * functionStats) {

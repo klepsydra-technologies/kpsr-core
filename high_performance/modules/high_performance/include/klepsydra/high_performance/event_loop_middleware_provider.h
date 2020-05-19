@@ -82,6 +82,8 @@ public:
         , _scheduler(nullptr)
     {}
 
+    ~EventLoopMiddlewareProvider() { if (_scheduler) delete _scheduler;}
+
     template<class T>
     /**
      * @brief getPublisher retrieve an object pool based publisher associated to the event loop.
@@ -102,10 +104,12 @@ public:
             return publisher.get();
         }
         else {
-            std::shared_ptr<Publisher<T>> publisher(new EventLoopPublisher<T, BufferSize>(_container, _ringBuffer, eventName, poolSize, initializerFunction, eventCloner));
+            std::shared_ptr<EventLoopPublisher<T, BufferSize>> publisher = std::make_shared<
+                EventLoopPublisher<T, BufferSize>>(
+                    _container, _ringBuffer, eventName, poolSize, initializerFunction, eventCloner);
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
             _publisherMap[eventName] = internalPointer;
-            return publisher.get();
+            return std::static_pointer_cast<Publisher<T>>(publisher).get();
         }
     }
 
@@ -115,7 +119,7 @@ public:
      * @param eventName
      * @return
      */
-    Subscriber<T> * getSubscriber(std::string eventName) {
+    Subscriber<T> * getSubscriber(const std::string & eventName) {
         auto search = _subscriberMap.find(eventName);
         if (search != _subscriberMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
@@ -123,10 +127,10 @@ public:
             return subscriber.get();
         }
         else {
-            std::shared_ptr<Subscriber<T>> subscriber(new EventLoopSubscriber<T>(_container, _eventEmitter, eventName));
+            std::shared_ptr<EventLoopSubscriber<T>> subscriber = std::make_shared<EventLoopSubscriber<T>>(_container, _eventEmitter, eventName);
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(subscriber);
             _subscriberMap[eventName] = internalPointer;
-            return subscriber.get();
+            return std::static_pointer_cast<Subscriber<T>>(subscriber).get();
         }
     }
 
@@ -134,7 +138,7 @@ public:
      * @brief place a function into the event loop. It can be placed for once or repeated execution.
      * @return
      */
-    Scheduler * getScheduler(std::string name = "") {
+    Scheduler * getScheduler(const std::string & name = "") {
         std::string eventName = name.empty() ? "EVENTLOOP_SCHEDULER" : name;
         if (_scheduler == nullptr) {
             std::shared_ptr<EventLoopFunctionExecutorListener> subscriber(new EventLoopFunctionExecutorListener(_container, _eventEmitter, eventName));

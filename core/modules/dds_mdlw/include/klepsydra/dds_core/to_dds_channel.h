@@ -54,7 +54,7 @@ public:
      * @param ddsWriter
      */
     ToDDSChannel(Container * container,
-                 const std::string name,
+                 const std::string & name,
                  int poolSize,
                  std::function<void(M &)> initializerFunction,
                  dds::pub::DataWriter<M> * ddsWriter)

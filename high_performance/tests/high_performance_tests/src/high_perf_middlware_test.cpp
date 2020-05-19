@@ -41,7 +41,7 @@ public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    DataMultiplexerTestEvent(int id, std::string message)
+    DataMultiplexerTestEvent(int id, const std::string & message)
         : _id(id)
         , _message(message) {
         DataMultiplexerTestEvent::constructorInvokations++;
@@ -65,7 +65,7 @@ public:
 class DataMultiplexerNewTestEvent {
 public:
 
-    DataMultiplexerNewTestEvent(std::string label, std::vector<double> values)
+    DataMultiplexerNewTestEvent(const std::string & label, std::vector<double> values)
         : _label(label)
         , _values(values) {
     }

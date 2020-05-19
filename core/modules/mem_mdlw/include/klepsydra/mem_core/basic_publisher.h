@@ -59,7 +59,7 @@ public:
      * is full.
      */
     BasicPublisher(Container * container,
-                   const std::string name,
+                   const std::string & name,
                    int poolSize,
                    std::function<void(T &)> initializerFunction,
                    std::function<void(const T &, T &)> eventCloner,

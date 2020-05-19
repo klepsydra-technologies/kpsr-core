@@ -40,7 +40,7 @@ public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    PoolTestObject(int id, std::string message)
+    PoolTestObject(int id, const std::string & message)
         : _id(id)
         , _message(message) {
         PoolTestObject::constructorInvokations++;

@@ -46,13 +46,13 @@ public:
      * @param host
      * @param port
      */
-    ConnectSocket(std::string const& host, int port);
+    ConnectSocket(const std::string & host, int port);
 
     /**
      * @brief ConnectSocket
      * @param path
      */
-    ConnectSocket(std::string path);
+    ConnectSocket(const std::string & path);
 };
 
 }

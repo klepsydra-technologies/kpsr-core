@@ -88,7 +88,13 @@ public:
         }
     }
 
-    virtual ~SmartObjectPool(){}
+    virtual ~SmartObjectPool(){
+        T *t = nullptr;
+        auto t_ptr = std::unique_ptr<T, D>(t);
+        while (pool_->pop(t_ptr)) {
+            t_ptr.reset();
+        }
+        delete pool_;}
 
     /*!
      * @brief acquire fetch an element of the pool. It comes as a unique pointer. When no references are hanging, the object will return to the pool.

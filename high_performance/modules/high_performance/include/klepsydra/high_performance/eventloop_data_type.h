@@ -39,7 +39,6 @@ namespace high_performance {
 struct EventloopDataWrapper {
     std::string eventName;
     std::shared_ptr<const void> eventData;
-    std::function<void(std::shared_ptr<const void> &)> * releaseFunction;
     long long unsigned int enqueuedTimeInNs;
 };
 }

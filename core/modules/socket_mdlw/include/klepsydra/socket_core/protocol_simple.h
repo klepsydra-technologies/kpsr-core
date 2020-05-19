@@ -44,7 +44,7 @@ public:
      * @brief sendMessage
      * @param message
      */
-    void sendMessage(std::string const& message) override;
+    void sendMessage(const std::string & message) override;
 
     /**
      * @brief recvMessage

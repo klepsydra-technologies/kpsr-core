@@ -50,13 +50,14 @@ public:
      * @param name
      * @param type
      */
-    Publisher(Container * container, const std::string name, const std::string type)
+    Publisher(Container * container, const std::string& name, const std::string& type)
         : _publicationStats(name, type) {
         if (container != nullptr) {
             container->attach(&this->_publicationStats);
         }
     }
 
+    virtual ~Publisher() {}
     /*!
      * @brief publish
      * @param event

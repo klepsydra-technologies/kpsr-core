@@ -20,7 +20,7 @@
 #include <klepsydra/socket_core/protocol_simple.h>
 #include <klepsydra/socket_core/string_resizer.h>
 
-void kpsr::socket_mdlw::ProtocolSimple::sendMessage(std::string const& message)
+void kpsr::socket_mdlw::ProtocolSimple::sendMessage(const std::string & message)
 {
     _dataSocket->putMessageData(message.c_str(), message.size());
     _dataSocket->putMessageClose();

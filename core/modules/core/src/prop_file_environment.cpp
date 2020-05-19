@@ -19,7 +19,7 @@
 
 #include <klepsydra/core/prop_file_environment.h>
 
-kpsr::PropertyFileEnvironment::PropertyFileEnvironment(const std::string propertyFileName)
+kpsr::PropertyFileEnvironment::PropertyFileEnvironment(const std::string & propertyFileName)
      : _configFile(propertyFileName)
 {}
 
@@ -43,7 +43,7 @@ void kpsr::PropertyFileEnvironment::getPropertyBool(const std::string& key, bool
 	value = _configFile.getValueOfKey<bool>(key);
 }
 
-void kpsr::PropertyFileEnvironment::setPropertyString(const std::string& key, const std::string value, std::string const& rootNode) {
+void kpsr::PropertyFileEnvironment::setPropertyString(const std::string& key, const std::string & value, std::string const& rootNode) {
 	// Unsupported
 }
 

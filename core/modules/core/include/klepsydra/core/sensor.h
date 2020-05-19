@@ -57,7 +57,7 @@ public:
      * @param seq
      * @param timestamp
      */
-    Sensor(std::string frameId, int seq, long timestamp)
+    Sensor(const std::string & frameId, int seq, long timestamp)
         : frameId(frameId)
         , seq(seq)
         , timestamp(timestamp)
@@ -68,7 +68,7 @@ public:
      * @param frameId
      * @param seq
      */
-    Sensor(std::string frameId, int seq)
+    Sensor(const std::string & frameId, int seq)
         : frameId(frameId)
         , seq(seq)
     {

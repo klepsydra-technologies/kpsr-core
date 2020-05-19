@@ -51,8 +51,8 @@ public:
     using BatchProcessor = disruptor4cpp::batch_event_processor<RingBuffer>;
 
     DataMultiplexerListener(const std::function<void(TEvent)> & listener,
-                      RingBuffer & ringBuffer,
-                      std::shared_ptr<SubscriptionStats> listenerStat)
+                            RingBuffer & ringBuffer,
+                            std::shared_ptr<SubscriptionStats> listenerStat)
         : _ringBuffer(ringBuffer)
         , _eventHandler(listener, listenerStat){
 
@@ -70,8 +70,7 @@ public:
         });
     }
 
-    std::unique_ptr<
-    BatchProcessor> batchEventProcessor;
+    std::unique_ptr<BatchProcessor> batchEventProcessor;
     std::thread batchProcessorThread;
 
 private:

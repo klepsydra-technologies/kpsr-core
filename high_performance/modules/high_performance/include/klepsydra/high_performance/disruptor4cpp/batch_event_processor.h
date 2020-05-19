@@ -114,7 +114,7 @@ namespace disruptor4cpp
             sequence_barrier_.clear_alert();
             notify_start();
 
-            typename TRingBuffer::event_type* event;
+            typename TRingBuffer::event_type* event = nullptr;
             int64_t next_sequence = sequence_.get() + 1;
             try
             {

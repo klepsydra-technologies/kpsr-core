@@ -77,7 +77,7 @@ public:
             dest._values.resize(src.ranges.size());
             dest._label = "hola";
             double yaw = src.angle_min;
-            for (int i = 0; i < src.ranges.size(); i++) {
+            for (size_t i = 0; i < src.ranges.size(); i++) {
                 dest._values[i].x = src.ranges[i] * std::cos(yaw);
                 dest._values[i].y = src.ranges[i] * std::sin(yaw);
                 dest._values[i].z = 0;

@@ -33,7 +33,7 @@ public:
         double z;
     };
 
-    Point3dCloud(std::string label, std::vector<Point3d> values)
+    Point3dCloud(const std::string & label, std::vector<Point3d> values)
         : _label(label)
         , _values(values) {
         Point3dCloud::constructorInvokations++;

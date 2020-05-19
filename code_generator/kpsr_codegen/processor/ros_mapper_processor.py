@@ -69,7 +69,7 @@ def camelCase(string):
     return output[0].lower() + output[1:]
 
 
-def process_mapper_instances(class_definition, class_definition_dict):
+def process_mapper_instances(class_definition, class_definition_dict, include_path):
     mapper_instances = dict()
 
     for field in class_definition.fields:
@@ -111,7 +111,7 @@ class RosMapperProcessor:
         class_definition = class_definition_dict.get(class_definition_name)
 
         define_class_name = convert('%sMapper' % split_namespace_class(class_definition.class_name)[-1]).upper()
-        mapper_instances = process_mapper_instances(class_definition, class_definition_dict)
+        mapper_instances = process_mapper_instances(class_definition, class_definition_dict, include_path)
         custom_includes = process_custom_includes(class_definition, mapper_instances, include_path)
 
         ros_middleware_definition = class_definition.middlewares[MiddlewareType.ROS]

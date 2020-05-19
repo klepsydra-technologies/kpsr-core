@@ -31,7 +31,7 @@ ROS 18.04 | [![Build Status](https://jenkins1.klepsydra.com/buildStatus/icon?job
 
 ## System requirements
 
-	sudo apt-get install build-essentials
+	sudo apt-get install build-essential
 	sudo apt-get install git
 	sudo apt-get install cmake
 	sudo apt-get install python3-pip
@@ -79,7 +79,6 @@ Example
 ```
 cmake -DKPSR_WITH_SOCKET=true ..
 ```
-
 
 ### ROS installation
 

@@ -67,7 +67,7 @@ public:
      * @param configurationData
      * @param sourceId
      */
-    ZMQEnvironmentData(std::string configurationKey, std::string configurationData, long sourceId)
+    ZMQEnvironmentData(const std::string & configurationKey, const std::string & configurationData, long sourceId)
         : _configurationKey(configurationKey)
         , _configurationData(configurationData)
         , _sourceId(sourceId)

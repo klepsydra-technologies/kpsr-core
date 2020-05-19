@@ -54,7 +54,7 @@ public:
      * @brief ServerSocket
      * @param socketPath
      */
-    ServerSocket(std::string socketPath);
+    ServerSocket(const std::string & socketPath);
 
     /**
      * @brief accept

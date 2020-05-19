@@ -56,7 +56,9 @@ public:
      * @param env to administer
      * @param applicationName to use as id of the process running these services.
      */
-    Container(Environment * env, std::string applicationName);
+    Container(Environment * env, const std::string & applicationName);
+
+    virtual ~Container();
 
     /**
      * @brief start all master services.
@@ -73,6 +75,12 @@ public:
      * @param service Pointer to a service
      */
     void attach(Service * service);
+
+    /**
+     * @brief detach
+     * @param functionStats
+     */
+    void detach(Service * service);
 
     /**
      * @brief attach a custom method statistics to the container
