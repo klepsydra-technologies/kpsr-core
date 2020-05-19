@@ -75,8 +75,6 @@ def process_mapper_instances(class_definition, class_definition_dict, include_pa
     for field in class_definition.fields:
         if field.is_related_class:
             related_class_definition = class_definition_dict.get(field.field_type)
-            if related_class_definition is None:
-                related_class_definition = class_definition.related_classes.get(field.field_type)
             dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
             field_dds_type = dds_middleware_definition.class_name
             dds_type = field_dds_type
@@ -132,7 +130,7 @@ class DdsMapperProcessor:
         return DdsMapperDefinition(class_definition.class_name, define_class_name , dds_type, custom_includes,
                                    mapper_instances, field_definitions)
 
-    def process_field(self, field, class_definition_dict, class_definition):
+    def process_field(self, field, class_definition_dict):
         if field.is_related_class:
             mapper_name = '_%s_mapper' % field.field_type.replace('::', '_').lower()
         else:
@@ -140,8 +138,6 @@ class DdsMapperProcessor:
 
         if field.is_related_class:
             related_class_definition = class_definition_dict.get(field.field_type)
-            if related_class_definition is None:
-                related_class_definition = class_definition.related_classes.get(field.field_type)
             dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
             field_dds_type = dds_middleware_definition.class_name
         elif field.is_enum:

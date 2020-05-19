@@ -49,6 +49,11 @@ class Preprocessor:
     #
     # @return data from file as a ClassDefinition object
     def process(self, class_definition_data, disable_zmq):
+        if class_definition_data.get('class_name') is None:
+            related_classes = [self.process_related_class(related_class) for related_class in class_definition_data.get('related_classes', [])]
+            related_classes_dict = {related_class.class_name: related_class for related_class in related_classes}
+            return related_classes_dict
+
         enumerations = [self.process_enum(enum) for enum in class_definition_data.get('enums', [],)]
         enumeration_dict = {enumeration.enum_name: enumeration for enumeration in enumerations}
 
@@ -56,11 +61,9 @@ class Preprocessor:
         middleware_definition_dict = {middleware_definition.middleware_type: middleware_definition
                                       for middleware_definition in middleware_definitions}
 
-        related_classes = [self.process_related_class(related_class) for related_class in class_definition_data.get('related_classes', [])]
-        related_classes_dict = {related_class.class_name: related_class for related_class in related_classes}
 
         is_zmq_enable = (not disable_zmq) and MiddlewareType.ZMQ in middleware_definition_dict
-        processed_fields = [self.fieldProcessor.process(field, enumeration_dict, related_classes_dict, is_zmq_enable)
+        processed_fields = [self.fieldProcessor.process(field, enumeration_dict, is_zmq_enable)
                             for field in class_definition_data.get('fields', [])]
 
         return ClassDefinition(class_definition_data.get('class_name'),
@@ -68,7 +71,7 @@ class Preprocessor:
                                class_definition_data.get('create_builder', False),
                                class_definition_data.get('include_file', ''),
                                class_definition_data.get('parent_class', None),
-                               enumeration_dict, middleware_definition_dict, processed_fields, related_classes_dict)
+                               enumeration_dict, middleware_definition_dict, processed_fields)
 
     ## Process enum data types
     #
@@ -95,4 +98,4 @@ class Preprocessor:
                                create_builder,
                                include_file,
                                parent_class,
-                               {}, middleware_definition_dict, [], {})
+                               {}, middleware_definition_dict, [])

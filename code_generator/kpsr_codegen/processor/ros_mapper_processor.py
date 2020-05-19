@@ -75,8 +75,6 @@ def process_mapper_instances(class_definition, class_definition_dict):
     for field in class_definition.fields:
         if field.is_related_class:
             related_class_definition = class_definition_dict.get(field.field_type)
-            if related_class_definition is None:
-                related_class_definition = class_definition.related_classes.get(field.field_type)
             ros_middleware_definition = related_class_definition.middlewares[MiddlewareType.ROS]
             project_name = ros_middleware_definition.project_name
             field_ros_type = ros_middleware_definition.class_name
@@ -124,7 +122,7 @@ class RosMapperProcessor:
             ros_fields = [field for field in class_definition.fields if field.field_name
                           not in ros_middleware_definition.ignore_fields]
 
-        field_definitions = [self.process_field(field, class_definition_dict, class_definition.related_classes) for field in ros_fields]
+        field_definitions = [self.process_field(field, class_definition_dict) for field in ros_fields]
         if class_definition.parent_class is not None:
             parent_class_definition = class_definition_dict.get(class_definition.parent_class)
             if ros_middleware_definition is None:
@@ -132,7 +130,7 @@ class RosMapperProcessor:
             else:
                 parent_ros_fields = [field for field in parent_class_definition.fields if field.field_name
                                      not in ros_middleware_definition.ignore_fields]
-            parent_field_definitions = [self.process_field(field, class_definition_dict, class_definition.related_classes) for field in parent_ros_fields]
+            parent_field_definitions = [self.process_field(field, class_definition_dict) for field in parent_ros_fields]
             field_definitions = field_definitions + parent_field_definitions
 
         project_name = ros_middleware_definition.project_name
@@ -142,7 +140,7 @@ class RosMapperProcessor:
         return RosMapperDefinition(class_definition.class_name, define_class_name , ros_type, custom_includes,
                                    mapper_instances, field_definitions)
 
-    def process_field(self, field, class_definition_dict, related_classes):
+    def process_field(self, field, class_definition_dict):
         if field.is_related_class:
             mapper_name = '_%s_mapper' % field.field_type.replace('::', '_').lower()
         else:
@@ -150,8 +148,6 @@ class RosMapperProcessor:
 
         if field.is_related_class:
             related_class_definition = class_definition_dict.get(field.field_type)
-            if related_class_definition is None:
-                related_class_definition = related_classes.get(field.field_type)
             ros_middleware_definition = related_class_definition.middlewares[MiddlewareType.ROS]
             field_ros_type = '%s::%s' %(ros_middleware_definition.project_name, ros_middleware_definition.class_name)
         elif field.is_enum:
