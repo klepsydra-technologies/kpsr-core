@@ -35,6 +35,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   geometry_msgs
+  sensor_msgs
   kpsr_ros_serialization
   kpsr_ros_core
   message_generation
@@ -100,6 +101,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  sensor_msgs
 )
 
 ################################################
@@ -151,10 +153,12 @@ include_directories(
   ../../modules/codegen/gen_test2/poco/include
   ../../modules/codegen/gen_test3/poco/include
   ../../modules/codegen/gen_test4/poco/include
+  ../../modules/codegen/gen_test5/poco/include
   ../../modules/codegen/gen_test1/rosstg/include
   ../../modules/codegen/gen_test2/rosstg/include
   ../../modules/codegen/gen_test3/rosstg/include
   ../../modules/codegen/gen_test4/rosstg/include
+  ../../modules/codegen/gen_test5/rosstg/include
   ../../modules/codegen/include
   ${catkin_INCLUDE_DIRS}
   ${KLEPSYDRA_INCLUDE_DIRS}
@@ -227,7 +231,8 @@ catkin_add_gtest(${PROJECT_NAME}-test test/main.cpp
                  test/kpsr_ros_codegen_test1.cpp
                  test/kpsr_ros_codegen_test2.cpp
                  test/kpsr_ros_codegen_test3.cpp
-                 test/kpsr_ros_codegen_test4.cpp)
+                 test/kpsr_ros_codegen_test4.cpp
+                 test/kpsr_ros_codegen_test5.cpp)
 
 if(TARGET ${PROJECT_NAME}-test)
   target_link_libraries(${PROJECT_NAME}-test 
