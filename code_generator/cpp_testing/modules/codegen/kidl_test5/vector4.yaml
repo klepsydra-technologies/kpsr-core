@@ -1,0 +1,18 @@
+class_name: kpsr::codegen::Vector4
+middlewares:
+    - type: ROS
+      project_name: kpsr_ros_codegen
+      already_exists: false
+      class_name: Vector4
+    - type: DDS
+      class_name: kpsr_dds_codegen::Vector4Data
+    - type: ZMQ
+fields:
+    - name   : a
+      type   : float32
+    - name   : b
+      type   : float32
+    - name   : c
+      type   : float32
+    - name   : d
+      type   : float32

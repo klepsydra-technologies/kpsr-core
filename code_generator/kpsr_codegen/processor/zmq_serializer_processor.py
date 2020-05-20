@@ -76,7 +76,7 @@ class ZmqSerializerProcessor:
                 related_class_definition = class_definition_dict.get(field.field_type)
                 zmq_middleware_definition = related_class_definition.middlewares[MiddlewareType.ZMQ]
                 if zmq_middleware_definition.serializer_include_file:
-                    include_list.add("\"%s\"", zmq_middleware_definition.serializer_include_file)
+                    include_list.add("\"%s\"" % zmq_middleware_definition.serializer_include_file)
                 else:
                     class_name = split_namespace_class(field.field_type)[-1]
                     if include_path:

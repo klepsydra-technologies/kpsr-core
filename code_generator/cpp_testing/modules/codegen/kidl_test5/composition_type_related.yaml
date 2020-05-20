@@ -1,11 +1,11 @@
-class_name: kpsr::codegen::CompositionType
+class_name: kpsr::codegen::CompositionTypeRelated
 middlewares:
     - type: ROS
       project_name: kpsr_ros_codegen
       already_exists: false
       class_name: CompositionType
     - type: DDS
-      class_name: kpsr_dds_codegen::CompositionTypeData
+      class_name: kpsr_dds_codegen::CompositionTypeRelatedData
       sequence_fields: 
           - seq
     - type: ZMQ
@@ -57,3 +57,7 @@ fields:
       type   : kpsr::codegen::OldEnum[s]
     - name   : oldEnumVectorPointer
       type   : kpsr::codegen::OldEnum[*]
+    - name   : quat
+      type   : kpsr::geometry::Quaternion
+    - name   : gpsData
+      type   : kpsr::geometry::Gps

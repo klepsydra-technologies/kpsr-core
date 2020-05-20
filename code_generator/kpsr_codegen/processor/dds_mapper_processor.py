@@ -119,7 +119,7 @@ class DdsMapperProcessor:
         field_definitions = [self.process_field(field, class_definition_dict) for field in class_definition.fields]
         if class_definition.parent_class is not None:
             parent_class_definition = class_definition_dict.get(class_definition.parent_class)
-            parent_field_definitions = [self.process_field(field, class_definition_dict, class_definition)
+            parent_field_definitions = [self.process_field(field, class_definition_dict)
                                         for field in parent_class_definition.fields]
             field_definitions = field_definitions + parent_field_definitions
 
