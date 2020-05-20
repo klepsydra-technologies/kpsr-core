@@ -61,157 +61,36 @@ TEST(KpsrDdsCodegenTest5, compositionTypeRelatedMapperTest) {
     ASSERT_EQ(cacheListener.counter, 0);
 
     unsigned short seq = 0;
-    {
-        kpsr::codegen::CompositionTypeRelated event;
-        event.seq = seq++;
-        event.newEnum = kpsr::codegen::NewEnum::new1;
-        event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
-        event.newEnumVector = {kpsr::codegen::NewEnum::new1, kpsr::codegen::NewEnum::new2};
-        event.newEnumVectorPointer = {new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1)};
-        event.newEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::NewEnum>(new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1))};
-
-        event.oldEnum = kpsr::codegen::OldEnum::oldA;
-        event.oldEnumArray = {{kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB}};
-        event.oldEnumVector = {kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB};
-        event.oldEnumVectorPointer = {new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldB)};
-        event.oldEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::OldEnum>(new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldA))};
-
-        event.positionArray = {{ kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) }};
-        event.positionVector = { kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorPointer = { new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorSharedPtr = { std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3)),
-                                          std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3)) };
-
-        event.quaternionArray = {{ kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) }};
-        event.quaternionVector = { kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorPointer = { new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorSharedPtr = { std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4)),
-                                          std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4)) };
-        event.quat = kpsr::geometry::Quaternion(0, 1.0, 2.0, 3.0, 4.0);
-        event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
-        kpsrPublisher->publish(event);
-    }
-
-    {
-        kpsr::codegen::CompositionTypeRelated event;
-        event.seq = seq++;
-        event.newEnum = kpsr::codegen::NewEnum::new1;
-        event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
-        event.newEnumVector = {kpsr::codegen::NewEnum::new1, kpsr::codegen::NewEnum::new2};
-        event.newEnumVectorPointer = {new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1)};
-        event.newEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::NewEnum>(new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1))};
-
-        event.oldEnum = kpsr::codegen::OldEnum::oldA;
-        event.oldEnumArray = {{kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB}};
-        event.oldEnumVector = {kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB};
-        event.oldEnumVectorPointer = {new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldB)};
-        event.oldEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::OldEnum>(new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldA))};
-
-        event.positionArray = {{ kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) }};
-        event.positionVector = { kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorPointer = { new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorSharedPtr = { std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3)),
-                                          std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3)) };
-
-        event.quaternionArray = {{ kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) }};
-        event.quaternionVector = { kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorPointer = { new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorSharedPtr = { std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4)),
-                                          std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4)) };
-        event.quat = kpsr::geometry::Quaternion(0, 1.0, 2.0, 3.0, 4.0);
-        event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
-        kpsrPublisher->publish(event);
-    }
-
-    {
-        kpsr::codegen::CompositionTypeRelated event;
-        event.seq = seq++;
-        event.newEnum = kpsr::codegen::NewEnum::new1;
-        event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
-        event.newEnumVector = {kpsr::codegen::NewEnum::new1, kpsr::codegen::NewEnum::new2};
-        event.newEnumVectorPointer = {new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1)};
-        event.newEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::NewEnum>(new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1))};
-
-        event.oldEnum = kpsr::codegen::OldEnum::oldA;
-        event.oldEnumArray = {{kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB}};
-        event.oldEnumVector = {kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB};
-        event.oldEnumVectorPointer = {new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldB)};
-        event.oldEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::OldEnum>(new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldA))};
-
-        event.positionArray = {{ kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) }};
-        event.positionVector = { kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorPointer = { new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorSharedPtr = { std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3)),
-                                          std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3)) };
-
-        event.quaternionArray = {{ kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) }};
-        event.quaternionVector = { kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorPointer = { new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorSharedPtr = { std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4)),
-                                          std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4)) };
-        event.quat = kpsr::geometry::Quaternion(0, 1.0, 2.0, 3.0, 4.0);
-        event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
-        kpsrPublisher->publish(event);
-    }
-
-    {
-        kpsr::codegen::CompositionTypeRelated event;
-        event.seq = seq++;
-        event.newEnum = kpsr::codegen::NewEnum::new1;
-        event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
-        event.newEnumVector = {kpsr::codegen::NewEnum::new1, kpsr::codegen::NewEnum::new2};
-        event.newEnumVectorPointer = {new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1)};
-        event.newEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::NewEnum>(new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1))};
-
-        event.oldEnum = kpsr::codegen::OldEnum::oldA;
-        event.oldEnumArray = {{kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB}};
-        event.oldEnumVector = {kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB};
-        event.oldEnumVectorPointer = {new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldB)};
-        event.oldEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::OldEnum>(new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldA))};
-
-        event.positionArray = {{ kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) }};
-        event.positionVector = { kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorPointer = { new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-        event.positionVectorSharedPtr = { std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3)),
-                                          std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3)) };
-
-        event.quaternionArray = {{ kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) }};
-        event.quaternionVector = { kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorPointer = { new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-        event.quaternionVectorSharedPtr = { std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4)),
-                                          std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4)) };
-        event.quat = kpsr::geometry::Quaternion(0, 1.0, 2.0, 3.0, 4.0);
-        event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
-        kpsrPublisher->publish(event);
-    }
-
     kpsr::codegen::CompositionTypeRelated event;
-    event.seq = seq++;
-    event.newEnum = kpsr::codegen::NewEnum::new1;
-    event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
-    event.newEnumVector = {kpsr::codegen::NewEnum::new1, kpsr::codegen::NewEnum::new2};
-    event.newEnumVectorPointer = {new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1)};
-    event.newEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::NewEnum>(new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1))};
+    for (int i = 0; i < 5; i++) {
+        event.seq = seq++;
+        event.newEnum = kpsr::codegen::NewEnum::new1;
+        event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
+        event.newEnumVector = {kpsr::codegen::NewEnum::new1, kpsr::codegen::NewEnum::new2};
+        event.newEnumVectorPointer = {new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1)};
+        event.newEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::NewEnum>(new kpsr::codegen::NewEnum(kpsr::codegen::NewEnum::new1))};
 
-    event.oldEnum = kpsr::codegen::OldEnum::oldA;
-    event.oldEnumArray = {{kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB}};
-    event.oldEnumVector = {kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB};
-    event.oldEnumVectorPointer = {new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldB)};
-    event.oldEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::OldEnum>(new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldA))};
+        event.oldEnum = kpsr::codegen::OldEnum::oldA;
+        event.oldEnumArray = {{kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB}};
+        event.oldEnumVector = {kpsr::codegen::OldEnum::oldA, kpsr::codegen::OldEnum::oldB};
+        event.oldEnumVectorPointer = {new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldB)};
+        event.oldEnumVectorSharedPtr = {std::shared_ptr<kpsr::codegen::OldEnum>(new kpsr::codegen::OldEnum(kpsr::codegen::OldEnum::oldA))};
 
-    event.positionArray = {{ kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) }};
-    event.positionVector = { kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-    event.positionVectorPointer = { new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
-    event.positionVectorSharedPtr = { std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3)),
-                                      std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3)) };
+        event.positionArray = {{ kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) }};
+        event.positionVector = { kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
+        event.positionVectorPointer = { new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3), new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3) };
+        event.positionVectorSharedPtr = { std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 0.1, 0.2, 0.3)),
+                                          std::shared_ptr<kpsr::geometry::Vector3>(new kpsr::geometry::Vector3(seq++, 1.1, 1.2, 1.3)) };
 
-    event.quaternionArray = {{ kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) }};
-    event.quaternionVector = { kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-    event.quaternionVectorPointer = { new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
-    event.quaternionVectorSharedPtr = { std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4)),
-                                      std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4)) };
-    event.quat = kpsr::geometry::Quaternion(0, 1.0, 2.0, 3.0, 4.0);
-    event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
+        event.quaternionArray = {{ kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) }};
+        event.quaternionVector = { kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
+        event.quaternionVectorPointer = { new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4), new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4) };
+        event.quaternionVectorSharedPtr = { std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(0.1, 0.2, 0.3, 0.4)),
+                                          std::shared_ptr<kpsr::codegen::Vector4>(new kpsr::codegen::Vector4(1.1, 1.2, 1.3, 1.4)) };
+        event.quat = kpsr::geometry::Quaternion(0, 1.0, 2.0, 3.0, 4.0);
+        event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
+        kpsrPublisher->publish(event);
+    }
 
     while (cacheListener.counter < 5) {
         spdlog::info("publishing loop... ");
@@ -242,8 +121,9 @@ TEST(KpsrDdsCodegenTest5, compositionTypeRelatedMapperTest) {
     ASSERT_EQ(cacheListener.getLastReceivedEvent()->quaternionVectorPointer[0]->a, event.quaternionVectorPointer[0]->a);
     ASSERT_EQ(cacheListener.getLastReceivedEvent()->quaternionVectorSharedPtr[0]->a, event.quaternionVectorSharedPtr[0]->a);
 
-    ASSERT_EQ(event.quat.x, eventListener.getLastReceivedEvent()->quat.x);
-    ASSERT_EQ(event.gpsData.altitude, eventListener.getLastReceivedEvent()->gpsData.altitude);
+    ASSERT_EQ(cacheListener.getLastReceivedEvent()->quat.x, event.quat.x);
+    ASSERT_EQ(cacheListener.getLastReceivedEvent()->gpsData.altitude, event.gpsData.altitude);
+
     fromDDSProvider.unregisterFromTopic("kpsr_dds_codegen_test_topic1", &dataReader);
 }
 

@@ -57,3 +57,4 @@ fields:
       type   : kpsr::codegen::OldEnum[s]
     - name   : oldEnumVectorPointer
       type   : kpsr::codegen::OldEnum[*]
+
