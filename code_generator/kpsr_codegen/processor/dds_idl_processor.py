@@ -72,8 +72,7 @@ class DdsIdlProcessor:
         include_list = set()
         for field in class_definition.fields:
             if not field.is_enum and field.field_type not in self.fundamental_types:
-                related_class_definition = class_definition_dict.get(field.field_type)
-                dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
+                dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
                 if dds_middleware_definition.idl_file:
                     include_list.add("\"%s\"" % dds_middleware_definition.idl_file)
                 else:
@@ -89,8 +88,7 @@ class DdsIdlProcessor:
             if field.field_type in enums:
                 field_dds_type = self.dds_types.get('enum')
             else:
-                related_class_definition = class_definition_dict.get(field.field_type)
-                dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
+                dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
                 field_dds_type = dds_middleware_definition.class_name
 
         if field.is_vector:

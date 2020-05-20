@@ -34,6 +34,8 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test31/poco/include
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test31/serialization/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test41/poco/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test41/serialization/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test51/poco/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/modules/codegen/gen_test51/serialization/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../core/modules/core/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../core/modules/zmq_mdlw/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/../../serialization/modules/serialization/include )

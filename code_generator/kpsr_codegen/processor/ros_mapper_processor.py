@@ -74,8 +74,7 @@ def process_mapper_instances(class_definition, class_definition_dict):
 
     for field in class_definition.fields:
         if field.is_related_class:
-            related_class_definition = class_definition_dict.get(field.field_type)
-            ros_middleware_definition = related_class_definition.middlewares[MiddlewareType.ROS]
+            ros_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.ROS]
             project_name = ros_middleware_definition.project_name
             field_ros_type = ros_middleware_definition.class_name
             ros_type = "%s::%s" % (project_name,  field_ros_type)
@@ -147,8 +146,7 @@ class RosMapperProcessor:
             mapper_name = None
 
         if field.is_related_class:
-            related_class_definition = class_definition_dict.get(field.field_type)
-            ros_middleware_definition = related_class_definition.middlewares[MiddlewareType.ROS]
+            ros_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.ROS]
             field_ros_type = '%s::%s' %(ros_middleware_definition.project_name, ros_middleware_definition.class_name)
         elif field.is_enum:
             field_ros_type = self.ros_types.get('int16')

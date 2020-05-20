@@ -74,8 +74,7 @@ def process_mapper_instances(class_definition, class_definition_dict, include_pa
 
     for field in class_definition.fields:
         if field.is_related_class:
-            related_class_definition = class_definition_dict.get(field.field_type)
-            dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
+            dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
             field_dds_type = dds_middleware_definition.class_name
             dds_type = field_dds_type
             mapper_name = '_%s_mapper' % field.field_type.replace('::', '_').lower()
@@ -137,8 +136,7 @@ class DdsMapperProcessor:
             mapper_name = None
 
         if field.is_related_class:
-            related_class_definition = class_definition_dict.get(field.field_type)
-            dds_middleware_definition = related_class_definition.middlewares[MiddlewareType.DDS]
+            dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
             field_dds_type = dds_middleware_definition.class_name
         elif field.is_enum:
             field_dds_type = self.dds_types.get('int16')

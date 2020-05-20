@@ -67,8 +67,7 @@ class RosMsgProcessor:
                 project_name = None
                 field_ros_type = self.ros_types.get('enum')
             else:
-                related_class_definition = class_definition_dict.get(field.field_type)
-                ros_middleware_definition = related_class_definition.middlewares[MiddlewareType.ROS]
+                ros_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.ROS]
                 project_name = ros_middleware_definition.project_name
                 field_ros_type = ros_middleware_definition.class_name
 
