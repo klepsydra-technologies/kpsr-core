@@ -118,19 +118,23 @@ class Generator:
             kidl_files.extend(filenames)
             break
 
-        class_definitions = [self.read_kidl_file(input_dir, kidl_file, disable_zmq) for kidl_file in kidl_files]
-        class_definition_dict = {class_definition.class_name: class_definition for class_definition in class_definitions}
+        related_classes_dict = {}
+        kidl_file_parses = [self.read_kidl_file(input_dir, kidl_file, disable_zmq) for kidl_file in kidl_files]
+        class_definitions = [kidl_file_parse if type(kidl_file_parse) is not dict else related_classes_dict.update(kidl_file_parse) for kidl_file_parse in kidl_file_parses ]
+        class_definitions = [x for x in class_definitions if x is not None]
 
-        [self.generate_code(class_definition_dict, include_path, input_dir, kidl_file,
-                            output_dir, disable_ros, disable_dds, disable_zmq) for kidl_file in kidl_files]
+        class_definition_dict = {class_definition.class_name: class_definition for class_definition in class_definitions}
+        related_classes_dict.update(class_definition_dict)
+
+        [self.generate_code(related_classes_dict, include_path, input_dir, class_name,
+                            output_dir, disable_ros, disable_dds, disable_zmq) for class_name in class_definition_dict]
 
     ## Generate the code from parsed kidl data
-    def generate_code(self, class_definition_dict, include_path, input_dir, main_kidl_file, output_dir,
+    def generate_code(self, class_definition_dict, include_path, input_dir, class_name, output_dir,
                       disable_ros, disable_dds, disable_zmq):
-        main_class_definition = self.read_kidl_file(input_dir, main_kidl_file, disable_zmq)
+        main_class_definition = class_definition_dict[class_name]
         poco_definition = self.poco_processor.process(main_class_definition.class_name, class_definition_dict,
                                                       include_path)
-
         if not main_class_definition.already_exists:
             class_name = split_namespace_class(main_class_definition.class_name)[-1]
             poco_file_name = output_dir + "/poco/include/" + include_path + "/" + \

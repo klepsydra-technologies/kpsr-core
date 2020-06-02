@@ -75,7 +75,7 @@ class ZmqSerializerProcessor:
             if not field.is_enum and field.field_type not in self.fundamental_types:
                 zmq_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.ZMQ]
                 if zmq_middleware_definition.serializer_include_file:
-                    include_list.add("\"%s\"", zmq_middleware_definition.serializer_include_file)
+                    include_list.add(zmq_middleware_definition.serializer_include_file)
                 else:
                     class_name = split_namespace_class(field.field_type)[-1]
                     if include_path:

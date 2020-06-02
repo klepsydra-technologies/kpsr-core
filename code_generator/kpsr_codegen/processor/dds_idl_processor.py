@@ -74,7 +74,7 @@ class DdsIdlProcessor:
             if not field.is_enum and field.field_type not in self.fundamental_types:
                 dds_middleware_definition = class_definition_dict.get(field.field_type).middlewares[MiddlewareType.DDS]
                 if dds_middleware_definition.idl_file:
-                    include_list.add("\"%s\"", dds_middleware_definition.idl_file)
+                    include_list.add("\"%s\"" % dds_middleware_definition.idl_file)
                 else:
                     class_name = split_namespace_class(dds_middleware_definition.class_name)[-1]
                     include_list.add("\"%s.idl\"" % convert_to_lower_case_underscores(class_name))

@@ -1,0 +1,23 @@
+class_name: kpsr::geometry::Vector3
+middlewares:
+    - type: ROS
+      project_name: geometry_msgs
+      already_exists: true
+      class_name: Vector3
+      include_file: <geometry_msgs/Vector3.h>
+      ignore_fields:
+          - seq
+    - type: DDS
+      class_name: kpsr_dds_geometry::Vector3Data
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+fields:
+    - name   : seq
+      type   : uint32
+    - name   : x
+      type   : float32
+    - name   : y
+      type   : float32
+    - name   : z
+      type   : float32

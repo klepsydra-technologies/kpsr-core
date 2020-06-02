@@ -24,11 +24,13 @@ KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test1" "${CMAKE_CURRENT_SOU
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test2" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test2" "klepsydra/codegen" "False" "True" "False")
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test3" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test3" "klepsydra/codegen" "False" "True" "False")
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test4" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test4" "klepsydra/codegen" "False" "True" "False")
+KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test5" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test5" "klepsydra/codegen" "False" "True" "False")
 
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test1" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test11" "klepsydra/codegen" "True" "False" "True")
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test2" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test21" "klepsydra/codegen" "True" "False" "True")
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test3" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test31" "klepsydra/codegen" "True" "False" "True")
 KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test4" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test41" "klepsydra/codegen" "True" "False" "True")
+KpsrEventGenerator("${CMAKE_CURRENT_SOURCE_DIR}/kidl_test5" "${CMAKE_CURRENT_SOURCE_DIR}/gen_test51" "klepsydra/codegen" "True" "False" "True")
 
 # Source
 #---------------------------------------------------#
@@ -58,6 +60,10 @@ file(GLOB_RECURSE TEST4_ROS_MAPPERS
   "gen_test4/rosstg/include/*.h"
 )
 
+file(GLOB_RECURSE TEST5_ROS_MAPPERS
+  "gen_test5/rosstg/include/*.h"
+)
+
 file(GLOB TEST2_ROS_MESSAGES
   "gen_test2/rosstg/msg/*.msg"
 )
@@ -70,11 +76,17 @@ file(GLOB TEST4_ROS_MESSAGES
   "gen_test4/rosstg/msg/*.msg"
 )
 
+file(GLOB TEST5_ROS_MESSAGES
+  "gen_test5/rosstg/msg/*.msg"
+)
+
 file(COPY ${TEST1_ROS_MAPPERS} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/include/kpsr_ros_codegen)
 file(COPY ${TEST2_ROS_MAPPERS} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/include/kpsr_ros_codegen)
 file(COPY ${TEST3_ROS_MAPPERS} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/include/kpsr_ros_codegen)
 file(COPY ${TEST4_ROS_MAPPERS} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/include/kpsr_ros_codegen)
+file(COPY ${TEST5_ROS_MAPPERS} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/include/kpsr_ros_codegen)
 file(COPY ${TEST2_ROS_MESSAGES} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/msg)
 file(COPY ${TEST3_ROS_MESSAGES} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/msg)
 file(COPY ${TEST4_ROS_MESSAGES} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/msg)
+file(COPY ${TEST5_ROS_MESSAGES} DESTINATION ${CMAKE_SOURCE_DIR}/tests/kpsr_ros_codegen/msg)
 

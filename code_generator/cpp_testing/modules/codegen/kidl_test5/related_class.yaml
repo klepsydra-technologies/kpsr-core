@@ -1,0 +1,33 @@
+related_classes:
+    - class_name: kpsr::geometry::Quaternion
+      include_file: <klepsydra/codegen/quaternion.h>
+      middlewares:
+        - type: ROS
+          project_name: geometry_msgs
+          already_exists: true
+          class_name: Quaternion
+          include_file: <geometry_msgs/Quaternion.h>
+          mapper_include_file: <geometry_msgs/quaternion_ros_mapper.h>
+        - type: DDS
+          class_name: kpsr_dds_geometry::QuaternionData
+          already_exists: true
+          mapper_include_file: <klepsydra/codegen/dds/quaternion_dds_mapper.h>
+          idl_file: "quaternion_data.idl"
+        - type: ZMQ
+          serializer_include_file: <klepsydra/codegen/cereal/quaternion_serializer.h>
+    - class_name: kpsr::geometry::Gps
+      include_file: <klepsydra/codegen/gps.h>
+      middlewares:
+        - type: ROS
+          project_name: sensor_msgs
+          already_exists: true
+          class_name: NavSatFix
+          include_file: <sensor_msgs/NavSatFix.h>
+          mapper_include_file: <sensor_msgs/gps_ros_mapper.h>
+        - type: DDS
+          class_name: kpsr_dds_geometry::GpsData
+          already_exists: True
+          mapper_include_file: <klepsydra/codegen/dds/gps_dds_mapper.h>
+          idl_file: "gps_data.idl"
+        - type: ZMQ
+          serializer_include_file: <klepsydra/codegen/cereal/gps_serializer.h>

@@ -1,0 +1,63 @@
+class_name: kpsr::codegen::CompositionTypeRelated
+middlewares:
+    - type: ROS
+      project_name: kpsr_ros_codegen
+      already_exists: false
+      class_name: CompositionTypeRelated
+    - type: DDS
+      class_name: kpsr_dds_codegen::CompositionTypeRelatedData
+      sequence_fields: 
+          - seq
+    - type: ZMQ
+enums:
+    - enum_name: kpsr::codegen::NewEnum
+      values:
+      - new1
+      - new2
+      - new3
+    - enum_name: kpsr::codegen::OldEnum
+      already_exists: true
+      include_file: <klepsydra/codegen/old_enum.h>
+fields:
+    - name   : seq
+      type   : uint32
+    - name   : quaternionArray
+      type   : kpsr::codegen::Vector4[3]
+    - name   : quaternionVector
+      type   : kpsr::codegen::Vector4[]
+    - name   : quaternionVectorSharedPtr
+      type   : kpsr::codegen::Vector4[s]
+    - name   : quaternionVectorPointer
+      type   : kpsr::codegen::Vector4[*]
+    - name   : positionArray
+      type   : kpsr::geometry::Vector3[3]
+    - name   : positionVector
+      type   : kpsr::geometry::Vector3[]
+    - name   : positionVectorSharedPtr
+      type   : kpsr::geometry::Vector3[s]
+    - name   : positionVectorPointer
+      type   : kpsr::geometry::Vector3[*]
+    - name   : newEnum
+      type   : kpsr::codegen::NewEnum
+    - name   : newEnumArray
+      type   : kpsr::codegen::NewEnum[3]
+    - name   : newEnumVector
+      type   : kpsr::codegen::NewEnum[]
+    - name   : newEnumVectorSharedPtr
+      type   : kpsr::codegen::NewEnum[s]
+    - name   : newEnumVectorPointer
+      type   : kpsr::codegen::NewEnum[*]
+    - name   : oldEnum
+      type   : kpsr::codegen::OldEnum
+    - name   : oldEnumArray
+      type   : kpsr::codegen::OldEnum[3]
+    - name   : oldEnumVector
+      type   : kpsr::codegen::OldEnum[]
+    - name   : oldEnumVectorSharedPtr
+      type   : kpsr::codegen::OldEnum[s]
+    - name   : oldEnumVectorPointer
+      type   : kpsr::codegen::OldEnum[*]
+    - name   : quat
+      type   : kpsr::geometry::Quaternion
+    - name   : gpsData
+      type   : kpsr::geometry::Gps
