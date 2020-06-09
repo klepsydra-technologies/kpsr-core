@@ -85,6 +85,9 @@ public:
      * Usually this method is invoked within a main application.
      */
     virtual void startup() final {
+        if (_started) {
+            return;
+        }
         _started = true;
 
         _serviceStats.startTimeWatch();
@@ -99,6 +102,9 @@ public:
      * Usually this method is invoked within a main application.
      */
     virtual void shutdown() final {
+        if (!_started) {
+            return;
+        }
         _started = false;
 
         _serviceStats.stopTimeWatch();
