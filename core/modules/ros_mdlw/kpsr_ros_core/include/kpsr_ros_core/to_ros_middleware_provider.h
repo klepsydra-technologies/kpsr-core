@@ -78,7 +78,7 @@ public:
      * @param publisher
      * @return
      */
-    Publisher<T> * getToMiddlewareChannel(std::string topic, int poolSize, std::function<void(M &)> initializerFunction, ros::Publisher & publisher) {
+    Publisher<T> * getToMiddlewareChannel(const std::string & topic, int poolSize, std::function<void(M &)> initializerFunction, ros::Publisher & publisher) {
         auto search = _publisherMap.find(topic);
         if (search != _publisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
@@ -103,7 +103,7 @@ public:
      * @param publisher
      * @return
      */
-    Publisher<T> * getToMiddlewareChannel(std::string topic, int poolSize, std::function<void(T &)> initializerFunction, ros::Publisher & publisher) {
+    Publisher<T> * getToMiddlewareChannel(const std::string & topic, int poolSize, std::function<void(T &)> initializerFunction, ros::Publisher & publisher) {
         auto search = _publisherMap.find(topic);
         if (search != _publisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;

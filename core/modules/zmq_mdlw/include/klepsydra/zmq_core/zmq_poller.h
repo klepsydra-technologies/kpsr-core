@@ -65,12 +65,16 @@ public:
      */
     virtual void stop() {
         _running = false;
-        if(_threadNotifier.joinable()) _threadNotifier.join();
+        if(_threadNotifier.joinable()) {
+		    _threadNotifier.join();
+        }
     }
 
     ~ZMQPoller() {
         _running = false;
-        if(_threadNotifier.joinable()) _threadNotifier.join();
+        if(_threadNotifier.joinable()) {
+		    _threadNotifier.join();
+        }
     }
 
     /**
@@ -78,7 +82,7 @@ public:
      * @param topic
      * @param function
      */
-    void registerToTopic(std::string topic, std::function<void(const T &)> function) {
+    void registerToTopic(const std::string & topic, std::function<void(const T &)> function) {
         std::lock_guard<std::mutex> lock(mutex);
         _functionTopicMap[topic] = function;
     }
@@ -87,7 +91,7 @@ public:
      * @brief unregisterFromTopic
      * @param topic
      */
-    void unregisterFromTopic(std::string topic) {
+    void unregisterFromTopic(const std::string & topic) {
         std::lock_guard<std::mutex> lock(mutex);
         _functionTopicMap.erase(topic);
     }
@@ -97,7 +101,7 @@ public:
      * @param topic
      * @param event
      */
-    void executeFunction(std::string topic, const T & event) {
+    void executeFunction(const std::string & topic, const T & event) {
         std::lock_guard<std::mutex> lock(mutex);
         auto search = _functionTopicMap.find(topic);
         if (search != _functionTopicMap.end()) {

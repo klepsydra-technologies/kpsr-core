@@ -71,7 +71,7 @@ public:
      * @param topic zmq topic to listen to
      * @param internalPublisher Klepsydra publisher to send the deserialized event to.
      */
-    void registerToTopic(std::string topic, Publisher<T> * internalPublisher) {
+    void registerToTopic(const std::string & topic, Publisher<T> * internalPublisher) {
         auto search = _subscriberMap.find(topic);
         if (search == _subscriberMap.end()) {
             std::shared_ptr<FromMiddlewareChannel<T, U>> fromMiddlewareChannel(new FromMiddlewareChannel<T, U>(internalPublisher));
@@ -87,7 +87,7 @@ public:
      * @brief unregisterFromTopic
      * @param topic
      */
-    void unregisterFromTopic(std::string topic) {
+    void unregisterFromTopic(const std::string & topic) {
         _zmqPoller->unregisterFromTopic(topic);
     }
 

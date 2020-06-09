@@ -44,7 +44,7 @@ struct SubscriptionStats : public FunctionStats {
      * @param type type of the subscriber for information purpuses (examples are: EVENT_EMITTER, EVENT_LOOP, DISRUPTOR, ROS, ZMQ, DDS)
      * 
      */
-    SubscriptionStats(const std::string listenerName, const std::string subscriberName, const std::string type)
+    SubscriptionStats(const std::string & listenerName, const std::string & subscriberName, const std::string & type)
         : FunctionStats(listenerName + "_" + subscriberName)
         , _type(type)
         , _totalEnqueuedTimeInNs(0)

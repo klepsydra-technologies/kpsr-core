@@ -62,7 +62,7 @@ public:
 
 protected:
     void internalPublish(std::shared_ptr<const std::vector<unsigned char>> event) override {
-        s_sendmore (_publisher, _topic.c_str());
+        s_sendmore (_publisher, _topic);
         zmq::message_t message(event->data(), event->size());
         _publisher.send(message);
     }

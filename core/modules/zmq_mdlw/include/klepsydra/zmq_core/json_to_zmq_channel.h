@@ -67,8 +67,8 @@ public:
 
 protected:
     void internalPublish(std::shared_ptr<const std::string> event) override {
-        s_sendmore (_publisher, _topic.c_str());
-        s_send (_publisher, event->c_str());
+        s_sendmore (_publisher, _topic);
+        s_send (_publisher, * event);
     }
 
 private:

@@ -105,13 +105,26 @@ endif()
 
 add_definitions(-std=c++11)
 enable_testing()
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # require at least gcc 4.8
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.5)
+    else()
+        add_definitions(-faligned-new)
+    endif()
+endif()
+
+if (KPSR_WITH_ZMQ)
+   add_definitions(-fno-strict-overflow)
+   add_definitions(-Wno-deprecated-declarations)
+   add_definitions(-Wno-comment)
+ENDIF()
 
 if (KPSR_WITH_CODE_METRICS)
    # Code Coverage
    IF (CMAKE_BUILD_TYPE MATCHES Debug)
        add_definitions(--coverage)
-       SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-       SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+       SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
        include(FindPythonInterp)
        include(CodeCoverage)
        setup_target_for_all_tests_coverage()
@@ -176,11 +189,11 @@ else()
            SET(${return_list} ${dir_list})
        ENDMACRO()
        PYTHON_DIRECTORIES(PY_DOC_DIRS)
+       string(REGEX REPLACE ";" " " PY_DOC_DIRS "${PY_DOC_DIRS}")
 
        file(GLOB_RECURSE DOC_DIRS "*/modules/group_definitions.h")
        string(REGEX REPLACE "/group_definitions.h[;]?" " " DOC_DIRS "${DOC_DIRS}")
        list (APPEND DOC_DIRS ${PY_DOC_DIRS})
-       string(REGEX REPLACE ";" " " DOC_DIRS "${DOC_DIRS}")
 
        configure_file(${KPSR_BUILD_PATH}/docs/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
        add_custom_target(doc

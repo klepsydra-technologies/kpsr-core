@@ -48,7 +48,7 @@ public:
      * @param useTake
      * @param internalPublisher
      */
-    DDSListener(bool useTake, Publisher<T> * internalPublisher, std::string topicName)
+    DDSListener(bool useTake, Publisher<T> * internalPublisher, const std::string & topicName)
         : _useTake(useTake)
         , _fromMiddlewareChannel(internalPublisher)
         , _topicName(topicName)

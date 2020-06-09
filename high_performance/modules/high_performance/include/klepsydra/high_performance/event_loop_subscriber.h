@@ -56,7 +56,7 @@ public:
      * @param eventEmitter
      * @param eventName
      */
-    EventLoopSubscriber(Container * container, EventEmitter & eventEmitter, std::string eventName)
+    EventLoopSubscriber(Container * container, EventEmitter & eventEmitter, const std::string & eventName)
         : EventEmitterSubscriber<T>(container, _internalEventEmitter, eventName)
         , _externalEventEmitter(eventEmitter)
         , _internalEventEmitter()

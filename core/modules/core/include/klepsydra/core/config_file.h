@@ -118,7 +118,7 @@ private:
 		}
 	}
 public:
-    ConfigFile(const std::string fileName) {
+    ConfigFile(const std::string & fileName) {
         std::ifstream file;
         file.open(fileName.c_str());
         if (!file)

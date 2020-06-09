@@ -80,7 +80,7 @@ public:
      * @param poolSize object pool size. 0 for no object pool
      * @return binary serializer klepsydra to zmq publisher
      */
-    Publisher<T> * getBinaryToMiddlewareChannel(std::string topic, int poolSize = 0) {
+    Publisher<T> * getBinaryToMiddlewareChannel(const std::string & topic, int poolSize = 0) {
         auto search = _binaryPublisherMap.find(topic);
         if (search != _binaryPublisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
@@ -109,7 +109,7 @@ public:
      * @param poolSize object pool size. 0 for no object pool
      * @return json serializer klepsydra to zmq publisher
      */
-    Publisher<T> * getJsonToMiddlewareChannel(std::string topic, int poolSize = 0) {
+    Publisher<T> * getJsonToMiddlewareChannel(const std::string & topic, int poolSize = 0) {
         auto search = _jsonPublisherMap.find(topic);
         if (search != _jsonPublisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
@@ -132,7 +132,7 @@ public:
      * @param poolSize object pool size. 0 for no object pool
      * @return non serializer klepsydra to zmq publisher
      */
-    Publisher<T> * getVoidCasterToMiddlewareChannel(std::string topic, int poolSize = 0) {
+    Publisher<T> * getVoidCasterToMiddlewareChannel(const std::string & topic, int poolSize = 0) {
         auto search = _voidCasterPublisherMap.find(topic);
         if (search != _voidCasterPublisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;

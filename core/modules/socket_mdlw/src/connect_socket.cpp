@@ -27,7 +27,7 @@
 #include <klepsydra/socket_core/connect_socket.h>
 #include <klepsydra/socket_core/utility.h>
 
-kpsr::socket_mdlw::ConnectSocket::ConnectSocket(std::string const& host, int port)
+kpsr::socket_mdlw::ConnectSocket::ConnectSocket(const std::string & host, int port)
     : kpsr::socket_mdlw::DataSocket(::socket(PF_INET, SOCK_STREAM, 0))
 {
     struct sockaddr_in serverAddr{};
@@ -42,7 +42,7 @@ kpsr::socket_mdlw::ConnectSocket::ConnectSocket(std::string const& host, int por
     }
 }
 
-kpsr::socket_mdlw::ConnectSocket::ConnectSocket(std::string path)
+kpsr::socket_mdlw::ConnectSocket::ConnectSocket(const std::string & path)
     : kpsr::socket_mdlw::DataSocket(::socket(AF_UNIX, SOCK_STREAM, 0))
 {
     struct sockaddr_un serverAddr{};

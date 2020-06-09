@@ -69,6 +69,7 @@ public:
         }
     }
 
+    virtual ~ManagedService() {}
 private:
 
     void onSystemMessageReceived(const SystemEventData & event) {

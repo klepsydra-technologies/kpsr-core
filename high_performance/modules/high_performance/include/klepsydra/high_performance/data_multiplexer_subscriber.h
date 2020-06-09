@@ -63,7 +63,7 @@ public:
      * @param name
      * @param ringBuffer
      */
-    DataMultiplexerSubscriber(Container * container, std::string name, RingBuffer & ringBuffer)
+    DataMultiplexerSubscriber(Container * container, const std::string & name, RingBuffer & ringBuffer)
         : Subscriber<TEvent>(container, name, "DATA_MULTIPLEXER")
         , _ringBuffer(ringBuffer)
     {}
@@ -73,7 +73,7 @@ public:
      * @param name
      * @param listener
      */
-    void registerListener(std::string name, const std::function<void(const TEvent &)> listener) {
+    void registerListener(const std::string & name, const std::function<void(const TEvent &)> listener) {
         std::lock_guard<std::mutex> lock (m_mutex);
         listenerStats.insert(std::make_pair(name, std::make_shared<kpsr::SubscriptionStats>(name, this->_name, "DATA_MULTIPLEXER")));
         if (this->_container != nullptr) {
@@ -95,7 +95,7 @@ public:
      * @brief removeListener
      * @param name
      */
-    void removeListener(std::string name) {
+    void removeListener(const std::string & name) {
         std::lock_guard<std::mutex> lock (m_mutex);
         if (subscriberMap.find(name) != subscriberMap.end()) {
             while (!subscriberMap[name]->batchEventProcessor->is_running()) {
@@ -118,7 +118,7 @@ public:
      * @param name
      * @return
      */
-    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string name) {
+    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string & name) {
         return listenerStats[name];
     }
 

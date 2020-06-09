@@ -39,7 +39,7 @@ public:
     static int constructorInvokations;
     static int copyInvokations;
 
-    EETestEvent(int id, std::string message)
+    EETestEvent(int id, const std::string & message)
         : _id(id)
         , _message(message) {
         EETestEvent::constructorInvokations++;
@@ -56,7 +56,7 @@ public:
 class EETestNewEvent {
 public:
 
-    EETestNewEvent(std::string label, std::vector<double> values)
+    EETestNewEvent(const std::string & label, std::vector<double> values)
         : _label(label)
         , _values(values) {
     }

@@ -48,6 +48,7 @@ kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string yamlFileName,
 
 kpsr::zmq_mdlw::ZMQEnv::~ZMQEnv() {
     _poller->stop();
+    delete _poller;
 }
 
 kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(YamlEnvironment * yamlEnvironment,
@@ -67,51 +68,51 @@ kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(YamlEnvironment * yamlEnvironment,
     _poller->start();
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::updateConfiguration(std::string configurationData) {
+void kpsr::zmq_mdlw::ZMQEnv::updateConfiguration(const std::string & configurationData) {
     _decorableEnv->updateConfiguration(configurationData);
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::updateConfiguration(std::string configurationData, std::string const& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::updateConfiguration(const std::string & configurationData, const std::string & rootNode) {
     _decorableEnv->updateConfiguration(configurationData, rootNode);
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::getPropertyString(const std::string& key, std::string & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::getPropertyString(const std::string & key, std::string & value, const std::string & rootNode) {
     _decorableEnv->getPropertyString(key, value, rootNode);
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::getPropertyInt(const std::string& key, int & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::getPropertyInt(const std::string & key, int & value, const std::string & rootNode) {
     _decorableEnv->getPropertyInt(key, value, rootNode);
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::getPropertyFloat(const std::string& key, float & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::getPropertyFloat(const std::string & key, float & value, const std::string & rootNode) {
     _decorableEnv->getPropertyFloat(key, value, rootNode);
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::getPropertyBool(const std::string& key, bool & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::getPropertyBool(const std::string & key, bool & value, const std::string & rootNode) {
     _decorableEnv->getPropertyBool(key, value, rootNode);
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::setPropertyString(const std::string& key, const std::string value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::setPropertyString(const std::string & key, const std::string & value, const std::string & rootNode) {
     _decorableEnv->setPropertyString(key, value, rootNode);
     publishConfiguration();
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::setPropertyInt(const std::string& key, const int & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::setPropertyInt(const std::string & key, const int & value, const std::string & rootNode) {
     _decorableEnv->setPropertyInt(key, value, rootNode);
     publishConfiguration();
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::setPropertyFloat(const std::string& key, const float & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode) {
     _decorableEnv->setPropertyFloat(key, value, rootNode);
     publishConfiguration();
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::setPropertyBool(const std::string& key, const bool & value, const std::string& rootNode) {
+void kpsr::zmq_mdlw::ZMQEnv::setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode) {
     _decorableEnv->setPropertyBool(key, value, rootNode);
     publishConfiguration();
 }
 
-void kpsr::zmq_mdlw::ZMQEnv::loadFile(const std::string& fileName, const std::string& nodeName) {
+void kpsr::zmq_mdlw::ZMQEnv::loadFile(const std::string & fileName, const std::string & nodeName) {
     _decorableEnv->loadFile(fileName, nodeName);
     publishConfiguration();
 }
@@ -119,13 +120,13 @@ void kpsr::zmq_mdlw::ZMQEnv::loadFile(const std::string& fileName, const std::st
 void kpsr::zmq_mdlw::ZMQEnv::publishConfiguration() {
     std::string configurationData = _decorableEnv->exportEnvironment();
     ZMQEnvironmentData environmentData(_zmqKey, configurationData, _timestamp);
-    s_sendmore (_zmqPublisher, _topicName.c_str());
+    s_sendmore (_zmqPublisher, _topicName);
     std::string serializeEnvironmentData;
     mapper.toMiddleware(environmentData, serializeEnvironmentData);
-    s_send (_zmqPublisher, serializeEnvironmentData.c_str());
+    s_send (_zmqPublisher, serializeEnvironmentData);
 }
 
-kpsr::zmq_mdlw::ZMQConfigurationPoller::ZMQConfigurationPoller(std::string zmqKey,
+kpsr::zmq_mdlw::ZMQConfigurationPoller::ZMQConfigurationPoller(const std::string & zmqKey,
                                                              ZMQEnv * zmqEnv,
                                                              long sourceId,
                                                              int pollPeriod)

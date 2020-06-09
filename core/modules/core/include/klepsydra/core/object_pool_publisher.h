@@ -55,7 +55,7 @@ public:
      * \param eventCloner optional function to use instead of the copy.
      */
     ObjectPoolPublisher(Container * container,
-                        const std::string name,
+                        const std::string & name,
                         const std::string type,
                         int poolSize,
                         std::function<void(T &)> initializerFunction,
@@ -68,6 +68,11 @@ public:
         this->_publicationStats._totalEventAllocations = poolSize;
     }
 
+    virtual ~ObjectPoolPublisher() {
+        if (_objectPool) {
+            delete _objectPool;
+        }
+    }
     /*!
      * @brief internalPublish
      * @param eventData
@@ -77,9 +82,9 @@ public:
             try {
                 std::shared_ptr<T> newEvent = std::move(_objectPool->acquire());
                 if (_eventCloner == nullptr) {
-                    (*newEvent.get()) = eventData;
+                    (*newEvent) = eventData;
                 } else {
-                    _eventCloner(eventData, (*newEvent.get()));
+                    _eventCloner(eventData, (*newEvent));
                 }
                 internalPublish(newEvent);
                 return;
@@ -89,8 +94,9 @@ public:
         }
         this->_publicationStats._totalEventAllocations++;
         if (_eventCloner == nullptr) {
-            std::shared_ptr<T> newEvent = std::shared_ptr<T>(new T(eventData));
+            std::shared_ptr<T> newEvent = std::make_shared<T>(eventData);
             internalPublish(newEvent);
+            newEvent.reset();
         } else {
             T * t = new T();
             if (_initializerFunction != nullptr) {

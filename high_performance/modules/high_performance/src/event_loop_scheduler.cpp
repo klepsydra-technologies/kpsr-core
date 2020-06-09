@@ -23,7 +23,7 @@ kpsr::high_performance::EventLoopScheduler::EventLoopScheduler(Publisher<std::fu
     : _publisher(publisher)
 {}
 
-void kpsr::high_performance::EventLoopScheduler::startScheduledTask(std::string name, int after, bool repeat, std::shared_ptr<std::function<void()>> task) {
+void kpsr::high_performance::EventLoopScheduler::startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void()>> task) {
     std::shared_ptr<std::function<void()>> eventloopTask = std::make_shared<std::function<void()>>([task, this] () { _publisher->publish(task); });
     _decorableScheduler.startScheduledTask(name, after, repeat, eventloopTask);
 }
@@ -34,7 +34,7 @@ void kpsr::high_performance::EventLoopScheduler::startScheduledService(int after
     startScheduledTask(name, after, repeat, task);
 }
 
-void kpsr::high_performance::EventLoopScheduler::stopScheduledTask(std::string name) {
+void kpsr::high_performance::EventLoopScheduler::stopScheduledTask(const std::string & name) {
     _decorableScheduler.stopScheduledTask(name);
 }
 

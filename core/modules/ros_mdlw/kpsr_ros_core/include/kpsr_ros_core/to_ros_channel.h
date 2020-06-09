@@ -49,7 +49,7 @@ public:
      * @param environment
      * @param rosPublisher
      */
-    ToRosChannel(Container * container, std::string name, int poolSize, std::function<void(M &)> initializerFunction, ros::Publisher & rosPublisher)
+    ToRosChannel(Container * container, const std::string & name, int poolSize, std::function<void(M &)> initializerFunction, ros::Publisher & rosPublisher)
         : ObjectPoolPublisher<M>(container, name, "ROS", poolSize, initializerFunction, nullptr)
         , _rosPublisher(rosPublisher)
     {}

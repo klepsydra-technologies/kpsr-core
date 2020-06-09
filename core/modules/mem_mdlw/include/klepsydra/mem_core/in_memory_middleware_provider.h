@@ -59,6 +59,11 @@ public:
         , _subscriber(container, _eventEmitter, eventName)
     {}
 
+    virtual ~InMemoryMiddlewareProvider() {
+        delete _publisher;
+        delete _poller;
+    }
+
     /**
      * @brief start
      */

@@ -37,7 +37,7 @@ public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    SQTestEvent(int id, std::string message)
+    SQTestEvent(int id, const std::string & message)
         : _id(id)
         , _message(message) {
         SQTestEvent::constructorInvokations++;
@@ -64,7 +64,7 @@ public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    SQTestNewEvent(std::string label, std::vector<double> values)
+    SQTestNewEvent(const std::string & label, std::vector<double> values)
         : _label(label)
         , _values(values) {
         SQTestNewEvent::constructorInvokations++;
@@ -165,7 +165,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking) {
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 6);
 
     provider.start();
-    kpsr::mem::TestCacheListener<SQTestEvent> eventListener(2);
+    kpsr::mem::TestCacheListener<SQTestEvent> eventListener(1);
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
     std::thread t2([&provider]{
@@ -201,7 +201,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking) {
 
     provider.start();
 
-    kpsr::mem::TestCacheListener<SQTestEvent> eventListener(10);
+    kpsr::mem::TestCacheListener<SQTestEvent> eventListener(1);
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
     std::thread t2([&provider]{

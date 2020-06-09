@@ -51,7 +51,7 @@ kpsr::socket_mdlw::ServerSocket::ServerSocket(int port)
     }
 }
 
-kpsr::socket_mdlw::ServerSocket::ServerSocket(std::string socketPath)
+kpsr::socket_mdlw::ServerSocket::ServerSocket(const std::string & socketPath)
     : BaseSocket(::socket(AF_UNIX, SOCK_STREAM, 0))
 {
     struct sockaddr_un serverAddr{};

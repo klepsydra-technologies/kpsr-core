@@ -48,7 +48,7 @@ class ZMQEnv;
 class ZMQConfigurationPoller
 {
 public:
-    ZMQConfigurationPoller(std::string zmqKey, ZMQEnv * zmqEnv, long sourceId, int pollPeriod);
+    ZMQConfigurationPoller(const std::string & zmqKey, ZMQEnv * zmqEnv, long sourceId, int pollPeriod);
 
     void poll();
 
@@ -115,70 +115,70 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string& key, std::string & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyString(const std::string & key, std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string& key, int & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyInt(const std::string & key, int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string& key, float & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyFloat(const std::string & key, float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string& key, bool & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyBool(const std::string & key, bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    void setPropertyString(const std::string& key, const std::string value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyString(const std::string & key, const std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    void setPropertyInt(const std::string& key, const int & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyInt(const std::string & key, const int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    void setPropertyFloat(const std::string& key, const float & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    void setPropertyBool(const std::string& key, const bool & value, const std::string& rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
 
-    void loadFile(const std::string& fileName, const std::string& nodeName) override;
-
-    /**
-     * @brief updateConfiguration
-     * @param configurationData
-     */
-    void updateConfiguration(std::string configurationData);
+    void loadFile(const std::string & fileName, const std::string & nodeName) override;
 
     /**
      * @brief updateConfiguration
      * @param configurationData
      */
-    void updateConfiguration(std::string configurationData, std::string const& rootNode);
+    void updateConfiguration(const std::string & configurationData);
+
+    /**
+     * @brief updateConfiguration
+     * @param configurationData
+     */
+    void updateConfiguration(const std::string & configurationData, const std::string & rootNode);
 
     zmq::socket_t & _zmqSubscriber;
 

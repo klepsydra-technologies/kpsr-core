@@ -37,7 +37,7 @@ public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    ConcurrentSQTestEvent(int id, std::string message)
+    ConcurrentSQTestEvent(int id, const std::string & message)
         : _id(id)
         , _message(message) {
         ConcurrentSQTestEvent::constructorInvokations++;
@@ -64,7 +64,7 @@ public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    ConcurrentSQTestNewEvent(std::string label, std::vector<double> values)
+    ConcurrentSQTestNewEvent(const std::string & label, std::vector<double> values)
         : _label(label)
         , _values(values) {
         ConcurrentSQTestNewEvent::constructorInvokations++;

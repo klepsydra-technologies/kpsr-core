@@ -56,7 +56,7 @@ public:
      * @brief sendMessage
      * @param message
      */
-    virtual void sendMessage(std::string const& message) = 0;
+    virtual void sendMessage(const std::string & message) = 0;
 
     /**
      * @brief recvMessage

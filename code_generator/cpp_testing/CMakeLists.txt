@@ -53,7 +53,6 @@ message(STATUS "kpsr-build path: " ${KPSR_BUILD_PATH})
 
 # Paths
 SET(CMAKE_MODULE_PATH            ${KPSR_BUILD_PATH}/cmake ${CMAKE_SOURCE_DIR}/../cmake)
-SET(CMAKE_PREFIX_PATH            ${CMAKE_PREFIX_PATH} ${THIRDPARTIES_PATH})
 
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.

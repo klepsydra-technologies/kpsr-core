@@ -52,7 +52,7 @@ public:
      * @param eventEmitter
      * @param eventName
      */
-    EventLoopFunctionExecutorListener(Container * container, EventEmitter & eventEmitter, std::string eventName)
+    EventLoopFunctionExecutorListener(Container * container, EventEmitter & eventEmitter, const std::string & eventName)
         : _container(container)
         , _eventName(eventName)
         , _externalEventEmitter(eventEmitter)

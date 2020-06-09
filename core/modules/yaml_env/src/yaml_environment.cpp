@@ -22,7 +22,7 @@
 #include <cstring>
 #include <fstream>
 
-kpsr::YamlEnvironment::YamlEnvironment(const std::string yamlFileName, std::string const& rootNode)
+kpsr::YamlEnvironment::YamlEnvironment(const std::string & yamlFileName, const std::string & rootNode)
     : _yamlFileName(yamlFileName)
     , _node() {
 
@@ -34,43 +34,43 @@ kpsr::YamlEnvironment::YamlEnvironment()
     , _node() {
 }
 
-void kpsr::YamlEnvironment::getPropertyString(const std::string& key, std::string & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyString(const std::string & key, std::string & value, const std::string & rootNode) {
     value = _node[rootNode][key].as<std::string>();
 }
 
-void kpsr::YamlEnvironment::getPropertyInt(const std::string& key, int & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyInt(const std::string & key, int & value, const std::string & rootNode) {
     value = _node[rootNode][key].as<int>();
 }
 
-void kpsr::YamlEnvironment::getPropertyFloat(const std::string& key, float & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyFloat(const std::string & key, float & value, const std::string & rootNode) {
     value = _node[rootNode][key].as<float>();
 }
 
-void kpsr::YamlEnvironment::getPropertyBool(const std::string& key, bool & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::getPropertyBool(const std::string & key, bool & value, const std::string & rootNode) {
     value = _node[rootNode][key].as<bool>();
 }
 
-void kpsr::YamlEnvironment::setPropertyString(const std::string& key, const std::string value, std::string const& rootNode){
+void kpsr::YamlEnvironment::setPropertyString(const std::string & key, const std::string& value, const std::string & rootNode){
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::setPropertyInt(const std::string& key, const int & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::setPropertyInt(const std::string & key, const int & value, const std::string & rootNode) {
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::setPropertyFloat(const std::string& key, const float & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode) {
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::setPropertyBool(const std::string& key, const bool & value, std::string const& rootNode) {
+void kpsr::YamlEnvironment::setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode) {
     _node[rootNode][key] = value;
 }
 
-void kpsr::YamlEnvironment::updateConfiguration(std::string yamlContent, std::string const& rootNode) {
+void kpsr::YamlEnvironment::updateConfiguration(const std::string & yamlContent, const std::string & rootNode) {
     _node[rootNode] = YAML::Load(yamlContent);
 }
 
-void kpsr::YamlEnvironment::updateConfiguration(std::string yamlContent) {
+void kpsr::YamlEnvironment::updateConfiguration(const std::string & yamlContent) {
     _node = YAML::Load(yamlContent);
 }
 
@@ -80,6 +80,6 @@ std::string kpsr::YamlEnvironment::exportEnvironment() {
     return confDataStream.str();
 }
 
-void kpsr::YamlEnvironment::loadFile(const std::string& fileName, const std::string& nodeName) {
+void kpsr::YamlEnvironment::loadFile(const std::string & fileName, const std::string & nodeName) {
     _node[nodeName] = YAML::LoadFile(fileName);
 }

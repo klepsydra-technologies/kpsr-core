@@ -23,26 +23,30 @@ namespace kpsr
 {
 namespace mem
 {
-    void InMemoryQueuePoller::start() {
-        _running = true;
-        _threadNotifier = std::thread(&InMemoryQueuePoller::pollingLoop, this);
-    }
+void InMemoryQueuePoller::start() {
+    _running = true;
+    _threadNotifier = std::thread(&InMemoryQueuePoller::pollingLoop, this);
+}
 
-    void InMemoryQueuePoller::stop() {
-        _running = false;
-        if(_threadNotifier.joinable()) _threadNotifier.join();
+void InMemoryQueuePoller::stop() {
+    _running = false;
+    if(_threadNotifier.joinable()) {
+        _threadNotifier.join();
     }
+}
 
-    InMemoryQueuePoller::~InMemoryQueuePoller() {
-        _running = false;
-        if(_threadNotifier.joinable()) _threadNotifier.join();
+InMemoryQueuePoller::~InMemoryQueuePoller() {
+    _running = false;
+    if(_threadNotifier.joinable()) {
+        _threadNotifier.join();
     }
+}
 
-    void InMemoryQueuePoller::pollingLoop() {
-        while (_running) {
-            takeEventFromQueue();
-        }
+void InMemoryQueuePoller::pollingLoop() {
+    while (_running) {
+        takeEventFromQueue();
     }
+}
 
 }
 }

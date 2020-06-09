@@ -59,7 +59,7 @@ public:
      * @param eventCloner optional function used for cloning event that are put in the ring buffer.
      * @param ringBuffer
      */
-    DataMultiplexerPublisher(Container * container, std::string name,
+    DataMultiplexerPublisher(Container * container, const std::string & name,
                        std::function<void(const TEvent &, TEvent &)> eventCloner,
                        RingBuffer & ringBuffer)
         : Publisher<TEvent>(container, name, "DATA_MULTIPLEXER")

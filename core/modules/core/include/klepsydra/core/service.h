@@ -62,6 +62,7 @@ public:
         , _started(false)
     {}
 
+    virtual ~Service() {}
     /*!
      * @brief runOnce
      *

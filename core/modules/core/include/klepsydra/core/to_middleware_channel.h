@@ -47,7 +47,7 @@ public:
      * @param container
      * @param middlewarePublisher real native middleware publisher
      */
-    ToMiddlewareChannel(Container * container, std::string name, Publisher<MddlwClass> * middlewarePublisher)
+    ToMiddlewareChannel(Container * container, const std::string & name, Publisher<MddlwClass> * middlewarePublisher)
         : Publisher<KpsrClass>(container, name, "TO_MDLWR_CHANNEL")
         , _middlewarePublisher(middlewarePublisher)
         , _middlewareMapper()
