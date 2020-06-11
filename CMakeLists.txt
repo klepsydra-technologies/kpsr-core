@@ -103,7 +103,6 @@ else()
     add_definitions(-DUSE_GET_WRITE_QUEUE)
 endif()
 
-add_definitions(-std=c++11)
 enable_testing()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # require at least gcc 4.8
@@ -113,8 +112,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif()
 endif()
 
+add_definitions(-fno-strict-overflow)
 if (KPSR_WITH_ZMQ)
-   add_definitions(-fno-strict-overflow)
    add_definitions(-Wno-deprecated-declarations)
    add_definitions(-Wno-comment)
 ENDIF()

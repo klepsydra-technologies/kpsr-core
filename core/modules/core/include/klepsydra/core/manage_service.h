@@ -73,7 +73,7 @@ public:
 private:
 
     void onSystemMessageReceived(const SystemEventData & event) {
-        spdlog::info("Service::SystemEventDataListener::onMessageReceived.");
+        spdlog::info("Service::SystemEventDataListener::onMessageReceived. Service name: {}, event: {}", this->_serviceStats._name, event);
         if (event == SystemEventData::Start) {
             startup();
         }

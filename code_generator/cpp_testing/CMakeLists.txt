@@ -53,6 +53,8 @@ message(STATUS "kpsr-build path: " ${KPSR_BUILD_PATH})
 
 # Paths
 SET(CMAKE_MODULE_PATH            ${KPSR_BUILD_PATH}/cmake ${CMAKE_SOURCE_DIR}/../cmake)
+SET(LIBRARY_OUTPUT_PATH          ${PROJECT_BINARY_DIR}/bin                   CACHE PATH "Library output" FORCE)
+SET(EXECUTABLE_OUTPUT_PATH       ${PROJECT_BINARY_DIR}/bin                   CACHE PATH "Executable output" FORCE)
 
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
@@ -99,7 +101,19 @@ endif()
 
 add_definitions(-std=c++11)
 enable_testing()
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # require at least gcc 4.8
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.5)
+    else()
+        add_definitions(-faligned-new)
+    endif()
+endif()
 
+add_definitions(-fno-strict-overflow)
+if (KPSR_WITH_ZMQ)
+   add_definitions(-Wno-deprecated-declarations)
+   add_definitions(-Wno-comment)
+ENDIF()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)

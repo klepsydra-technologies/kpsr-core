@@ -81,7 +81,9 @@ TEST(KpsrZMQCodegeTest, compositionTypeRelatedMapperTest) {
 
     unsigned short seq = 0;
     kpsr::codegen::CompositionTypeRelated event;
-    for (int i = 0; i < 5; i++) {
+
+    int attempts = 0;
+    while (cacheListener.counter < 5) {
         event.seq = seq++;
         event.newEnum = kpsr::codegen::NewEnum::new1;
         event.newEnumArray = {{kpsr::codegen::NewEnum::new2, kpsr::codegen::NewEnum::new3}};
@@ -112,7 +114,11 @@ TEST(KpsrZMQCodegeTest, compositionTypeRelatedMapperTest) {
         event.gpsData = kpsr::geometry::Gps(1, 1.0, 2.0, 3.0);
         kpsrPublisher->publish(event);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        attempts++;
     }
+
+    spdlog::info("Total publishing attempts: {}", attempts);
+
 
     fromZMQProvider->stop();
 
