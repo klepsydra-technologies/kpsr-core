@@ -52,7 +52,7 @@ public:
      * @brief ConnectSocket
      * @param path
      */
-    ConnectSocket(const std::string & path);
+    explicit ConnectSocket(const std::string & path);
 };
 
 }

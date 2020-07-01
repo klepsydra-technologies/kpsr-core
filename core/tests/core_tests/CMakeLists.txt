@@ -24,6 +24,7 @@ PROJECT(${PROJ_NAME})
 #---------------------------------------------------#
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common )
 INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
 
 # Source

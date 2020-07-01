@@ -1,0 +1,5 @@
+str.property=value
+bool.property=1
+int.property=1
+canopen_bin_array_status_idx=0x2120
+float.property=3.14

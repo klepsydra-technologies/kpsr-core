@@ -119,7 +119,7 @@ public:
                     _initializerFunction(*newEvent);
                 }
                 process(*newEvent);
-                internalPublish(newEvent);
+                this->publish(newEvent);
                 return;
             } catch (std::out_of_range ex) {
                 spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure.");
@@ -131,7 +131,7 @@ public:
             _initializerFunction(*newEvent);
         }
         process(*newEvent);
-        internalPublish(newEvent);
+        this->publish(newEvent);
     }
 
     /*!

@@ -44,7 +44,7 @@ public:
      * @brief DataSocket
      * @param socketId
      */
-    DataSocket(int socketId)
+    explicit DataSocket(int socketId)
         : BaseSocket(socketId)
     {}
 

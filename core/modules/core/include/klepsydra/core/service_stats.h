@@ -41,7 +41,7 @@ public:
      * @brief ServiceStats
      * @param serviceName service name to gather stats for.
      */
-    ServiceStats(const std::string & serviceName)
+    explicit ServiceStats(const std::string & serviceName)
         : FunctionStats(serviceName)
         , _totalRunningTimeMs(0)
         , _running(false)
