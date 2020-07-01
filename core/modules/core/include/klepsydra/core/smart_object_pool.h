@@ -49,7 +49,7 @@ private:
 
         void operator()(T* ptr) {
             if (auto pool_ptr = pool_.lock()) {
-                (*pool_ptr.get())->add(std::unique_ptr<T, D>{ptr});
+                (*pool_ptr)->add(std::unique_ptr<T, D>{ptr});
             }
             else
                 D{}(ptr);
@@ -80,17 +80,16 @@ public:
 
         pool_ = new LockFreeStack<std::unique_ptr<T, D> >(size, poolInitializer);
         for (int i = 0; i < size; i ++) {
-            T * t = new T();
-            add(std::unique_ptr<T, D>(t));
+            std::unique_ptr<T, D> t (new T());
             if (initializerFunction != nullptr) {
                 initializerFunction(*t);
             }
+            add(std::move(t));
         }
     }
 
     virtual ~SmartObjectPool(){
-        T *t = nullptr;
-        auto t_ptr = std::unique_ptr<T, D>(t);
+        std::unique_ptr<T, D> t_ptr;
         while (pool_->pop(t_ptr)) {
             t_ptr.reset();
         }
