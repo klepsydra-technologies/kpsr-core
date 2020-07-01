@@ -22,7 +22,8 @@
 #include <functional>
 
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/cache_listener.h>
@@ -335,4 +336,53 @@ TEST(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
     ASSERT_EQ(ELTestEvent::constructorInvokations, 100);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 6);
     ASSERT_EQ(ELTestEvent::copyInvokations, eventListener.counter);
+}
+TEST(EventLoopTest, StartStopTest) {
+    kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
+    kpsr::EventEmitter _eventEmitter;
+    std::string name = "kpsr_EL";
+ 
+    kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
+
+    eventLoop.start();
+    ASSERT_TRUE(eventLoop.isStarted());
+    ASSERT_TRUE(eventLoop.isRunning());
+    eventLoop.stop();
+    ASSERT_FALSE(eventLoop.isStarted());
+}
+
+TEST(EventLoopTest, StartStopFastTest) {
+    kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
+    kpsr::EventEmitter _eventEmitter;
+    std::string name = "kpsr_EL";
+ 
+    kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
+
+    eventLoop.start();
+    eventLoop.stop();
+    ASSERT_FALSE(eventLoop.isStarted());
+    ASSERT_FALSE(eventLoop.isRunning());
+}
+
+TEST(EventLoopTest, StartTwiceTest) {
+    kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
+    kpsr::EventEmitter _eventEmitter;
+    std::string name = "kpsr_EL";
+ 
+    kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
+
+    eventLoop.start();
+    std::stringstream programLogStream;
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+    eventLoop.start();
+    std::string spdlogString = programLogStream.str();
+    ASSERT_EQ(spdlogString.size(), 0);
+    auto console = spdlog::stdout_color_mt("default");
+    spdlog::set_default_logger(console);
+    spdlog::drop("my_logger");
+
+    eventLoop.stop();
 }

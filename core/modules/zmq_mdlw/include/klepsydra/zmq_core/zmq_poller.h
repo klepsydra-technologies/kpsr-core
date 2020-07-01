@@ -24,9 +24,13 @@
 #include <functional>
 #include <atomic>
 #include <mutex>
+#include <future>
 
 namespace kpsr {
 namespace zmq_mdlw {
+
+const long START_TIMEOUT_MILLISEC = 100;
+    
 template<class T>
 /**
  * @brief The ZMQPoller class
@@ -45,11 +49,19 @@ public:
      * @param subscriber
      * @param pollPeriod
      */
-    ZMQPoller(zmq::socket_t & subscriber, long pollPeriod)
+    ZMQPoller(zmq::socket_t & subscriber, long pollPeriod,
+              long timeoutMS = START_TIMEOUT_MILLISEC)
         : _subscriber(subscriber)
         , _pollPeriod(pollPeriod)
-        , _running(false)
         , _threadNotifier()
+        , _running(false)
+        , _started(false)
+        , _poller([this]() {
+                      _started.store(true, std::memory_order_relaxed);
+                      this->poll();
+                  })
+        , _threadNotifierFuture(_poller.get_future())
+        , _timeoutUs(timeoutMS*1000)
     {}
 
     /**
@@ -57,7 +69,15 @@ public:
      */
     virtual void start() {
         _running = true;
-        _threadNotifier = std::thread(&ZMQPoller::poll, this);
+        _threadNotifier = std::thread(std::move(_poller));
+        long counterUs = 0;
+        while (!this->_started.load(std::memory_order_acquire)) {
+            if (counterUs > _timeoutUs) {
+                throw std::runtime_error("Could not start the ZMQ poller");
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            counterUs += 100;
+        }
     }
 
     /**
@@ -117,14 +137,17 @@ public:
 protected:
     zmq::socket_t & _subscriber;
     long _pollPeriod;
+    std::thread _threadNotifier;
     std::atomic<bool> _running;
 
-    std::thread _threadNotifier;
+    std::atomic<bool> _started;
+    std::packaged_task<void()> _poller;
+    std::future<void> _threadNotifierFuture;
     std::mutex mutex;
 
     std::map<std::string, std::function<void(const T &)>> _functionTopicMap;
     typedef typename std::map<std::string, std::function<void(const T &)>>::iterator it_type;
-
+    long _timeoutUs;
 };
 }
 }

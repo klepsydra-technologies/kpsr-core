@@ -26,6 +26,7 @@
 #include <memory>
 #include <iostream>
 #include <atomic>
+#include <future>
 
 #include <klepsydra/core/event_emitter_subscriber.h>
 
@@ -36,6 +37,9 @@ namespace kpsr
 {
 namespace high_performance
 {
+
+const long START_TIMEOUT_MILLISEC = 100;
+    
 template <std::size_t BufferSize>
 /**
  * @brief The EventLoop class
@@ -62,10 +66,23 @@ public:
      * @param eventEmitter
      * @param ringBuffer
      */
-    EventLoop(kpsr::EventEmitter & eventEmitter, RingBuffer & ringBuffer)
-        : _ringBuffer(ringBuffer)
+    EventLoop(kpsr::EventEmitter & eventEmitter, RingBuffer & ringBuffer, const std::string & name,
+              long timeoutMS = START_TIMEOUT_MILLISEC)
+        : _name(name)
+        , _threadName(std::to_string(BufferSize) + "_" + name)
+        , _ringBuffer(ringBuffer)
         , _eventHandler(eventEmitter)
         , _isStarted(false)
+        , _batchProcessTask([this] {
+                                std::vector<disruptor4cpp::sequence * > sequences_to_add;
+                                sequences_to_add.resize(1);
+                                sequences_to_add[0] = &batchEventProcessor->get_sequence();
+                                this->_ringBuffer.add_gating_sequences(sequences_to_add);
+                                spdlog::info("About to run batchEventProcessor");
+                                this->batchEventProcessor->run();
+                            })
+        , _batchProcessorThreadFuture(_batchProcessTask.get_future())
+        , _timeoutUs(timeoutMS*1000)
     {
         auto barrier = _ringBuffer.new_barrier();
         batchEventProcessor = std::unique_ptr<BatchProcessor>(new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler));
@@ -78,14 +95,16 @@ public:
         if (_isStarted) {
             return;
         }
-        batchProcessorThread = std::thread([this] {
-            std::vector<disruptor4cpp::sequence * > sequences_to_add;
-            sequences_to_add.resize(1);
-            sequences_to_add[0] = &batchEventProcessor.get()->get_sequence();
-            this->_ringBuffer.add_gating_sequences(sequences_to_add);
-            this->batchEventProcessor->run();
-        });
+        batchProcessorThread = std::thread(std::move(_batchProcessTask));
         _isStarted = true;
+        long counterUs = 0;
+        while(!this->batchEventProcessor->is_running()) {
+            if (counterUs > _timeoutUs) {
+                throw std::runtime_error("Could not start the event loop");
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            counterUs += 100;
+        }
     }
 
     /**
@@ -96,6 +115,7 @@ public:
             return;
         }
         this->batchEventProcessor->halt();
+        spdlog::info("Halting the batchEventProcessor");
         _isStarted = false;
         if (this->batchProcessorThread.joinable())
         {
@@ -107,12 +127,20 @@ public:
         return _isStarted;
     }
 
+    bool isRunning() const {
+        return this->batchEventProcessor->is_running();
+    }
 private:
+    std::string _name;
+    std::string _threadName;
     RingBuffer & _ringBuffer;
     EventLoopEventHandler _eventHandler;
     std::unique_ptr<BatchProcessor> batchEventProcessor;
     std::thread batchProcessorThread;
     std::atomic_bool _isStarted;
+    std::packaged_task<void()> _batchProcessTask;
+    std::future<void> _batchProcessorThreadFuture;
+    long _timeoutUs;
 };
 }
 }

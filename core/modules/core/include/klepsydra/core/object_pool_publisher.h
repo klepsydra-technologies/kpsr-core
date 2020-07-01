@@ -89,7 +89,7 @@ public:
                 internalPublish(newEvent);
                 return;
             } catch (std::out_of_range ex) {
-                spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure.");
+                spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}", this->_publicationStats._name);
             }
         }
         this->_publicationStats._totalEventAllocations++;
