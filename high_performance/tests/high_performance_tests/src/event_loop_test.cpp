@@ -20,6 +20,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <sstream>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/ostream_sink.h>
@@ -28,6 +29,7 @@
 #include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/cache_listener.h>
 
+#include <klepsydra/mem_core/mem_env.h>
 #include <klepsydra/high_performance/event_loop_middleware_provider.h>
 
 #include "gtest/gtest.h"
@@ -337,6 +339,101 @@ TEST(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 6);
     ASSERT_EQ(ELTestEvent::copyInvokations, eventListener.counter);
 }
+
+TEST(EventLoopTest, SetContainerSuccessTest) {
+
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
+
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+
+    provider.setContainer(&testContainer);
+    auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
+    ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
+}
+
+TEST(EventLoopTest, SetContainerAfterStartTest) {
+
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
+    provider.start();
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+
+    provider.setContainer(&testContainer);
+    auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    ASSERT_EQ(nullptr, dummySubscriberTest->_container);
+    provider.stop();
+}
+
+TEST(EventLoopTest, SetContainerAfterSubscribersTest) {
+
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
+
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+    auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
+
+    std::stringstream programLogStream;
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+    provider.setContainer(&testContainer);
+    spdlog::drop("my_logger");
+
+    ASSERT_NE(&testContainer, dummySubscriberTest->_container);
+    std::string spdlogString = programLogStream.str();
+
+    ASSERT_NE(spdlogString.size(), 0);
+}
+
+TEST(EventLoopTest, SetContainerAfterPublisherTest) {
+
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
+
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+    auto dummyPublisherTest __attribute__((unused)) = provider.getPublisher<int>("testSubscriber", 0, nullptr, nullptr);
+
+    std::stringstream programLogStream;
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+    provider.setContainer(&testContainer);
+    auto console = spdlog::stdout_color_mt("default");
+    spdlog::set_default_logger(console);
+    spdlog::drop("my_logger");
+
+    std::string spdlogString = programLogStream.str();
+
+    ASSERT_NE(spdlogString.size(), 0);
+}
+
+
+TEST(EventLoopTest, SetContainerWithScheduler) {
+
+    kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
+
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+    auto dummyScheduler __attribute__((unused)) = provider.getScheduler("testScheduler");
+
+    std::stringstream programLogStream;
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+    provider.setContainer(&testContainer);
+
+    std::string spdlogString = programLogStream.str();
+    ASSERT_EQ(spdlogString.size(), 0);
+    auto console = spdlog::stdout_color_mt("default");
+    spdlog::set_default_logger(console);
+    spdlog::drop("my_logger");
+}
+
 TEST(EventLoopTest, StartStopTest) {
     kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
     kpsr::EventEmitter _eventEmitter;

@@ -164,6 +164,24 @@ public:
         return _eventLoop.isStarted();
     }
 
+    void setContainer(Container * container) {
+        if (!isRunning()) {
+            _container = container;
+            if (_scheduler && (_subscriberMap.size() == 1) && (_publisherMap.size() == 1)) {
+                if (_container) {
+                    for (auto& keyValue : _subscriberMap) {
+                        std::shared_ptr<EventLoopFunctionExecutorListener> schedulerSubscriber = std::static_pointer_cast<EventLoopFunctionExecutorListener>(keyValue.second);
+                        schedulerSubscriber->setContainer(container);
+                        Publisher<std::function<void()>> *schedulerPublisher = getPublisher<std::function<void()> > (keyValue.first, 0, nullptr, nullptr);
+                        _container->attach(&schedulerPublisher->_publicationStats);
+                    }
+                }
+            } else if ((_subscriberMap.size() > 0) || (_publisherMap.size() > 0 )) {
+                spdlog::info("Container cannot be attached to already existing subscribers or publishers. Only subscribers/publishers declared after this call will attach to container.");
+            }
+        }
+    }
+
 private:
 
     Container * _container;

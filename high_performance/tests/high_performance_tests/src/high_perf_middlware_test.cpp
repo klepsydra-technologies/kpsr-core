@@ -26,10 +26,12 @@
 #include <fstream>
 
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <klepsydra/core/cache_listener.h>
 
+#include <klepsydra/mem_core/mem_env.h>
 #include <klepsydra/high_performance/data_multiplexer_middleware_provider.h>
 
 #include "gtest/gtest.h"
@@ -221,4 +223,41 @@ TEST(DataMultiplexerMiddlewareTest, TwoConsumer) {
     ASSERT_EQ(499, slowListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hola", slowListener.getLastReceivedEvent()->_message);
     ASSERT_EQ(fastSubscriptionStats->_totalProcessed + slowSubscriptionStats->_totalProcessed, fastListener.counter + slowListener.counter);
+}
+
+TEST(DataMultiplexerMiddlewareTest, SetContainerSuccessTest) {
+
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<int, 4> provider(nullptr, "testProvider");
+
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+
+    provider.setContainer(&testContainer);
+    auto dummySubscriberTest = provider.getSubscriber();
+    ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
+}
+
+TEST(DataMultiplexerMiddlewareTest, SetContainerAfterSubscriberStartTest) {
+
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<int, 4> provider(nullptr, "testProvider");
+    kpsr::mem::MemEnv environment;
+    kpsr::Container testContainer(&environment, "testContainer");
+    auto dummySubscriberTest = provider.getSubscriber();
+    dummySubscriberTest->registerListener("dummy", [](const int& event) {std::cout << "Got event : " << event << std::endl;});
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    std::stringstream programLogStream;
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+    provider.setContainer(&testContainer);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    spdlog::drop("my_logger");
+    dummySubscriberTest->removeListener("dummy");
+    ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
+    std::string spdlogString = programLogStream.str();
+    ASSERT_NE(spdlogString.size(), 0);
+    auto console = spdlog::stdout_color_mt("default");
+    spdlog::set_default_logger(console);
 }

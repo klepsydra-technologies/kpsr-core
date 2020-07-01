@@ -74,6 +74,12 @@ public:
         _externalEventEmitter.remove_listener(_listenerId);
     }
 
+    void setContainer(Container * container) {
+        _container = container;
+        if (this->_container != nullptr) {
+            this->_container->attach(_externalEventEmitter._listenerStats[_listenerId].get());
+        }
+    }
 private:
     Container * _container;
     std::string _eventName;
