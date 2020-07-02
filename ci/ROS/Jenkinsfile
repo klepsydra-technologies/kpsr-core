@@ -68,7 +68,7 @@ pipeline {
          // Run cppcheck
         publishCppcheck(
           pattern: '**/cppcheck-result.xml',
-          ignoreBlankFiles: false, threshold: '19',
+          ignoreBlankFiles: false, threshold: '100',
           allowNoReport: false,
           newThreshold: '', failureThreshold: '',
           newFailureThreshold: '', healthy: '', unHealthy: '',
