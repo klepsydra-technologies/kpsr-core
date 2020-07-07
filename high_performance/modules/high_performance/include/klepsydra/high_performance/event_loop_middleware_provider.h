@@ -74,11 +74,11 @@ public:
      * @brief EventLoopMiddlewareProvider
      * @param container
      */
-    EventLoopMiddlewareProvider(Container * container)
+    EventLoopMiddlewareProvider(Container * container, const std::string & name = "kpsr_EL")
         : _container(container)
         , _ringBuffer()
         , _eventEmitter()
-        , _eventLoop(_eventEmitter, _ringBuffer)
+        , _eventLoop(_eventEmitter, _ringBuffer, name)
         , _scheduler(nullptr)
     {}
 

@@ -23,30 +23,39 @@ namespace kpsr
 {
 namespace mem
 {
-void InMemoryQueuePoller::start() {
-    _running = true;
-    _threadNotifier = std::thread(&InMemoryQueuePoller::pollingLoop, this);
-}
+    void InMemoryQueuePoller::start() {
+        _running = true;
+        _threadNotifier = std::thread(std::move(_loopFunction));
+        int counterUs = 0;
+        while (!this->_started.load(std::memory_order_acquire)) {
+            if (counterUs > _timeoutUs) {
+                throw std::runtime_error("Could not start the poller");
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            counterUs += 100;
+        }
+    }
 
-void InMemoryQueuePoller::stop() {
-    _running = false;
-    if(_threadNotifier.joinable()) {
-        _threadNotifier.join();
+    void InMemoryQueuePoller::stop() {
+        _running = false;
+        if(_threadNotifier.joinable()) {
+            _threadNotifier.join();
+        }
+    }
+
+    InMemoryQueuePoller::~InMemoryQueuePoller() {
+        _running = false;
+        if(_threadNotifier.joinable()) {
+            _threadNotifier.join();
+        }
+    }
+
+    void InMemoryQueuePoller::pollingLoop() {
+        this->_started.store(true, std::memory_order_relaxed);
+        while (_running) {
+            takeEventFromQueue();
+        }
     }
 }
 
-InMemoryQueuePoller::~InMemoryQueuePoller() {
-    _running = false;
-    if(_threadNotifier.joinable()) {
-        _threadNotifier.join();
-    }
-}
-
-void InMemoryQueuePoller::pollingLoop() {
-    while (_running) {
-        takeEventFromQueue();
-    }
-}
-
-}
 }

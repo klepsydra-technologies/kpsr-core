@@ -24,6 +24,7 @@
 #include <thread>
 #include <atomic>
 #include <string>
+#include <future>
 
 #include <klepsydra/core/event_emitter.h>
 
@@ -33,6 +34,9 @@ namespace kpsr
 {
 namespace mem
 {
+
+const long START_TIMEOUT_MILLISEC = 100;
+    
 /**
  * @brief The InMemoryQueuePoller class
  *
@@ -60,12 +64,16 @@ public:
      */
     InMemoryQueuePoller(EventEmitter & eventEmitter,
                         std::string eventName,
-                        unsigned int sleepPeriodUS)
+                        unsigned int sleepPeriodUS,
+                        long timeoutMS = START_TIMEOUT_MILLISEC)
         : _running(false)
         , _eventEmitter(eventEmitter)
         , _eventName(eventName)
         , _threadNotifier()
         , _sleepPeriodUS(sleepPeriodUS)
+        , _loopFunction(std::bind(&InMemoryQueuePoller::pollingLoop, this))
+        , _threadNotifierFuture(_loopFunction.get_future())
+        , _timeoutUs(timeoutMS*1000)
     {}
 
     /**
@@ -86,7 +94,7 @@ public:
     std::atomic<bool> _running;
 
 private:
-
+    std::atomic<bool> _started;
     void pollingLoop();
 
     virtual void takeEventFromQueue() = 0;
@@ -94,9 +102,12 @@ private:
 protected:
     EventEmitter & _eventEmitter;
     std::string _eventName;
-
     std::thread _threadNotifier;
     unsigned int _sleepPeriodUS;
+private:
+    std::packaged_task<void()> _loopFunction;
+    std::future<void> _threadNotifierFuture;
+    long _timeoutUs;
 };
 }
 }

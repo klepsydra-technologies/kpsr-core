@@ -106,7 +106,7 @@ endif()
 enable_testing()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # require at least gcc 4.8
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.5)
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.2)
     else()
         add_definitions(-faligned-new)
     endif()

@@ -98,14 +98,7 @@ public:
     void removeListener(const std::string & name) {
         std::lock_guard<std::mutex> lock (m_mutex);
         if (subscriberMap.find(name) != subscriberMap.end()) {
-            while (!subscriberMap[name]->batchEventProcessor->is_running()) {
-                std::this_thread::sleep_for(std::chrono::microseconds(1));
-            }
-            subscriberMap[name]->batchEventProcessor->halt();
-            if (subscriberMap[name]->batchProcessorThread.joinable())
-            {
-                subscriberMap[name]->batchProcessorThread.join();
-            }
+            subscriberMap[name]->stop();
             if (this->_container != nullptr) {
                 this->_container->detach(listenerStats[name].get());
             }
