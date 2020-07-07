@@ -55,18 +55,26 @@ namespace {{ namespace }} {
 class {{ definition.class_name }} {% if definition.parent_class %} : public {{ definition.parent_class.class_name }} {% endif %} {
 public:
 
-   {{ definition.class_name }}() {}
+   {{ definition.class_name }}()
+      :
+{%- if definition.parent_class %} {{ definition.parent_class.class_name }} ()
+      ,
+{%- endif %} {{ definition.fields[0].field_name }}()
+{%- for field in definition.fields[1:] %}
+      , {{ field.field_name }}()
+{%- endfor %}
+   {}
 
    {{ definition.class_name }}(
 {%- if definition.parent_class %}
 {%- for field in definition.parent_class.fields %}
-          {{ field.field_type }} {{ field.field_name }},
+       {{ field.field_type }} {{ field.field_name }},
 {%- endfor %}
 {%- endif %}
 {%- for field in definition.fields[:-1] %}
-          {{ field.field_type }} {{ field.field_name }},
+       {{ field.field_type }} {{ field.field_name }},
 {%- endfor %}
-          {{ definition.fields[-1].field_type }} {{ definition.fields[-1].field_name }})
+       {{ definition.fields[-1].field_type }} {{ definition.fields[-1].field_name }})
       :
 {%- if definition.parent_class %} {{ definition.parent_class.class_name }} (
 {%- for field in definition.parent_class.fields[:-1] %}{{ field.field_name }}, {% endfor %} {{ definition.parent_class.fields[-1].field_name }})

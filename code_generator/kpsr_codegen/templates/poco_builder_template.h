@@ -20,7 +20,15 @@
 class {{ definition.class_name }}Builder {
 public:
 
-   {{ definition.class_name }}Builder() {}
+   {{ definition.class_name }}Builder()
+      :
+{%- if definition.parent_class %} {{ definition.parent_class.class_name }} ()
+      ,
+{%- endif %} {{ definition.fields[0].field_name }}()
+{%- for field in definition.fields[1:] %}
+      , {{ field.field_name }}()
+{%- endfor %}
+   {}
 
 {% if definition.parent_class.fields %}
 {% for field in definition.parent_class.fields %}
