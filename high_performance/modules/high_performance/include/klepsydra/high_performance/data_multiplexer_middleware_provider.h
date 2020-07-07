@@ -162,6 +162,13 @@ public:
                                                                                  transformFunction,
                                                                                  getPublisher()));
     }
+
+    void setContainer(Container * container) {
+        if (container) {
+            container->attach(&_publisher._publicationStats);
+            _subscriber.setContainer(container);
+        }
+    }
 private:
     EventData<TEvent> * _modelEvent;
 

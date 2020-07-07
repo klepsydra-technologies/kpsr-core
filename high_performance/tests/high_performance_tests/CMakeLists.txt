@@ -41,6 +41,6 @@ LINK_DIRECTORIES()
 #---------------------------------------------------#
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core atomic gtest_main)
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_mem_core kpsr_high_performance atomic gtest_main)
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

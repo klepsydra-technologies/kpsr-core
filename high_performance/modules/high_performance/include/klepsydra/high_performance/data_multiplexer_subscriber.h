@@ -25,6 +25,7 @@
 #include <map>
 #include <memory>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 #include <klepsydra/core/subscriber.h>
 
@@ -120,6 +121,20 @@ public:
      */
     std::map<std::string, std::shared_ptr<DataMultiplexerListener<TEvent, BufferSize>>> subscriberMap;
 
+    void setContainer(Container * container) {
+        std::lock_guard<std::mutex> lock (m_mutex);
+        this->_container = container;
+        if (this->_container) {
+            for (auto& keyValue: subscriberMap) {
+                if (!keyValue.second->batchEventProcessor->is_running()) {
+                    this->_container->attach(getSubscriptionStats(keyValue.first).get());
+                } else {
+                    spdlog::info("Cannot attach container to Subscriber listeners which are running.");
+                }
+            }
+        }
+    }
+        
 private:
     mutable std::mutex m_mutex;
     RingBuffer & _ringBuffer;
