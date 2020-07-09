@@ -35,7 +35,7 @@ namespace kpsr
 namespace mem
 {
 
-const long START_TIMEOUT_MILLISEC = 100;
+static const long MEM_START_TIMEOUT_MILLISEC = 100;
     
 /**
  * @brief The InMemoryQueuePoller class
@@ -65,7 +65,7 @@ public:
     InMemoryQueuePoller(EventEmitter & eventEmitter,
                         std::string eventName,
                         unsigned int sleepPeriodUS,
-                        long timeoutMS = START_TIMEOUT_MILLISEC)
+                        long timeoutMS = MEM_START_TIMEOUT_MILLISEC)
         : _running(false)
         , _eventEmitter(eventEmitter)
         , _eventName(eventName)

@@ -34,7 +34,7 @@ namespace kpsr
 namespace high_performance
 {
 
-const long START_TIMEOUT_MILLISEC = 100;
+static const long MULTIPLEXER_START_TIMEOUT_MILLISEC = 100;
 
 template <typename TEvent, std::size_t BufferSize>
 /**
@@ -57,7 +57,7 @@ public:
     DataMultiplexerListener(const std::function<void(TEvent)> & listener,
                             RingBuffer & ringBuffer,
                             const std::shared_ptr<SubscriptionStats>& listenerStat,
-                            long timeoutMS = START_TIMEOUT_MILLISEC)
+                            long timeoutMS = MULTIPLEXER_START_TIMEOUT_MILLISEC)
         : _ringBuffer(ringBuffer)
         , _eventHandler(listener, listenerStat)
         , _name(listenerStat->_name)
