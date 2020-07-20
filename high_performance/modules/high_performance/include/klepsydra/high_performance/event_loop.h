@@ -38,7 +38,7 @@ namespace kpsr
 namespace high_performance
 {
 
-const long START_TIMEOUT_MILLISEC = 100;
+static const long EVENT_LOOP_START_TIMEOUT_MILLISEC = 100;
     
 template <std::size_t BufferSize>
 /**
@@ -67,7 +67,7 @@ public:
      * @param ringBuffer
      */
     EventLoop(kpsr::EventEmitter & eventEmitter, RingBuffer & ringBuffer, const std::string & name,
-              long timeoutMS = START_TIMEOUT_MILLISEC)
+              long timeoutMS = EVENT_LOOP_START_TIMEOUT_MILLISEC)
         : _name(name)
         , _threadName(std::to_string(BufferSize) + "_" + name)
         , _ringBuffer(ringBuffer)

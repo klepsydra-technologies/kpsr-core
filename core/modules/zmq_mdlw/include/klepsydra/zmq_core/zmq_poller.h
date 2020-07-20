@@ -29,7 +29,7 @@
 namespace kpsr {
 namespace zmq_mdlw {
 
-const long START_TIMEOUT_MILLISEC = 100;
+static const long ZMQ_START_TIMEOUT_MILLISEC = 100;
     
 template<class T>
 /**
@@ -50,7 +50,7 @@ public:
      * @param pollPeriod
      */
     ZMQPoller(zmq::socket_t & subscriber, long pollPeriod,
-              long timeoutMS = START_TIMEOUT_MILLISEC)
+              long timeoutMS = ZMQ_START_TIMEOUT_MILLISEC)
         : _subscriber(subscriber)
         , _pollPeriod(pollPeriod)
         , _threadNotifier()
