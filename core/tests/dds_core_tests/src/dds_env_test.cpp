@@ -51,6 +51,7 @@ TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
     kpsr::dds_mdlw::DDSEnv envPub(&yamlEnvPub, &datawriter2, &datareader2);
 
     envPub.setPropertyString("greeting", "hola");
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
     std::string greeting;
     int attempts = 200;
     do {
@@ -124,12 +125,13 @@ TEST(DdsEnvironmentTest, MultiYamlUpdateConfigurationTest) {
     std::string filename2 = folderName + "/" + basename2;
     envSub.loadFile(filename2, "file2");
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     std::string nameFile2;
-    envPub.getPropertyString("filename", nameFile2, "file2");
+    ASSERT_NO_THROW(envPub.getPropertyString("filename", nameFile2, "file2"));
     ASSERT_EQ(nameFile2, basename2);
 
     std::string nameInFile;
-    envPub.getPropertyString("filename", nameInFile, "file1");
+    ASSERT_NO_THROW(envPub.getPropertyString("filename", nameInFile, "file1"));
     ASSERT_EQ(nameInFile, basename);
     std::string greeting;
     ASSERT_ANY_THROW(envPub.getPropertyString("greeting", greeting));
