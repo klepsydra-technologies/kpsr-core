@@ -78,7 +78,7 @@ public:
 
     /**
      * @brief detach
-     * @param functionStats
+     * @param service Pointer to a service
      */
     void detach(Service * service);
 

@@ -60,7 +60,7 @@ private:
  */
 struct FunctionStats
 {
-    FunctionStats(const std::string & name)
+    explicit FunctionStats(const std::string & name)
         : _name(name)
         , _processingStarted(false)
     {}

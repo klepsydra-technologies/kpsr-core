@@ -38,12 +38,26 @@ namespace socket_mdlw
  */
 class BaseSocket
 {
+    /**
+     * @brief socketId
+     */
     int     socketId;
 protected:
+    /**
+     * @brief invalidSocketId
+     */
     static constexpr int invalidSocketId      = -1;
 
-    // Designed to be a base class not used used directly.
-    BaseSocket(int socketId);
+    /**
+     * @brief Constructor
+     *
+     * Designed to be a base class not used used directly.
+     */
+    explicit BaseSocket(int socketId);
+
+    /**
+     * @brief getSocketId
+     */
     int getSocketId() const {return socketId;}
 public:
     /**

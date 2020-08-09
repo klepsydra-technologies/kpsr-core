@@ -26,6 +26,7 @@
 #include <fstream>
 
 #include <klepsydra/core/prop_file_environment.h>
+#include "config.h"
 
 #include "gtest/gtest.h"
 
@@ -57,4 +58,42 @@ TEST(PropertyFileEnvironment, BasicTest) {
     float floatValue;
     environment.getPropertyFloat("float.property", floatValue);
     ASSERT_FLOAT_EQ(floatValue, 3.14f);
+}
+
+TEST(PropertyFileEnvironment, FileTest) {
+    std::string folderName(TEST_DATA);
+    std::string basename("propenvtest.txt");
+    std::string filename = folderName + "/" + basename;
+
+    kpsr::PropertyFileEnvironment environment(filename);
+    std::string strValue;
+    environment.getPropertyString("str.property", strValue);
+    ASSERT_EQ(strValue, "value");
+
+    bool boolValue;
+    environment.getPropertyBool("bool.property", boolValue);
+    ASSERT_EQ(boolValue, true);
+
+    int intValue;
+    environment.getPropertyInt("int.property", intValue);
+    ASSERT_EQ(intValue, 1);
+
+    int hexValue;
+    environment.getPropertyInt("canopen_bin_array_status_idx", hexValue);
+    ASSERT_EQ(hexValue, 0x2120);
+
+    float floatValue;
+    environment.getPropertyFloat("float.property", floatValue);
+    ASSERT_FLOAT_EQ(floatValue, 3.14f);
+}
+
+TEST(PropertyFileEnvironment, FileTestNoExist) {
+    std::string folderName(TEST_DATA);
+    std::string basename("propenvtest.txt");
+    std::string filename = folderName + "/" + basename;
+
+    kpsr::PropertyFileEnvironment environment(filename);
+    std::string strValue;
+    environment.getPropertyString("RandomValue", strValue);
+    ASSERT_EQ(strValue, "");
 }

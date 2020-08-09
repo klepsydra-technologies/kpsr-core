@@ -118,7 +118,7 @@ private:
 		}
 	}
 public:
-    ConfigFile(const std::string & fileName) {
+    explicit ConfigFile(const std::string & fileName) {
         std::ifstream file;
         file.open(fileName.c_str());
         if (!file)
@@ -129,7 +129,7 @@ public:
         file.close();
     }
 
-    ConfigFile(std::istream & file) {
+    explicit ConfigFile(std::istream & file) {
         extractKeys(file);
     }
 

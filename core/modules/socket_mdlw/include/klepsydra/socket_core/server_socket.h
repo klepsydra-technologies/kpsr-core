@@ -48,13 +48,13 @@ public:
      * @brief ServerSocket
      * @param port
      */
-    ServerSocket(int port);
+    explicit ServerSocket(int port);
 
     /**
      * @brief ServerSocket
      * @param socketPath
      */
-    ServerSocket(const std::string & socketPath);
+    explicit ServerSocket(const std::string & socketPath);
 
     /**
      * @brief accept

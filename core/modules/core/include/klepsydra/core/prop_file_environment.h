@@ -39,14 +39,14 @@ class PropertyFileEnvironment : public Environment {
 public:
     /**
      * @brief PropertyFileEnvironment
-     * @param propertyFileFileName
+     * @param propertyFileName
      */
-    PropertyFileEnvironment(const std::string & propertyFileName);
+    explicit PropertyFileEnvironment(const std::string & propertyFileName);
 
     /**
      * @brief PropertyFileEnvironment
      */
-    PropertyFileEnvironment(std::istream & propertyFileContent);
+    explicit PropertyFileEnvironment(std::istream & propertyFileContent);
 
     /**
      * @brief getPropertyString
