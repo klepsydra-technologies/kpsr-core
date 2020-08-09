@@ -11,10 +11,8 @@ LABEL method=ZMQ
 WORKDIR /opt
 
 # Internal dependencies
-COPY --from=thirdparties /opt/klepsydra/thirdparties/ /opt/klepsydra/thirdparties/
-COPY --from=thirdparties /usr/local/include/yaml-cpp/ /usr/local/include/yaml-cpp/
-COPY --from=thirdparties /usr/local/lib/cmake/yaml-cpp/ /usr/local/lib/cmake/yaml-cpp/
-COPY --from=thirdparties /usr/local/lib/libyaml* /usr/local/lib/
+COPY --from=thirdparties /usr/ /usr/
+COPY --from=thirdparties /opt/ /opt/
 
 # Klepsydra
 COPY . kpsr-core

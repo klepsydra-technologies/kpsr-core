@@ -30,7 +30,7 @@ pipeline {
     stage('Download System Dependencies') {
       steps {
         script {
-          docker.withRegistry("https://${kpsrCoreECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
+          docker.withRegistry("https://${kpsrThirdPartiesECR}", "ecr:us-east-2:AWS_ECR_CREDENTIALS") {
             docker.image("${kpsrThirdPartiesECR}:sys_dep_ubuntu_18.04").pull()
           }
         }
