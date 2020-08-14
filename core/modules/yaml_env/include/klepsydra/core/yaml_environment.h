@@ -42,7 +42,7 @@ public:
      * @brief YamlEnvironment
      * @param yamlFileName
      */
-    YamlEnvironment(const std::string & yamlFileName, const std::string & rootNode = DEFAULT_ROOT);
+    YamlEnvironment(const std::string & yamlFileName, const std::string & rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief YamlEnvironment
@@ -118,11 +118,14 @@ public:
      */
     std::string exportEnvironment();
 
-    virtual void loadFile(const std::string & fileName, const std::string & nodeName);
+    virtual void loadFile(const std::string & fileName, const std::string & nodeName = kpsr::DEFAULT_ROOT);
 
 protected:
     const std::string _yamlFileName;
     YAML::Node _node;
+
+private:
+    YAML::Node getNode(const std::string& rootNode);
 };
 }
 
