@@ -61,17 +61,17 @@ TYPED_TEST(KpsrRosIdentityTest, nominalCasePublish) {
 
     std::string topicName("kpsr_ros_core_identity_topic");
 
+    TypeParam itemToSend; // Random item
+    auto subscriber = nodeHandle.subscribe<TypeParam>(topicName, 100,boost::bind(callback<TypeParam>, _1, itemToSend));
+
 	// Create a publisher.
-    ros::Publisher publisher = nodeHandle.advertise<TypeParam>(topicName, 1);
+    ros::Publisher publisher = nodeHandle.advertise<TypeParam>(topicName, 1, true);
 
     // Create a handler to the ros provider using klepsydra.
     kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
 
     // Create klepsydra publisher.
     auto kpsrPublisher = toRosProvider.getToMiddlewareChannel<TypeParam>(topicName, 1, nullptr, publisher);
-
-    TypeParam itemToSend; // Random item
-    auto subscriber = nodeHandle.subscribe<TypeParam>(topicName, 100,boost::bind(callback<TypeParam>, _1, itemToSend));
 
     while (ros::ok()) {
         kpsrPublisher->publish(itemToSend);
@@ -90,18 +90,18 @@ TEST(KpsrIdentityTest, nominalCaseStringPublisher) {
 
     std::string topicName("kpsr_ros_core_identity_topic");
 
+    std_msgs::String itemToSend; // Random item
+    itemToSend.data = "Test data: Hello world!";
+    auto subscriber = nodeHandle.subscribe<std_msgs::String>(topicName, 100,boost::bind(callback<std_msgs::String>, _1, itemToSend));
+
 	// Create a publisher.
-    ros::Publisher publisher = nodeHandle.advertise<std_msgs::String>(topicName, 1);
+    ros::Publisher publisher = nodeHandle.advertise<std_msgs::String>(topicName, 1, true);
 
     // Create a handler to the ros provider using klepsydra.
     kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
 
     // Create klepsydra publisher.
     auto kpsrPublisher = toRosProvider.getToMiddlewareChannel<std_msgs::String>(topicName, 1, nullptr, publisher);
-
-    std_msgs::String itemToSend; // Random item
-    itemToSend.data = "Test data: Hello world!";
-    auto subscriber = nodeHandle.subscribe<std_msgs::String>(topicName, 100,boost::bind(callback<std_msgs::String>, _1, itemToSend));
 
     while (ros::ok()) {
         kpsrPublisher->publish(itemToSend);
@@ -121,19 +121,13 @@ TYPED_TEST(KpsrRosIdentityTest, nominalCaseSubscribe) {
 
     std::string topicName("kpsr_ros_core_identity_topic");
 
-	// Create a publisher.
-    ros::Publisher publisher = nodeHandle.advertise<TypeParam>(topicName, 1);
-
-    // Create a handler to the ros provider using klepsydra.
-    kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
-
-    // // Create klepsydra publisher.
-    // auto kpsrPublisher = toRosProvider.getToMiddlewareChannel<TypeParam>(topicName, 1, nullptr, publisher);
-
     TypeParam itemToSend; // Random item
 
     kpsr::mem::BasicMiddlewareProvider <TypeParam > safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
     safeQueueProvider.start();
+
+    // Create a handler to the ros provider using klepsydra.
+    kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
 
     fromRosProvider.registerToTopic<TypeParam>(topicName.c_str(), 1, safeQueueProvider.getPublisher());
 
@@ -143,6 +137,9 @@ TYPED_TEST(KpsrRosIdentityTest, nominalCaseSubscribe) {
                             ros::shutdown();
                         };
     safeQueueProvider.getSubscriber()->registerListener("messageChecker", kpsrCallback);
+
+	// Create a publisher.
+    ros::Publisher publisher = nodeHandle.advertise<TypeParam>(topicName, 1);
 
     while (ros::ok()) {
         publisher.publish(itemToSend);
@@ -162,21 +159,15 @@ TEST(KpsrIdentityTest, nominalCaseSubscribeString) {
 
     std::string topicName("kpsr_ros_core_identity_topic");
 
-	// Create a publisher.
-    ros::Publisher publisher = nodeHandle.advertise<std_msgs::String>(topicName, 1);
+    std_msgs::String itemToSend; // Random item
+
+    kpsr::mem::BasicMiddlewareProvider <std_msgs::String > safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
 
     // Create a handler to the ros provider using klepsydra.
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
 
-    // // Create klepsydra publisher.
-    // auto kpsrPublisher = toRosProvider.getToMiddlewareChannel<std_msgs::String>(topicName, 1, nullptr, publisher);
-
-    std_msgs::String itemToSend; // Random item
-
-    kpsr::mem::BasicMiddlewareProvider <std_msgs::String > safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
-    safeQueueProvider.start();
-
     fromRosProvider.registerToTopic<std_msgs::String>(topicName.c_str(), 1, safeQueueProvider.getPublisher());
+    safeQueueProvider.start();
 
     auto kpsrCallback = [&itemToSend](const std_msgs::String& msg) {
                             bool val = msg.data == itemToSend.data;
@@ -184,6 +175,9 @@ TEST(KpsrIdentityTest, nominalCaseSubscribeString) {
                             ros::shutdown();
                         };
     safeQueueProvider.getSubscriber()->registerListener("messageChecker", kpsrCallback);
+
+	// Create a publisher.
+    ros::Publisher publisher = nodeHandle.advertise<std_msgs::String>(topicName, 1);
 
     while (ros::ok()) {
         publisher.publish(itemToSend);

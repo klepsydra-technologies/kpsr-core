@@ -149,10 +149,9 @@ include_directories(
 # link_directories()
 
 ## Declare a C++ library
-add_library(kpsr_ros_serialization
+add_library(kpsr_ros_serialization INTERFACE
 )
 
-set_target_properties(kpsr_ros_serialization PROPERTIES LINKER_LANGUAGE CXX)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -166,8 +165,10 @@ set_target_properties(kpsr_ros_serialization PROPERTIES LINKER_LANGUAGE CXX)
 ## same as for the library above
 # add_dependencies(kpsr_ros_serialization_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+target_include_directories(kpsr_ros_serialization INTERFACE
+  include)
 ## Specify libraries to link a library or executable target against
-target_link_libraries(kpsr_ros_serialization
+target_link_libraries(kpsr_ros_serialization INTERFACE
   ${catkin_LIBRARIES}
 )
 

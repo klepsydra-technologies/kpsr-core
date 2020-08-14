@@ -45,21 +45,22 @@ TEST(KpsrRosCodegeTest, primitiveTypeBasicMapperTest) {
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
 
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesBasic>("kpsr_ros_codegen_test_topic1", 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<kpsr::codegen::PrimitiveTypesBasic> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesBasic, kpsr_ros_codegen::PrimitiveTypesBasic>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
-
     kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesBasic> basicProvider(nullptr, "test", 0, nullptr, nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
-    fromRosProvider.registerToTopic<kpsr::codegen::PrimitiveTypesBasic, kpsr_ros_codegen::PrimitiveTypesBasic>("kpsr_ros_codegen_test_topic1", 1, basicProvider.getPublisher());
+    fromRosProvider.registerToTopic<kpsr::codegen::PrimitiveTypesBasic, kpsr_ros_codegen::PrimitiveTypesBasic>("kpsr_ros_codegen_test_topic1", 10, basicProvider.getPublisher());
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesBasic> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+    rate.sleep();
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesBasic>("kpsr_ros_codegen_test_topic1", 10, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::codegen::PrimitiveTypesBasic> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesBasic, kpsr_ros_codegen::PrimitiveTypesBasic>("kpsr_ros_codegen_test_topic1", 10, nullptr, stringPublisher);
 
     unsigned short seq = 0;
     {
@@ -123,21 +124,22 @@ TEST(KpsrRosCodegeTest, primitiveTypeArrayMapperTest) {
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
 
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesArray>("kpsr_ros_codegen_test_topic1", 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<kpsr::codegen::PrimitiveTypesArray> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesArray, kpsr_ros_codegen::PrimitiveTypesArray>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
-
     kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesArray> basicProvider(nullptr, "test", 0, nullptr, nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
-    fromRosProvider.registerToTopic<kpsr::codegen::PrimitiveTypesArray, kpsr_ros_codegen::PrimitiveTypesArray>("kpsr_ros_codegen_test_topic1", 1, basicProvider.getPublisher());
+    fromRosProvider.registerToTopic<kpsr::codegen::PrimitiveTypesArray, kpsr_ros_codegen::PrimitiveTypesArray>("kpsr_ros_codegen_test_topic1", 10, basicProvider.getPublisher());
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesArray> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+    rate.sleep();
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesArray>("kpsr_ros_codegen_test_topic1", 10, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::codegen::PrimitiveTypesArray> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesArray, kpsr_ros_codegen::PrimitiveTypesArray>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
 
     unsigned short seq = 0;
     {
@@ -221,12 +223,6 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorMapperTest) {
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
 
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesVector>("kpsr_ros_codegen_test_topic2", 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<kpsr::codegen::PrimitiveTypesVector> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesVector, kpsr_ros_codegen::PrimitiveTypesVector>("kpsr_ros_codegen_test_topic2", 1, nullptr, stringPublisher);
-
     kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVector> basicProvider(nullptr, "test", 0, nullptr, nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
@@ -236,6 +232,13 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorMapperTest) {
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+    rate.sleep();
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesVector>("kpsr_ros_codegen_test_topic2", 1, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::codegen::PrimitiveTypesVector> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesVector, kpsr_ros_codegen::PrimitiveTypesVector>("kpsr_ros_codegen_test_topic2", 1, nullptr, stringPublisher);
 
     unsigned short seq = 0;
     {
@@ -319,12 +322,6 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
 
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesVectorSharedPtr>("kpsr_ros_codegen_test_topic2", 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<kpsr::codegen::PrimitiveTypesVectorSharedPtr> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesVectorSharedPtr, kpsr_ros_codegen::PrimitiveTypesVectorSharedPtr>("kpsr_ros_codegen_test_topic2", 1, nullptr, stringPublisher);
-
     kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVectorSharedPtr> basicProvider(nullptr, "test", 0, nullptr, nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
@@ -334,6 +331,13 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+    rate.sleep();
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesVectorSharedPtr>("kpsr_ros_codegen_test_topic2", 1, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::codegen::PrimitiveTypesVectorSharedPtr> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesVectorSharedPtr, kpsr_ros_codegen::PrimitiveTypesVectorSharedPtr>("kpsr_ros_codegen_test_topic2", 1, nullptr, stringPublisher);
 
     unsigned short seq = 0;
     {
@@ -452,12 +456,6 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorPointerMapperTest) {
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
 
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesVectorPointer>("kpsr_ros_codegen_test_topic2", 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<kpsr::codegen::PrimitiveTypesVectorPointer> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesVectorPointer, kpsr_ros_codegen::PrimitiveTypesVectorPointer>("kpsr_ros_codegen_test_topic2", 1, nullptr, stringPublisher);
-
     kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVectorPointer> basicProvider(nullptr, "test", 0, nullptr, nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
@@ -467,6 +465,13 @@ TEST(KpsrRosCodegeTest, primitiveTypeVectorPointerMapperTest) {
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+    rate.sleep();
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::PrimitiveTypesVectorPointer>("kpsr_ros_codegen_test_topic2", 1, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::codegen::PrimitiveTypesVectorPointer> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::PrimitiveTypesVectorPointer, kpsr_ros_codegen::PrimitiveTypesVectorPointer>("kpsr_ros_codegen_test_topic2", 1, nullptr, stringPublisher);
 
     unsigned short seq = 0;
     {
