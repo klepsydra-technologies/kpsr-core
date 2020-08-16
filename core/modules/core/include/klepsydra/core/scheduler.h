@@ -41,7 +41,7 @@ public:
     virtual void startScheduledTask(const std::string &name,
                                     int after,
                                     bool repeat,
-                                    std::shared_ptr<std::function<void()>> task) = 0;
+                                    std::function<void()> task) = 0;
 
     /**
      * @brief startScheduledService

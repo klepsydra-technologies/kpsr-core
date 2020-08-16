@@ -49,7 +49,7 @@ public:
     void startScheduledTask(const std::string &name,
                             int after,
                             bool repeat,
-                            std::shared_ptr<std::function<void()>> function) override;
+                            std::function<void()> function) override;
     void startScheduledService(int after, bool repeat, Service *service) override;
     void stopScheduledTask(const std::string &name) override;
     void stopScheduledService(Service *service) override;

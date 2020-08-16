@@ -19,8 +19,9 @@
 
 #include <klepsydra/mem_core/basic_scheduler.h>
 
-kpsr::mem::BasicScheduler::ScheduledThread::ScheduledThread(
-    int after, bool repeat, std::shared_ptr<std::function<void()>> task)
+kpsr::mem::BasicScheduler::ScheduledThread::ScheduledThread(int after,
+                                                            bool repeat,
+                                                            std::function<void()> task)
     : _after(after)
     , _repeat(repeat)
     , _isRunning(false)
@@ -34,11 +35,11 @@ void kpsr::mem::BasicScheduler::ScheduledThread::start()
         if (_repeat) {
             while (_isRunning) {
                 std::this_thread::sleep_for(std::chrono::microseconds(_after));
-                (*_task.get())();
+                _task();
             }
         } else {
             std::this_thread::sleep_for(std::chrono::microseconds(_after));
-            (*_task.get())();
+            _task();
         }
     };
 
@@ -56,7 +57,7 @@ void kpsr::mem::BasicScheduler::ScheduledThread::stop()
 void kpsr::mem::BasicScheduler::startScheduledTask(const std::string &name,
                                                    int after,
                                                    bool repeat,
-                                                   std::shared_ptr<std::function<void()>> task)
+                                                   std::function<void()> task)
 {
     _threadMap[name] = std::shared_ptr<ScheduledThread>(new ScheduledThread(after, repeat, task));
     _threadMap[name]->start();
@@ -73,8 +74,7 @@ void kpsr::mem::BasicScheduler::stopScheduledTask(const std::string &name)
 void kpsr::mem::BasicScheduler::startScheduledService(int after, bool repeat, Service *service)
 {
     std::string name = service->_serviceStats._name;
-    std::shared_ptr<std::function<void()>> task = std::make_shared<std::function<void()>>(
-        std::bind(&Service::runOnce, service));
+    std::function<void()> task = std::function<void()>(std::bind(&Service::runOnce, service));
     startScheduledTask(name, after, repeat, task);
 }
 
