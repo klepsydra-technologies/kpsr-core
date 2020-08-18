@@ -167,10 +167,8 @@ include_directories(
 # link_directories()
 
 ## Declare a C++ library
-add_library(kpsr_ros_codegen
+add_library(kpsr_ros_codegen INTERFACE
 )
-
-set_target_properties(kpsr_ros_codegen PROPERTIES LINKER_LANGUAGE CXX)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -184,8 +182,11 @@ add_dependencies(kpsr_ros_codegen kpsr_ros_codegen_generate_messages_cpp ${${PRO
 ## same as for the library above
 # add_dependencies(kpsr_ros_codegen_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+target_include_directories(kpsr_ros_codegen INTERFACE
+  include)
+
 ## Specify libraries to link a library or executable target against
-target_link_libraries(kpsr_ros_codegen
+target_link_libraries(kpsr_ros_codegen INTERFACE
   ${catkin_LIBRARIES}
   yaml-cpp
   ${KLEPSYDRA_CORE_LIBRARIES}

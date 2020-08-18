@@ -40,22 +40,22 @@ TEST(KpsrRosCodegeTest, compositionTypeRelatedMapperTest) {
     ros::init(argc, argv, "kpsr_ros_codegen_test");
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
-
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::CompositionTypeRelated>("kpsr_ros_codegen_test_topic1", 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<kpsr::codegen::CompositionTypeRelated> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::CompositionTypeRelated, kpsr_ros_codegen::CompositionTypeRelated>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
-
     kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::CompositionTypeRelated> basicProvider(nullptr, "test", 0, nullptr, nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
-    fromRosProvider.registerToTopic<kpsr::codegen::CompositionTypeRelated, kpsr_ros_codegen::CompositionTypeRelated>("kpsr_ros_codegen_test_topic1", 1, basicProvider.getPublisher());
+    fromRosProvider.registerToTopic<kpsr::codegen::CompositionTypeRelated, kpsr_ros_codegen::CompositionTypeRelated>("kpsr_ros_codegen_test_topic1", 10, basicProvider.getPublisher());
 
     kpsr::mem::CacheListener<kpsr::codegen::CompositionTypeRelated> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+    rate.sleep();
+    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::CompositionTypeRelated>("kpsr_ros_codegen_test_topic1", 10, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<kpsr::codegen::CompositionTypeRelated> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::CompositionTypeRelated, kpsr_ros_codegen::CompositionTypeRelated>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
+
     unsigned short seq = 0;
 
     kpsr::codegen::CompositionTypeRelated event;

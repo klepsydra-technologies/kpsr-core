@@ -94,6 +94,7 @@ ln -s PATH_TO_KPSR_CORE/core/modules/ros_mdlw/kpsr_ros_core
 Next compile and install the ros projects so that they are available in your ros workspace for future projects.
 
 ```
+cd ..
 catkin_make install
 ```
 

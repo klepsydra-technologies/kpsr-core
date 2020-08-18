@@ -114,7 +114,8 @@ pipeline {
     stage('Test ROS') {
       steps {
         sh 'docker run -d --name ${name_container_ROS} ${test_image_ROS} tail -f /dev/null'
-        echo 'Do tests here'
+        sh 'docker exec --workdir /kpsr-ros/ -d ${name_container_ROS}  bash -c "source /opt/ros/melodic/setup.sh && roscore"'
+        sh 'docker exec --workdir /kpsr-ros/ ${name_container_ROS} bash -c "source /opt/ros/melodic/setup.sh && catkin_make test"'
         sh 'docker rm -f ${name_container_ROS};'
       }
     }

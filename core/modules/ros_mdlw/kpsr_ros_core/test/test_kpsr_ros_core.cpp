@@ -99,16 +99,6 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
 
     std::string topicName("kpsr_ros_core_test_topic");
 
-	// Create a publisher.
-    ros::Publisher publisher = nodeHandle.advertise<typename TypeParam::MyB>(topicName, 1);
-
-    // Create a handler to the ros provider using klepsydra.
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    // Create klepsydra publisher.
-    kpsr::Publisher<typename TypeParam::MyA> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<
-	    typename TypeParam::MyA, typename TypeParam::MyB>(topicName, 1, nullptr, publisher);
-
     // Set up subscribers.
     kpsr::mem::BasicMiddlewareProvider<typename TypeParam::MyA> safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
     safeQueueProvider.start();
@@ -119,6 +109,16 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
 
     kpsr::mem::CacheListener<typename TypeParam::MyA> cacheListener;
     safeQueueProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+
+	// Create a publisher.
+    ros::Publisher publisher = nodeHandle.advertise<typename TypeParam::MyB>(topicName, 1, true);
+
+    // Create a handler to the ros provider using klepsydra.
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    // Create klepsydra publisher.
+    kpsr::Publisher<typename TypeParam::MyA> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<
+	    typename TypeParam::MyA, typename TypeParam::MyB>(topicName, 1, nullptr, publisher);
 
     ASSERT_EQ(cacheListener.counter, 0);
 
@@ -161,22 +161,22 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
     ros::Rate rate(100);
 
     std::string topicName = "kpsr_ros_core_test_topic";
-    ros::Publisher stringPublisher = nodeHandle.advertise<std_msgs::String>(topicName, 1);
-
-    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
-
-    kpsr::Publisher<std::string> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<std::string, std_msgs::String>(topicName, 1, nullptr, stringPublisher);
-
     kpsr::mem::BasicMiddlewareProvider<std::string> safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
-    safeQueueProvider.start();
-
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
     fromRosProvider.registerToTopic<std::string, std_msgs::String>(topicName.c_str(), 1, safeQueueProvider.getPublisher());
+
+    safeQueueProvider.start();
 
     kpsr::mem::CacheListener<std::string> cacheListener;
     safeQueueProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
+
+    ros::Publisher stringPublisher = nodeHandle.advertise<std_msgs::String>(topicName, 1, true);
+
+    kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
+
+    kpsr::Publisher<std::string> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<std::string, std_msgs::String>(topicName, 1, nullptr, stringPublisher);
 
     kpsrPublisher->publish("hola.1");
     ros::spinOnce();
