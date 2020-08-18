@@ -37,12 +37,12 @@ TEST(YamlEnvironmentTest, SingleFileNoRootTest) {
 
     std::string nameInFile;
 
-    environment.getPropertyString("filename", nameInFile);
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile));
 
     ASSERT_EQ(nameInFile, basename);
 
     std::string nameWithRootName;
-    environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT);
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
     
     ASSERT_EQ(nameWithRootName, basename);
 }
@@ -98,3 +98,124 @@ TEST(YamlEnvironmentTest, TwoFilesDefaultAndNonDefaultRootTest) {
     ASSERT_EQ(secondNameInFile, basename2);
 }
 
+TEST(YamlEnvironmentTest, NoRootSetValueTest) {
+
+    kpsr::YamlEnvironment environment;
+
+    std::string nameInFile="testFile";
+    std::string intName = "intValue";
+    int testValueInt = 45;
+
+    std::string floatName = "floatValue";
+    float testValueFloat = 45.0f;
+
+    ASSERT_NO_THROW(environment.setPropertyString("filename", nameInFile));
+    ASSERT_NO_THROW(environment.setPropertyInt(intName, testValueInt));
+    ASSERT_NO_THROW(environment.setPropertyFloat(floatName, testValueFloat));
+
+    std::string valueInNode;
+    ASSERT_NO_THROW(environment.getPropertyString("filename", valueInNode));
+    ASSERT_EQ(nameInFile, valueInNode);
+
+    std::string nameWithRootName;
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
+    ASSERT_EQ(nameWithRootName, nameInFile);
+
+    int intValueInNode;
+    ASSERT_NO_THROW(environment.getPropertyInt(intName, intValueInNode));
+    ASSERT_EQ(testValueInt, intValueInNode);
+
+    float floatValueInNode;
+    ASSERT_NO_THROW(environment.getPropertyFloat(floatName, floatValueInNode));
+    ASSERT_EQ(testValueFloat, floatValueInNode);
+}
+
+TEST(YamlEnvironmentTest, SetValueTest) {
+    kpsr::YamlEnvironment environment;
+
+    std::string root = "testRoot";
+    std::string nameInFile="testFile";
+    std::string intName = "intValue";
+    int testValueInt = 45;
+    std::string floatName = "floatValue";
+    float testValueFloat = 45.0f;
+    ASSERT_NO_THROW(environment.setPropertyString("filename", nameInFile, root));
+    ASSERT_NO_THROW(environment.setPropertyInt(intName, testValueInt, root));
+    ASSERT_NO_THROW(environment.setPropertyFloat(floatName, testValueFloat, root));
+
+    std::string valueInNode;
+    ASSERT_ANY_THROW(environment.getPropertyString("filename", valueInNode));
+    ASSERT_NO_THROW(environment.getPropertyString("filename", valueInNode, root));
+    ASSERT_EQ(valueInNode, nameInFile);
+
+    int intValueInNode;
+    ASSERT_NO_THROW(environment.getPropertyInt(intName, intValueInNode, root));
+    ASSERT_EQ(testValueInt, intValueInNode);
+
+    float floatValueInNode;
+    ASSERT_NO_THROW(environment.getPropertyFloat(floatName, floatValueInNode, root));
+    ASSERT_EQ(testValueFloat, floatValueInNode);
+}
+
+TEST(YamlEnvironmentTest, LoadFileNoRootTest) {
+
+    std::string basename("testfile1.yaml");
+    std::string folderName(TEST_DATA);
+    std::string filename = folderName + "/" + basename;
+    kpsr::YamlEnvironment environment;
+
+    std::string nameInFile;
+
+    ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile));
+
+    ASSERT_NO_THROW(environment.loadFile(filename));
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile));
+    ASSERT_EQ(nameInFile, basename);
+
+    std::string nameWithRootName;
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
+    
+    ASSERT_EQ(nameWithRootName, basename);
+}
+
+TEST(YamlEnvironmentTest, UpdateConfigurationNoRootTest) {
+
+    std::string basename("testfile1.yaml");
+    std::string folderName(TEST_DATA);
+    std::string filename = folderName + "/" + basename;
+    kpsr::YamlEnvironment fileEnvironment(filename);
+    kpsr::YamlEnvironment environment;
+
+    std::string nameInFile;
+    ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile));
+
+    std::string fileEnvironmentString = fileEnvironment.exportEnvironment();
+    
+    ASSERT_NO_THROW(environment.updateConfiguration(fileEnvironmentString));
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile));
+    ASSERT_EQ(nameInFile, basename);
+
+    std::string nameWithRootName;
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
+    
+    ASSERT_EQ(nameWithRootName, basename);
+}
+
+TEST(YamlEnvironmentTest, UpdateConfigurationRootTest) {
+
+    std::string basename("testfile1.yaml");
+    std::string folderName(TEST_DATA);
+    std::string filename = folderName + "/" + basename;
+    kpsr::YamlEnvironment fileEnvironment(filename);
+    kpsr::YamlEnvironment environment;
+    std::string root = "root";
+    std::string nameInFile;
+    ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile, root));
+
+    std::string fileEnvironmentString = fileEnvironment.exportEnvironment();
+    
+    ASSERT_NO_THROW(environment.updateConfiguration(fileEnvironmentString, root));
+    ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile, root));
+    ASSERT_EQ(nameInFile, basename);
+
+}

@@ -25,8 +25,7 @@
 kpsr::YamlEnvironment::YamlEnvironment(const std::string & yamlFileName, const std::string & rootNode)
     : _yamlFileName(yamlFileName)
     , _node() {
-
-    _node[rootNode] = YAML::LoadFile(yamlFileName);
+    loadFile(yamlFileName, rootNode);
 }
 
 kpsr::YamlEnvironment::YamlEnvironment()
@@ -35,39 +34,48 @@ kpsr::YamlEnvironment::YamlEnvironment()
 }
 
 void kpsr::YamlEnvironment::getPropertyString(const std::string & key, std::string & value, const std::string & rootNode) {
-    value = _node[rootNode][key].as<std::string>();
+    value = getNode(rootNode)[key].as<std::string>();
 }
 
 void kpsr::YamlEnvironment::getPropertyInt(const std::string & key, int & value, const std::string & rootNode) {
-    value = _node[rootNode][key].as<int>();
+    value = getNode(rootNode)[key].as<int>();
 }
 
 void kpsr::YamlEnvironment::getPropertyFloat(const std::string & key, float & value, const std::string & rootNode) {
-    value = _node[rootNode][key].as<float>();
+    value = getNode(rootNode)[key].as<float>();
 }
 
 void kpsr::YamlEnvironment::getPropertyBool(const std::string & key, bool & value, const std::string & rootNode) {
-    value = _node[rootNode][key].as<bool>();
+    value = getNode(rootNode)[key].as<bool>();
 }
 
 void kpsr::YamlEnvironment::setPropertyString(const std::string & key, const std::string& value, const std::string & rootNode){
-    _node[rootNode][key] = value;
+    // Cannot use getNode function here because yaml-cpp does not return correct reference if value is std::string.
+    if (rootNode.empty()) {
+        _node[key] = value;
+    } else {
+        _node[rootNode][key] = value;
+    }
 }
 
 void kpsr::YamlEnvironment::setPropertyInt(const std::string & key, const int & value, const std::string & rootNode) {
-    _node[rootNode][key] = value;
+    getNode(rootNode)[key] = value;
 }
 
 void kpsr::YamlEnvironment::setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode) {
-    _node[rootNode][key] = value;
+    getNode(rootNode)[key] = value;
 }
 
 void kpsr::YamlEnvironment::setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode) {
-    _node[rootNode][key] = value;
+    getNode(rootNode)[key] = value;
 }
 
 void kpsr::YamlEnvironment::updateConfiguration(const std::string & yamlContent, const std::string & rootNode) {
-    _node[rootNode] = YAML::Load(yamlContent);
+    if (rootNode.empty()) {
+        updateConfiguration(yamlContent);
+    } else {
+        _node[rootNode] = YAML::Load(yamlContent);
+    }
 }
 
 void kpsr::YamlEnvironment::updateConfiguration(const std::string & yamlContent) {
@@ -81,5 +89,17 @@ std::string kpsr::YamlEnvironment::exportEnvironment() {
 }
 
 void kpsr::YamlEnvironment::loadFile(const std::string & fileName, const std::string & nodeName) {
-    _node[nodeName] = YAML::LoadFile(fileName);
+    if (nodeName.empty()) {
+        _node = YAML::LoadFile(fileName);
+    } else {
+        _node[nodeName] = YAML::LoadFile(fileName);
+    }
+}
+
+YAML::Node kpsr::YamlEnvironment::getNode(const std::string& rootNode) {
+    if (rootNode.empty()) {
+        return _node;
+    } else {
+        return _node[rootNode];
+    }
 }
