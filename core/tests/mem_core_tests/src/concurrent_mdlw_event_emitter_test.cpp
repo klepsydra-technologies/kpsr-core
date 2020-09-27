@@ -148,35 +148,6 @@ TEST(ConcurrentEventEmitterTest, basicQueueTestLargeSize) {
     t.join();
 }
 
-TEST(ConcurrentEventEmitterTest, multithreadPublishTest) {
-    ConcurrentSQTestEvent::emptyConstructorInvokations = 0;
-    ConcurrentSQTestEvent::constructorInvokations = 0;
-    ConcurrentSQTestEvent::copyInvokations = 0;
-
-    // Test that publish function of provider when called from different threads still gives no problem.
-    const int queueSize = 4;
-    kpsr::mem::ConcurrentMiddlewareProvider<ConcurrentSQTestEvent> provider(nullptr, "event", queueSize, 0, nullptr, nullptr, false, 1000);
-    provider.start();
-    kpsr::mem::TestCacheListener<ConcurrentSQTestEvent> eventListener(-1);
-    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
-
-    std::thread T[queueSize];
-
-    for (int i = 0; i < queueSize; i++) {
-        T[i] = std::thread([&provider, &i]{
-                        ConcurrentSQTestEvent event1(i, "hello");
-                        provider.getPublisher()->publish(event1);
-                    });
-    }
-
-    for (auto &t: T) {
-        t.join();
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    provider.stop();
-    ASSERT_EQ(eventListener.counter, queueSize);
-}
-
 TEST(ConcurrentEventEmitterTest, SingleEventEmitterTopic) {
     ConcurrentSQTestEvent::emptyConstructorInvokations = 0;
     ConcurrentSQTestEvent::constructorInvokations = 0;
@@ -233,6 +204,7 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolNoFailures) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
     });
     
@@ -362,6 +334,7 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestNoPool) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
         newProvider.stop();
     });
@@ -417,6 +390,7 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestWithPool) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
         newProvider.stop();
     });

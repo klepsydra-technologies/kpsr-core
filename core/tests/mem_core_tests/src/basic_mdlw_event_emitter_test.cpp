@@ -141,6 +141,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolNoFailures) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
     });
 
@@ -261,6 +262,7 @@ TEST(BasicEventEmitterTest, TransformForwaringTestNoPool) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
         newProvider.stop();
     });
@@ -313,6 +315,7 @@ TEST(BasicEventEmitterTest, TransformForwaringTestWithPool) {
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
         newProvider.stop();
     });
