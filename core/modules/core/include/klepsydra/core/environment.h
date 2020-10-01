@@ -45,6 +45,7 @@ std::string const DEFAULT_ROOT("");
 class Environment
 {
 public:
+    virtual ~Environment() {}
     /**
      * @brief getPropertyString
      * @param key
