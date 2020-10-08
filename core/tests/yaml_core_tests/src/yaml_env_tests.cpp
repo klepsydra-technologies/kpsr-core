@@ -22,6 +22,8 @@
 #include<algorithm>
 
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include "gtest/gtest.h"
 
@@ -218,4 +220,35 @@ TEST(YamlEnvironmentTest, UpdateConfigurationRootTest) {
     ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile, root));
     ASSERT_EQ(nameInFile, basename);
 
+}
+
+TEST(YamlEnvironmentTest, keyThrowTest) {
+    std::stringstream programLogStream;
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
+    spdlog::register_logger(logger);
+    spdlog::set_default_logger(logger);
+
+    std::string basename("testfile1.yaml");
+    std::string folderName(TEST_DATA);
+    std::string filename = folderName + "/" + basename;
+
+    kpsr::YamlEnvironment environment(filename);
+
+    std::string dummyString;
+    float dummyFloat;
+    int dummyInt;
+    bool dummyBool;
+    std::string randomKey("randomKey");
+
+    ASSERT_THROW(environment.getPropertyString(randomKey, dummyString), YAML::Exception);
+    ASSERT_THROW(environment.getPropertyFloat(randomKey, dummyFloat), YAML::Exception);
+    ASSERT_THROW(environment.getPropertyInt(randomKey, dummyInt), YAML::Exception);
+    ASSERT_THROW(environment.getPropertyBool(randomKey, dummyBool), YAML::Exception);
+    std::string spdlogString = programLogStream.str();
+    ASSERT_NE(spdlogString.size(), 0);
+    ASSERT_NE(spdlogString.find(randomKey), std::string::npos);
+    auto console = spdlog::stdout_color_mt("default");
+    spdlog::set_default_logger(console);
+    spdlog::drop("my_logger");
 }
