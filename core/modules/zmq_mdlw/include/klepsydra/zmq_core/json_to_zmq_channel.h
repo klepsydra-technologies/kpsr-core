@@ -27,8 +27,6 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-#include <klepsydra/zmq_core/zhelpers.hpp>
-
 namespace kpsr
 {
 namespace zmq_mdlw
@@ -67,8 +65,9 @@ public:
 
 protected:
     void internalPublish(std::shared_ptr<const std::string> event) override {
-        s_sendmore (_publisher, _topic);
-        s_send (_publisher, * event);
+        _publisher.send(zmq::const_buffer(_topic.data(), _topic.size()), zmq::send_flags::sndmore);
+        zmq::message_t message(event->c_str(), event->size());
+        _publisher.send(message);
     }
 
 private:
