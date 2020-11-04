@@ -29,8 +29,6 @@
 #include <klepsydra/serialization/json_cereal_mapper.h>
 #include <klepsydra/serialization/binary_cereal_mapper.h>
 
-#include <klepsydra/zmq_core/zhelpers.hpp>
-
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
 
