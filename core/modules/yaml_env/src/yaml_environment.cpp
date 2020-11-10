@@ -18,6 +18,7 @@
 ****************************************************************************/
 
 #include <klepsydra/core/yaml_environment.h>
+#include <spdlog/spdlog.h>
 
 #include <cstring>
 #include <fstream>
@@ -34,19 +35,39 @@ kpsr::YamlEnvironment::YamlEnvironment()
 }
 
 void kpsr::YamlEnvironment::getPropertyString(const std::string & key, std::string & value, const std::string & rootNode) {
-    value = getNode(rootNode)[key].as<std::string>();
+    try {
+        value = getNode(rootNode)[key].as<std::string>();
+    } catch (const YAML::Exception&) {
+        spdlog::error("Error getting YAML node for key: {} + {} ", rootNode, key);
+        throw;
+    }
 }
 
 void kpsr::YamlEnvironment::getPropertyInt(const std::string & key, int & value, const std::string & rootNode) {
-    value = getNode(rootNode)[key].as<int>();
+    try {
+        value = getNode(rootNode)[key].as<int>();
+    } catch (const YAML::Exception&) {
+        spdlog::error("Error getting YAML node for key: {} + {} ", rootNode, key);
+        throw;
+    }
 }
 
 void kpsr::YamlEnvironment::getPropertyFloat(const std::string & key, float & value, const std::string & rootNode) {
-    value = getNode(rootNode)[key].as<float>();
+    try {
+        value = getNode(rootNode)[key].as<float>();
+    } catch (const YAML::Exception&) {
+        spdlog::error("Error getting YAML node for key: {} + {} ", rootNode, key);
+        throw;
+    }
 }
 
 void kpsr::YamlEnvironment::getPropertyBool(const std::string & key, bool & value, const std::string & rootNode) {
-    value = getNode(rootNode)[key].as<bool>();
+    try {
+        value = getNode(rootNode)[key].as<bool>();
+    } catch (const YAML::Exception&) {
+        spdlog::error("Error getting YAML node for key: {} + {} ", rootNode, key);
+        throw;
+    }
 }
 
 void kpsr::YamlEnvironment::setPropertyString(const std::string & key, const std::string& value, const std::string & rootNode){
