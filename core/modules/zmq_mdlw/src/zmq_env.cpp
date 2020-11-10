@@ -23,8 +23,6 @@
 
 #include <spdlog/spdlog.h>
 
-
-#include <klepsydra/zmq_core/zhelpers.hpp>
 #include <klepsydra/zmq_core/zmq_env.h>
 
 kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string yamlFileName,
@@ -120,10 +118,10 @@ void kpsr::zmq_mdlw::ZMQEnv::loadFile(const std::string & fileName, const std::s
 void kpsr::zmq_mdlw::ZMQEnv::publishConfiguration() {
     std::string configurationData = _decorableEnv->exportEnvironment();
     ZMQEnvironmentData environmentData(_zmqKey, configurationData, _timestamp);
-    s_sendmore (_zmqPublisher, _topicName);
+    _zmqPublisher.send(zmq::const_buffer(_topicName.c_str(), _topicName.size()), zmq::send_flags::sndmore);
     std::string serializeEnvironmentData;
     mapper.toMiddleware(environmentData, serializeEnvironmentData);
-    s_send (_zmqPublisher, serializeEnvironmentData);
+    _zmqPublisher.send(zmq::const_buffer(serializeEnvironmentData.c_str(), serializeEnvironmentData.size()));
 }
 
 kpsr::zmq_mdlw::ZMQConfigurationPoller::ZMQConfigurationPoller(const std::string & zmqKey,
@@ -161,11 +159,15 @@ void kpsr::zmq_mdlw::ZMQConfigurationPoller::poll() {
         return;
 
     if (items[0].revents & ZMQ_POLLIN) {
-        std::string topic = s_recv (_zmqEnv->_zmqSubscriber);
-        std::string contents = s_recv (_zmqEnv->_zmqSubscriber);
+        zmq::message_t topicMsg;
+        zmq::message_t content;
+        _zmqEnv->_zmqSubscriber.recv(topicMsg);
+        _zmqEnv->_zmqSubscriber.recv(content);
+        std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
+        std::string contentString(static_cast<char*>(content.data()), content.size());
         spdlog::info("kpsr::zmq_mdlw::ZMQConfigurationPoller::on_data_available.");
         ZMQEnvironmentData environmentData;
-        mapper.fromMiddleware(contents, environmentData);
+        mapper.fromMiddleware(contentString, environmentData);
         if ((environmentData._configurationKey == _zmqKey) && (environmentData._sourceId != _sourceId)) {
             spdlog::info("kpsr::zmq_mdlw::ZMQConfigurationPoller::poll. new data: {}", environmentData._configurationData);
             this->_zmqEnv->updateConfiguration(environmentData._configurationData);

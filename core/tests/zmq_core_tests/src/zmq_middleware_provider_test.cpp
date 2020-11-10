@@ -33,7 +33,6 @@
 #include <klepsydra/serialization/json_cereal_mapper.h>
 #include <klepsydra/serialization/binary_cereal_mapper.h>
 
-#include <klepsydra/zmq_core/zhelpers.hpp>
 #include <klepsydra/zmq_core/from_zmq_middleware_provider.h>
 #include <klepsydra/zmq_core/to_zmq_middleware_provider.h>
 
@@ -41,6 +40,9 @@
 #include "weather_data_serializer.h"
 
 #include "gtest/gtest.h"
+
+//  Provide random number from 0..(num-1)
+#define within(num) (int) ((float)((num) * random ()) / (RAND_MAX + 1.0))
 
 class WeatherDataClient {
 public:

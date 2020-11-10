@@ -21,7 +21,7 @@ SET(PROJ_NAME kpsr_zmq_${PROJ_MAIN_NAME})
 PROJECT(${PROJ_NAME})
 
 #find cppzmq wrapper, installed by make of cppzmq
-find_package(cppzmq REQUIRED)
+find_package(cppzmq 4.3 REQUIRED)
 
 # Include directories with headers
 #---------------------------------------------------#

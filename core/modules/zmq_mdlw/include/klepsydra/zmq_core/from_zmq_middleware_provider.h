@@ -30,7 +30,6 @@
 
 #include <klepsydra/core/from_middleware_channel.h>
 
-#include <klepsydra/zmq_core/zhelpers.hpp>
 #include <klepsydra/zmq_core/binary_zmq_poller.h>
 #include <klepsydra/zmq_core/json_zmq_poller.h>
 #include <klepsydra/zmq_core/void_caster_zmq_poller.h>

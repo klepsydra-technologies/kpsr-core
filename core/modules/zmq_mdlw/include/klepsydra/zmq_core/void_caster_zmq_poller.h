@@ -22,7 +22,6 @@
 
 #include <zmq.hpp>
 
-#include <klepsydra/zmq_core/zhelpers.hpp>
 #include <klepsydra/zmq_core/zmq_poller.h>
 
 namespace kpsr {
@@ -60,9 +59,11 @@ public:
                 break;
 
             if (items[0].revents & ZMQ_POLLIN) {
-                std::string topic = s_recv (this->_subscriber);
+                zmq::message_t topicMsg;
+                _subscriber.recv(topicMsg);
+                std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
                 zmq::message_t content;
-                this->_subscriber.recv(&content);
+                this->_subscriber.recv(content);
 
                 unsigned char* data = (unsigned char*)content.data();
                 std::vector<unsigned char> event(content.size());

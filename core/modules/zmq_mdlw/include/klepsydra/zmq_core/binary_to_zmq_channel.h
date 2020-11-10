@@ -28,8 +28,6 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-#include <klepsydra/zmq_core/zhelpers.hpp>
-
 using Base = std::basic_streambuf<char> *;
 
 namespace kpsr
@@ -70,7 +68,7 @@ protected:
 
     void internalPublish(std::shared_ptr<const Base> event) override {
         std::stringbuf * buffer = (std::stringbuf *) (* event);
-        s_sendmore (_publisher, _topic.c_str());
+        _publisher.send(zmq::const_buffer(_topic.c_str(), _topic.size()), zmq::send_flags::sndmore);
         zmq::message_t message(buffer->str().data(), buffer->str().size());
         _publisher.send(message);
     }
