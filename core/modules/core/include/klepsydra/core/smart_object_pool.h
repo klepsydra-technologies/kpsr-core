@@ -25,6 +25,8 @@
 #include <functional>
 #include <klepsydra/core/lock_free_stack.h>
 
+#include <spdlog/spdlog.h>
+
 namespace kpsr {
 template <class T, class D = std::default_delete<T>>
 /*!
@@ -70,8 +72,8 @@ public:
      * @param size
      * @param initializerFunction optional std::function to initialise the objects.
      */
-    SmartObjectPool(int size, std::function<void(T &)> initializerFunction = nullptr)
-        : this_ptr_(new SmartObjectPool<T, D>*(this))
+    SmartObjectPool(const std::string & name, int size, std::function<void(T &)> initializerFunction = nullptr)
+        : this_ptr_(std::make_shared<SmartObjectPool<T, D>*>(this))
     {
         std::function<void(std::unique_ptr<T, D> &)> poolInitializer = [&] (std::unique_ptr<T, D> & data) {
             data.release();
@@ -79,6 +81,8 @@ public:
         };
 
         pool_ = new LockFreeStack<std::unique_ptr<T, D> >(size, poolInitializer);
+
+        spdlog::debug("{}. Init function for smartpool {} and size {}", __PRETTY_FUNCTION__, name, size);
         for (int i = 0; i < size; i ++) {
             std::unique_ptr<T, D> t (new T());
             if (initializerFunction != nullptr) {
@@ -93,7 +97,8 @@ public:
         while (pool_->pop(t_ptr)) {
             t_ptr.reset();
         }
-        delete pool_;}
+        delete pool_;
+    }
 
     /*!
      * @brief acquire fetch an element of the pool. It comes as a unique pointer. When no references are hanging, the object will return to the pool.
@@ -108,7 +113,7 @@ public:
         ptr_type tmp(element.release(),
                      ReturnToPool_Deleter{
                          std::weak_ptr<SmartObjectPool<T, D>*>{this_ptr_}});
-        return std::move(tmp);
+        return tmp;
     }
 
     /*!

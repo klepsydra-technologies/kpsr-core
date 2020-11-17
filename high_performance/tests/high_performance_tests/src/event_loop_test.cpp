@@ -117,7 +117,7 @@ TEST(EventLoopTest, SharePointerCasting) {
 
 TEST(EventLoopTest, SharePointerCastingWithPool) {
 
-    kpsr::SmartObjectPool<SensorData> pool(4);
+    kpsr::SmartObjectPool<SensorData> pool("EventLoopTest", 4);
     for (int i = 0; i < 10; i ++) {
         std::shared_ptr<void> ringBufferPointer;
         {
@@ -491,6 +491,8 @@ TEST(EventLoopTest, StartTwiceTest) {
     auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     logger->set_pattern("%v");
+    logger->set_level(spdlog::level::debug);
+    
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
     ASSERT_NO_THROW(eventLoop.start());
@@ -521,6 +523,7 @@ TEST(EventLoopTest, StartStopTwiceTest) {
     auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     logger->set_pattern("%v");
+    logger->set_level(spdlog::level::debug);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
     ASSERT_NO_THROW(eventLoop.start());

@@ -1,7 +1,7 @@
 #****************************************************************************
 #
 #                           Klepsydra Core Modules
-#              Copyright (C) 2019-2020  Klepsydra Technologies GmbH
+#              Copyright (C) 2020-2022  Klepsydra Technologies GmbH
 #                            All Rights Reserved.
 #
 #  This file is subject to the terms and conditions defined in
@@ -45,7 +45,7 @@ message(STATUS "Thirdparties install path: " ${THIRDPARTIES_PATH})
 
 IF(DEFINED GTEST_PATH)
 ELSE()
-        SET(GTEST_PATH ${THIRDPARTIES_PATH}/googletest) #default google test path
+  SET(GTEST_PATH ${THIRDPARTIES_PATH}/googletest) #default google test path
 ENDIF()
 message(STATUS "Google test path: " ${GTEST_PATH})
 if(DEFINED KPSR_BUILD_PATH)

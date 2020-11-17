@@ -17,10 +17,24 @@
 #
 #****************************************************************************
 
-# Add module code
-find_package(benchmark REQUIRED)
+SET(PROJ_NAME kpsr_smart_pool_${PROJ_MAIN_NAME}_perf)
+PROJECT(${PROJ_NAME})
 
-ADD_SUBDIRECTORY(event_emitter_test)		
-ADD_SUBDIRECTORY(basic_mddlw_test)
-ADD_SUBDIRECTORY(concurrent_mdlw_test)
-ADD_SUBDIRECTORY(smart_pool)
+# Source
+#---------------------------------------------------#
+FILE(GLOB ${PROJ_NAME}_SRC
+    "src/*.cpp"
+)
+
+# Create Library
+#---------------------------------------------------#
+ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} ) 
+# Link libraries with Project
+#---------------------------------------------------#
+
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_mem_core ${CMAKE_THREAD_LIBS_INIT} benchmark::benchmark pthread)
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/performance/common
+  )

@@ -36,7 +36,8 @@ template <class T>
  */
 struct EventData {
 
-    EventData() {}
+    EventData()
+        : eventData() {}
 
     EventData(T eventData)
         : eventData(eventData)

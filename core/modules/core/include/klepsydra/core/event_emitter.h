@@ -242,7 +242,7 @@ void kpsr::EventEmitter::emitEvent(const std::string & event_id, long long unsig
             }
             h->cb(args...);
             listenerStatistic->stopProcessMeassure();
-        } catch (std::out_of_range &ex) {
+        } catch (const std::out_of_range &ex) {
             // Nothing to do. If statics are removed then the handler & callback function have also been removed from map.
             spdlog::info("Listener already removed from list");
         }
