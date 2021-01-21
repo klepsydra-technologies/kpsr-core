@@ -24,6 +24,8 @@
 
 #include <klepsydra/zmq_core/zmq_poller.h>
 
+#include <spdlog/spdlog.h>
+
 namespace kpsr {
 namespace zmq_mdlw {
 /**
@@ -62,6 +64,9 @@ public:
                 zmq::message_t topicMsg;
                 _subscriber.recv(topicMsg);
                 std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
+
+                spdlog::debug("{}. Recevied new message on topic: {}", __func__, topic);
+
                 zmq::message_t content;
                 this->_subscriber.recv(content);
 

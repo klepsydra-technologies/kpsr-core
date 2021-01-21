@@ -27,6 +27,8 @@
 #include <klepsydra/zmq_core/non_copying_stream_buffer.h>
 #include <klepsydra/zmq_core/zmq_poller.h>
 
+#include <spdlog/spdlog.h>
+
 using Base = std::basic_streambuf<char> *;
 
 namespace kpsr {
@@ -67,6 +69,8 @@ public:
                 zmq::message_t topicMsg;
                 _subscriber.recv(topicMsg);
                 std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
+                spdlog::debug("{}. Recevied new message on topic: {}", __func__, topic);
+
                 zmq::message_t content;
                 _subscriber.recv(content);
                 NonCopyingStringBuffer buffer((char *) content.data(), content.size());
