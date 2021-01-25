@@ -108,6 +108,7 @@ public:
                                kpsr::Subscriber<float> * floatSubscriber,
                                kpsr::Subscriber<std::string> * stringSubscriber)
         : Service(nullptr, "primitive_subscriber_service")
+        , gotEnum(false), gotOctet(false), gotInt(false), gotBool(false), gotDouble(false), gotFloat(false), gotString(false)
         , _enumSubscriber(enumSubscriber)
         , _octetSubscriber(octetSubscriber)
         , _intSubscriber(intSubscriber)
@@ -115,6 +116,10 @@ public:
         , _doubleSubscriber(doubleSubscriber)
         , _floatSubscriber(floatSubscriber)
         , _stringSubscriber(stringSubscriber) {
+    }
+
+    ~PrimitiveSubscriberService() {
+        shutdown();
     }
 
     void start() {
@@ -140,7 +145,16 @@ public:
         this->_stringSubscriber->registerListener("primitive_subscriber_service", stringListenerFunction);
     }
 
-    void stop() {}
+    void stop() {
+        this->_enumSubscriber->removeListener("primitive_subscriber_service");
+        this->_octetSubscriber->removeListener("primitive_subscriber_service");
+        this->_intSubscriber->removeListener("primitive_subscriber_service");
+        this->_boolSubscriber->removeListener("primitive_subscriber_service");
+        this->_doubleSubscriber->removeListener("primitive_subscriber_service");
+        this->_floatSubscriber->removeListener("primitive_subscriber_service");
+        this->_stringSubscriber->removeListener("primitive_subscriber_service");
+
+    }
     void execute() {}
 
     GreetEnum enumData;
@@ -151,34 +165,43 @@ public:
     float floatData;
     std::string stringData;
 
+    bool gotEnum, gotOctet, gotInt, gotBool, gotDouble, gotFloat, gotString;
+
 private:
 
     void onEnumDataReceived(const GreetEnum & eventData) {
         enumData = eventData;
+        gotEnum = true;
     }
 
     void onOctetDataReceived(const unsigned char & eventData) {
         charData = eventData;
+        gotOctet = true;
     }
 
     void onIntDataReceived(const int & eventData) {
         intData = eventData;
+        gotInt = true;
     }
 
     void onBoolDataReceived(const bool & eventData) {
         boolData = eventData;
+        gotBool = true;
     }
 
     void onDoubleDataReceived(const double & eventData) {
         doubleData = eventData;
+        gotDouble = true;
     }
 
     void onFloatDataReceived(const float & eventData) {
         floatData = eventData;
+        gotFloat = true;
     }
 
     void onStringDataReceived(const std::string & eventData) {
         stringData = eventData;
+        gotString = true;
     }
 
     kpsr::Subscriber<GreetEnum> * _enumSubscriber;
@@ -190,143 +213,181 @@ private:
     kpsr::Subscriber<std::string> * _stringSubscriber;
 };
 
-TEST(DDSStgCoreTests, PubSubTest) {
-    dds::domain::DomainParticipant dp(0);
-    dds::pub::Publisher publisher(dp);
-    dds::sub::Subscriber subscriber(dp);
 
-    kpsr::dds_mdlw::ToDDSMiddlewareProvider provider(nullptr);
+class DDSCoreTest : public ::testing::Test {
+protected:
+    DDSCoreTest()
+        : dp(0)
+        , publisher(dp)
+        , subscriber(dp)
+        , enumDataTopic(dp, "enumData")
+        , octetDataTopic(dp, "octetData")
+        , longDataTopic(dp, "longData")
+        , boolDataTopic(dp, "boolData")
+        , doubleDataTopic(dp, "doubleData")
+        , floatDataTopic(dp, "floatData")
+        , stringDataTopic(dp, "stringData")
+        , enumDataWriter(publisher, enumDataTopic)
+        , octetDataWriter(publisher, octetDataTopic)
+        , longDataWriter(publisher, longDataTopic)
+        , boolDataWriter(publisher, boolDataTopic)
+        , doubleDataWriter(publisher, doubleDataTopic)
+        , floatDataWriter(publisher, floatDataTopic)
+        , stringDataWriter(publisher, stringDataTopic)
+        , enumDataReader(subscriber, enumDataTopic)
+        , enumDataSafeQueueProvider(nullptr, "enumData", 0, nullptr, nullptr)
+        , octetDataReader(subscriber, octetDataTopic)
+        , octetDataSafeQueueProvider(nullptr, "octetData", 0, nullptr, nullptr)
+        , longDataReader(subscriber, longDataTopic)
+        , longDataSafeQueueProvider(nullptr, "longData", 0, nullptr, nullptr)
+        , boolDataReader(subscriber, boolDataTopic)
+        , boolDataSafeQueueProvider(nullptr, "boolData", 0, nullptr, nullptr)
+        , doubleDataReader(subscriber, doubleDataTopic)
+        , doubleDataSafeQueueProvider(nullptr, "doubleData", 0, nullptr, nullptr)
+        , floatDataReader(subscriber, floatDataTopic)
+        , floatDataSafeQueueProvider(nullptr, "floatData", 0, nullptr, nullptr)
+        , stringDataReader(subscriber, stringDataTopic)
+        , stringDataSafeQueueProvider(nullptr, "stringData", 0, nullptr, nullptr)
+        , provider(nullptr)
+        , primitivePublisherService(provider.getToMiddlewareChannel<GreetEnum, kpsr_dds_serialization::LongData>("enumData", 0, nullptr, &enumDataWriter),
+                                    provider.getToMiddlewareChannel<unsigned char, kpsr_dds_serialization::OctetData>("octetData", 0, nullptr, &octetDataWriter),
+                                    provider.getToMiddlewareChannel<int, kpsr_dds_serialization::LongData>("longData", 0, nullptr, &longDataWriter),
+                                    provider.getToMiddlewareChannel<bool, kpsr_dds_serialization::BoolData>("boolData", 0, nullptr, &boolDataWriter),
+                                    provider.getToMiddlewareChannel<double, kpsr_dds_serialization::DoubleData>("doubleData", 0, nullptr, &doubleDataWriter),
+                                    provider.getToMiddlewareChannel<float, kpsr_dds_serialization::FloatData>("floatData", 0, nullptr, &floatDataWriter),
+                                    provider.getToMiddlewareChannel<std::string, kpsr_dds_serialization::StringData>("stringData", 0, nullptr, &stringDataWriter))
+        , primitiveSubscriberService(enumDataSafeQueueProvider.getSubscriber(),
+                                     octetDataSafeQueueProvider.getSubscriber(),
+                                     longDataSafeQueueProvider.getSubscriber(),
+                                     boolDataSafeQueueProvider.getSubscriber(),
+                                     doubleDataSafeQueueProvider.getSubscriber(),
+                                     floatDataSafeQueueProvider.getSubscriber(),
+                                     stringDataSafeQueueProvider.getSubscriber())
+        {}
 
-    dds::topic::Topic<kpsr_dds_serialization::LongData> enumDataTopic(dp, "enumData");
-    dds::pub::DataWriter<kpsr_dds_serialization::LongData> enumDataWriter(publisher, enumDataTopic);
-    kpsr::Publisher<GreetEnum> * enumPublisher =
-            provider.getToMiddlewareChannel<GreetEnum, kpsr_dds_serialization::LongData>("enumData", 0, nullptr, &enumDataWriter);
-
-    dds::topic::Topic<kpsr_dds_serialization::OctetData> octetDataTopic(dp, "octetData");
-    dds::pub::DataWriter<kpsr_dds_serialization::OctetData> octetDataWriter(publisher, octetDataTopic);
-    kpsr::Publisher<unsigned char> * octetDataPublisher =
-            provider.getToMiddlewareChannel<unsigned char, kpsr_dds_serialization::OctetData>("octetData", 0, nullptr, &octetDataWriter);
-
-    dds::topic::Topic<kpsr_dds_serialization::LongData> longDataTopic(dp, "longData");
-    dds::pub::DataWriter<kpsr_dds_serialization::LongData> longDataWriter(publisher, longDataTopic);
-    kpsr::Publisher<int> * longDataPublisher =
-            provider.getToMiddlewareChannel<int, kpsr_dds_serialization::LongData>("longData", 0, nullptr, &longDataWriter);
-
-    dds::topic::Topic<kpsr_dds_serialization::BoolData> boolDataTopic(dp, "boolData");
-    dds::pub::DataWriter<kpsr_dds_serialization::BoolData> boolDataWriter(publisher, boolDataTopic);
-    kpsr::Publisher<bool> * boolDataPublisher =
-            provider.getToMiddlewareChannel<bool, kpsr_dds_serialization::BoolData>("boolData", 0, nullptr, &boolDataWriter);
-
-    dds::topic::Topic<kpsr_dds_serialization::DoubleData> doubleDataTopic(dp, "doubleData");
-    dds::pub::DataWriter<kpsr_dds_serialization::DoubleData> doubleDataWriter(publisher, doubleDataTopic);
-    kpsr::Publisher<double> * doubleDataPublisher =
-            provider.getToMiddlewareChannel<double, kpsr_dds_serialization::DoubleData>("doubleData", 0, nullptr, &doubleDataWriter);
-
-    dds::topic::Topic<kpsr_dds_serialization::FloatData> floatDataTopic(dp, "floatData");
-    dds::pub::DataWriter<kpsr_dds_serialization::FloatData> floatDataWriter(publisher, floatDataTopic);
-    kpsr::Publisher<float> * floatDataPublisher =
-            provider.getToMiddlewareChannel<float, kpsr_dds_serialization::FloatData>("floatData", 0, nullptr, &floatDataWriter);
-
-    dds::topic::Topic<kpsr_dds_serialization::StringData> stringDataTopic(dp, "stringData");
-    dds::pub::DataWriter<kpsr_dds_serialization::StringData> stringDataWriter(publisher, stringDataTopic);
-    kpsr::Publisher<std::string> * stringDataPublisher =
-            provider.getToMiddlewareChannel<std::string, kpsr_dds_serialization::StringData>("stringData", 0, nullptr, &stringDataWriter);
-
-    PrimitivePublisherService primitivePublisherService(enumPublisher,
-                                                        octetDataPublisher,
-                                                        longDataPublisher,
-                                                        boolDataPublisher,
-                                                        doubleDataPublisher,
-                                                        floatDataPublisher,
-                                                        stringDataPublisher);
-
-
-    kpsr::dds_mdlw::FromDDSMiddlewareProvider ddsProvider;
-
-    dds::sub::DataReader<kpsr_dds_serialization::LongData> enumDataReader(subscriber, enumDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<GreetEnum> enumDataSafeQueueProvider(nullptr, "enumData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("enumData", &enumDataReader, true, enumDataSafeQueueProvider.getPublisher());
-
-    dds::sub::DataReader<kpsr_dds_serialization::OctetData> octetDataReader(subscriber, octetDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<unsigned char> octetDataSafeQueueProvider(nullptr, "octetData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("octetData", &octetDataReader, true, octetDataSafeQueueProvider.getPublisher());
-
-    dds::sub::DataReader<kpsr_dds_serialization::LongData> longDataReader(subscriber, longDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<int> longDataSafeQueueProvider(nullptr, "longData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("longData", &longDataReader, true, longDataSafeQueueProvider.getPublisher());
-
-    dds::sub::DataReader<kpsr_dds_serialization::BoolData> boolDataReader(subscriber, boolDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<bool> boolDataSafeQueueProvider(nullptr, "boolData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("boolData", &boolDataReader, true, boolDataSafeQueueProvider.getPublisher());
-
-    dds::sub::DataReader<kpsr_dds_serialization::DoubleData> doubleDataReader(subscriber, doubleDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<double> doubleDataSafeQueueProvider(nullptr, "doubleData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("doubleData", &doubleDataReader, true, doubleDataSafeQueueProvider.getPublisher());
-
-    dds::sub::DataReader<kpsr_dds_serialization::FloatData> floatDataReader(subscriber, floatDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<float> floatDataSafeQueueProvider(nullptr, "floatData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("floatData", &floatDataReader, true, floatDataSafeQueueProvider.getPublisher());
-
-    dds::sub::DataReader<kpsr_dds_serialization::StringData> stringDataReader(subscriber, stringDataTopic);
-    kpsr::EventEmitterMiddlewareProvider<std::string> stringDataSafeQueueProvider(nullptr, "stringData", 0, nullptr, nullptr);
-    ddsProvider.registerToTopic("stringData", &stringDataReader, true, stringDataSafeQueueProvider.getPublisher());
-
-    PrimitiveSubscriberService primitiveSubscriberService(enumDataSafeQueueProvider.getSubscriber(),
-                                                          octetDataSafeQueueProvider.getSubscriber(),
-                                                          longDataSafeQueueProvider.getSubscriber(),
-                                                          boolDataSafeQueueProvider.getSubscriber(),
-                                                          doubleDataSafeQueueProvider.getSubscriber(),
-                                                          floatDataSafeQueueProvider.getSubscriber(),
-                                                          stringDataSafeQueueProvider.getSubscriber());
-
-    primitivePublisherService.startup();
-    primitiveSubscriberService.startup();
-
-    for (int i = 0; i < 100; i ++) {
-        primitivePublisherService.runOnce();
-        int attempts = 200;
-        do {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        } while (((primitivePublisherService._seq + 1) != primitiveSubscriberService.charData) && (--attempts >= 0));
-        ASSERT_GT(attempts, 0);
-        ASSERT_EQ((primitivePublisherService._seq + 1), primitiveSubscriberService.charData);
-
-        attempts = 200;
-        do {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        } while (((GreetEnum) (primitivePublisherService._seq % 4) != primitiveSubscriberService.enumData) && (--attempts >= 0));
-        ASSERT_GT(attempts, 0);
-        ASSERT_EQ((GreetEnum) (primitivePublisherService._seq % 4), primitiveSubscriberService.enumData);
-
-        attempts = 200;
-        do {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        } while ((primitivePublisherService._seq != primitiveSubscriberService.intData) && (--attempts >= 0));
-        ASSERT_GT(attempts, 0);
-        ASSERT_EQ(primitivePublisherService._seq, primitiveSubscriberService.intData);
-
-        attempts = 200;
-        do {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        } while (((primitivePublisherService._seq % 2 == 0) != primitiveSubscriberService.boolData) && (--attempts >= 0));
-        ASSERT_GT(attempts, 0);
-        ASSERT_EQ((primitivePublisherService._seq % 2 == 0), primitiveSubscriberService.boolData);
-
-        attempts = 200;
-        do {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        } while (((primitivePublisherService._seq * 100.0) != primitiveSubscriberService.floatData) && (--attempts >= 0));
-        ASSERT_GT(attempts, 0);
-        ASSERT_FLOAT_EQ((primitivePublisherService._seq * 100.0), primitiveSubscriberService.floatData);
-
-        ASSERT_EQ((primitivePublisherService._greetings[primitivePublisherService._seq % 4]), primitiveSubscriberService.stringData);
+    void SetUp() override {
+            ddsProvider.registerToTopic("enumData", &enumDataReader, true, enumDataSafeQueueProvider.getPublisher());
+            ddsProvider.registerToTopic("octetData", &octetDataReader, true, octetDataSafeQueueProvider.getPublisher());
+            ddsProvider.registerToTopic("longData", &longDataReader, true, longDataSafeQueueProvider.getPublisher());
+            ddsProvider.registerToTopic("boolData", &boolDataReader, true, boolDataSafeQueueProvider.getPublisher());
+            ddsProvider.registerToTopic("doubleData", &doubleDataReader, true, doubleDataSafeQueueProvider.getPublisher());
+            ddsProvider.registerToTopic("floatData", &floatDataReader, true, floatDataSafeQueueProvider.getPublisher());
+            ddsProvider.registerToTopic("stringData", &stringDataReader, true, stringDataSafeQueueProvider.getPublisher());
     }
 
-    ddsProvider.unregisterFromTopic("enumData", &enumDataReader);
-    ddsProvider.unregisterFromTopic("octetData", &octetDataReader);
-    ddsProvider.unregisterFromTopic("longData", &longDataReader);
-    ddsProvider.unregisterFromTopic("boolData", &boolDataReader);
-    ddsProvider.unregisterFromTopic("doubleData", &doubleDataReader);
-    ddsProvider.unregisterFromTopic("floatData", &floatDataReader);
-    ddsProvider.unregisterFromTopic("stringData", &stringDataReader);
+    void TearDown() override {
+        ddsProvider.unregisterFromTopic("enumData", &enumDataReader);
+        ddsProvider.unregisterFromTopic("octetData", &octetDataReader);
+        ddsProvider.unregisterFromTopic("longData", &longDataReader);
+        ddsProvider.unregisterFromTopic("boolData", &boolDataReader);
+        ddsProvider.unregisterFromTopic("doubleData", &doubleDataReader);
+        ddsProvider.unregisterFromTopic("floatData", &floatDataReader);
+        ddsProvider.unregisterFromTopic("stringData", &stringDataReader);
+    }
+
+    dds::domain::DomainParticipant dp;
+    dds::pub::Publisher publisher;
+    dds::sub::Subscriber subscriber;
+
+    dds::topic::Topic<kpsr_dds_serialization::LongData> enumDataTopic;
+    dds::topic::Topic<kpsr_dds_serialization::OctetData> octetDataTopic;
+    dds::topic::Topic<kpsr_dds_serialization::LongData> longDataTopic;
+    dds::topic::Topic<kpsr_dds_serialization::BoolData> boolDataTopic;
+    dds::topic::Topic<kpsr_dds_serialization::DoubleData> doubleDataTopic;
+    dds::topic::Topic<kpsr_dds_serialization::FloatData> floatDataTopic;
+    dds::topic::Topic<kpsr_dds_serialization::StringData> stringDataTopic;
+
+    dds::pub::DataWriter<kpsr_dds_serialization::LongData> enumDataWriter;
+    dds::pub::DataWriter<kpsr_dds_serialization::OctetData> octetDataWriter;
+    dds::pub::DataWriter<kpsr_dds_serialization::LongData> longDataWriter;
+    dds::pub::DataWriter<kpsr_dds_serialization::BoolData> boolDataWriter;
+    dds::pub::DataWriter<kpsr_dds_serialization::DoubleData> doubleDataWriter;
+    dds::pub::DataWriter<kpsr_dds_serialization::FloatData> floatDataWriter;
+    dds::pub::DataWriter<kpsr_dds_serialization::StringData> stringDataWriter;
+
+    dds::sub::DataReader<kpsr_dds_serialization::LongData> enumDataReader;
+    kpsr::EventEmitterMiddlewareProvider<GreetEnum> enumDataSafeQueueProvider;
+    dds::sub::DataReader<kpsr_dds_serialization::OctetData> octetDataReader;
+    kpsr::EventEmitterMiddlewareProvider<unsigned char> octetDataSafeQueueProvider;
+    dds::sub::DataReader<kpsr_dds_serialization::LongData> longDataReader;
+    kpsr::EventEmitterMiddlewareProvider<int> longDataSafeQueueProvider;
+    dds::sub::DataReader<kpsr_dds_serialization::BoolData> boolDataReader;
+    kpsr::EventEmitterMiddlewareProvider<bool> boolDataSafeQueueProvider;
+    dds::sub::DataReader<kpsr_dds_serialization::DoubleData> doubleDataReader;
+    kpsr::EventEmitterMiddlewareProvider<double> doubleDataSafeQueueProvider;
+    dds::sub::DataReader<kpsr_dds_serialization::FloatData> floatDataReader;
+    kpsr::EventEmitterMiddlewareProvider<float> floatDataSafeQueueProvider;
+    dds::sub::DataReader<kpsr_dds_serialization::StringData> stringDataReader;
+    kpsr::EventEmitterMiddlewareProvider<std::string> stringDataSafeQueueProvider;
+
+    kpsr::dds_mdlw::ToDDSMiddlewareProvider provider;
+    kpsr::dds_mdlw::FromDDSMiddlewareProvider ddsProvider;
+    PrimitivePublisherService primitivePublisherService;
+    PrimitiveSubscriberService primitiveSubscriberService;
+};
+
+TEST_F(DDSCoreTest, PubSubTest) {
+    primitivePublisherService.startup();
+    primitiveSubscriberService.startup();
+    int const MAX_ATTEMPTS = 500;
+    int const NUM_TESTS = 100;
+    for (int i = 0; i < NUM_TESTS; i ++) {
+        primitivePublisherService.runOnce();
+        int attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotOctet) && (--attempts >= 0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_EQ((primitivePublisherService._seq + 1), primitiveSubscriberService.charData);
+        primitiveSubscriberService.gotOctet = false;
+
+        attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotEnum) && (--attempts >= 0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_EQ((GreetEnum) (primitivePublisherService._seq % 4), primitiveSubscriberService.enumData);
+        primitiveSubscriberService.gotEnum = false;
+
+        attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotInt) && (--attempts >= 0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_EQ(primitivePublisherService._seq, primitiveSubscriberService.intData);
+        primitiveSubscriberService.gotInt = false;
+        attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotBool) && (--attempts >= 0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_EQ((primitivePublisherService._seq % 2 == 0), primitiveSubscriberService.boolData);
+        primitiveSubscriberService.gotBool = false;
+
+        attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotFloat) && (--attempts >= 0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_FLOAT_EQ((primitivePublisherService._seq * 100.0), primitiveSubscriberService.floatData);
+        primitiveSubscriberService.gotFloat = false;
+
+        attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotDouble) && (--attempts >= 0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_FLOAT_EQ((primitivePublisherService._seq * 10.0), primitiveSubscriberService.doubleData);
+        primitiveSubscriberService.gotDouble = false;
+
+        attempts = MAX_ATTEMPTS;
+        do {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } while ((!primitiveSubscriberService.gotString) && (--attempts >=0));
+        ASSERT_GT(attempts, 0) << i;
+        ASSERT_EQ((primitivePublisherService._greetings[primitivePublisherService._seq % 4]), primitiveSubscriberService.stringData) << i;
+        primitiveSubscriberService.gotString = false;
+    }
+    primitivePublisherService.shutdown();
+    primitiveSubscriberService.shutdown();
 }

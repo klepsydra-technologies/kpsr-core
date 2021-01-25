@@ -117,6 +117,9 @@ public:
            dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader,
            const std::string& rootNode = kpsr::DEFAULT_ROOT);
 
+
+    ~DDSEnv();
+
     /**
      * @brief getPropertyString
      * @param key
@@ -198,7 +201,7 @@ private:
     DDSConfigurationListener * _listener;
     std::string _ddsKey;
     long _timestamp;
-
+    bool _isEnvLocal;
 };
 }
 }
