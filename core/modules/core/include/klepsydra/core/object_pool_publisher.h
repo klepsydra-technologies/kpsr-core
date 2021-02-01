@@ -126,7 +126,7 @@ public:
             }
         }
         this->_publicationStats._totalEventAllocations++;
-        std::shared_ptr<T> newEvent = std::shared_ptr<T>(new T);
+        std::shared_ptr<T> newEvent = std::make_shared<T>();
         if (_initializerFunction != nullptr) {
             _initializerFunction(*newEvent);
         }
