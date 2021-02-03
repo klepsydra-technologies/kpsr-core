@@ -154,7 +154,7 @@ private:
     {
         Listener() {}
 
-        Listener(unsigned int i, bool isOnce, std::function<void (const Args & ...)> c)
+        Listener(unsigned int i, bool isOnce, const std::function<void (const Args & ...)> & c)
             : ListenerBase(i, isOnce), cb(c) {}
 
         std::function<void (const Args &...)> cb;

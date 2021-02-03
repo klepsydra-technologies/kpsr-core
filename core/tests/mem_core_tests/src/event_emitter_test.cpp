@@ -90,6 +90,14 @@ TEST(EventEmitterTest, SingleEventEmitterTopic) {
     ASSERT_EQ(event._id, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ(event._message, eventListener.getLastReceivedEvent()->_message);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_NO_THROW(provider.getSubscriber()->removeListener("cacheListener"));
+
+    EETestEvent event2(2, "hola2");
+    ASSERT_NO_THROW(provider.getSubscriber()->registerListenerOnce(eventListener.cacheListenerFunction));
+    provider.getPublisher()->publish(event);
+    ASSERT_NO_THROW(provider.getPublisher()->publish(event));
+    ASSERT_EQ(event._id, eventListener.getLastReceivedEvent()->_id);
+    ASSERT_EQ(event._message, eventListener.getLastReceivedEvent()->_message);
 }
 
 TEST(EventEmitterTest, TwoEventEmitterTopics) {
@@ -117,6 +125,20 @@ TEST(EventEmitterTest, TwoEventEmitterTopics) {
     ASSERT_EQ(newEvent._values, newEventListener.getLastReceivedEvent()->_values);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
     ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener2")->_totalProcessed, 1);
+}
+
+TEST(EventEmitterTest, ContainerTest) {
+    kpsr::Container testContainer(nullptr, "testContainer");
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(&testContainer, "event", 0, nullptr, nullptr);
+    kpsr::mem::CacheListener<EETestEvent> eventListener;
+
+    ASSERT_NO_THROW(provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction));
+    EETestEvent event(1, "hola");
+    ASSERT_NO_THROW(provider.getPublisher()->publish(event));
+    ASSERT_EQ(event._id, eventListener.getLastReceivedEvent()->_id);
+    ASSERT_EQ(event._message, eventListener.getLastReceivedEvent()->_message);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_NO_THROW(provider.getSubscriber()->removeListener("cacheListener"));
 }
 
 TEST(EventEmitterTest, TransformForwaringPerformanceTest) {
@@ -167,3 +189,77 @@ TEST(EventEmitterTest, listenerStatsNullAtEnd) {
     ASSERT_EQ(subscriber->getSubscriptionStats("stats_test"), nullptr);
 
 }
+
+TEST(EventEmitterTest, NullListener) {
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
+
+    auto subscriber = provider.getSubscriber();
+    ASSERT_ANY_THROW(subscriber->registerListener("null_test", nullptr));
+}
+
+TEST(EventEmitterTest, NullListenerNoArgs) {
+    kpsr::EventEmitter emitter;
+
+    std::function<void()> cb = nullptr;
+    ASSERT_ANY_THROW(emitter.on("null_test", "null_test", cb));
+    ASSERT_ANY_THROW(emitter.once("null_test", cb));
+}
+
+TEST(EventEmitterTest, NoArgsListener) {
+
+    kpsr::EventEmitter emitter;
+
+    unsigned int id;
+    std::string event_id("test");
+    ASSERT_NO_THROW(id = emitter.on(event_id, "test_name", []() {return;}));
+
+    ASSERT_EQ(id, 1);
+
+    ASSERT_NO_THROW(emitter.emitEvent(event_id, 0));
+    ASSERT_NO_THROW(emitter.remove_listener(id));
+    ASSERT_ANY_THROW(emitter.remove_listener(id));
+}
+
+TEST(EventEmitterTest, NoArgsListenerOnce) {
+
+    kpsr::EventEmitter emitter;
+
+    unsigned int id;
+    ASSERT_NO_THROW(id = emitter.once("test", []() {return;}));
+
+    ASSERT_EQ(id, 1);
+
+    ASSERT_NO_THROW(emitter.remove_listener(id));
+    ASSERT_ANY_THROW(emitter.remove_listener(id));
+}
+
+TEST(EventEmitterTest, NoArgsListenerOnceEmit) {
+
+    kpsr::EventEmitter emitter;
+
+    unsigned int id;
+    std::string event_id("test");
+    ASSERT_NO_THROW(id = emitter.once(event_id, []() {return;}));
+
+    ASSERT_EQ(id, 1);
+
+    ASSERT_NO_THROW(emitter.emitEvent(event_id, 0));
+
+    ASSERT_ANY_THROW(emitter.remove_listener(id));
+}
+
+TEST(EventEmitterTest, ListenerOnce) {
+    kpsr::EventEmitter emitter;
+
+    EETestEvent event(1, "hola");
+
+    kpsr::mem::CacheListener<EETestEvent> eventListener;
+
+    unsigned int id;
+    std::string event_id = "cacheListener";
+    ASSERT_NO_THROW(id = emitter.once(event_id, eventListener.cacheListenerFunction));
+    ASSERT_EQ(id, 1);
+    ASSERT_NO_THROW(emitter.emitEvent(event_id, 0, event));
+    ASSERT_ANY_THROW(emitter.remove_listener(id));
+}
+
