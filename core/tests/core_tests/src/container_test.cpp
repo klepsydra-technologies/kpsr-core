@@ -34,6 +34,7 @@ protected:
 TEST(ContainerTest, ConstructorTest) {
 
     ASSERT_NO_THROW(kpsr::Container testContainer(nullptr, "testContainer"));
+    ASSERT_NO_THROW(kpsr::Container testContainer2(nullptr, ""));
 }
 
 TEST(ContainerTest, BasicTests) {
@@ -45,13 +46,38 @@ TEST(ContainerTest, BasicTests) {
     dummyService testService("testService");
     ASSERT_NO_FATAL_FAILURE(testContainer.attach(&testService));
     ASSERT_NO_FATAL_FAILURE(testContainer.detach(&testService));
+    // Remove already removed Service
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach(&testService));
+
+    kpsr::FunctionStats dummyFunctionStats("dummy");
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach(&dummyFunctionStats));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach(&dummyFunctionStats));
+
+    kpsr::PublicationStats dummyPublicationStats("dummyPub", "pub");
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach(&dummyPublicationStats));
+
+    kpsr::SubscriptionStats dummySubscriptionStats("dummySub", "sub", "dummyType");
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach(&dummySubscriptionStats));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach(&dummySubscriptionStats));
+
+    kpsr::ServiceStats dummyServiceStats("dummyService");
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach(&dummyServiceStats));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach(&dummyServiceStats));
 }
 
-TEST(ContainerTest, SegFaults) {
+TEST(ContainerTest, NullptrChecks) {
     kpsr::Container testContainer(nullptr, "testContainer");
-    dummyService testService("testService");
-    ASSERT_NO_FATAL_FAILURE(testContainer.attach(&testService));
-    ASSERT_EXIT( (testContainer.attach((kpsr::Service*) nullptr),exit(0)),::testing::ExitedWithCode(0),".*");
-    ASSERT_EXIT( (testContainer.detach((kpsr::Service*) nullptr),exit(0)),::testing::KilledBySignal(SIGSEGV),".*");
-    ASSERT_NO_FATAL_FAILURE(testContainer.detach(&testService));
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::Service*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::Service*) nullptr));
+
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::FunctionStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::FunctionStats*) nullptr));
+
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::PublicationStats*) nullptr));
+
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::SubscriptionStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::SubscriptionStats*) nullptr));
+
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::ServiceStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::ServiceStats*) nullptr));
 }

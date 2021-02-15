@@ -54,7 +54,7 @@ public:
      * @param isMaster
      */
     Service(Environment * environment,
-            std::string serviceName,
+            const std::string& serviceName,
             bool isMaster = true)
         : _environment(environment)
         , _serviceStats(serviceName)
