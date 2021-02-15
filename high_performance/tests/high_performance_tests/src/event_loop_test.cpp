@@ -380,12 +380,15 @@ TEST(EventLoopTest, SetContainerAfterSubscribersTest) {
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
     provider.setContainer(&testContainer);
-    spdlog::drop("my_logger");
 
     ASSERT_NE(&testContainer, dummySubscriberTest->_container);
     std::string spdlogString = programLogStream.str();
 
     ASSERT_NE(spdlogString.size(), 0);
+    auto console = spdlog::stdout_color_mt("default");
+    spdlog::set_default_logger(console);
+    spdlog::drop("my_logger");
+
 }
 
 TEST(EventLoopTest, SetContainerAfterPublisherTest) {
@@ -401,14 +404,16 @@ TEST(EventLoopTest, SetContainerAfterPublisherTest) {
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
+
     provider.setContainer(&testContainer);
+    std::string spdlogString = programLogStream.str();
+
+    ASSERT_NE(spdlogString.size(), 0);
+
     auto console = spdlog::stdout_color_mt("default");
     spdlog::set_default_logger(console);
     spdlog::drop("my_logger");
 
-    std::string spdlogString = programLogStream.str();
-
-    ASSERT_NE(spdlogString.size(), 0);
 }
 
 

@@ -43,12 +43,18 @@ void kpsr::Container::stop() {
 }
 
 void kpsr::Container::attach(Service * service) {
+    if (nullptr == service) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_serviceMutex);
     _managedServices.push_back(service);
     _serviceStats.push_back(&service->_serviceStats);
 }
 
 void kpsr::Container::detach(Service * service) {
+    if (nullptr == service) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_serviceMutex);
     {
         auto itr = std::find_if(_managedServices.begin(),
@@ -69,11 +75,17 @@ void kpsr::Container::detach(Service * service) {
 }
 
 void kpsr::Container::attach(FunctionStats * functionStats) {
+    if (nullptr == functionStats) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_functionStatsMutex);
     _functionStats.push_back(functionStats);
 }
 
 void kpsr::Container::detach(FunctionStats * functionStats) {
+    if (nullptr == functionStats) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_functionStatsMutex);
     auto itr = std::find_if(_functionStats.begin(),
                            _functionStats.end(),
@@ -84,21 +96,33 @@ void kpsr::Container::detach(FunctionStats * functionStats) {
 }
 
 void kpsr::Container::attach(ServiceStats * serviceStats) {
+    if (nullptr == serviceStats) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_serviceStatsMutex);
     _serviceStats.push_back(serviceStats);
 }
 
 void kpsr::Container::attach(PublicationStats * publicationStats) {
+    if (nullptr == publicationStats) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_publishStatsMutex);
     _publicationStats.push_back(publicationStats);
 }
 
 void kpsr::Container::attach(SubscriptionStats * subscriptionStats) {
+    if (nullptr == subscriptionStats) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_subscriptionStatsMutex);
     _subscriptionStats.push_back(subscriptionStats);
 }
 
 void kpsr::Container::detach(SubscriptionStats * subscriptionStats) {
+    if (nullptr == subscriptionStats) {
+        return;
+    }
     std::lock_guard<std::mutex> lock (_subscriptionStatsMutex);
     auto itr = std::find_if(_subscriptionStats.begin(),
                            _subscriptionStats.end(),

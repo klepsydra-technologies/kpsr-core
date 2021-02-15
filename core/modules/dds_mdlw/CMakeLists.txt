@@ -79,9 +79,11 @@ endif()
 # Install
 #---------------------------------------------------#
 INSTALL(TARGETS ${PROJ_NAME}
+    EXPORT KlepsydraTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
 INSTALL(TARGETS kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+    EXPORT KlepsydraTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
 INSTALL(DIRECTORY "include/klepsydra"
