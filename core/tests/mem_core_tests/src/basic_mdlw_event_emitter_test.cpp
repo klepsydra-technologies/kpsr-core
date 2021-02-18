@@ -108,11 +108,12 @@ TEST(BasicEventEmitterTest, SingleEventEmitterTopic) {
         event2._message = "hola";
         provider.getPublisher()->publish(event2);
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        provider.stop();
     });
 
     t2.join();
-
+    provider.stop();
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ(3, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
 
@@ -142,11 +143,12 @@ TEST(BasicEventEmitterTest, WithObjectPoolNoFailures) {
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        provider.stop();
     });
 
     t2.join();
+    provider.stop();
 
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
     ASSERT_EQ(9, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
@@ -177,11 +179,13 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking) {
         while (!provider._internalQueue.empty()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        provider.stop();
     });
 
     t2.join();
+    provider.stop();
 
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ(299, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
@@ -213,11 +217,13 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking) {
         while (!provider._internalQueue.empty()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        provider.stop();
     });
 
     t2.join();
+    provider.stop();
 
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ(299, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
@@ -263,12 +269,14 @@ TEST(BasicEventEmitterTest, TransformForwaringTestNoPool) {
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        provider.stop();
-        newProvider.stop();
     });
 
     t2.join();
+    provider.stop();
+    newProvider.stop();
 
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ(9, eventListener.getLastReceivedEvent()->_values[0]);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_label);
 
@@ -316,12 +324,14 @@ TEST(BasicEventEmitterTest, TransformForwaringTestWithPool) {
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        provider.stop();
-        newProvider.stop();
     });
 
     t2.join();
+    provider.stop();
+    newProvider.stop();
 
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ(9, eventListener.getLastReceivedEvent()->_values[0]);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_label);
 

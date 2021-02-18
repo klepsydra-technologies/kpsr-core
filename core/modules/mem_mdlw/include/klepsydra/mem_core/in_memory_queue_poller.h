@@ -67,6 +67,7 @@ public:
                         unsigned int sleepPeriodUS,
                         long timeoutMS = MEM_START_TIMEOUT_MILLISEC)
         : _running(false)
+        , _started(false)
         , _eventEmitter(eventEmitter)
         , _eventName(eventName)
         , _threadNotifier()
@@ -93,8 +94,13 @@ public:
      */
     std::atomic<bool> _running;
 
+    /**
+     * @brief isRunning
+     */
+    bool isRunning();
 private:
     std::atomic<bool> _started;
+    bool isStarted();
     void pollingLoop();
 
     virtual void takeEventFromQueue() = 0;

@@ -39,6 +39,7 @@ namespace high_performance
 {
 
 static const long EVENT_LOOP_START_TIMEOUT_MILLISEC = 100;
+static const char * EVENT_LOOP_START_MESSAGE = "About to run batchEventProcessor";
     
 template <std::size_t BufferSize>
 /**
@@ -73,14 +74,15 @@ public:
         , _ringBuffer(ringBuffer)
         , _eventHandler(eventEmitter)
         , _isStarted(false)
-        , _batchProcessTask([this] {
+        , _eventLoopTask([this] {
                                 std::vector<disruptor4cpp::sequence * > sequences_to_add;
                                 sequences_to_add.resize(1);
                                 sequences_to_add[0] = &batchEventProcessor->get_sequence();
                                 this->_ringBuffer.add_gating_sequences(sequences_to_add);
-                                spdlog::info("About to run batchEventProcessor");
+                                spdlog::info(EVENT_LOOP_START_MESSAGE);
                                 this->batchEventProcessor->run();
                             })
+        , _batchProcessTask(_eventLoopTask)
         , _batchProcessorThreadFuture(_batchProcessTask.get_future())
         , _timeoutUs(timeoutMS*1000)
     {
@@ -92,11 +94,11 @@ public:
      * @brief start start consumer thread
      */
     void start() {
-        if (_isStarted) {
+        if (isStarted()) {
             return;
         }
+        _isStarted.store(true, std::memory_order_release);
         batchProcessorThread = std::thread(std::move(_batchProcessTask));
-        _isStarted = true;
         long counterUs = 0;
         while(!this->batchEventProcessor->is_running()) {
             if (counterUs > _timeoutUs) {
@@ -111,20 +113,23 @@ public:
      * @brief stop stop consumer thread.
      */
     void stop() {
-        if (!_isStarted) {
+        if (!isStarted()) {
             return;
         }
+        _isStarted.store(false, std::memory_order_release);
         this->batchEventProcessor->halt();
         spdlog::info("Halting the batchEventProcessor");
-        _isStarted = false;
         if (this->batchProcessorThread.joinable())
         {
             this->batchProcessorThread.join();
         }
+        // make _batchProcessTask reusable
+        _batchProcessTask = std::packaged_task<void()>(_eventLoopTask);
+        _batchProcessorThreadFuture = _batchProcessTask.get_future();
     }
 
     bool isStarted() {
-        return _isStarted;
+        return _isStarted.load(std::memory_order_acquire);
     }
 
     bool isRunning() const {
@@ -138,6 +143,7 @@ private:
     std::unique_ptr<BatchProcessor> batchEventProcessor;
     std::thread batchProcessorThread;
     std::atomic_bool _isStarted;
+    std::function<void()> _eventLoopTask;
     std::packaged_task<void()> _batchProcessTask;
     std::future<void> _batchProcessorThreadFuture;
     long _timeoutUs;

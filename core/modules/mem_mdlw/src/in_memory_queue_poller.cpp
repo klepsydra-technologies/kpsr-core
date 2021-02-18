@@ -24,10 +24,13 @@ namespace kpsr
 namespace mem
 {
     void InMemoryQueuePoller::start() {
-        _running = true;
+        if (isStarted()) {
+            return;
+        }
+        this->_started.store(true, std::memory_order_release);
         _threadNotifier = std::thread(std::move(_loopFunction));
         int counterUs = 0;
-        while (!this->_started.load(std::memory_order_acquire)) {
+        while (!isRunning()) {
             if (counterUs > _timeoutUs) {
                 throw std::runtime_error("Could not start the poller");
             }
@@ -37,10 +40,15 @@ namespace mem
     }
 
     void InMemoryQueuePoller::stop() {
-        _running = false;
+        if (!isStarted()) {
+            return;
+        }
+        _running.store(false, std::memory_order_release);
         if(_threadNotifier.joinable()) {
             _threadNotifier.join();
         }
+        _loopFunction = (std::packaged_task<void()>(std::bind(&InMemoryQueuePoller::pollingLoop, this))); // to allow restarting
+        _started.store(false, std::memory_order_release);
     }
 
     InMemoryQueuePoller::~InMemoryQueuePoller() {
@@ -51,10 +59,18 @@ namespace mem
     }
 
     void InMemoryQueuePoller::pollingLoop() {
-        this->_started.store(true, std::memory_order_relaxed);
-        while (_running) {
+        _running.store(true, std::memory_order_release);
+        while (isRunning()) {
             takeEventFromQueue();
         }
+    }
+
+    bool InMemoryQueuePoller::isStarted() {
+        return _started.load(std::memory_order_acquire);
+    }
+
+    bool InMemoryQueuePoller::isRunning() {
+        return _running.load(std::memory_order_acquire);
     }
 }
 
