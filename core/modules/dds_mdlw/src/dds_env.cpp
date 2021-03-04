@@ -35,6 +35,7 @@ kpsr::dds_mdlw::DDSEnv::DDSEnv(const std::string yamlFileName, std::string ddsKe
     , _dataReader(dataReader)
     , _ddsKey(ddsKey)
     , _timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+    , _isEnvLocal(true)
 {
     _listener = new DDSConfigurationListener(ddsKey, this, _timestamp);
     _dataReader->listener(_listener, dds::core::status::StatusMask::data_available());
@@ -47,10 +48,19 @@ kpsr::dds_mdlw::DDSEnv::DDSEnv(YamlEnvironment * yamlEnvironment,
     , _dataWriter(dataWriter)
     , _dataReader(dataReader)
     , _timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+    , _isEnvLocal(false)
 {
     _decorableEnv->getPropertyString("kpsr_dds_env_key", _ddsKey, rootNode);
     _listener = new DDSConfigurationListener(_ddsKey, this, _timestamp);
     _dataReader->listener(_listener, dds::core::status::StatusMask::data_available());
+}
+
+kpsr::dds_mdlw::DDSEnv::~DDSEnv() {
+    _dataReader->listener(nullptr, dds::core::status::StatusMask::data_available());
+    delete _listener;
+    if (_isEnvLocal) {
+        delete _decorableEnv;
+    }
 }
 
 void kpsr::dds_mdlw::DDSEnv::updateConfiguration(const std::string & configurationData) {
