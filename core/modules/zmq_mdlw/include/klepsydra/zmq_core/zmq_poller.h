@@ -25,6 +25,7 @@
 #include <atomic>
 #include <mutex>
 #include <future>
+#include <map>
 
 namespace kpsr {
 namespace zmq_mdlw {
@@ -56,10 +57,7 @@ public:
         , _threadNotifier()
         , _running(false)
         , _started(false)
-        , _poller([this]() {
-                      _started.store(true, std::memory_order_relaxed);
-                      this->poll();
-                  })
+        , _poller(std::bind(&ZMQPoller::pollingLoop, this))
         , _threadNotifierFuture(_poller.get_future())
         , _timeoutUs(timeoutMS*1000)
     {}
@@ -68,10 +66,13 @@ public:
      * @brief start
      */
     virtual void start() {
-        _running = true;
+        if (isStarted()) {
+            return;
+        }
+        this->_started.store(true, std::memory_order_release);
         _threadNotifier = std::thread(std::move(_poller));
         long counterUs = 0;
-        while (!this->_started.load(std::memory_order_acquire)) {
+        while (!isRunning()) {
             if (counterUs > _timeoutUs) {
                 throw std::runtime_error("Could not start the ZMQ poller");
             }
@@ -84,10 +85,15 @@ public:
      * @brief stop
      */
     virtual void stop() {
-        _running = false;
+        if (!isStarted()) {
+            return;
+        }
+        _running.store(false, std::memory_order_release);
         if(_threadNotifier.joinable()) {
 		    _threadNotifier.join();
         }
+        _poller = std::packaged_task<void()>(std::bind(&ZMQPoller::pollingLoop, this));
+        _started.store(false, std::memory_order_release);
     }
 
     ~ZMQPoller() {
@@ -135,6 +141,25 @@ public:
     virtual void poll() = 0;
 
 protected:
+    void pollingLoop() {
+        _running.store(true, std::memory_order_relaxed);
+        this->poll();
+    }
+
+    /**
+     * @brief isRunning
+     */
+    bool isRunning() {
+        return _running.load(std::memory_order_acquire);
+    }
+
+    /**
+     * @brief isStarted
+     */
+    bool isStarted() {
+        return _started.load(std::memory_order_acquire);
+    }
+
     zmq::socket_t & _subscriber;
     long _pollPeriod;
     std::thread _threadNotifier;
