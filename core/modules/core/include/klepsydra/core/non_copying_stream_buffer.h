@@ -24,7 +24,7 @@
 #include <string>
 
 namespace kpsr {
-namespace zmq_mdlw {
+namespace core {
 /**
  * @brief The NonCopyingStringBuffer class
  *

@@ -20,12 +20,6 @@
 SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_perf)
 PROJECT(${PROJ_NAME})
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/../common )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
@@ -34,11 +28,15 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Create Library
 #---------------------------------------------------#
-LINK_DIRECTORIES()
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} ) 
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/performance/common
+  )
 # Link libraries with Project
 #---------------------------------------------------#
 
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core atomic ${CMAKE_THREAD_LIBS_INIT})
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core ${CMAKE_THREAD_LIBS_INIT})
 
 

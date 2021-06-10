@@ -75,6 +75,7 @@ public:
      */
     void on_event(EventloopDataWrapper& event, int64_t sequence, bool end_of_batch) {
         _eventEmitter.emitEvent(event.eventName, event.enqueuedTimeInNs, event);
+        event.eventData.reset();
     }
 
     /**

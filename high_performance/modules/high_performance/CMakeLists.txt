@@ -20,13 +20,6 @@
 SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME})
 PROJECT(${PROJ_NAME})
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/core/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/mem_mdlw/include )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
@@ -39,14 +32,16 @@ FILE(GLOB_RECURSE ${PROJ_NAME}_HEADERS
 
 # Create Library
 #---------------------------------------------------#
-LINK_DIRECTORIES()
-
 ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 # Link libraries with Project
 #---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_mem_core ${CMAKE_THREAD_LIBS_INIT} )
-
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_mem_core )
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 if (KPSR_WITH_CODE_METRICS)
     add_cppcheck(${PROJ_NAME} UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR)
 endif()

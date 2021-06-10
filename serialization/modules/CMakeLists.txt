@@ -23,5 +23,6 @@ IF(KPSR_WITH_DDS)
    ADD_SUBDIRECTORY(dds_mdlw)
 ENDIF()
 
+add_core_export_target()
 add_dds_export_target()
 add_include_dirs()

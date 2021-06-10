@@ -20,24 +20,18 @@
 SET(PROJ_NAME disruptor4cpp_test)
 PROJECT(${PROJ_NAME})
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
     "src/*.cpp"
 )
 
-# Link libraries with Project
-#---------------------------------------------------#
-LINK_DIRECTORIES()
-
 # Create Library
 #---------------------------------------------------#
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
-TARGET_LINK_LIBRARIES(${PROJ_NAME} gtest_main gmock_main)
+# Link libraries with Project
+#---------------------------------------------------#
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_high_performance gtest_main gmock_main)
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

@@ -19,7 +19,7 @@
 
 # Main header: Project name & Configuration
 # ------------------------------------------------------------------------------------------------------
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 SET(PROJ_MAIN_NAME "klepsydra")
 PROJECT(${PROJ_MAIN_NAME})
@@ -78,6 +78,7 @@ if (HAS_CXX11)
 endif()
 
 if (NOT APPLE)
+    set(CMAKE_INSTALL_RPATH $ORIGIN)
     check_cxx_compiler_flag(-Wl,--no-undefined HAS_NO_UNDEFINED)
     if (HAS_NO_UNDEFINED)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")
@@ -114,8 +115,13 @@ endif()
 
 add_definitions(-fno-strict-overflow)
 if (KPSR_WITH_ZMQ)
+   SET(KPSR_WITH_YAML True)
    add_definitions(-Wno-deprecated-declarations)
    add_definitions(-Wno-comment)
+ENDIF()
+
+if (KPSR_WITH_DDS)
+  SET(KPSR_WITH_YAML True)
 ENDIF()
 
 if (KPSR_WITH_CODE_METRICS)
@@ -228,12 +234,14 @@ export(TARGETS ${CORE_EXPORT_TARGETS} ${DDS_EXPORT_TARGETS} ${ZMQ_EXPORT_TARGETS
 export(PACKAGE klepsydra)
 
 # Create the KlepsydraConfig.cmake and KlepsydraConfigVersion files
-configure_file(KlepsydraConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/KlepsydraConfig.cmake" @ONLY)
-
-configure_file(KlepsydraConfig.cmake.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/KlepsydraConfig.cmake" @ONLY)
-# ... for both
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  "KlepsydraConfig.cmake.in"
+  "KlepsydraConfig.cmake"
+  INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}"
+  PATH_VARS
+    CMAKE_INSTALL_LIBDIR
+  )
 configure_file(KlepsydraConfigVersion.cmake.in
   "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake" @ONLY)
 
@@ -242,12 +250,13 @@ configure_file(${CMAKE_SOURCE_DIR}/.githooks/pre-commit.in
 
 # Install the KlepsydraConfig.cmake and KlepsydraConfigVersion.cmake
 install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/KlepsydraConfig.cmake"
+  "${PROJECT_BINARY_DIR}/KlepsydraConfig.cmake"
   "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake"
   "${CMAKE_SOURCE_DIR}/code_generator/cmake/KpsrCodeGen.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Install the export set for use with the install-tree
-install(EXPORT KlepsydraTargets DESTINATION
-  "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
+install(EXPORT KlepsydraTargets
+  FILE KlepsydraTargets.cmake
+  DESTINATION "${INSTALL_CMAKE_DIR}"
+  COMPONENT dev)

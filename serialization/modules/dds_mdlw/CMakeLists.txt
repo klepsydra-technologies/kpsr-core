@@ -39,14 +39,6 @@ FOREACH(idl ${idls})
         Connext_GENDATAMODEL(${nfile} ${CMAKE_CURRENT_SOURCE_DIR})
 ENDFOREACH(idl)
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/gen )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${Connext_INCLUDE_DIRS} )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB_RECURSE ${PROJ_NAME}_HEADERS
@@ -58,20 +50,25 @@ FILE(GLOB ${PROJ_NAME}_GEN_HEADERS
 
 # Create Library
 #---------------------------------------------------#
-LINK_DIRECTORIES()
-# ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
-
 ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel SHARED ${Connext_DATAMODEL})
 
 # Link libraries with Project
 #---------------------------------------------------#
-# TARGET_LINK_LIBRARIES(${PROJ_NAME})
-TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES})
+TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES} kpsr_serialization)
+TARGET_INCLUDE_DIRECTORIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gen>
+  ${Connext_INCLUDE_DIRS}
+  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/klepsydra/gen_dds_${PROJ_MAIN_NAME}>
+ )
 
 # Install
 #---------------------------------------------------#
 INSTALL(TARGETS kpsr_dds_${PROJ_MAIN_NAME}_datamodel
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  EXPORT KlepsydraTargets
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
 INSTALL(DIRECTORY "include/klepsydra"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"

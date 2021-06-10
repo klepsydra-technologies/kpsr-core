@@ -24,7 +24,7 @@
 
 #include <zmq.hpp>
 
-#include <klepsydra/zmq_core/non_copying_stream_buffer.h>
+#include <klepsydra/core/non_copying_stream_buffer.h>
 #include <klepsydra/zmq_core/zmq_poller.h>
 
 using Base = std::basic_streambuf<char> *;
@@ -69,7 +69,7 @@ public:
                 std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
                 zmq::message_t content;
                 _subscriber.recv(content);
-                NonCopyingStringBuffer buffer((char *) content.data(), content.size());
+                kpsr::core::NonCopyingStringBuffer buffer((char *) content.data(), content.size());
                 Base bufferPointer = &buffer;
                 executeFunction(topic, bufferPointer);
             }
