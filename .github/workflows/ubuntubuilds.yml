@@ -1,0 +1,98 @@
+name: Ubuntu builds
+
+on:
+  push:
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  vanilla-release:
+    name: Vanilla Release Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Vanilla_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
+          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
+          -DCMAKE_BUILD_TYPE=Release .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test
+
+  vanilla:
+    name: Vanilla Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Vanilla_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
+          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
+          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test
+
+  yamlcpp:
+    name: Yaml-cpp Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Yamlcpp_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
+          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
+          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test
+
+  zmq:
+    name: ZMQ Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:ZmqYamlcpp_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true \
+          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
+          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test

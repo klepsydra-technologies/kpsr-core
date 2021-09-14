@@ -1,0 +1,151 @@
+name: ROS
+
+on:
+  push:
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  noetic-x86:
+    name: Noetic Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Noetic_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
+          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true \
+          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test
+
+      - name: Install
+        run: cd build && make install
+
+      - name: Create ROS environment
+        run: |
+          mkdir -p /kpsr-ros/src 
+          cd /kpsr-ros/src
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_init_workspace 
+          ln -s /kpsr-core/core/modules/ros_mdlw/kpsr_ros_core . 
+          ln -s /kpsr-core/serialization/modules/ros_mdlw/kpsr_ros_serialization .
+          ln -s /kpsr-core/code_generator/cpp_testing/tests/kpsr_ros_codegen .
+
+      - name: Build ROS
+        run: |
+          cd /kpsr-ros 
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_make -DCMAKE_INSTALL_PREFIX=/opt/klepsydra
+
+      - name: Build ROS tests
+        run: |
+          cd /kpsr-ros 
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_make tests
+
+  melodic-x86:
+    name: Melodic Ubuntu 18.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Melodic_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
+          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true \
+          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test
+
+      - name: Install
+        run: cd build && make install
+
+      - name: Create ROS environment
+        run: |
+          mkdir -p /kpsr-ros/src 
+          cd /kpsr-ros/src
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_init_workspace 
+          ln -s /kpsr-core/core/modules/ros_mdlw/kpsr_ros_core . 
+          ln -s /kpsr-core/serialization/modules/ros_mdlw/kpsr_ros_serialization .
+          ln -s /kpsr-core/code_generator/cpp_testing/tests/kpsr_ros_codegen .
+
+      - name: Build ROS
+        run: |
+          cd /kpsr-ros 
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_make -DCMAKE_INSTALL_PREFIX=/opt/klepsydra
+
+      - name: Build ROS tests
+        run: |
+          cd /kpsr-ros 
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_make tests
+
+  kinetic-x86:
+    name: Kinetic Ubuntu 16.04
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Kinetic_1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run:
+          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
+          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true \
+          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+
+      - name: Test
+        run: cd build && make test
+
+      - name: Install
+        run: cd build && make install
+
+      - name: Create ROS environment
+        run: |
+          mkdir -p /kpsr-ros/src 
+          cd /kpsr-ros/src
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_init_workspace 
+          ln -s /kpsr-core/core/modules/ros_mdlw/kpsr_ros_core . 
+          ln -s /kpsr-core/serialization/modules/ros_mdlw/kpsr_ros_serialization .
+          ln -s /kpsr-core/code_generator/cpp_testing/tests/kpsr_ros_codegen .
+
+      - name: Build ROS
+        run: |
+          cd /kpsr-ros 
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_make -DCMAKE_INSTALL_PREFIX=/opt/klepsydra
+
+      - name: Build ROS tests
+        run: |
+          cd /kpsr-ros 
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          catkin_make tests

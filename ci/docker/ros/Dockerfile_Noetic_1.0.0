@@ -1,0 +1,35 @@
+FROM ros:noetic-ros-core-focal
+
+
+ENV TZ 'Europe/Madrid'
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get -y update && \
+    apt-get -y install \
+    build-essential \
+    cmake \
+    cppcheck \
+    doxygen \
+    doxygen-doc \
+    gcovr \
+    graphviz \
+    git \
+    lcov \
+    libyaml-cpp-dev \
+    libzmqpp-dev \
+    locales \
+    locales-all \
+    pkg-config \
+    python3-pip \
+    ninja-build \
+    tzdata \
+    && \
+    ## Cleanup
+    apt-get -y autoremove && \
+    apt-get -y clean && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    rm -rf /var/lib/apt/lists/* /usr/share/man/* /var/cache/man/* /usr/share/doc/*
