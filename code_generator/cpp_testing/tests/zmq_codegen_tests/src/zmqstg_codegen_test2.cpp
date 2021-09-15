@@ -77,16 +77,16 @@ TEST(KpsrZMQCodegeTest, primitiveTypeBasicMapperTest) {
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesBasic> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     ASSERT_EQ(cacheListener.counter, 0);
 
     unsigned short seq = 0;
 
-    while (cacheListener.counter < 1) {
+    {
         kpsr::codegen::PrimitiveTypesBasic event(seq++, 'a', 0, 1, 2 , 3, 4, 5, 6.0, 6.1, true, "a1");
         kpsrPublisher->publish(event);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     {
@@ -164,11 +164,12 @@ TEST(KpsrZMQCodegeTest, primitiveTypeArrayMapperTest) {
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesArray> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     ASSERT_EQ(cacheListener.counter, 0);
 
     unsigned short seq = 0;
-    while (cacheListener.counter < 1) {
+    {
         kpsr::codegen::PrimitiveTypesArray event(seq++, {{'a', 'b'}}, {{0, 1, 2}}, {{3, 4, 5, 6}}, {{ 7, 8, 9, 10, 11 }}, {{12, 13, 14, 15, 16, 17}},
         {{ 18, 19, 20, 21, 22, 23, 24}}, {{ 25, 26, 27, 28, 29, 30, 31, 32 }},
         {{ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}}, {{ 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9}},
@@ -176,7 +177,6 @@ TEST(KpsrZMQCodegeTest, primitiveTypeArrayMapperTest) {
         {{ "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12"}});
         kpsrPublisher->publish(event);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     {
@@ -269,11 +269,12 @@ TEST(KpsrZMQCodegeTest, primitiveTypeVectorMapperTest) {
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesVector> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     ASSERT_EQ(cacheListener.counter, 0);
 
     unsigned short seq = 0;
-    while (cacheListener.counter < 1) {
+    {
         kpsr::codegen::PrimitiveTypesVector event(seq++, {'a', 'b'}, {0, 1, 2}, {3, 4, 5, 6}, { 7, 8, 9, 10, 11 }, {12, 13, 14, 15, 16, 17},
         { 18, 19, 20, 21, 22, 23, 24}, { 25, 26, 27, 28, 29, 30, 31, 32 },
         { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, { 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9},
@@ -375,11 +376,12 @@ TEST(KpsrZMQCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesVectorSharedPtr> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     ASSERT_EQ(cacheListener.counter, 0);
 
     unsigned short seq = 0;
-    while (cacheListener.counter < 1) {
+    {
         kpsr::codegen::PrimitiveTypesVectorSharedPtr event(seq++,
         {std::shared_ptr<signed char>(new signed char('a'))},
         {std::shared_ptr<unsigned char>(new unsigned char(0))},
@@ -465,6 +467,7 @@ TEST(KpsrZMQCodegeTest, primitiveTypeVectorSharedPtrMapperTest) {
     fromZMQProvider->stop();
 
     ASSERT_GE(cacheListener.counter, 5);
+    ASSERT_FLOAT_EQ(cacheListener.getLastReceivedEvent()->seq, event.seq);
     ASSERT_EQ(* cacheListener.getLastReceivedEvent()->aaa[0].get(), * event.aaa[0].get());
     ASSERT_EQ(* cacheListener.getLastReceivedEvent()->bbb[0].get(), * event.bbb[0].get());
     ASSERT_EQ(* cacheListener.getLastReceivedEvent()->ccc[0].get(), * event.ccc[0].get());
