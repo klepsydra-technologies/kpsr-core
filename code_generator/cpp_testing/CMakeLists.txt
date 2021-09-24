@@ -126,7 +126,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #Dependencies
 
 find_package(Threads REQUIRED)
-
 # Project Logic
 # ------------------------------------------------------------------------------------------------------
 

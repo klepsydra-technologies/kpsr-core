@@ -39,15 +39,6 @@ FOREACH(idl ${idls})
         Connext_GENDATAMODEL(${nfile} ${CMAKE_CURRENT_SOURCE_DIR})
 ENDFOREACH(idl)
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/yaml_env/include )
-INCLUDE_DIRECTORIES( ${Connext_INCLUDE_DIRS} )
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/gen )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
@@ -62,16 +53,27 @@ FILE(GLOB ${PROJ_NAME}_GEN_HEADERS
 
 # Create Library
 #---------------------------------------------------#
-LINK_DIRECTORIES()
 ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel SHARED ${Connext_DATAMODEL})
 
 # Link libraries with Project
 #---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_${PROJ_MAIN_NAME} kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES} kpsr_${PROJ_MAIN_NAME}_yaml )
-TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_${PROJ_MAIN_NAME} kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES} kpsr_${PROJ_MAIN_NAME}_yaml)
+TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+  PUBLIC ${Connext_LIBRARIES})
 
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gen>
+  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/klepsydra/gen_dds_${PROJ_MAIN_NAME}>
+  )
+TARGET_INCLUDE_DIRECTORIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+  PUBLIC
+  ${Connext_INCLUDE_DIRS}
+  )
 if (KPSR_WITH_CODE_METRICS)
     add_cppcheck(${PROJ_NAME} UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR)
 endif()

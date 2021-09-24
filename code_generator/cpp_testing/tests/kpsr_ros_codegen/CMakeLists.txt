@@ -188,7 +188,6 @@ target_include_directories(kpsr_ros_codegen INTERFACE
 ## Specify libraries to link a library or executable target against
 target_link_libraries(kpsr_ros_codegen INTERFACE
   ${catkin_LIBRARIES}
-  yaml-cpp
   ${KLEPSYDRA_CORE_LIBRARIES}
   atomic
 )

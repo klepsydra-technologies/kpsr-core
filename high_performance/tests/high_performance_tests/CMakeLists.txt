@@ -20,27 +20,23 @@
 SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_tests)
 PROJECT(${PROJ_NAME})
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/core/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/mem_mdlw/include )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
     "src/*.cpp"
 )
 
-# Link libraries with Project
-#---------------------------------------------------#
-LINK_DIRECTORIES()
-
 # Create Library
 #---------------------------------------------------#
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
+# Link libraries with Project
+#---------------------------------------------------#
 TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_mem_core kpsr_high_performance atomic gtest_main)
+
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

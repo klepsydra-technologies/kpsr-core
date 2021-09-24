@@ -198,8 +198,7 @@ TEST(EventLoopTest, SingleEventEmitterTopicWithPool) {
 
     ASSERT_EQ(ELTestEvent::constructorInvokations, 10);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 4);
-    ASSERT_EQ(ELTestEvent::copyInvokations, 12);
-
+    ASSERT_EQ(ELTestEvent::copyInvokations, eventListener.counter);
 }
 
 TEST(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool) {

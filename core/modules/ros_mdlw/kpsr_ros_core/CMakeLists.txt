@@ -167,7 +167,6 @@ add_library(kpsr_ros_core
 ## Specify libraries to link a library or executable target against
 target_link_libraries(kpsr_ros_core
   ${catkin_LIBRARIES}
-  yaml-cpp
   ${KLEPSYDRA_CORE_LIBRARIES}
 )
 
