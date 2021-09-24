@@ -194,6 +194,7 @@ private:
     long _timestamp;
     ZMQConfigurationPoller * _poller;
     kpsr::Mapper<ZMQEnvironmentData, std::string> mapper;
+    bool _isEnvLocal;
 
 };
 }

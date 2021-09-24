@@ -100,10 +100,10 @@ public:
     }
 
 private:
+    EventEmitter & _eventEmitter;
     std::map<std::string, unsigned int> _listenersMap;
     typedef typename std::map<std::string, unsigned int>::iterator it_type;
 
-    EventEmitter & _eventEmitter;
 };
 }
 #endif

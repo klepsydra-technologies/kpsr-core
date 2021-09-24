@@ -39,6 +39,8 @@ kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string yamlFileName,
     , _zmqKey(zmqKey)
     , _pollPeriod(pollPeriod)
     , _timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+    , mapper()
+    , _isEnvLocal(true)
 {
     _poller = new ZMQConfigurationPoller(zmqKey, this, _timestamp, _pollPeriod);
     _poller->start();
@@ -47,6 +49,9 @@ kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string yamlFileName,
 kpsr::zmq_mdlw::ZMQEnv::~ZMQEnv() {
     _poller->stop();
     delete _poller;
+    if (_isEnvLocal) {
+        delete _decorableEnv;
+    }
 }
 
 kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(YamlEnvironment * yamlEnvironment,
@@ -57,6 +62,8 @@ kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(YamlEnvironment * yamlEnvironment,
     , _decorableEnv(yamlEnvironment)
     , _zmqPublisher(zmqPublisher)
     , _timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+    , mapper()
+    , _isEnvLocal(false)
 {
     _decorableEnv->getPropertyString("kpsr_zmq_env_topic_name", _topicName, rootNode);
     _decorableEnv->getPropertyString("kpsr_zmq_env_key", _zmqKey, rootNode);

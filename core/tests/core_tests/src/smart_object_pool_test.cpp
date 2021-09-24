@@ -66,7 +66,7 @@ std::atomic_int PoolTestObject::emptyConstructorInvokations(0);
 std::atomic_int PoolTestObject::copyInvokations(0);
 
 TEST(SmartObjectPoolTest, nominalCase) {
-    kpsr::SmartObjectPool<PoolTestObject> objectPool(4);
+    kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4);
     ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
 
     auto object1 = objectPool.acquire();
@@ -86,7 +86,7 @@ TEST(SmartObjectPoolTest, nominalCaseWithFailures) {
     PoolTestObject::emptyConstructorInvokations = 0;
     PoolTestObject::copyInvokations = 0;
 
-    kpsr::SmartObjectPool<PoolTestObject> objectPool(4);
+    kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4);
     ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
 
     auto object1 = objectPool.acquire();
@@ -113,7 +113,7 @@ TEST(SmartObjectPoolTest, initializerFunction) {
     };
 
 
-    kpsr::SmartObjectPool<PoolTestObject> objectPool(4, initializer);
+    kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4, initializer);
     ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
 
     auto object1 = objectPool.acquire();
@@ -184,7 +184,7 @@ TEST(SmartObjectPoolTest, performanceTest) {
     };
 
     std::vector<std::shared_ptr<PoolTestThread>> threadPool(200);
-    kpsr::SmartObjectPool<PoolTestObject> pool(20000);
+    kpsr::SmartObjectPool<PoolTestObject> pool("SmartObjectPoolTest", 20000);
 
     for (int i = 0; i < 200; i++) {
         threadPool[i] = std::shared_ptr<PoolTestThread>(new PoolTestThread(pool));

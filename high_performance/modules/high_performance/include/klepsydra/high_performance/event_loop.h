@@ -79,7 +79,7 @@ public:
                                 sequences_to_add.resize(1);
                                 sequences_to_add[0] = &batchEventProcessor->get_sequence();
                                 this->_ringBuffer.add_gating_sequences(sequences_to_add);
-                                spdlog::info(EVENT_LOOP_START_MESSAGE);
+                                spdlog::debug(EVENT_LOOP_START_MESSAGE);
                                 this->batchEventProcessor->run();
                             })
         , _batchProcessTask(_eventLoopTask)
@@ -123,6 +123,7 @@ public:
         {
             this->batchProcessorThread.join();
         }
+        spdlog::debug("kpsr::high_perf::EventLoop::stop. Eventloop {} stopped.", this->_name);
         // make _batchProcessTask reusable
         _batchProcessTask = std::packaged_task<void()>(_eventLoopTask);
         _batchProcessorThreadFuture = _batchProcessTask.get_future();

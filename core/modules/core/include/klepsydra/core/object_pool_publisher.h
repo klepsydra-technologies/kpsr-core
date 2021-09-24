@@ -64,7 +64,7 @@ public:
         , _initializerFunction(initializerFunction)
         , _eventCloner(eventCloner)
     {
-        _objectPool = poolSize == 0 ? nullptr : new SmartObjectPool<T>(poolSize, initializerFunction);
+        _objectPool = poolSize == 0 ? nullptr : new SmartObjectPool<T>(name, poolSize, initializerFunction);
         this->_publicationStats._totalEventAllocations = poolSize;
     }
 
@@ -88,7 +88,7 @@ public:
                 }
                 internalPublish(newEvent);
                 return;
-            } catch (std::out_of_range ex) {
+            } catch (const std::out_of_range& ex) {
                 spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}", this->_publicationStats._name);
             }
         }
@@ -121,8 +121,8 @@ public:
                 process(*newEvent);
                 this->publish(newEvent);
                 return;
-            } catch (std::out_of_range ex) {
-                spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure.");
+            } catch (const std::out_of_range& ex) {
+                spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}", this->_publicationStats._name);
             }
         }
         this->_publicationStats._totalEventAllocations++;

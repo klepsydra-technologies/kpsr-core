@@ -73,7 +73,8 @@ public:
      * @param name
      */
     DataMultiplexerMiddlewareProvider(Container * container, const std::string & name)
-        : _ringBuffer()
+        : _modelEvent(nullptr)
+        , _ringBuffer()
         , _publisher(container, name, nullptr, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
@@ -86,7 +87,8 @@ public:
      */
     DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
                                 std::function<void(TEvent &)> eventInitializer)
-        : _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
+        : _modelEvent(nullptr)
+        , _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
         , _publisher(container, name, nullptr, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
@@ -114,7 +116,8 @@ public:
     DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
                                 std::function<void(TEvent &)> eventInitializer,
                                 std::function<void(const TEvent &, TEvent &)> eventCloner)
-        : _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
+        : _modelEvent(nullptr)
+        , _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
         , _publisher(container, name, eventCloner, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
@@ -134,6 +137,12 @@ public:
         , _publisher(container, name, eventCloner, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
+
+    ~DataMultiplexerMiddlewareProvider() {
+        if (_modelEvent) {
+            delete _modelEvent;
+        }
+    }
 
     /**
      * @brief getPublisher
@@ -158,9 +167,8 @@ public:
      * @param transformFunction
      */
     getProcessForwarder(const std::function<void(const SourceEvent &, TEvent &)> & transformFunction) {
-        return std::shared_ptr<EventTransformForwarder<SourceEvent, TEvent>>(new EventTransformForwarder<SourceEvent, TEvent>(
-                                                                                 transformFunction,
-                                                                                 getPublisher()));
+        return std::make_shared<EventTransformForwarder<SourceEvent, TEvent>>(transformFunction,
+                                                                              getPublisher());
     }
 
     void setContainer(Container * container) {
