@@ -13,7 +13,7 @@ jobs:
     name: Vanilla Release Ubuntu 20.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Vanilla_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Vanilla_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -23,19 +23,28 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
-          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
-          -DCMAKE_BUILD_TYPE=Release .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../ 
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test ARGS="--gtest_shuffle"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: vanilla-release-logs
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   vanilla:
     name: Vanilla Ubuntu 20.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Vanilla_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Vanilla_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -45,19 +54,28 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
-          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
-          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test ARGS="--gtest_shuffle"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: vanilla-logs
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   yamlcpp:
     name: Yaml-cpp Ubuntu 20.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Yamlcpp_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Yamlcpp_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -67,19 +85,28 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
-          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
-          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test ARGS="--gtest_shuffle"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: yaml-cpp
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   zmq:
     name: ZMQ Ubuntu 20.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:ZmqYamlcpp_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:ZmqYamlcpp_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -89,10 +116,23 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true \
-          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties \
-          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test_coverage_cobertura
+
+      - uses: codecov/codecov-action@v2
+        with:
+          files: build/coverage.xml
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: zmq-logs
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary

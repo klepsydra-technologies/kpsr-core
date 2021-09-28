@@ -13,7 +13,7 @@ jobs:
     name: Noetic Ubuntu 20.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Noetic_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Noetic_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -23,13 +23,13 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
-          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true \
-          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_BUILD_TYPE=Debug ../
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test ARGS="--gtest_shuffle"
 
       - name: Install
         run: cd build && make install
@@ -55,12 +55,21 @@ jobs:
           cd /kpsr-ros 
           source /opt/ros/$ROS_DISTRO/setup.bash
           catkin_make tests
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: noetic-logs
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   melodic-x86:
     name: Melodic Ubuntu 18.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Melodic_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Melodic_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -70,13 +79,13 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
-          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true \
-          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_BUILD_TYPE=Debug ../
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test ARGS="--gtest_shuffle"
 
       - name: Install
         run: cd build && make install
@@ -102,12 +111,21 @@ jobs:
           cd /kpsr-ros 
           source /opt/ros/$ROS_DISTRO/setup.bash
           catkin_make tests
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: melodic-logs
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   kinetic-x86:
     name: Kinetic Ubuntu 16.04
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Kinetic_1.0.0
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-docker-registry/github/kpsr-core:Kinetic_1.0.1
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -117,13 +135,13 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run:
-          mkdir build && cd build && cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false \
-          -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true \
-          -DCMAKE_BUILD_TYPE=Debug .. && make -j ${nproc}
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_BUILD_TYPE=Debug ../
+          make -j ${nproc}
 
       - name: Test
-        run: cd build && make test
+        run: cd build && make test ARGS="--gtest_shuffle"
 
       - name: Install
         run: cd build && make install
@@ -149,3 +167,12 @@ jobs:
           cd /kpsr-ros 
           source /opt/ros/$ROS_DISTRO/setup.bash
           catkin_make tests
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: noetic-logs
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
