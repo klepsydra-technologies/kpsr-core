@@ -45,3 +45,12 @@ RUN apt-get -y update && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata && \
     rm -rf /var/lib/apt/lists/* /usr/share/man/* /var/cache/man/* /usr/share/doc/*
+
+RUN git clone https://github.com/google/benchmark.git && \
+    cd benchmark && \
+    git checkout v1.6.0 && \
+    mkdir build && cd build && \
+    cmake --parallel ${nproc} -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../ && \
+    make install && \
+    cd ../../ && \
+    rm -rf benchmark
