@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir build && cd build 
           cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=true -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../ 
-          make -j ${nproc}
+          make -j$(nproc)
 
       - name: Test
         run: cd build && make test ARGS="--gtest_shuffle"
@@ -57,7 +57,7 @@ jobs:
         run: |
           mkdir build && cd build 
           cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
-          make -j ${nproc}
+          make -j$(nproc)
 
       - name: Test
         run: cd build && make test ARGS="--gtest_shuffle"
@@ -88,7 +88,7 @@ jobs:
         run: |
           mkdir build && cd build 
           cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
-          make -j ${nproc}
+          make -j$(nproc)
 
       - name: Test
         run: cd build && make test ARGS="--gtest_shuffle"
@@ -119,7 +119,7 @@ jobs:
         run: |
           mkdir build && cd build 
           cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
-          make -j ${nproc}
+          make -j$(nproc)
 
       - name: Test
         run: cd build && make test_coverage_cobertura
