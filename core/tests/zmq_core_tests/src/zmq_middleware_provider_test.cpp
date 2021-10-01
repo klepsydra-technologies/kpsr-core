@@ -60,35 +60,67 @@ private:
     long _totalTemp = 0;
 };
 
-TEST(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
+class ZMQMiddlewareTest : public ::testing::Test {
+protected:
+    ZMQMiddlewareTest()
+        : serverUrl("tcp://*:5556")
+        , clientUrl("tcp://localhost:5556")
+        , syncUrl("tcp://localhost:5557")
+        , syncServiceUrl("tcp://*:5557")
+        , topic("Weather")
+        , context (1)
+        , publisher(context, ZMQ_PUB)
+        , subscriber(context, ZMQ_SUB)
+        , syncclient(context, ZMQ_REQ)
+        , syncservice (context, ZMQ_REP)
+        , toZMQMiddlewareProvider(nullptr, publisher)
+        {
+            WeatherData::emptyConstructorInvokations = 0;
+            WeatherData::constructorInvokations = 0;
+            WeatherData::copyInvokations = 0;
+            publisher.bind(serverUrl);
+            publisher.bind("ipc://weather.ipc");
 
-    WeatherData::emptyConstructorInvokations = 0;
-    WeatherData::constructorInvokations = 0;
-    WeatherData::copyInvokations = 0;
+            //  Socket to talk to server
+            spdlog::info("Collecting updates from weather server...\n");
 
-    std::string serverUrl = "tcp://*:5556";
-    std::string topic = "Weather";
+            subscriber.connect(clientUrl);
+            subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+            // Set up publisher corresponding to each input.
+            syncclient.connect(syncUrl);
+            //  - send a synchronization request
+            zmq::message_t message("", 1);
+            syncservice.bind(syncServiceUrl);
+            // Set up publisher corresponding to each input.
+            syncclient.connect(syncUrl);
+            //  - send a synchronization request
+            syncclient.send(message);
+            //  - wait for synchronization reply
+            zmq::message_t recvMessage;
+            syncservice.recv(recvMessage);
+            syncservice.send(message);
+            syncclient.recv(recvMessage);
+        }
+    
+    std::string serverUrl; 
+    std::string clientUrl;
+    std::string syncUrl;
+    std::string syncServiceUrl;
+    std::string topic;
+    zmq::context_t context;
+    zmq::socket_t publisher;
+    zmq::socket_t subscriber;
+    zmq::socket_t syncclient;
+    zmq::socket_t syncservice;
+    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider;
+    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
+};
 
-    //  Prepare our context and publisher
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind(serverUrl);
-    publisher.bind("ipc://weather.ipc");
-
-    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
+TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
+    
     kpsr::Publisher<WeatherData> * toZMQPublisher = toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
 
-    std::string clientUrl = "tcp://localhost:5556";
-
-    //  Socket to talk to server
-    spdlog::info("Collecting updates from weather server...\n");
-    zmq::socket_t subscriber (context, ZMQ_SUB);
-
-    subscriber.connect(clientUrl);
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
     kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData> _safeQueueProvider(nullptr, "weatherData", 4, 0, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -142,35 +174,11 @@ TEST(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
 }
 
 
-TEST(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
+TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
 
-    WeatherData::emptyConstructorInvokations = 0;
-    WeatherData::constructorInvokations = 0;
-    WeatherData::copyInvokations = 0;
-
-    std::string serverUrl = "tcp://*:5556";
-    std::string topic = "Weather";
-
-    //  Prepare our context and publisher
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind(serverUrl);
-    publisher.bind("ipc://weather.ipc");
-
-    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
     kpsr::Publisher<WeatherData> * toZMQPublisher =  toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
 
-    std::string clientUrl = "tcp://localhost:5556";
-
-    //  Socket to talk to server
-    spdlog::info("Collecting updates from weather server...\n");
-    zmq::socket_t subscriber (context, ZMQ_SUB);
-
-    subscriber.connect(clientUrl);
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
     kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData> _safeQueueProvider(nullptr, "weatherData", 4, 6, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -223,35 +231,11 @@ TEST(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
     ASSERT_EQ(WeatherData::copyInvokations, 0);
 }
 
-TEST(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
+TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
 
-    WeatherData::emptyConstructorInvokations = 0;
-    WeatherData::constructorInvokations = 0;
-    WeatherData::copyInvokations = 0;
-
-    std::string serverUrl = "tcp://*:5556";
-    std::string topic = "Weather";
-
-    //  Prepare our context and publisher
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind(serverUrl);
-    publisher.bind("ipc://weather.ipc");
-
-    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
     kpsr::Publisher<WeatherData> * toZMQPublisher = toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
 
-    std::string clientUrl = "tcp://localhost:5556";
-
-    //  Socket to talk to server
-    spdlog::info("Collecting updates from weather server...\n");
-    zmq::socket_t subscriber (context, ZMQ_SUB);
-
-    subscriber.connect(clientUrl);
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
     kpsr::zmq_mdlw::FromZmqChannel<Base> * _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData> _safeQueueProvider(nullptr, "weatherData", 4, 0, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -305,35 +289,10 @@ TEST(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
 }
 
 
-TEST(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
-
-    WeatherData::emptyConstructorInvokations = 0;
-    WeatherData::constructorInvokations = 0;
-    WeatherData::copyInvokations = 0;
-
-    std::string serverUrl = "tcp://*:5556";
-    std::string topic = "Weather";
-
-    //  Prepare our context and publisher
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind(serverUrl);
-    publisher.bind("ipc://weather.ipc");
-
-    kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
+TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
     kpsr::Publisher<WeatherData> * toZMQPublisher =  toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
 
-    std::string clientUrl = "tcp://localhost:5556";
-
-    //  Socket to talk to server
-    spdlog::info("Collecting updates from weather server...\n");
-    zmq::socket_t subscriber (context, ZMQ_SUB);
-
-    subscriber.connect(clientUrl);
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
     kpsr::zmq_mdlw::FromZmqChannel<Base> * _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData> _safeQueueProvider(nullptr, "weatherData", 4, 6, nullptr, nullptr, false);
     _safeQueueProvider.start();
