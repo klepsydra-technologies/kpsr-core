@@ -222,15 +222,10 @@ TEST_F(DataMultiplexerMiddlewareTest, TwoConsumer) {
     spdlog::info("slowSubscriptionStats->_totalDiscardedEvents:{}", slowSubscriptionStats->_totalDiscardedEvents);
 
     auto fastSubscriberEvents = fastSubscriptionStats->_totalProcessed + fastSubscriptionStats->_totalDiscardedEvents;
-    auto lastReceivedIdFast = fastSubscriberEvents + discardedMessages - 1;
-    ASSERT_EQ(lastReceivedIdFast, fastListener.getLastReceivedEvent()->_id);
-    ASSERT_EQ("hola", fastListener.getLastReceivedEvent()->_message);
-
     auto slowSubscriberEvents = slowSubscriptionStats->_totalProcessed + slowSubscriptionStats->_totalDiscardedEvents;
-    auto lastReceivedIdSlow = slowSubscriberEvents + discardedMessages - 1;
-    ASSERT_EQ(lastReceivedIdSlow, slowListener.getLastReceivedEvent()->_id);
-    ASSERT_EQ("hola", slowListener.getLastReceivedEvent()->_message);
 
+    ASSERT_EQ(fastSubscriptionStats->_totalProcessed, fastListener.counter);
+    ASSERT_EQ(slowSubscriptionStats->_totalProcessed, slowListener.counter);
     ASSERT_GT(fastSubscriptionStats->_totalProcessed,  slowSubscriptionStats->_totalProcessed);
     ASSERT_LE(fastSubscriberEvents, publishedMessages - discardedMessages);
     ASSERT_LE(slowSubscriberEvents, publishedMessages - discardedMessages);
