@@ -133,7 +133,14 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
 	    ++item;
 	    // This raises warning for boolean, but sets the boolean to False.
     }
-		    
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == publisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
+
     kpsrPublisher->publish(item);
     ros::spinOnce();
     rate.sleep();
@@ -148,7 +155,6 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
     ASSERT_EQ(cacheListener.counter, 1);
     ASSERT_EQ(static_cast<typename TypeParam::MyA>(*cacheListener.getLastReceivedEvent().get()), item);
 }
-
 
 // String is not included in the templated classes. this case is for that.
 TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
@@ -168,7 +174,11 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
     safeQueueProvider.start();
 
     kpsr::mem::CacheListener<std::string> cacheListener;
-    safeQueueProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    auto callbackFunction = [&cacheListener](const std::string& event) {
+                                cacheListener.cacheListenerFunction(event);
+                                ros::shutdown();
+                            };
+    safeQueueProvider.getSubscriber()->registerListener("cacheListener", callbackFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
 
@@ -178,31 +188,25 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
 
     kpsr::Publisher<std::string> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<std::string, std_msgs::String>(topicName, 1, nullptr, stringPublisher);
 
-    kpsrPublisher->publish("hola.1");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.2");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.3");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.4");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.5");
-    ros::spinOnce();
-    rate.sleep();
-
-    while (cacheListener.counter < 5 && ros::ok()) {
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        ros::spinOnce();
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
+    while (ros::ok()) {
+        kpsrPublisher->publish("hola.1");
         ros::spinOnce();
         rate.sleep();
     }
 
     safeQueueProvider.stop();
 
-    ASSERT_EQ(cacheListener.counter, 5);
-    ASSERT_EQ(*cacheListener.getLastReceivedEvent().get(), "hola.5");
+    ASSERT_GT(cacheListener.counter, 0);
+    ASSERT_NE(cacheListener.getLastReceivedEvent().get(), nullptr);
+    ASSERT_EQ(*cacheListener.getLastReceivedEvent().get(), "hola.1");
 }
 
 ////// Int test ///////////////

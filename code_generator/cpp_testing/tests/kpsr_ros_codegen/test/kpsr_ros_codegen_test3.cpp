@@ -50,7 +50,6 @@ TEST(KpsrRosCodegeTest, compositionTypeMapperTest) {
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
-    rate.sleep();
 
     ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::CompositionType>("kpsr_ros_codegen_test_topic1", 10, true);
 
@@ -59,6 +58,13 @@ TEST(KpsrRosCodegeTest, compositionTypeMapperTest) {
     kpsr::Publisher<kpsr::codegen::CompositionType> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::CompositionType, kpsr_ros_codegen::CompositionType>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
 
     unsigned short seq = 0;
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
 
     {
         kpsr::codegen::CompositionType event;
@@ -213,7 +219,9 @@ TEST(KpsrRosCodegeTest, compositionTypeMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
