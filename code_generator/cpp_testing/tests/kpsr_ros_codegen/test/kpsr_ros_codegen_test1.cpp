@@ -60,10 +60,15 @@ TEST(KpsrRosCodegeTest, headerMapperTest) {
     kpsr::mem::CacheListener<kpsr::geometry::Header> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
-    ASSERT_EQ(cacheListener.counter, 0);
-
     kpsr::geometry::Header event;
 
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
     event.seq = 1;
     event.frame_id = "hola.1";
     kpsrPublisher->publish(event);
@@ -94,7 +99,9 @@ TEST(KpsrRosCodegeTest, headerMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
@@ -127,6 +134,13 @@ TEST(KpsrRosCodegeTest, gpsMapperTest) {
     kpsr::mem::CacheListener<kpsr::geometry::Gps> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
     ASSERT_EQ(cacheListener.counter, 0);
 
     kpsr::geometry::Gps event;
@@ -171,7 +185,9 @@ TEST(KpsrRosCodegeTest, gpsMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
@@ -206,6 +222,13 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
     kpsr::mem::CacheListener<kpsr::geometry::Vector3> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
     ASSERT_EQ(cacheListener.counter, 0);
 
     kpsr::geometry::Vector3 event;
@@ -253,7 +276,9 @@ TEST(KpsrRosCodegeTest, vector3MapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
@@ -287,6 +312,13 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
     kpsr::mem::CacheListener<kpsr::geometry::Quaternion> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
     ASSERT_EQ(cacheListener.counter, 0);
 
     kpsr::geometry::Quaternion event;
@@ -340,7 +372,9 @@ TEST(KpsrRosCodegeTest, quaternionMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
@@ -376,6 +410,12 @@ TEST(KpsrRosCodegeTest, imuMapperTest) {
     kpsr::mem::CacheListener<kpsr::geometry::Imu> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
     ASSERT_EQ(cacheListener.counter, 0);
 
     unsigned int seq = 0;
@@ -459,7 +499,9 @@ TEST(KpsrRosCodegeTest, imuMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
@@ -520,6 +562,13 @@ TEST(KpsrRosCodegeTest, poseStampedTest) {
     kpsr::mem::CacheListener<kpsr::geometry::PoseStamped> cacheListener;
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
     ASSERT_EQ(cacheListener.counter, 0);
 
     int num_events = 5;
@@ -541,11 +590,12 @@ TEST(KpsrRosCodegeTest, poseStampedTest) {
         rate.sleep();
     }
 
-    while (cacheListener.counter < num_events) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
-    rate.sleep();
     ASSERT_EQ(cacheListener.counter, num_events);
     auto lastEvent = cacheListener.getLastReceivedEvent();
     EXPECT_EQ(lastEvent->header.seq, num_events - 1); // seq number is automatically filled by ROS for pose stamped

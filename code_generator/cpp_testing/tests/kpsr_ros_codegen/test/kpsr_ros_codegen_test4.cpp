@@ -49,13 +49,19 @@ TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
     basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
-
-    rate.sleep();
     ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::InheritanceVector4>("kpsr_ros_codegen_test_topic1", 10, true);
 
     kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
 
     kpsr::Publisher<kpsr::codegen::InheritanceVector4> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::InheritanceVector4, kpsr_ros_codegen::InheritanceVector4>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
+
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
 
     {
         kpsr::codegen::InheritanceVector4 event(1.0, 1.1, 1.2, 1.3);
@@ -90,7 +96,9 @@ TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
