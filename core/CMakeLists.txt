@@ -27,6 +27,8 @@ ADD_SUBDIRECTORY(modules)
 ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(examples)
 
+LIST(APPEND COVERAGE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+SET(COVERAGE_EXCLUDES ${COVERAGE_EXCLUDES} PARENT_SCOPE)
 add_core_export_target()
 add_dds_export_target()
 add_zmq_export_target()
