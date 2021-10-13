@@ -20,22 +20,20 @@
 #ifndef SAFE_QUEUE_POLLER_H
 #define SAFE_QUEUE_POLLER_H
 
-#include <map>
-#include <thread>
 #include <atomic>
+#include <map>
 #include <string>
+#include <thread>
 
 #include <klepsydra/core/event_emitter.h>
 
-#include <klepsydra/mem_core/safe_queue.h>
 #include <klepsydra/mem_core/basic_event_data.h>
 #include <klepsydra/mem_core/in_memory_queue_poller.h>
+#include <klepsydra/mem_core/safe_queue.h>
 
-namespace kpsr
-{
-namespace mem
-{
-template <class T>
+namespace kpsr {
+namespace mem {
+template<class T>
 /**
  * @brief The SafeQueuePoller class
  *
@@ -59,8 +57,8 @@ public:
      * @param eventName
      * @param sleepPeriodUS
      */
-    SafeQueuePoller(SafeQueue <EventData<const T>> & safeQueue,
-                    EventEmitter & eventEmitter,
+    SafeQueuePoller(SafeQueue<EventData<const T>> &safeQueue,
+                    EventEmitter &eventEmitter,
                     std::string eventName,
                     unsigned int sleepPeriodUS)
         : InMemoryQueuePoller(eventEmitter, eventName, sleepPeriodUS)
@@ -68,17 +66,17 @@ public:
     {}
 
 private:
-
-    void takeEventFromQueue() override {
+    void takeEventFromQueue() override
+    {
         EventData<const T> event;
         bool ok = _internalQueue.timeout_move_pop(event, _sleepPeriodUS);
         if (ok) {
-            _eventEmitter.emitEvent(_eventName, event.enqueuedTimeInNs, * event.eventData.get());
+            _eventEmitter.emitEvent(_eventName, event.enqueuedTimeInNs, *event.eventData.get());
         }
     }
-    
-    SafeQueue <EventData<const T>> &_internalQueue;
+
+    SafeQueue<EventData<const T>> &_internalQueue;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif

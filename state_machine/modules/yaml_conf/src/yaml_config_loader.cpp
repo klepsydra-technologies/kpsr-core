@@ -25,9 +25,10 @@
 namespace kpsr {
 namespace fsm {
 
-ConfigStateMachine YamlConfigLoader::loadConfig(const std::string &specPath) {
-  YAML::Node stateMachine = YAML::LoadFile(specPath);
-  return stateMachine.as<ConfigStateMachine>();
+ConfigStateMachine YamlConfigLoader::loadConfig(const std::string &specPath)
+{
+    YAML::Node stateMachine = YAML::LoadFile(specPath);
+    return stateMachine.as<ConfigStateMachine>();
 }
 } // namespace fsm
 } // namespace kpsr

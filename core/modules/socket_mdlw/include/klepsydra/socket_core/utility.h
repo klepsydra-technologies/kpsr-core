@@ -20,13 +20,11 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include <string>
 #include <sstream>
+#include <string>
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 
 template<typename... Args>
 /**
@@ -35,10 +33,10 @@ template<typename... Args>
  * @param args
  * @return
  */
-int print(std::ostream& s, Args&... args)
+int print(std::ostream &s, Args &...args)
 {
     using Expander = int[];
-    return Expander{ 0, ((s << std::forward<Args>(args)), 0)...}[0];
+    return Expander{0, ((s << std::forward<Args>(args)), 0)...}[0];
 }
 
 template<typename... Args>
@@ -47,7 +45,7 @@ template<typename... Args>
  * @param args
  * @return
  */
-std::string buildStringFromParts(Args const&... args)
+std::string buildStringFromParts(Args const &...args)
 {
     std::stringstream msg;
     print(msg, args...);
@@ -60,13 +58,12 @@ template<typename... Args>
  * @param args
  * @return
  */
-std::string buildErrorMessage(Args const&... args)
+std::string buildErrorMessage(Args const &...args)
 {
     return buildStringFromParts(args...);
 }
 
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif
-

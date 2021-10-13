@@ -24,9 +24,10 @@
 
 namespace kpsr {
 namespace fsm {
-class ConfigLoader {
+class ConfigLoader
+{
 public:
-  virtual ConfigStateMachine loadConfig(const std::string &specPath) = 0;
+    virtual ConfigStateMachine loadConfig(const std::string &specPath) = 0;
 };
 } // namespace fsm
 } // namespace kpsr

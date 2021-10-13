@@ -33,14 +33,17 @@ namespace kpsr {
  * @ingroup kpsr-monitoring
  *
  */
-class TimeUtils {
+class TimeUtils
+{
 public:
     /*!
      * @brief getCurrentMilliseconds
      * @return
      */
-    static long getCurrentMilliseconds() {
-        std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
+    static long getCurrentMilliseconds()
+    {
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
         return ms.count();
     }
 
@@ -48,16 +51,20 @@ public:
      * @brief getCurrentMillisecondsAsLlu
      * @return
      */
-    static long long unsigned int getCurrentMillisecondsAsLlu() {
-        std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
+    static long long unsigned int getCurrentMillisecondsAsLlu()
+    {
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
         return static_cast<long long unsigned int>(ms.count());
     }
 
     /*!
      * @brief getCurrentNanoseconds
      */
-    static long getCurrentNanoseconds() {
-        std::chrono::nanoseconds ns = std::chrono::duration_cast< std::chrono::nanoseconds >(std::chrono::system_clock::now().time_since_epoch());
+    static long getCurrentNanoseconds()
+    {
+        std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
         return ns.count();
     }
 
@@ -65,12 +72,13 @@ public:
      * @brief getCurrentNanosecondsAsLlu
      * @return
      */
-    static long long unsigned int getCurrentNanosecondsAsLlu() {
-        std::chrono::nanoseconds ns = std::chrono::duration_cast< std::chrono::nanoseconds >(std::chrono::system_clock::now().time_since_epoch());
+    static long long unsigned int getCurrentNanosecondsAsLlu()
+    {
+        std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
         return static_cast<long long unsigned int>(ns.count());
     }
-
 };
-}
+} // namespace kpsr
 
 #endif // TIME_UTILS_H

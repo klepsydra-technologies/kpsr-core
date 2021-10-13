@@ -20,18 +20,16 @@
 #ifndef CACHE_LISTENER_H
 #define CACHE_LISTENER_H
 
-#include <functional>
-#include <thread>
-#include <mutex>
 #include <atomic>
+#include <functional>
 #include <memory>
+#include <mutex>
+#include <thread>
 
 #include <klepsydra/core/time_utils.h>
 
-namespace kpsr
-{
-namespace mem
-{
+namespace kpsr {
+namespace mem {
 
 template<class T>
 /**
@@ -57,16 +55,13 @@ subscriber.registerListener("test-listener", cacheListener.cacheListenerFunction
 class CacheListener
 {
 public:
-
     /**
      * @brief CacheListener
      * @param sleepTimeMs When a value larger than 0 is passed, it will sleep after copying the event.
      */
     CacheListener()
-        : cacheListenerFunction(std::bind(
-                                    &kpsr::mem::CacheListener<T>::onEventReceived,
-                                    this,
-                                    std::placeholders::_1))
+        : cacheListenerFunction(
+              std::bind(&kpsr::mem::CacheListener<T>::onEventReceived, this, std::placeholders::_1))
         , counter(0)
         , totalCopyingTime(0)
     {}
@@ -77,7 +72,8 @@ public:
      * @brief onEventReceived
      * @param event
      */
-    virtual void onEventReceived(const T & event) {
+    virtual void onEventReceived(const T &event)
+    {
         long before = kpsr::TimeUtils::getCurrentNanoseconds();
 
         this->_lastReceivedEvent = std::make_shared<T>(event);
@@ -92,7 +88,8 @@ public:
      * @brief onEventReceived
      * @param event
      */
-    virtual void onEventReceivedRaw(std::shared_ptr<T> event) {
+    virtual void onEventReceivedRaw(std::shared_ptr<T> event)
+    {
         this->_lastReceivedEvent = event;
         counter++;
     }
@@ -106,9 +103,7 @@ public:
      * @brief getLastReceivedEvent
      * @return
      */
-    virtual std::shared_ptr<T> getLastReceivedEvent() {
-        return _lastReceivedEvent;
-    }
+    virtual std::shared_ptr<T> getLastReceivedEvent() { return _lastReceivedEvent; }
 
     /**
      * @brief counter
@@ -125,9 +120,7 @@ private:
 
     bool _threadSafe;
     mutable std::mutex _mutex;
-
 };
-
 
 template<class T>
 /**
@@ -152,7 +145,6 @@ subscriber.registerListener("test-listener", cacheListener.cacheListenerFunction
 class MultiThreadCacheListener : public CacheListener<T>
 {
 public:
-
     /**
      * @brief CacheListener
      * @param sleepTimeMs When a value larger than 0 is passed, it will sleep after copying the event.
@@ -167,8 +159,9 @@ public:
      * @brief onEventReceived
      * @param event
      */
-    void onEventReceived(const T & event) override {
-        std::lock_guard<std::mutex> lock (_mutex);
+    void onEventReceived(const T &event) override
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         CacheListener<T>::onEventReceived(event);
     }
 
@@ -176,8 +169,9 @@ public:
      * @brief onEventReceived
      * @param event
      */
-    void onEventReceivedRaw(std::shared_ptr<T> event) override {
-        std::lock_guard<std::mutex> lock (_mutex);
+    void onEventReceivedRaw(std::shared_ptr<T> event) override
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         CacheListener<T>::onEventReceivedRaw(event);
     }
 
@@ -185,8 +179,9 @@ public:
      * @brief getLastReceivedEvent
      * @return
      */
-    std::shared_ptr<T> getLastReceivedEvent() override {
-        std::lock_guard<std::mutex> lock (_mutex);
+    std::shared_ptr<T> getLastReceivedEvent() override
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         return CacheListener<T>::getLastReceivedEvent();
     }
 
@@ -194,16 +189,16 @@ public:
      * @brief getCounterAndEvent
      * @return
      */
-    std::pair<int, std::shared_ptr<T>> getCounterAndEvent() {
-        std::lock_guard<std::mutex> lock (_mutex);
-        return std::pair<int, std::shared_ptr<T>>(this->counter, CacheListener<T>::getLastReceivedEvent());
+    std::pair<int, std::shared_ptr<T>> getCounterAndEvent()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return std::pair<int, std::shared_ptr<T>>(this->counter,
+                                                  CacheListener<T>::getLastReceivedEvent());
     }
 
 private:
     mutable std::mutex _mutex;
-
 };
-
 
 template<class T>
 /**
@@ -230,7 +225,6 @@ subscriber.registerListener("test-listener", cacheListener.cacheListenerFunction
 class TestCacheListener : public CacheListener<T>
 {
 public:
-
     /**
      * @brief CacheListener
      * @param sleepTimeMs When a value larger than 0 is passed, it will sleep after copying the event.
@@ -244,7 +238,8 @@ public:
      * @brief onEventReceived
      * @param event
      */
-    void onEventReceived(const T & event) override {
+    void onEventReceived(const T &event) override
+    {
         CacheListener<T>::onEventReceived(event);
         if (_sleepTimeMs > 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(_sleepTimeMs));
@@ -255,7 +250,8 @@ public:
      * @brief onEventReceived
      * @param event
      */
-    void onEventReceivedRaw(std::shared_ptr<T> event) override {
+    void onEventReceivedRaw(std::shared_ptr<T> event) override
+    {
         CacheListener<T>::onEventReceivedRaw(event);
         if (_sleepTimeMs > 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(_sleepTimeMs));
@@ -266,7 +262,6 @@ private:
     long _sleepTimeMs;
 };
 
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif
-

@@ -25,8 +25,7 @@
 
 #include <klepsydra/serialization/mapper.h>
 
-namespace kpsr
-{
+namespace kpsr {
 template<class E>
 /**
  * @brief The Mapper<E, std_msgs::Int32> class
@@ -47,8 +46,9 @@ public:
      * @param message
      * @param event
      */
-    virtual void fromMiddleware(const std_msgs::Int32& message, E& event) {
-        event  = (E) message.data;
+    virtual void fromMiddleware(const std_msgs::Int32 &message, E &event)
+    {
+        event = (E) message.data;
     }
 
     /**
@@ -57,9 +57,7 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const E& event, std_msgs::Int32& message) {
-        message.data = event;
-    }
+    void toMiddleware(const E &event, std_msgs::Int32 &message) { message.data = event; }
 };
-}
-#endif//ENUM_ROS_MAPPER_H
+} // namespace kpsr
+#endif //ENUM_ROS_MAPPER_H

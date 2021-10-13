@@ -17,26 +17,31 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
-#include <klepsydra/codegen/primitive_types_basic.h>
 #include <klepsydra/codegen/primitive_types_array.h>
+#include <klepsydra/codegen/primitive_types_basic.h>
 #include <klepsydra/codegen/primitive_types_vector.h>
 #include <klepsydra/codegen/primitive_types_vector_shared_ptr.h>
 
-TEST(CodegenPocoTests, PrimiteTypesAllPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesBasic> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, PrimiteTypesAllPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesBasic> provider(nullptr,
+                                                                                      "event",
+                                                                                      0,
+                                                                                      nullptr,
+                                                                                      nullptr);
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesBasic> eventListener;
 
@@ -45,13 +50,18 @@ TEST(CodegenPocoTests, PrimiteTypesAllPocoTest) {
     kpsr::codegen::PrimitiveTypesBasic event;
     provider.getPublisher()->publish(event);
 
-//    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
-//    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
+    //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
+    //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, PrimiteTypesArrayPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesArray> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, PrimiteTypesArrayPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesArray> provider(nullptr,
+                                                                                      "event",
+                                                                                      0,
+                                                                                      nullptr,
+                                                                                      nullptr);
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesArray> eventListener;
 
@@ -60,13 +70,18 @@ TEST(CodegenPocoTests, PrimiteTypesArrayPocoTest) {
     kpsr::codegen::PrimitiveTypesArray event;
     provider.getPublisher()->publish(event);
 
-//    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
-//    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
+    //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
+    //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, PrimiteTypesVectorPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVector> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, PrimiteTypesVectorPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVector> provider(nullptr,
+                                                                                       "event",
+                                                                                       0,
+                                                                                       nullptr,
+                                                                                       nullptr);
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesVector> eventListener;
 
@@ -75,13 +90,15 @@ TEST(CodegenPocoTests, PrimiteTypesVectorPocoTest) {
     kpsr::codegen::PrimitiveTypesVector event;
     provider.getPublisher()->publish(event);
 
-//    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
-//    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
+    //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
+    //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, PrimiteTypesVectorSharedPtrPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVectorSharedPtr> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, PrimiteTypesVectorSharedPtrPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::PrimitiveTypesVectorSharedPtr>
+        provider(nullptr, "event", 0, nullptr, nullptr);
 
     kpsr::mem::CacheListener<kpsr::codegen::PrimitiveTypesVectorSharedPtr> eventListener;
 
@@ -90,7 +107,7 @@ TEST(CodegenPocoTests, PrimiteTypesVectorSharedPtrPocoTest) {
     kpsr::codegen::PrimitiveTypesVectorSharedPtr event;
     provider.getPublisher()->publish(event);
 
-//    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
-//    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
+    //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
+    //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }

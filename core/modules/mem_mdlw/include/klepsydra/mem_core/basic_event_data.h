@@ -24,7 +24,7 @@
 
 namespace kpsr {
 namespace mem {
-template <class T>
+template<class T>
 /**
  * @brief The EventData struct
  *
@@ -36,7 +36,8 @@ template <class T>
  *
  * @details wrapper struct to be used when storing events in the queue.
  */
-struct EventData {
+struct EventData
+{
     /**
      * @brief eventData actual event
      */
@@ -46,7 +47,7 @@ struct EventData {
      */
     long long unsigned int enqueuedTimeInNs = 0;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 
 #endif // BASIC_EVENT_DATA_H

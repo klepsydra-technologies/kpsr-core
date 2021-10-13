@@ -32,43 +32,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtest/gtest.h>
 
-#include <disruptor4cpp/disruptor4cpp.h>
 #include "wait_strategy_test_util.h"
+#include <disruptor4cpp/disruptor4cpp.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+TEST(phased_backoff_wait_strategy_test, should_handle_immediate_sequence_change)
 {
-	namespace test
-	{
-		TEST(phased_backoff_wait_strategy_test, should_handle_immediate_sequence_change)
-		{
-			phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(0), wait_strategy_with_lock);
-			phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>> wait_strategy_with_sleep;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(0), wait_strategy_with_sleep);
-		}
-
-		TEST(phased_backoff_wait_strategy_test, should_handle_sequence_change_with_one_millisecond_delay)
-		{
-			phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(1), wait_strategy_with_lock);
-			phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>> wait_strategy_with_sleep;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(1), wait_strategy_with_sleep);
-		}
-
-		TEST(phased_backoff_wait_strategy_test, should_handle_sequence_change_with_two_millisecond_delay)
-		{
-			phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(2), wait_strategy_with_lock);
-			phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>> wait_strategy_with_sleep;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(2), wait_strategy_with_sleep);
-		}
-
-		TEST(phased_backoff_wait_strategy_test, should_handle_sequence_change_with_ten_millisecond_delay)
-		{
-			phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(10), wait_strategy_with_lock);
-			phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>> wait_strategy_with_sleep;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(10), wait_strategy_with_sleep);
-		}
-	}
+    phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(0),
+                                                           wait_strategy_with_lock);
+    phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>>
+        wait_strategy_with_sleep;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(0),
+                                                           wait_strategy_with_sleep);
 }
+
+TEST(phased_backoff_wait_strategy_test, should_handle_sequence_change_with_one_millisecond_delay)
+{
+    phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(1),
+                                                           wait_strategy_with_lock);
+    phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>>
+        wait_strategy_with_sleep;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(1),
+                                                           wait_strategy_with_sleep);
+}
+
+TEST(phased_backoff_wait_strategy_test, should_handle_sequence_change_with_two_millisecond_delay)
+{
+    phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(2),
+                                                           wait_strategy_with_lock);
+    phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>>
+        wait_strategy_with_sleep;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(2),
+                                                           wait_strategy_with_sleep);
+}
+
+TEST(phased_backoff_wait_strategy_test, should_handle_sequence_change_with_ten_millisecond_delay)
+{
+    phased_backoff_wait_strategy<1000000, 1000000, blocking_wait_strategy> wait_strategy_with_lock;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(10),
+                                                           wait_strategy_with_lock);
+    phased_backoff_wait_strategy<1000000, 1000000, sleeping_wait_strategy<0>>
+        wait_strategy_with_sleep;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(10),
+                                                           wait_strategy_with_sleep);
+}
+} // namespace test
+} // namespace disruptor4cpp

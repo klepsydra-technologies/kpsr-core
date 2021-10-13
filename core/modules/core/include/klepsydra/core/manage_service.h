@@ -25,7 +25,6 @@
 
 #include <spdlog/spdlog.h>
 
-
 #include <klepsydra/core/environment.h>
 #include <klepsydra/core/service.h>
 #include <klepsydra/core/subscriber.h>
@@ -33,8 +32,7 @@
 
 #include <klepsydra/core/service_stats.h>
 
-namespace kpsr
-{
+namespace kpsr {
 /*!
  * @brief The ManagedService class
  *
@@ -59,29 +57,34 @@ public:
      * @param systemStatusEventSubscriber start and stop will be handled by the master service.
      * @param serviceName
      */
-    ManagedService(Environment * environment,
-                   Subscriber<SystemEventData> * systemStatusEventSubscriber,
+    ManagedService(Environment *environment,
+                   Subscriber<SystemEventData> *systemStatusEventSubscriber,
                    std::string serviceName)
-        : Service(environment, serviceName, false) {
+        : Service(environment, serviceName, false)
+    {
         if (systemStatusEventSubscriber != nullptr) {
-            std::function<void(SystemEventData)> systemListener = std::bind(&ManagedService::onSystemMessageReceived, this, std::placeholders::_1);
+            std::function<void(SystemEventData)> systemListener =
+                std::bind(&ManagedService::onSystemMessageReceived, this, std::placeholders::_1);
             systemStatusEventSubscriber->registerListener(serviceName, systemListener);
         }
     }
 
     virtual ~ManagedService() {}
-private:
 
-    void onSystemMessageReceived(const SystemEventData & event) {
-        spdlog::info("Service::SystemEventDataListener::onMessageReceived. Service name: {}, event: {}", this->_serviceStats._name, event);
+private:
+    void onSystemMessageReceived(const SystemEventData &event)
+    {
+        spdlog::info(
+            "Service::SystemEventDataListener::onMessageReceived. Service name: {}, event: {}",
+            this->_serviceStats._name,
+            event);
         if (event == SystemEventData::Start) {
             startup();
-        }
-        else if (event == SystemEventData::Stop) {
+        } else if (event == SystemEventData::Stop) {
             shutdown();
         }
     }
 };
-}
+} // namespace kpsr
 
 #endif // MANAGE_SERVICE_H

@@ -22,10 +22,8 @@
 
 #include <klepsydra/socket_core/protocol.h>
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 /**
  * @brief The ProtocolSimple class
  *
@@ -36,7 +34,7 @@ namespace socket_mdlw
  * @ingroup kpsr-sockets-internal
  *
  */
-class ProtocolSimple: public Protocol
+class ProtocolSimple : public Protocol
 {
 public:
     using Protocol::Protocol;
@@ -44,17 +42,16 @@ public:
      * @brief sendMessage
      * @param message
      */
-    void sendMessage(const std::string & message) override;
+    void sendMessage(const std::string &message) override;
 
     /**
      * @brief recvMessage
      * @param message
      */
-    void recvMessage(std::string& message) override;
+    void recvMessage(std::string &message) override;
 };
 
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif
-

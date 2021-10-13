@@ -20,15 +20,13 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <klepsydra/socket_core/data_socket.h>
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 /**
  * @brief The Protocol class
  *
@@ -43,6 +41,7 @@ class Protocol
 {
 protected:
     std::shared_ptr<DataSocket> _dataSocket;
+
 public:
     /**
      * @brief Protocol
@@ -56,17 +55,16 @@ public:
      * @brief sendMessage
      * @param message
      */
-    virtual void sendMessage(const std::string & message) = 0;
+    virtual void sendMessage(const std::string &message) = 0;
 
     /**
      * @brief recvMessage
      * @param message
      */
-    virtual void recvMessage(std::string& message) = 0;
+    virtual void recvMessage(std::string &message) = 0;
 };
 
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif
-

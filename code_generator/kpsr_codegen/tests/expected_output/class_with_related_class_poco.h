@@ -22,53 +22,46 @@
 #ifndef CLASS_WITH_RELATED_CLASSES
 #define CLASS_WITH_RELATED_CLASSES
 
-
 #include <string>
 #include <vector>
 
 #include "basic_class.h"
 
-
-class ClassWithRelatedClasses  {
+class ClassWithRelatedClasses
+{
 public:
+    ClassWithRelatedClasses() {}
 
-   ClassWithRelatedClasses() {}
+    ClassWithRelatedClasses(
+        string i, BasicClass ii, int32 iii, std::vector<BasicClass> iv, std::vector<int32> v)
+        : i(i)
+        , ii(ii)
+        , iii(iii)
+        , iv(iv)
+        , v(v)
+    {}
 
-   ClassWithRelatedClasses(
-          string i,
-          BasicClass ii,
-          int32 iii,
-          std::vector<BasicClass> iv,
-          std::vector<int32> v)
-      : i(i)
-      , ii(ii)
-      , iii(iii)
-      , iv(iv)
-      , v(v)
-   {}
+    ClassWithRelatedClasses(const ClassWithRelatedClasses &that)
+        : i(that.i)
+        , ii(that.ii)
+        , iii(that.iii)
+        , iv(that.iv)
+        , v(that.v)
+    {}
 
-   ClassWithRelatedClasses(const ClassWithRelatedClasses & that)
-      : i(that.i)
-      , ii(that.ii)
-      , iii(that.iii)
-      , iv(that.iv)
-      , v(that.v)
-   {}
+    void clone(const ClassWithRelatedClasses &that)
+    {
+        this->i = that.i;
+        this->ii = that.ii;
+        this->iii = that.iii;
+        this->iv = that.iv;
+        this->v = that.v;
+    }
 
-   void clone(const ClassWithRelatedClasses & that) {
-     this->i = that.i;
-     this->ii = that.ii;
-     this->iii = that.iii;
-     this->iv = that.iv;
-     this->v = that.v;
-   }
-
-
-   string i;
-   BasicClass ii;
-   int32 iii;
-   std::vector<BasicClass> iv;
+    string i;
+    BasicClass ii;
+    int32 iii;
+    std::vector<BasicClass> iv;
 };
-
 
 #endif // CLASS_WITH_RELATED_CLASSES

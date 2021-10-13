@@ -20,12 +20,14 @@
 #ifndef TEST_RESULT_DATA_H
 #define TEST_RESULT_DATA_H
 
-class TestResults {
+class TestResults
+{
 public:
     long average;
     long stddev;
 
-    TestResults(std::vector<long> totalTime) {
+    TestResults(std::vector<long> totalTime)
+    {
         long sum = std::accumulate(totalTime.begin(), totalTime.end(), 0.0);
         average = sum / totalTime.size();
 

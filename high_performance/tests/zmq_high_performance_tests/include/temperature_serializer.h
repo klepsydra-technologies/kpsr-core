@@ -28,12 +28,9 @@
 
 namespace cereal {
 template<class Archive>
-void serialize(Archive & archive, Temperature & event)
+void serialize(Archive &archive, Temperature &event)
 {
-   archive(
-      CEREAL_NVP(event.value),
-      CEREAL_NVP(event.units)
-   );
+    archive(CEREAL_NVP(event.value), CEREAL_NVP(event.units));
 }
-}
+} // namespace cereal
 #endif // TEMPERATURE_H

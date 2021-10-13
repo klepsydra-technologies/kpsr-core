@@ -17,39 +17,39 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <klepsydra/mem_core/basic_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/mem_core/basic_middleware_provider.h>
 
-class SQTestEvent {
+class SQTestEvent
+{
 public:
-
     static std::atomic_int constructorInvokations;
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    SQTestEvent(int id, const std::string & message)
+    SQTestEvent(int id, const std::string &message)
         : _id(id)
-        , _message(message) {
+        , _message(message)
+    {
         SQTestEvent::constructorInvokations++;
     }
 
-    SQTestEvent() {
-        SQTestEvent::emptyConstructorInvokations++;
-    }
+    SQTestEvent() { SQTestEvent::emptyConstructorInvokations++; }
 
-    SQTestEvent(const SQTestEvent & that)
+    SQTestEvent(const SQTestEvent &that)
         : _id(that._id)
-        , _message(that._message) {
+        , _message(that._message)
+    {
         SQTestEvent::copyInvokations++;
     }
 
@@ -57,26 +57,26 @@ public:
     std::string _message;
 };
 
-class SQTestNewEvent {
+class SQTestNewEvent
+{
 public:
-
     static std::atomic_int constructorInvokations;
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    SQTestNewEvent(const std::string & label, std::vector<double> values)
+    SQTestNewEvent(const std::string &label, std::vector<double> values)
         : _label(label)
-        , _values(values) {
+        , _values(values)
+    {
         SQTestNewEvent::constructorInvokations++;
     }
 
-    SQTestNewEvent() {
-        SQTestNewEvent::emptyConstructorInvokations++;
-    }
+    SQTestNewEvent() { SQTestNewEvent::emptyConstructorInvokations++; }
 
-    SQTestNewEvent(const SQTestNewEvent & that)
+    SQTestNewEvent(const SQTestNewEvent &that)
         : _label(that._label)
-        , _values(that._values) {
+        , _values(that._values)
+    {
         SQTestNewEvent::copyInvokations++;
     }
 
@@ -92,14 +92,15 @@ std::atomic_int SQTestNewEvent::constructorInvokations(0);
 std::atomic_int SQTestNewEvent::emptyConstructorInvokations(0);
 std::atomic_int SQTestNewEvent::copyInvokations(0);
 
-TEST(BasicEventEmitterTest, SingleEventEmitterTopic) {
-
-    kpsr::mem::BasicMiddlewareProvider<SQTestEvent> provider(nullptr, "event", 4, 0, nullptr, nullptr, false);
+TEST(BasicEventEmitterTest, SingleEventEmitterTopic)
+{
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, 0, nullptr, nullptr, false);
     provider.start();
     kpsr::mem::TestCacheListener<SQTestEvent> eventListener(-1);
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
-    std::thread t2([&provider]{
+    std::thread t2([&provider] {
         SQTestEvent event1(1, "hello");
         provider.getPublisher()->publish(event1);
         SQTestEvent event2(2, "hallo");
@@ -118,17 +119,19 @@ TEST(BasicEventEmitterTest, SingleEventEmitterTopic) {
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
 
     ASSERT_EQ(eventListener.counter, 3);
-    ASSERT_EQ(SQTestEvent::emptyConstructorInvokations,0);
+    ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 0);
     ASSERT_EQ(SQTestEvent::constructorInvokations, 2);
     ASSERT_EQ(SQTestEvent::copyInvokations, 6);
 }
 
-TEST(BasicEventEmitterTest, WithObjectPoolNoFailures) {
+TEST(BasicEventEmitterTest, WithObjectPoolNoFailures)
+{
     SQTestEvent::emptyConstructorInvokations = 0;
     SQTestEvent::constructorInvokations = 0;
     SQTestEvent::copyInvokations = 0;
 
-    kpsr::mem::BasicMiddlewareProvider<SQTestEvent> provider(nullptr, "event", 4, 4, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, 4, nullptr, nullptr, false);
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 4);
 
     provider.start();
@@ -136,7 +139,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolNoFailures) {
     kpsr::mem::TestCacheListener<SQTestEvent> eventListener(-1);
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
-    std::thread t2([&provider]{
+    std::thread t2([&provider] {
         for (int i = 0; i < 10; i++) {
             SQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
@@ -159,19 +162,21 @@ TEST(BasicEventEmitterTest, WithObjectPoolNoFailures) {
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 10);
 }
 
-TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking) {
+TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking)
+{
     SQTestEvent::emptyConstructorInvokations = 0;
     SQTestEvent::constructorInvokations = 0;
     SQTestEvent::copyInvokations = 0;
 
-    kpsr::mem::BasicMiddlewareProvider<SQTestEvent> provider(nullptr, "event", 4, 6, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, 6, nullptr, nullptr, false);
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 6);
 
     provider.start();
     kpsr::mem::TestCacheListener<SQTestEvent> eventListener(1);
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
-    std::thread t2([&provider]{
+    std::thread t2([&provider] {
         for (int i = 0; i < 300; i++) {
             SQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
@@ -196,12 +201,14 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking) {
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 300);
 }
 
-TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking) {
+TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
+{
     SQTestEvent::emptyConstructorInvokations = 0;
     SQTestEvent::constructorInvokations = 0;
     SQTestEvent::copyInvokations = 0;
 
-    kpsr::mem::BasicMiddlewareProvider<SQTestEvent> provider(nullptr, "event", 4, 6, nullptr, nullptr, true);
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, 6, nullptr, nullptr, true);
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 6);
 
     provider.start();
@@ -209,7 +216,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking) {
     kpsr::mem::TestCacheListener<SQTestEvent> eventListener(1);
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
-    std::thread t2([&provider]{
+    std::thread t2([&provider] {
         for (int i = 0; i < 300; i++) {
             SQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
@@ -231,12 +238,15 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking) {
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 6);
     ASSERT_EQ(SQTestEvent::constructorInvokations, 300);
     ASSERT_GE(SQTestEvent::copyInvokations, 4);
-    int totalMessages = provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed
-            + ((kpsr::mem::BasicPublisher<SQTestEvent> * )provider.getPublisher())->_publicationStats._totalDiscardedEvents;
+    int totalMessages =
+        provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed +
+        ((kpsr::mem::BasicPublisher<SQTestEvent> *) provider.getPublisher())
+            ->_publicationStats._totalDiscardedEvents;
     ASSERT_EQ(totalMessages, 300);
 }
 
-TEST(BasicEventEmitterTest, TransformForwaringTestNoPool) {
+TEST(BasicEventEmitterTest, TransformForwaringTestNoPool)
+{
     SQTestEvent::emptyConstructorInvokations = 0;
     SQTestEvent::constructorInvokations = 0;
     SQTestEvent::copyInvokations = 0;
@@ -245,24 +255,29 @@ TEST(BasicEventEmitterTest, TransformForwaringTestNoPool) {
     SQTestNewEvent::constructorInvokations = 0;
     SQTestNewEvent::copyInvokations = 0;
 
-    kpsr::mem::BasicMiddlewareProvider<SQTestEvent> provider(nullptr, "event", 4, 0, nullptr, nullptr, false);
-    kpsr::mem::BasicMiddlewareProvider<SQTestNewEvent> newProvider(nullptr, "newEvent", 4, 0, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, 0, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<SQTestNewEvent>
+        newProvider(nullptr, "newEvent", 4, 0, nullptr, nullptr, false);
 
     provider.start();
     newProvider.start();
 
-    std::function<void(const SQTestEvent &, SQTestNewEvent &)> transformFunction = [] (const SQTestEvent & src, SQTestNewEvent & dest) {
-        dest._label = src._message;
-        dest._values = { (double) src._id };
-    };
+    std::function<void(const SQTestEvent &, SQTestNewEvent &)> transformFunction =
+        [](const SQTestEvent &src, SQTestNewEvent &dest) {
+            dest._label = src._message;
+            dest._values = {(double) src._id};
+        };
 
     auto forwarder = newProvider.getProcessForwarder(transformFunction);
-    provider.getSubscriber()->registerListener("forwarderListener", forwarder->forwarderListenerFunction);
+    provider.getSubscriber()->registerListener("forwarderListener",
+                                               forwarder->forwarderListenerFunction);
 
     kpsr::mem::TestCacheListener<SQTestNewEvent> eventListener(-1);
-    newProvider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+    newProvider.getSubscriber()->registerListener("cacheListener",
+                                                  eventListener.cacheListenerFunction);
 
-    std::thread t2([&provider, &newProvider]{
+    std::thread t2([&provider, &newProvider] {
         for (int i = 0; i < 10; i++) {
             SQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
@@ -288,10 +303,12 @@ TEST(BasicEventEmitterTest, TransformForwaringTestNoPool) {
     ASSERT_EQ(SQTestNewEvent::emptyConstructorInvokations, 10);
     ASSERT_EQ(SQTestNewEvent::constructorInvokations, 0);
     ASSERT_EQ(SQTestNewEvent::copyInvokations, 10);
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 10);
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+              10);
 }
 
-TEST(BasicEventEmitterTest, TransformForwaringTestWithPool) {
+TEST(BasicEventEmitterTest, TransformForwaringTestWithPool)
+{
     SQTestEvent::emptyConstructorInvokations = 0;
     SQTestEvent::constructorInvokations = 0;
     SQTestEvent::copyInvokations = 0;
@@ -300,24 +317,29 @@ TEST(BasicEventEmitterTest, TransformForwaringTestWithPool) {
     SQTestNewEvent::constructorInvokations = 0;
     SQTestNewEvent::copyInvokations = 0;
 
-    kpsr::mem::BasicMiddlewareProvider<SQTestEvent> provider(nullptr, "event", 4, 4, nullptr, nullptr, false);
-    kpsr::mem::BasicMiddlewareProvider<SQTestNewEvent> newProvider(nullptr, "newEvent", 4, 4, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, 4, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<SQTestNewEvent>
+        newProvider(nullptr, "newEvent", 4, 4, nullptr, nullptr, false);
 
     provider.start();
     newProvider.start();
 
-    std::function<void(const SQTestEvent &, SQTestNewEvent &)> transformFunction = [] (const SQTestEvent & src, SQTestNewEvent & dest) {
-        dest._label = src._message;
-        dest._values = { (double) src._id };
-    };
+    std::function<void(const SQTestEvent &, SQTestNewEvent &)> transformFunction =
+        [](const SQTestEvent &src, SQTestNewEvent &dest) {
+            dest._label = src._message;
+            dest._values = {(double) src._id};
+        };
 
     auto forwarder = newProvider.getProcessForwarder(transformFunction);
-    provider.getSubscriber()->registerListener("forwarderListener", forwarder->forwarderListenerFunction);
+    provider.getSubscriber()->registerListener("forwarderListener",
+                                               forwarder->forwarderListenerFunction);
 
     kpsr::mem::TestCacheListener<SQTestNewEvent> eventListener(-1);
-    newProvider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+    newProvider.getSubscriber()->registerListener("cacheListener",
+                                                  eventListener.cacheListenerFunction);
 
-    std::thread t2([&provider, &newProvider]{
+    std::thread t2([&provider, &newProvider] {
         for (int i = 0; i < 10; i++) {
             SQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
@@ -344,5 +366,6 @@ TEST(BasicEventEmitterTest, TransformForwaringTestWithPool) {
     ASSERT_EQ(SQTestNewEvent::constructorInvokations, 0);
     ASSERT_EQ(SQTestNewEvent::copyInvokations, 10);
 
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 10);
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+              10);
 }

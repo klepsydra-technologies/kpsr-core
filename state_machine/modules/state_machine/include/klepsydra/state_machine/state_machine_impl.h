@@ -20,10 +20,10 @@
 #pragma once
 
 #include <memory>
-#include <queue>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <queue>
 
 #include <klepsydra/state_machine/state.h>
 #include <klepsydra/state_machine/state_machine.h>
@@ -31,37 +31,34 @@
 
 namespace kpsr {
 namespace fsm {
-class StateMachineImpl : public StateMachine {
+class StateMachineImpl : public StateMachine
+{
 public:
-  StateMachineImpl(const std::string &id,
-                   const std::vector<std::shared_ptr<State>> &states,
-                   const std::string &initialStateId);
-  virtual void start() override;
-  virtual void stop() override;
-  virtual void reset() override;
-  virtual void update() override;
-  virtual void enqueueEvent(const std::string &event) override;
-  virtual void enqueueAndUpdate(const std::string &event) override;
-  virtual void registerObserver(
-      std::function<void(const std::string &currentState, bool stateChanged)>
-          smObserver) override;
-  virtual void unregisterObservers() override;
+    StateMachineImpl(const std::string &id,
+                     const std::vector<std::shared_ptr<State>> &states,
+                     const std::string &initialStateId);
+    virtual void start() override;
+    virtual void stop() override;
+    virtual void reset() override;
+    virtual void update() override;
+    virtual void enqueueEvent(const std::string &event) override;
+    virtual void enqueueAndUpdate(const std::string &event) override;
+    virtual void registerObserver(
+        std::function<void(const std::string &currentState, bool stateChanged)> smObserver) override;
+    virtual void unregisterObservers() override;
 
 private:
-  std::string _id;
-  bool _started;
-  std::string _initialStateId;
-  std::string _currentStateId;
+    std::string _id;
+    bool _started;
+    std::string _initialStateId;
+    std::string _currentStateId;
 
-  std::unordered_map<std::string, std::shared_ptr<State>> _stateTable;
-  std::unordered_map<std::string, std::vector<std::shared_ptr<Transition>>>
-      _stateTransitionTable;
-  std::vector<
-      std::function<void(const std::string &currentState, bool stateChanged)>>
-      _observers;
-  std::queue<std::string> _eventQueue;
+    std::unordered_map<std::string, std::shared_ptr<State>> _stateTable;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Transition>>> _stateTransitionTable;
+    std::vector<std::function<void(const std::string &currentState, bool stateChanged)>> _observers;
+    std::queue<std::string> _eventQueue;
 
-  void updateObservers(const std::string &stateId, bool stateChanged);
+    void updateObservers(const std::string &stateId, bool stateChanged);
 };
 } // namespace fsm
 } // namespace kpsr

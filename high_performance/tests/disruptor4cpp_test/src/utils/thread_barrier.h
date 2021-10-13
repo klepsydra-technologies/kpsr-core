@@ -35,49 +35,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstddef>
 #include <mutex>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+class thread_barrier
 {
-	namespace test
-	{
-		class thread_barrier
-		{
-		public:
-			explicit thread_barrier(std::size_t count)
-				: total_wait_count_(count),
-				  current_wait_count_(count),
-				  generation_(0)
-			{
-			}
+public:
+    explicit thread_barrier(std::size_t count)
+        : total_wait_count_(count)
+        , current_wait_count_(count)
+        , generation_(0)
+    {}
 
-			~thread_barrier() = default;
+    ~thread_barrier() = default;
 
-			void wait()
-			{
-				std::size_t gen = generation_;
-				std::unique_lock<std::mutex> lock(mutex_);
-				if (--current_wait_count_ == 0)
-				{
-					generation_++;
-					current_wait_count_ = total_wait_count_;
-					condition_.notify_all();
-				}
-				else
-					condition_.wait(lock, [this, gen] { return gen != generation_; });
-			}
+    void wait()
+    {
+        std::size_t gen = generation_;
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (--current_wait_count_ == 0) {
+            generation_++;
+            current_wait_count_ = total_wait_count_;
+            condition_.notify_all();
+        } else
+            condition_.wait(lock, [this, gen] { return gen != generation_; });
+    }
 
-		private:
-			thread_barrier(const thread_barrier&) = delete;
-			thread_barrier& operator=(const thread_barrier&) = delete;
-			thread_barrier(thread_barrier&&) = delete;
-			thread_barrier& operator=(thread_barrier&&) = delete;
+private:
+    thread_barrier(const thread_barrier &) = delete;
+    thread_barrier &operator=(const thread_barrier &) = delete;
+    thread_barrier(thread_barrier &&) = delete;
+    thread_barrier &operator=(thread_barrier &&) = delete;
 
-			std::mutex mutex_;
-			std::condition_variable condition_;
-			std::size_t total_wait_count_;
-			std::size_t current_wait_count_;
-			std::size_t generation_;
-		};
-	}
-}
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    std::size_t total_wait_count_;
+    std::size_t current_wait_count_;
+    std::size_t generation_;
+};
+} // namespace test
+} // namespace disruptor4cpp
 
 #endif

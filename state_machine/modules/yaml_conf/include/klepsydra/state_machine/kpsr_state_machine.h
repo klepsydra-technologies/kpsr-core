@@ -25,12 +25,12 @@
 
 namespace kpsr {
 namespace fsm {
-class FromYaml {
+class FromYaml
+{
 public:
-  static std::shared_ptr<StateMachine>
-  createStateMachine(const std::string &specPath);
-  static std::shared_ptr<StateMachineListener>
-  createStateMachineListener(const std::string &specPath);
+    static std::shared_ptr<StateMachine> createStateMachine(const std::string &specPath);
+    static std::shared_ptr<StateMachineListener> createStateMachineListener(
+        const std::string &specPath);
 };
 } // namespace fsm
 } // namespace kpsr

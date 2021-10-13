@@ -29,10 +29,11 @@
 
 namespace kpsr {
 namespace fsm {
-class SMFactoryImpl : public StateMachineFactory {
+class SMFactoryImpl : public StateMachineFactory
+{
 public:
-  virtual std::shared_ptr<StateMachine>
-  createStateMachine(const ConfigStateMachine &cnfSm) override;
+    virtual std::shared_ptr<StateMachine> createStateMachine(
+        const ConfigStateMachine &cnfSm) override;
 };
 } // namespace fsm
 } // namespace kpsr

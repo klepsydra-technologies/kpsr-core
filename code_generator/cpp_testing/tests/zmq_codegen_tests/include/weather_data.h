@@ -22,34 +22,30 @@
 #ifndef WEATHER_DATA_H_
 #define WEATHER_DATA_H_
 
-
 // Include section.
-#include <vector>
+#include "temperature.h"
+#include <atomic>
 #include <memory>
 #include <string>
-#include <atomic>
-#include "temperature.h"
-
+#include <vector>
 
 // Klepsydra generated event class.
-class WeatherData {
+class WeatherData
+{
 public:
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int constructorInvokations;
     static std::atomic_int copyInvokations;
 
     // Default constructor.
-    WeatherData() {
-        WeatherData::emptyConstructorInvokations++;
-    }
+    WeatherData() { WeatherData::emptyConstructorInvokations++; }
 
     // Main constructor.
-    WeatherData(
-            std::string zipcode,
-            Temperature currentTemp,
-            int currentRelHumidity,
-            std::vector<std::shared_ptr<Temperature>> historicTemp,
-            std::vector<int> historicRelHumidity)
+    WeatherData(std::string zipcode,
+                Temperature currentTemp,
+                int currentRelHumidity,
+                std::vector<std::shared_ptr<Temperature>> historicTemp,
+                std::vector<int> historicRelHumidity)
         : zipcode(zipcode)
         , currentTemp(currentTemp)
         , currentRelHumidity(currentRelHumidity)
@@ -60,7 +56,7 @@ public:
     }
 
     // Clone constructor. Needed by klepsydra core APIs.
-    WeatherData(const WeatherData & that)
+    WeatherData(const WeatherData &that)
         : zipcode(that.zipcode)
         , currentTemp(that.currentTemp)
         , currentRelHumidity(that.currentRelHumidity)
@@ -71,7 +67,8 @@ public:
     }
 
     // Clone method. Needed by klepsydra core APIs.
-    void clone(const WeatherData & that) {
+    void clone(const WeatherData &that)
+    {
         this->zipcode = that.zipcode;
         this->currentTemp = that.currentTemp;
         this->currentRelHumidity = that.currentRelHumidity;

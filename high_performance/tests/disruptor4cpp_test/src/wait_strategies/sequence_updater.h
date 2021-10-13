@@ -34,52 +34,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <chrono>
 #include <thread>
 
-#include <disruptor4cpp/disruptor4cpp.h>
 #include "../utils/thread_barrier.h"
+#include <disruptor4cpp/disruptor4cpp.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+template<class Rep, class Period, typename TWaitStrategy>
+class sequence_updater
 {
-	namespace test
-	{
-		template <class Rep, class Period, typename TWaitStrategy>
-		class sequence_updater
-		{
-		public:
-			sequence_updater(const std::chrono::duration<Rep, Period>& sleep_time,
-				TWaitStrategy& wait_strategy)
-				: sequence_(),
-				  thread_barrier_(2),
-				  sleep_time_(sleep_time),
-				  wait_strategy_(wait_strategy)
-			{
-			}
+public:
+    sequence_updater(const std::chrono::duration<Rep, Period> &sleep_time,
+                     TWaitStrategy &wait_strategy)
+        : sequence_()
+        , thread_barrier_(2)
+        , sleep_time_(sleep_time)
+        , wait_strategy_(wait_strategy)
+    {}
 
-			void run()
-			{
-				thread_barrier_.wait();
-				if (sleep_time_.count() == 0)
-					std::this_thread::sleep_for(sleep_time_);
-				sequence_.increment_and_get();
-				wait_strategy_.signal_all_when_blocking();
-			}
+    void run()
+    {
+        thread_barrier_.wait();
+        if (sleep_time_.count() == 0)
+            std::this_thread::sleep_for(sleep_time_);
+        sequence_.increment_and_get();
+        wait_strategy_.signal_all_when_blocking();
+    }
 
-			void wait_for_startup()
-			{
-				thread_barrier_.wait();
-			}
+    void wait_for_startup() { thread_barrier_.wait(); }
 
-			sequence& get_sequence()
-			{
-				return sequence_;
-			}
+    sequence &get_sequence() { return sequence_; }
 
-		private:
-			sequence sequence_;
-			thread_barrier thread_barrier_;
-			std::chrono::duration<Rep, Period> sleep_time_;
-			TWaitStrategy& wait_strategy_;
-		};
-	}
-}
+private:
+    sequence sequence_;
+    thread_barrier thread_barrier_;
+    std::chrono::duration<Rep, Period> sleep_time_;
+    TWaitStrategy &wait_strategy_;
+};
+} // namespace test
+} // namespace disruptor4cpp
 
 #endif

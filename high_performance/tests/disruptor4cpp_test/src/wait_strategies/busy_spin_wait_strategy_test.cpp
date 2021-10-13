@@ -33,17 +33,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtest/gtest.h>
 
-#include <disruptor4cpp/disruptor4cpp.h>
 #include "wait_strategy_test_util.h"
+#include <disruptor4cpp/disruptor4cpp.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+TEST(busy_spin_wait_strategy_test, should_wait_for_value)
 {
-	namespace test
-	{
-		TEST(busy_spin_wait_strategy_test, should_wait_for_value)
-		{
-			busy_spin_wait_strategy wait_strategy;
-			wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(50), wait_strategy);
-		}
-	}
+    busy_spin_wait_strategy wait_strategy;
+    wait_strategy_test_util::assert_wait_for_with_delay_of(std::chrono::milliseconds(50),
+                                                           wait_strategy);
 }
+} // namespace test
+} // namespace disruptor4cpp

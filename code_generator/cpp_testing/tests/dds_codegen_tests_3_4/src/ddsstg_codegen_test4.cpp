@@ -21,23 +21,23 @@
 
 #include <gtest/gtest.h>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
 #include <klepsydra/dds_serialization/primitive_type_dds_mapper.h>
 
-#include <klepsydra/dds_core/to_dds_middleware_provider.h>
 #include <klepsydra/dds_core/from_dds_middleware_provider.h>
+#include <klepsydra/dds_core/to_dds_middleware_provider.h>
 
 #include "dds/dds.hpp"
 
 #include <klepsydra/codegen/dds/inheritance_vector4_dds_mapper.h>
 
-TEST(KpsrDdsCodegenTest4, inheritanceMapperMapperTest) {
-
+TEST(KpsrDdsCodegenTest4, inheritanceMapperMapperTest)
+{
     dds::domain::DomainParticipant dp(0);
     dds::pub::Publisher publisher(dp);
     dds::sub::Subscriber subscriber(dp);
@@ -49,15 +49,25 @@ TEST(KpsrDdsCodegenTest4, inheritanceMapperMapperTest) {
     kpsr::dds_mdlw::FromDDSMiddlewareProvider fromDDSProvider;
     kpsr::dds_mdlw::ToDDSMiddlewareProvider toDDSProvider(nullptr);
 
-    kpsr::Publisher<kpsr::codegen::InheritanceVector4> * kpsrPublisher =
-            toDDSProvider.getToMiddlewareChannel<kpsr::codegen::InheritanceVector4, kpsr_dds_codegen::InheritanceVector4Data>("kpsr_ros_codegen_test_topicA", 1, nullptr, &dataWriter);
+    kpsr::Publisher<kpsr::codegen::InheritanceVector4> *kpsrPublisher =
+        toDDSProvider.getToMiddlewareChannel<kpsr::codegen::InheritanceVector4,
+                                             kpsr_dds_codegen::InheritanceVector4Data>(
+            "kpsr_ros_codegen_test_topicA", 1, nullptr, &dataWriter);
 
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> basicProvider(nullptr, "test", 0, nullptr, nullptr);
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> basicProvider(nullptr,
+                                                                                          "test",
+                                                                                          0,
+                                                                                          nullptr,
+                                                                                          nullptr);
 
-    fromDDSProvider.registerToTopic("kpsr_dds_codegen_test_topic1", &dataReader, true, basicProvider.getPublisher());
+    fromDDSProvider.registerToTopic("kpsr_dds_codegen_test_topic1",
+                                    &dataReader,
+                                    true,
+                                    basicProvider.getPublisher());
 
     kpsr::mem::CacheListener<kpsr::codegen::InheritanceVector4> cacheListener;
-    basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    basicProvider.getSubscriber()->registerListener("cacheListener",
+                                                    cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
 
@@ -97,4 +107,3 @@ TEST(KpsrDdsCodegenTest4, inheritanceMapperMapperTest) {
 
     fromDDSProvider.unregisterFromTopic("kpsr_dds_codegen_test_topic1", &dataReader);
 }
-

@@ -17,37 +17,49 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <klepsydra/core/event_transform_forwarder.h>
-#include <klepsydra/core/event_emitter_subscriber.h>
-#include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_publisher.h>
+#include <klepsydra/core/event_emitter_subscriber.h>
+#include <klepsydra/core/event_transform_forwarder.h>
 
 #include "gtest/gtest.h"
 
-class RawMessage {
+class RawMessage
+{
 public:
     std::string message1;
     std::string message2;
     std::string message3;
 };
 
-TEST(EventTransformForwarder, BasicTest) {
+TEST(EventTransformForwarder, BasicTest)
+{
     kpsr::EventEmitter eventEmitter;
     kpsr::EventEmitterSubscriber<RawMessage> rawSubcriber(nullptr, eventEmitter, "raw");
-    kpsr::EventEmitterPublisher<RawMessage> rawPublisher(nullptr, "raw", eventEmitter, 0, nullptr, nullptr);
+    kpsr::EventEmitterPublisher<RawMessage> rawPublisher(nullptr,
+                                                         "raw",
+                                                         eventEmitter,
+                                                         0,
+                                                         nullptr,
+                                                         nullptr);
 
     kpsr::EventEmitterSubscriber<std::string> processedSubcriber(nullptr, eventEmitter, "processed");
-    kpsr::EventEmitterPublisher<std::string> processedPublisher(nullptr, "processed", eventEmitter, 0, nullptr, nullptr);
+    kpsr::EventEmitterPublisher<std::string> processedPublisher(nullptr,
+                                                                "processed",
+                                                                eventEmitter,
+                                                                0,
+                                                                nullptr,
+                                                                nullptr);
 
-    kpsr::EventTransformForwarder<RawMessage, std::string> eventTransformer(
-                [] (const RawMessage & event, std::string & transformed) {
-        transformed = event.message2;
-    }, &processedPublisher);
+    kpsr::EventTransformForwarder<RawMessage, std::string>
+        eventTransformer([](const RawMessage &event,
+                            std::string &transformed) { transformed = event.message2; },
+                         &processedPublisher);
 
     rawSubcriber.registerListener("transformer", eventTransformer.forwarderListenerFunction);
 
@@ -61,5 +73,5 @@ TEST(EventTransformForwarder, BasicTest) {
 
     rawPublisher.publish(raw);
 
-    ASSERT_EQ(* processedListener.getLastReceivedEvent(), "hello");
+    ASSERT_EQ(*processedListener.getLastReceivedEvent(), "hello");
 }

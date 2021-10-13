@@ -26,13 +26,11 @@
 
 #include <klepsydra/core/event_emitter.h>
 
-#include <klepsydra/high_performance/eventloop_data_type.h>
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
+#include <klepsydra/high_performance/eventloop_data_type.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
+namespace kpsr {
+namespace high_performance {
 /**
  * @brief The EventLoopEventHandler class
  *
@@ -50,7 +48,7 @@ public:
      * @brief EventLoopEventHandler
      * @param eventEmitter
      */
-    EventLoopEventHandler(EventEmitter & eventEmitter)
+    EventLoopEventHandler(EventEmitter &eventEmitter)
         : _eventEmitter(eventEmitter)
     {}
 
@@ -59,13 +57,12 @@ public:
     /**
      * @brief on_start
      */
-    void on_start() {
-    }
+    void on_start() {}
 
     /**
      * @brief on_shutdown
      */
-    void on_shutdown() { }
+    void on_shutdown() {}
 
     /**
      * @brief on_event as opossed to its high_performance equivalent, this implementation process all messages.
@@ -73,7 +70,8 @@ public:
      * @param sequence
      * @param end_of_batch
      */
-    void on_event(EventloopDataWrapper& event, int64_t sequence, bool end_of_batch) {
+    void on_event(EventloopDataWrapper &event, int64_t sequence, bool end_of_batch)
+    {
         _eventEmitter.emitEvent(event.eventName, event.enqueuedTimeInNs, event);
         event.eventData.reset();
     }
@@ -82,7 +80,7 @@ public:
      * @brief on_timeout
      * @param sequence
      */
-    void on_timeout(int64_t sequence) { }
+    void on_timeout(int64_t sequence) {}
 
     /**
      * @brief on_event_exception
@@ -90,25 +88,25 @@ public:
      * @param sequence
      * @param event
      */
-    void on_event_exception(const std::exception& ex, int64_t sequence, EventloopDataWrapper* event) { }
+    void on_event_exception(const std::exception &ex, int64_t sequence, EventloopDataWrapper *event)
+    {}
 
     /**
      * @brief on_start_exception
      * @param ex
      */
-    void on_start_exception(const std::exception& ex) { }
+    void on_start_exception(const std::exception &ex) {}
 
     /**
      * @brief on_shutdown_exception
      * @param ex
      */
-    void on_shutdown_exception(const std::exception& ex) { }
+    void on_shutdown_exception(const std::exception &ex) {}
 
 private:
-    EventEmitter & _eventEmitter;
-
+    EventEmitter &_eventEmitter;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif

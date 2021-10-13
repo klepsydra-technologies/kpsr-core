@@ -20,32 +20,33 @@
 #ifndef POINT3D_CLOUD_H
 #define POINT3D_CLOUD_H
 
-class Point3dCloud {
+class Point3dCloud
+{
 public:
-
     static int constructorInvokations;
     static int copyConstructorInvokations;
     static int emptyConstructorInvokations;
 
-    struct Point3d {
+    struct Point3d
+    {
         double x;
         double y;
         double z;
     };
 
-    Point3dCloud(const std::string & label, std::vector<Point3d> values)
+    Point3dCloud(const std::string &label, std::vector<Point3d> values)
         : _label(label)
-        , _values(values) {
+        , _values(values)
+    {
         Point3dCloud::constructorInvokations++;
     }
 
-    Point3dCloud() {
-        Point3dCloud::emptyConstructorInvokations++;
-    }
+    Point3dCloud() { Point3dCloud::emptyConstructorInvokations++; }
 
-    Point3dCloud(const Point3dCloud & that)
+    Point3dCloud(const Point3dCloud &that)
         : _label(that._label)
-        , _values(that._values) {
+        , _values(that._values)
+    {
         Point3dCloud::copyConstructorInvokations++;
     }
 

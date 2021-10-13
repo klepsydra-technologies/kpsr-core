@@ -35,8 +35,8 @@ namespace kpsr {
  * @details Statistics associated to the performance of the listeners. The messures include the FunctionStats messures plus the total enqueued time of the events and the number of discarded events. 
  * Events can be discarded due to a number of reasons, depending on the actual underlying implementation of the middleware.
  */
-struct SubscriptionStats : public FunctionStats {
-
+struct SubscriptionStats : public FunctionStats
+{
     /*!
      * @brief _subscriberName
      * @param listenerName name of the listener
@@ -44,7 +44,9 @@ struct SubscriptionStats : public FunctionStats {
      * @param type type of the subscriber for information purpuses (examples are: EVENT_EMITTER, EVENT_LOOP, DISRUPTOR, ROS, ZMQ, DDS)
      * 
      */
-    SubscriptionStats(const std::string & listenerName, const std::string & subscriberName, const std::string & type)
+    SubscriptionStats(const std::string &listenerName,
+                      const std::string &subscriberName,
+                      const std::string &type)
         : FunctionStats(listenerName + "_" + subscriberName)
         , _type(type)
         , _totalEnqueuedTimeInNs(0)
@@ -66,6 +68,6 @@ struct SubscriptionStats : public FunctionStats {
      */
     std::atomic_ullong _totalDiscardedEvents;
 };
-}
+} // namespace kpsr
 
 #endif // SUBSCRIPTION_STATS_H

@@ -20,11 +20,10 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
-#include <string>
 #include <chrono>
+#include <string>
 
-namespace kpsr
-{
+namespace kpsr {
 /*!
  * @brief The Sensor struct
  *
@@ -46,8 +45,10 @@ public:
     /*!
      * @brief Sensor
      */
-    Sensor() {
-        std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
+    Sensor()
+    {
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
         timestamp = ms.count();
     }
 
@@ -57,7 +58,7 @@ public:
      * @param seq
      * @param timestamp
      */
-    Sensor(const std::string & frameId, int seq, long timestamp)
+    Sensor(const std::string &frameId, int seq, long timestamp)
         : frameId(frameId)
         , seq(seq)
         , timestamp(timestamp)
@@ -68,11 +69,12 @@ public:
      * @param frameId
      * @param seq
      */
-    Sensor(const std::string & frameId, int seq)
+    Sensor(const std::string &frameId, int seq)
         : frameId(frameId)
         , seq(seq)
     {
-        std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
         timestamp = ms.count();
     }
 
@@ -80,7 +82,7 @@ public:
      * @brief Sensor
      * @param that
      */
-    Sensor(const Sensor & that)
+    Sensor(const Sensor &that)
         : frameId(that.frameId)
         , seq(that.seq)
         , timestamp(that.timestamp)
@@ -90,7 +92,8 @@ public:
      * @brief clone
      * @param that
      */
-    void clone(const Sensor & that) {
+    void clone(const Sensor &that)
+    {
         frameId = that.frameId;
         seq = that.seq;
         timestamp = that.timestamp;
@@ -111,5 +114,5 @@ public:
      */
     long timestamp;
 };
-}
+} // namespace kpsr
 #endif

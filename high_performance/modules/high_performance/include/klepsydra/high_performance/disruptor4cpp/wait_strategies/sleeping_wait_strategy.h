@@ -56,56 +56,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/fixed_sequence_group.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<int Retries = 200>
+class sleeping_wait_strategy
 {
-	template <int Retries = 200>
-	class sleeping_wait_strategy
-	{
-	public:
-		sleeping_wait_strategy() = default;
-		~sleeping_wait_strategy() = default;
+public:
+    sleeping_wait_strategy() = default;
+    ~sleeping_wait_strategy() = default;
 
-		template <typename TSequenceBarrier, typename TSequence>
-		int64_t wait_for(int64_t seq, const TSequence& cursor_sequence,
-			const fixed_sequence_group<TSequence>& dependent_sequence,
-			const TSequenceBarrier& seq_barrier)
-		{
-			int64_t available_sequence = 0;
-			int counter = Retries;
+    template<typename TSequenceBarrier, typename TSequence>
+    int64_t wait_for(int64_t seq,
+                     const TSequence &cursor_sequence,
+                     const fixed_sequence_group<TSequence> &dependent_sequence,
+                     const TSequenceBarrier &seq_barrier)
+    {
+        int64_t available_sequence = 0;
+        int counter = Retries;
 
-			while ((available_sequence = dependent_sequence.get()) < seq)
-			{
-				counter = apply_wait_method(seq_barrier, counter);
-			}
-			return available_sequence;
-		}
+        while ((available_sequence = dependent_sequence.get()) < seq) {
+            counter = apply_wait_method(seq_barrier, counter);
+        }
+        return available_sequence;
+    }
 
-		void signal_all_when_blocking()
-		{
-		}
+    void signal_all_when_blocking() {}
 
-	private:
-		sleeping_wait_strategy(const sleeping_wait_strategy&) = delete;
-		sleeping_wait_strategy& operator=(const sleeping_wait_strategy&) = delete;
-		sleeping_wait_strategy(sleeping_wait_strategy&&) = delete;
-		sleeping_wait_strategy& operator=(sleeping_wait_strategy&&) = delete;
+private:
+    sleeping_wait_strategy(const sleeping_wait_strategy &) = delete;
+    sleeping_wait_strategy &operator=(const sleeping_wait_strategy &) = delete;
+    sleeping_wait_strategy(sleeping_wait_strategy &&) = delete;
+    sleeping_wait_strategy &operator=(sleeping_wait_strategy &&) = delete;
 
-		template <typename TSequenceBarrier>
-		int apply_wait_method(const TSequenceBarrier& seq_barrier, int counter)
-		{
-			seq_barrier.check_alert();
-			if (counter > 100)
-				--counter;
-			else if (counter > 0)
-			{
-				--counter;
-				std::this_thread::yield();
-			}
-			else
-				std::this_thread::sleep_for(std::chrono::nanoseconds(1));
-			return counter;
-		}
-	};
-}
+    template<typename TSequenceBarrier>
+    int apply_wait_method(const TSequenceBarrier &seq_barrier, int counter)
+    {
+        seq_barrier.check_alert();
+        if (counter > 100)
+            --counter;
+        else if (counter > 0) {
+            --counter;
+            std::this_thread::yield();
+        } else
+            std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+        return counter;
+    }
+};
+} // namespace disruptor4cpp
 
 #endif

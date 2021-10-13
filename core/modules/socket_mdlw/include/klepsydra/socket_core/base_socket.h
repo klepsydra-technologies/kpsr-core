@@ -20,10 +20,8 @@
 #ifndef BASE_SOCKET_H
 #define BASE_SOCKET_H
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 /**
  * @brief The BaseSocket class
  *
@@ -41,12 +39,13 @@ class BaseSocket
     /**
      * @brief socketId
      */
-    int     socketId;
+    int socketId;
+
 protected:
     /**
      * @brief invalidSocketId
      */
-    static constexpr int invalidSocketId      = -1;
+    static constexpr int invalidSocketId = -1;
 
     /**
      * @brief Constructor
@@ -58,7 +57,8 @@ protected:
     /**
      * @brief getSocketId
      */
-    int getSocketId() const {return socketId;}
+    int getSocketId() const { return socketId; }
+
 public:
     /**
      * @brief ~BaseSocket
@@ -70,31 +70,31 @@ public:
      * @param move
      * @details Moveable but not Copyable
      */
-    BaseSocket(BaseSocket&& move)               noexcept;
+    BaseSocket(BaseSocket &&move) noexcept;
 
     /**
      * @brief operator =
      * @param move
      * @return
      */
-    BaseSocket& operator=(BaseSocket&& move)    noexcept;
+    BaseSocket &operator=(BaseSocket &&move) noexcept;
 
     /**
      * @brief swap
      * @param other
      */
-    void swap(BaseSocket& other)                noexcept;
+    void swap(BaseSocket &other) noexcept;
 
     /**
      * @brief BaseSocket
      */
-    BaseSocket(BaseSocket const&)               = delete;
+    BaseSocket(BaseSocket const &) = delete;
 
     /**
      * @brief operator =
      * @return
      */
-    BaseSocket& operator=(BaseSocket const&)    = delete;
+    BaseSocket &operator=(BaseSocket const &) = delete;
 
     /**
      * @brief close
@@ -103,8 +103,7 @@ public:
     void close();
 };
 
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif
-

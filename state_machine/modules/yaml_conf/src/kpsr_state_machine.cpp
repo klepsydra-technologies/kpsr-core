@@ -21,19 +21,20 @@
 
 namespace kpsr {
 namespace fsm {
-std::shared_ptr<StateMachine>
-FromYaml::createStateMachine(const std::string &specPath) {
-  YamlConfigLoader cnfLoader;
-  ConfigStateMachine cnfSm = cnfLoader.loadConfig(specPath);
-  SMFactoryImpl smFactory;
-  return smFactory.createStateMachine(cnfSm);
+std::shared_ptr<StateMachine> FromYaml::createStateMachine(const std::string &specPath)
+{
+    YamlConfigLoader cnfLoader;
+    ConfigStateMachine cnfSm = cnfLoader.loadConfig(specPath);
+    SMFactoryImpl smFactory;
+    return smFactory.createStateMachine(cnfSm);
 }
 
-std::shared_ptr<StateMachineListener>
-FromYaml::createStateMachineListener(const std::string &specPath) {
-  YamlConfigLoader cnfLoader;
-  ConfigStateMachine cnfSm = cnfLoader.loadConfig(specPath);
-  return std::make_shared<StateMachineListener>(cnfSm.id);
+std::shared_ptr<StateMachineListener> FromYaml::createStateMachineListener(
+    const std::string &specPath)
+{
+    YamlConfigLoader cnfLoader;
+    ConfigStateMachine cnfSm = cnfLoader.loadConfig(specPath);
+    return std::make_shared<StateMachineListener>(cnfSm.id);
 }
 } // namespace fsm
 } // namespace kpsr

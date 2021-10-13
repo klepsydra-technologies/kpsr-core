@@ -21,19 +21,18 @@
 #define PRIMITIVE_TYPE_DDS_MAPPER_H
 
 #include <bool_data.hpp>
-#include <octet_data.hpp>
-#include <long_data.hpp>
-#include <long_long_data.hpp>
 #include <double_data.hpp>
 #include <float_data.hpp>
+#include <long_data.hpp>
+#include <long_long_data.hpp>
+#include <octet_data.hpp>
 #include <string_data.hpp>
 
 #include <string>
 
 #include <klepsydra/serialization/mapper.h>
 
-namespace kpsr
-{
+namespace kpsr {
 template<>
 /**
  * @brief The Mapper<bool, kpsr_dds_serialization::BoolData> class
@@ -53,7 +52,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::BoolData& message, bool& event) {
+    void fromMiddleware(const kpsr_dds_serialization::BoolData &message, bool &event)
+    {
         event = message.data();
     }
 
@@ -62,7 +62,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const bool& event, kpsr_dds_serialization::BoolData& message) {
+    void toMiddleware(const bool &event, kpsr_dds_serialization::BoolData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -90,7 +91,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::OctetData& message, unsigned char& event) {
+    void fromMiddleware(const kpsr_dds_serialization::OctetData &message, unsigned char &event)
+    {
         event = message.data();
     }
 
@@ -99,7 +101,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const unsigned char& event, kpsr_dds_serialization::OctetData& message) {
+    void toMiddleware(const unsigned char &event, kpsr_dds_serialization::OctetData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -127,7 +130,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::LongData& message, int& event) {
+    void fromMiddleware(const kpsr_dds_serialization::LongData &message, int &event)
+    {
         event = message.data();
     }
 
@@ -136,7 +140,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const int& event, kpsr_dds_serialization::LongData& message) {
+    void toMiddleware(const int &event, kpsr_dds_serialization::LongData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -164,7 +169,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::LongLongData& message, long& event) {
+    void fromMiddleware(const kpsr_dds_serialization::LongLongData &message, long &event)
+    {
         event = message.data();
     }
 
@@ -173,7 +179,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const long& event, kpsr_dds_serialization::LongLongData& message) {
+    void toMiddleware(const long &event, kpsr_dds_serialization::LongLongData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -201,7 +208,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::FloatData& message, float& event) {
+    void fromMiddleware(const kpsr_dds_serialization::FloatData &message, float &event)
+    {
         event = message.data();
     }
 
@@ -210,7 +218,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const float& event, kpsr_dds_serialization::FloatData& message) {
+    void toMiddleware(const float &event, kpsr_dds_serialization::FloatData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -238,7 +247,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::DoubleData& message, double& event) {
+    void fromMiddleware(const kpsr_dds_serialization::DoubleData &message, double &event)
+    {
         event = message.data();
     }
 
@@ -247,7 +257,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const double& event, kpsr_dds_serialization::DoubleData& message) {
+    void toMiddleware(const double &event, kpsr_dds_serialization::DoubleData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -275,7 +286,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::StringData& message, std::string& event) {
+    void fromMiddleware(const kpsr_dds_serialization::StringData &message, std::string &event)
+    {
         event = message.data();
     }
 
@@ -284,7 +296,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const std::string& event, kpsr_dds_serialization::StringData& message) {
+    void toMiddleware(const std::string &event, kpsr_dds_serialization::StringData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -292,6 +305,6 @@ public:
 private:
     int _id = 0;
 };
-}
+} // namespace kpsr
 
 #endif // PRIMITIVE_TYPE_DDS_MAPPER_H

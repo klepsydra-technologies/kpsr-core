@@ -23,17 +23,16 @@
 #include <memory>
 #include <streambuf>
 
-#include <cereal/cereal.hpp>
 #include <cereal/archives/portable_binary.hpp>
+#include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
 
 #include <klepsydra/serialization/mapper.h>
 
 using Base = std::basic_streambuf<char> *;
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 /**
  * @brief The Mapper<T, Base> class
  *
@@ -52,7 +51,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const Base & message, T& event) {
+    void fromMiddleware(const Base &message, T &event)
+    {
         std::istream iss(message);
         cereal::PortableBinaryInputArchive archive(iss);
         archive(CEREAL_NVP(event));
@@ -63,7 +63,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const T& event, Base & message) {
+    void toMiddleware(const T &event, Base &message)
+    {
         std::ostream oss(message);
         {
             cereal::PortableBinaryOutputArchive archive(oss);
@@ -71,6 +72,6 @@ public:
         }
     }
 };
-}
+} // namespace kpsr
 
 #endif // CEREAL_BINARY_MAPPER_H

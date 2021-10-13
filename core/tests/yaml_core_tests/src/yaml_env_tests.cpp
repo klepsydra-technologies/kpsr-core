@@ -17,21 +17,21 @@
 *
 ****************************************************************************/
 
-#include <string.h>
+#include <algorithm>
 #include <chrono>
-#include<algorithm>
+#include <string.h>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include "gtest/gtest.h"
 
-#include <klepsydra/core/yaml_environment.h>
 #include "config.h"
+#include <klepsydra/core/yaml_environment.h>
 
-TEST(YamlEnvironmentTest, SingleFileNoRootTest) {
-
+TEST(YamlEnvironmentTest, SingleFileNoRootTest)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -45,12 +45,12 @@ TEST(YamlEnvironmentTest, SingleFileNoRootTest) {
 
     std::string nameWithRootName;
     ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
-    
+
     ASSERT_EQ(nameWithRootName, basename);
 }
 
-TEST(YamlEnvironmentTest, SingleFileNonDefaultRootTest) {
-
+TEST(YamlEnvironmentTest, SingleFileNonDefaultRootTest)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -64,13 +64,12 @@ TEST(YamlEnvironmentTest, SingleFileNonDefaultRootTest) {
 
     std::string nameWithRootName;
     environment.getPropertyString("filename", nameWithRootName, rootName);
-    
+
     ASSERT_EQ(nameWithRootName, basename);
 }
 
-
-TEST(YamlEnvironmentTest, TwoFilesDefaultAndNonDefaultRootTest) {
-
+TEST(YamlEnvironmentTest, TwoFilesDefaultAndNonDefaultRootTest)
+{
     std::string basename1("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename1 = folderName + "/" + basename1;
@@ -85,13 +84,13 @@ TEST(YamlEnvironmentTest, TwoFilesDefaultAndNonDefaultRootTest) {
 
     std::string nameWithRootName;
     environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT);
-    
+
     ASSERT_EQ(nameWithRootName, basename1);
 
     std::string basename2("testfile2.yaml");
     std::string filename2 = folderName + "/" + basename2;
     std::string rootName2("secondFile");
-    
+
     environment.loadFile(filename2, rootName2);
 
     std::string secondNameInFile;
@@ -100,11 +99,11 @@ TEST(YamlEnvironmentTest, TwoFilesDefaultAndNonDefaultRootTest) {
     ASSERT_EQ(secondNameInFile, basename2);
 }
 
-TEST(YamlEnvironmentTest, NoRootSetValueTest) {
-
+TEST(YamlEnvironmentTest, NoRootSetValueTest)
+{
     kpsr::YamlEnvironment environment;
 
-    std::string nameInFile="testFile";
+    std::string nameInFile = "testFile";
     std::string intName = "intValue";
     int testValueInt = 45;
 
@@ -132,11 +131,12 @@ TEST(YamlEnvironmentTest, NoRootSetValueTest) {
     ASSERT_EQ(testValueFloat, floatValueInNode);
 }
 
-TEST(YamlEnvironmentTest, SetValueTest) {
+TEST(YamlEnvironmentTest, SetValueTest)
+{
     kpsr::YamlEnvironment environment;
 
     std::string root = "testRoot";
-    std::string nameInFile="testFile";
+    std::string nameInFile = "testFile";
     std::string intName = "intValue";
     int testValueInt = 45;
     std::string floatName = "floatValue";
@@ -159,8 +159,8 @@ TEST(YamlEnvironmentTest, SetValueTest) {
     ASSERT_EQ(testValueFloat, floatValueInNode);
 }
 
-TEST(YamlEnvironmentTest, LoadFileNoRootTest) {
-
+TEST(YamlEnvironmentTest, LoadFileNoRootTest)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -176,12 +176,12 @@ TEST(YamlEnvironmentTest, LoadFileNoRootTest) {
 
     std::string nameWithRootName;
     ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
-    
+
     ASSERT_EQ(nameWithRootName, basename);
 }
 
-TEST(YamlEnvironmentTest, UpdateConfigurationNoRootTest) {
-
+TEST(YamlEnvironmentTest, UpdateConfigurationNoRootTest)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -192,19 +192,19 @@ TEST(YamlEnvironmentTest, UpdateConfigurationNoRootTest) {
     ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile));
 
     std::string fileEnvironmentString = fileEnvironment.exportEnvironment();
-    
+
     ASSERT_NO_THROW(environment.updateConfiguration(fileEnvironmentString));
     ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile));
     ASSERT_EQ(nameInFile, basename);
 
     std::string nameWithRootName;
     ASSERT_NO_THROW(environment.getPropertyString("filename", nameWithRootName, kpsr::DEFAULT_ROOT));
-    
+
     ASSERT_EQ(nameWithRootName, basename);
 }
 
-TEST(YamlEnvironmentTest, UpdateConfigurationRootTest) {
-
+TEST(YamlEnvironmentTest, UpdateConfigurationRootTest)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -215,16 +215,16 @@ TEST(YamlEnvironmentTest, UpdateConfigurationRootTest) {
     ASSERT_ANY_THROW(environment.getPropertyString("filename", nameInFile, root));
 
     std::string fileEnvironmentString = fileEnvironment.exportEnvironment();
-    
+
     ASSERT_NO_THROW(environment.updateConfiguration(fileEnvironmentString, root));
     ASSERT_NO_THROW(environment.getPropertyString("filename", nameInFile, root));
     ASSERT_EQ(nameInFile, basename);
-
 }
 
-TEST(YamlEnvironmentTest, keyThrowTest) {
+TEST(YamlEnvironmentTest, keyThrowTest)
+{
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);

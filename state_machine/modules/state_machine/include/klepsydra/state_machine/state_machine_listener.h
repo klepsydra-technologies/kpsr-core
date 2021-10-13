@@ -27,36 +27,31 @@
 
 namespace kpsr {
 namespace fsm {
-class StateMachineListener {
+class StateMachineListener
+{
 public:
-  StateMachineListener(const std::string &stateMachineId = "");
+    StateMachineListener(const std::string &stateMachineId = "");
 
-  std::function<void(const std::string &currentState, bool stateChanged)>
-  getObserverFunc();
+    std::function<void(const std::string &currentState, bool stateChanged)> getObserverFunc();
 
-  void addAction(const std::string &stateId,
-                 std::function<void(const std::string &)> action);
-  void addOneOffAction(const std::string &stateId,
-                       std::function<void(const std::string &)> action);
-  void addPeriodicAction(const std::string &stateId,
+    void addAction(const std::string &stateId, std::function<void(const std::string &)> action);
+    void addOneOffAction(const std::string &stateId,
                          std::function<void(const std::string &)> action);
-  void removeActions(const std::string &stateId);
-  void removeActions();
+    void addPeriodicAction(const std::string &stateId,
+                           std::function<void(const std::string &)> action);
+    void removeActions(const std::string &stateId);
+    void removeActions();
 
 private:
-  void updateCurrentState(const std::string &currentStateId, bool stateChanged);
-  std::unordered_map<std::string,
-                     std::vector<std::function<void(const std::string &)>>>
-      _actions;
-  std::unordered_map<std::string,
-                     std::vector<std::function<void(const std::string &)>>>
-      _oneOffActions;
-  std::unordered_map<std::string,
-                     std::vector<std::function<void(const std::string &)>>>
-      _periodicActions;
-  std::string _stateMachineId;
+    void updateCurrentState(const std::string &currentStateId, bool stateChanged);
+    std::unordered_map<std::string, std::vector<std::function<void(const std::string &)>>> _actions;
+    std::unordered_map<std::string, std::vector<std::function<void(const std::string &)>>>
+        _oneOffActions;
+    std::unordered_map<std::string, std::vector<std::function<void(const std::string &)>>>
+        _periodicActions;
+    std::string _stateMachineId;
 
-  std::string getCompleteName(const std::string &stateId);
+    std::string getCompleteName(const std::string &stateId);
 };
 } // namespace fsm
 } // namespace kpsr

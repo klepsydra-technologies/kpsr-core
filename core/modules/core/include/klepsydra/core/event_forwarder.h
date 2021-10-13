@@ -22,9 +22,8 @@
 
 #include <klepsydra/core/publisher.h>
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 
 /*!
  * @brief The EventForwarder class
@@ -45,20 +44,16 @@ public:
      * @brief EventForwarder
      * @param publisher
      */
-    EventForwarder(Publisher<T> * publisher) {
-        _publisher = publisher;
-    }
+    EventForwarder(Publisher<T> *publisher) { _publisher = publisher; }
 
     /*!
      * @brief onMessageReceived
      * @param event
      */
-    void onMessageReceived(const T& event) {
-        _publisher->publish(event);
-    }
+    void onMessageReceived(const T &event) { _publisher->publish(event); }
 
 private:
-    Publisher<T> * _publisher;
+    Publisher<T> *_publisher;
 };
-}
+} // namespace kpsr
 #endif

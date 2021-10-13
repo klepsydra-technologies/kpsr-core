@@ -25,8 +25,8 @@
 
 #include <ros/ros.h>
 
-#include <klepsydra/core/to_middleware_channel.h>
 #include "to_ros_channel.h"
+#include <klepsydra/core/to_middleware_channel.h>
 
 namespace kpsr {
 namespace ros_mdlw {
@@ -58,18 +58,18 @@ namespace ros_mdlw {
 @endcode
  *
  */
-class ToRosMiddlewareProvider {
+class ToRosMiddlewareProvider
+{
 public:
-
     /**
      * @brief ToRosMiddlewareProvider
      * @param container
      */
-    ToRosMiddlewareProvider(Container * container)
+    ToRosMiddlewareProvider(Container *container)
         : _container(container)
     {}
 
-    template <class T, class M>
+    template<class T, class M>
     /**
      * @brief getToMiddlewareChannel
      * @param topic
@@ -78,23 +78,32 @@ public:
      * @param publisher
      * @return
      */
-    Publisher<T> * getToMiddlewareChannel(const std::string & topic, int poolSize, std::function<void(M &)> initializerFunction, ros::Publisher & publisher) {
+    Publisher<T> *getToMiddlewareChannel(const std::string &topic,
+                                         int poolSize,
+                                         std::function<void(M &)> initializerFunction,
+                                         ros::Publisher &publisher)
+    {
         auto search = _publisherMap.find(topic);
         if (search != _publisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
-            std::shared_ptr<Publisher<T>> kpsrPublisher = std::static_pointer_cast<Publisher<T>>(internalPointer);
+            std::shared_ptr<Publisher<T>> kpsrPublisher = std::static_pointer_cast<Publisher<T>>(
+                internalPointer);
             return kpsrPublisher.get();
-        }
-        else {
-            ToRosChannel<M> * toRosChannel = new ToRosChannel<M>(_container, topic, poolSize, initializerFunction, publisher);
-            std::shared_ptr<Publisher<T>> kpsrPublisher(new ToMiddlewareChannel<T, M>(_container, topic + "_rosstg", toRosChannel));
+        } else {
+            ToRosChannel<M> *toRosChannel = new ToRosChannel<M>(_container,
+                                                                topic,
+                                                                poolSize,
+                                                                initializerFunction,
+                                                                publisher);
+            std::shared_ptr<Publisher<T>> kpsrPublisher(
+                new ToMiddlewareChannel<T, M>(_container, topic + "_rosstg", toRosChannel));
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(kpsrPublisher);
             _publisherMap[topic] = internalPointer;
             return kpsrPublisher.get();
         }
     }
 
-    template <class T>
+    template<class T>
     /**
      * @brief getToMiddlewareChannel
      * @param topic
@@ -103,28 +112,35 @@ public:
      * @param publisher
      * @return
      */
-    Publisher<T> * getToMiddlewareChannel(const std::string & topic, int poolSize, std::function<void(T &)> initializerFunction, ros::Publisher & publisher) {
+    Publisher<T> *getToMiddlewareChannel(const std::string &topic,
+                                         int poolSize,
+                                         std::function<void(T &)> initializerFunction,
+                                         ros::Publisher &publisher)
+    {
         auto search = _publisherMap.find(topic);
         if (search != _publisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
-            std::shared_ptr<Publisher<T>> kpsrPublisher = std::static_pointer_cast<Publisher<T>>(internalPointer);
+            std::shared_ptr<Publisher<T>> kpsrPublisher = std::static_pointer_cast<Publisher<T>>(
+                internalPointer);
             return kpsrPublisher.get();
-        }
-        else {
-            auto toRosChannel = std::make_shared<ToRosChannel<T> >(_container, topic, poolSize, initializerFunction, publisher);
+        } else {
+            auto toRosChannel = std::make_shared<ToRosChannel<T>>(_container,
+                                                                  topic,
+                                                                  poolSize,
+                                                                  initializerFunction,
+                                                                  publisher);
             // std::shared_ptr<Publisher<T>> kpsrPublisher(new ToMiddlewareChannel<T, M>(_container, topic + "_rosstg", toRosChannel));
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(toRosChannel);
             _publisherMap[topic] = internalPointer;
             return toRosChannel.get();
         }
     }
+
 private:
-    Container * _container;
+    Container *_container;
     std::map<std::string, std::shared_ptr<void>> _publisherMap;
 };
-}
-}
-
+} // namespace ros_mdlw
+} // namespace kpsr
 
 #endif // TO_ROS_MIDDLEWARE_PROVIDER_H
-

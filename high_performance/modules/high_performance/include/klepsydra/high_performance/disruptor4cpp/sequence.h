@@ -55,59 +55,47 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/utils/cache_line_storage.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+class sequence
 {
-	class sequence
-	{
-	public:
-		static constexpr int64_t INITIAL_VALUE = -1;
+public:
+    static constexpr int64_t INITIAL_VALUE = -1;
 
-		sequence()
-			: sequence_(INITIAL_VALUE)
-		{
-		}
+    sequence()
+        : sequence_(INITIAL_VALUE)
+    {}
 
-		explicit sequence(int64_t initial_value)
-			: sequence_(initial_value)
-		{
-		}
+    explicit sequence(int64_t initial_value)
+        : sequence_(initial_value)
+    {}
 
-		~sequence() = default;
+    ~sequence() = default;
 
-		int64_t get() const
-		{
-			return sequence_.load(std::memory_order_acquire);
-		}
+    int64_t get() const { return sequence_.load(std::memory_order_acquire); }
 
-		void set(int64_t value)
-		{
-            sequence_.store(value, std::memory_order_release);
-		}
+    void set(int64_t value) { sequence_.store(value, std::memory_order_release); }
 
-		bool compare_and_set(int64_t expected_value, int64_t new_value)
-		{
-            return sequence_.compare_exchange_weak(expected_value, new_value);
-		}
+    bool compare_and_set(int64_t expected_value, int64_t new_value)
+    {
+        return sequence_.compare_exchange_weak(expected_value, new_value);
+    }
 
-		int64_t increment_and_get()
-		{
-            return add_and_get(1);
-		}
+    int64_t increment_and_get() { return add_and_get(1); }
 
-		int64_t add_and_get(int64_t increment)
-		{
-            return sequence_.fetch_add(increment, std::memory_order_release) + increment;
-		}
+    int64_t add_and_get(int64_t increment)
+    {
+        return sequence_.fetch_add(increment, std::memory_order_release) + increment;
+    }
 
-	private:
-		sequence(const sequence&) = delete;
-		sequence& operator=(const sequence&) = delete;
-		sequence(sequence&&) = delete;
-		sequence& operator=(sequence&&) = delete;
+private:
+    sequence(const sequence &) = delete;
+    sequence &operator=(const sequence &) = delete;
+    sequence(sequence &&) = delete;
+    sequence &operator=(sequence &&) = delete;
 
-		alignas(CACHE_LINE_SIZE) std::atomic<int64_t> sequence_;
-		char padding[CACHE_LINE_SIZE - sizeof(std::atomic<int64_t>)];
-	};
-}
+    alignas(CACHE_LINE_SIZE) std::atomic<int64_t> sequence_;
+    char padding[CACHE_LINE_SIZE - sizeof(std::atomic<int64_t>)];
+};
+} // namespace disruptor4cpp
 
 #endif

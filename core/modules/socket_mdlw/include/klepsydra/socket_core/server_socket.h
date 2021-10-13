@@ -25,10 +25,8 @@
 #include <klepsydra/socket_core/base_socket.h>
 #include <klepsydra/socket_core/data_socket.h>
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 /**
  * @brief The ServerSocket class
  *
@@ -40,9 +38,10 @@ namespace socket_mdlw
  *
  * @details A server socket that listens on a port for a connection
  */
-class ServerSocket: public BaseSocket
+class ServerSocket : public BaseSocket
 {
     static constexpr int maxConnectionBacklog = 5;
+
 public:
     /**
      * @brief ServerSocket
@@ -54,7 +53,7 @@ public:
      * @brief ServerSocket
      * @param socketPath
      */
-    explicit ServerSocket(const std::string & socketPath);
+    explicit ServerSocket(const std::string &socketPath);
 
     /**
      * @brief accept
@@ -64,11 +63,10 @@ public:
      * @details An accepts waits for a connection and returns a
      * socket object that can be used by the client for communication
      */
-    std::shared_ptr<DataSocket> accept(int timeout_us=1000000);
+    std::shared_ptr<DataSocket> accept(int timeout_us = 1000000);
 };
 
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif
-

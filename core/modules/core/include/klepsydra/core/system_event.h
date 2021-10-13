@@ -35,9 +35,9 @@ namespace kpsr {
  */
 enum SystemEventData {
 
-  Start = 0,
-  Stop = 1,
-  Idle = 2
+    Start = 0,
+    Stop = 1,
+    Idle = 2
 
 };
 } // namespace kpsr

@@ -30,10 +30,8 @@
 
 #include <klepsydra/zmq_core/zmq_environment_data.h>
 
-namespace kpsr
-{
-namespace zmq_mdlw
-{
+namespace kpsr {
+namespace zmq_mdlw {
 class ZMQEnv;
 /**
  * @brief The ZMQConfigurationPoller class
@@ -48,7 +46,7 @@ class ZMQEnv;
 class ZMQConfigurationPoller
 {
 public:
-    ZMQConfigurationPoller(const std::string & zmqKey, ZMQEnv * zmqEnv, long sourceId, int pollPeriod);
+    ZMQConfigurationPoller(const std::string &zmqKey, ZMQEnv *zmqEnv, long sourceId, int pollPeriod);
 
     void poll();
 
@@ -58,7 +56,7 @@ public:
 
 private:
     std::string _zmqKey;
-    ZMQEnv * _zmqEnv;
+    ZMQEnv *_zmqEnv;
     long _sourceId;
     int _pollPeriod;
     bool _running;
@@ -93,9 +91,9 @@ public:
            std::string zmqKey,
            std::string topicName,
            int pollPeriod,
-           zmq::socket_t & zmqPublisher,
-           zmq::socket_t & zmqSubscriber,
-           const std::string& rootNode = kpsr::DEFAULT_ROOT);
+           zmq::socket_t &zmqPublisher,
+           zmq::socket_t &zmqSubscriber,
+           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief ZMQEnv
@@ -103,10 +101,10 @@ public:
      * @param zmqPublisher
      * @param zmqSubscriber
      */
-    ZMQEnv(YamlEnvironment * yamlEnvironment,
-           zmq::socket_t & zmqPublisher,
-           zmq::socket_t & zmqSubscriber,
-           const std::string& rootNode = kpsr::DEFAULT_ROOT);
+    ZMQEnv(YamlEnvironment *yamlEnvironment,
+           zmq::socket_t &zmqPublisher,
+           zmq::socket_t &zmqSubscriber,
+           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     ~ZMQEnv();
 
@@ -115,88 +113,103 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string & key, std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyString(const std::string &key,
+                           std::string &value,
+                           const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string & key, int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyInt(const std::string &key,
+                        int &value,
+                        const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string & key, float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyFloat(const std::string &key,
+                          float &value,
+                          const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string & key, bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyBool(const std::string &key,
+                         bool &value,
+                         const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    void setPropertyString(const std::string & key, const std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyString(const std::string &key,
+                           const std::string &value,
+                           const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    void setPropertyInt(const std::string & key, const int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyInt(const std::string &key,
+                        const int &value,
+                        const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    void setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyFloat(const std::string &key,
+                          const float &value,
+                          const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    void setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyBool(const std::string &key,
+                         const bool &value,
+                         const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
-    void loadFile(const std::string & fileName, const std::string & nodeName) override;
-
-    /**
-     * @brief updateConfiguration
-     * @param configurationData
-     */
-    void updateConfiguration(const std::string & configurationData);
+    void loadFile(const std::string &fileName, const std::string &nodeName) override;
 
     /**
      * @brief updateConfiguration
      * @param configurationData
      */
-    void updateConfiguration(const std::string & configurationData, const std::string & rootNode);
+    void updateConfiguration(const std::string &configurationData);
 
-    zmq::socket_t & _zmqSubscriber;
+    /**
+     * @brief updateConfiguration
+     * @param configurationData
+     */
+    void updateConfiguration(const std::string &configurationData, const std::string &rootNode);
+
+    zmq::socket_t &_zmqSubscriber;
 
 private:
     void publishConfiguration();
 
-    YamlEnvironment * _decorableEnv;
+    YamlEnvironment *_decorableEnv;
 
-    zmq::socket_t & _zmqPublisher;
+    zmq::socket_t &_zmqPublisher;
     std::string _topicName;
     std::string _zmqKey;
     int _pollPeriod;
     long _timestamp;
-    ZMQConfigurationPoller * _poller;
+    ZMQConfigurationPoller *_poller;
     kpsr::Mapper<ZMQEnvironmentData, std::string> mapper;
     bool _isEnvLocal;
-
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 #endif

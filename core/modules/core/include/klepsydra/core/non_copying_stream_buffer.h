@@ -35,17 +35,16 @@ namespace core {
  * @ingroup kpsr-zmq-internal
  *
  */
-class NonCopyingStringBuffer : public std::basic_streambuf<char> {
+class NonCopyingStringBuffer : public std::basic_streambuf<char>
+{
 public:
     /**
      * @brief NonCopyingStringBuffer
      * @param data
      * @param size
      */
-    NonCopyingStringBuffer(char * data, long size) {
-        setg(data, data, data + size);
-    }
+    NonCopyingStringBuffer(char *data, long size) { setg(data, data, data + size); }
 };
-}
-}
+} // namespace core
+} // namespace kpsr
 #endif // NON_COPYING_STREAM_BUFFER_H

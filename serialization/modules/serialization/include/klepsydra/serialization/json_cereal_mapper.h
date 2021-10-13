@@ -22,14 +22,13 @@
 
 #include <sstream>
 
-#include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
+#include <cereal/cereal.hpp>
 
 #include <klepsydra/serialization/mapper.h>
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 /**
  * @brief The Mapper<T, std::string> class
  *
@@ -48,7 +47,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const std::string& message, T& event) {
+    void fromMiddleware(const std::string &message, T &event)
+    {
         std::stringstream ss;
         ss.str(message);
         cereal::JSONInputArchive archive(ss);
@@ -60,15 +60,16 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const T& event, std::string& message) {
+    void toMiddleware(const T &event, std::string &message)
+    {
         std::stringstream ss;
         {
-            cereal::JSONOutputArchive archive( ss );
+            cereal::JSONOutputArchive archive(ss);
             archive(CEREAL_NVP(event));
         }
         message = ss.str();
     }
 };
-}
+} // namespace kpsr
 
 #endif // CEREAL_JSON_MAPPER_H

@@ -24,10 +24,8 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-namespace kpsr
-{
-namespace ros_mdlw
-{
+namespace kpsr {
+namespace ros_mdlw {
 template<class M>
 /**
  * @brief The ToRosChannel class
@@ -49,18 +47,24 @@ public:
      * @param environment
      * @param rosPublisher
      */
-    ToRosChannel(Container * container, const std::string & name, int poolSize, std::function<void(M &)> initializerFunction, ros::Publisher & rosPublisher)
+    ToRosChannel(Container *container,
+                 const std::string &name,
+                 int poolSize,
+                 std::function<void(M &)> initializerFunction,
+                 ros::Publisher &rosPublisher)
         : ObjectPoolPublisher<M>(container, name, "ROS", poolSize, initializerFunction, nullptr)
         , _rosPublisher(rosPublisher)
     {}
 
 protected:
-    void internalPublish(std::shared_ptr<const M> message) override {
+    void internalPublish(std::shared_ptr<const M> message) override
+    {
         _rosPublisher.publish(*message);
     }
+
 private:
-    ros::Publisher & _rosPublisher;
+    ros::Publisher &_rosPublisher;
 };
-}
-}
+} // namespace ros_mdlw
+} // namespace kpsr
 #endif

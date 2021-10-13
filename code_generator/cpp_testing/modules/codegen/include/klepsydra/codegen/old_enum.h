@@ -22,12 +22,8 @@
 
 namespace kpsr {
 namespace codegen {
-enum OldEnum {
-    oldA,
-    oldB
-};
+enum OldEnum { oldA, oldB };
 }
-}
+} // namespace kpsr
 
 #endif // OLD_ENUM_H
-

@@ -133,6 +133,9 @@ if (KPSR_WITH_CODE_METRICS)
    include(Findcppcheck)
 ENDIF()
 
+# Code format check
+include(CodeFormat)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()

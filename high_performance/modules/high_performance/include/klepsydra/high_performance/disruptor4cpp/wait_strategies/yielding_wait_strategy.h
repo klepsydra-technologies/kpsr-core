@@ -55,51 +55,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/fixed_sequence_group.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<int SpinTries = 100>
+class yielding_wait_strategy
 {
-	template <int SpinTries = 100>
-	class yielding_wait_strategy
-	{
-	public:
-		yielding_wait_strategy() = default;
-		~yielding_wait_strategy() = default;
+public:
+    yielding_wait_strategy() = default;
+    ~yielding_wait_strategy() = default;
 
-		template <typename TSequenceBarrier, typename TSequence>
-		int64_t wait_for(int64_t seq, const TSequence& cursor_sequence,
-			const fixed_sequence_group<TSequence>& dependent_sequence,
-			const TSequenceBarrier& seq_barrier)
-		{
-			int64_t available_sequence = 0;
-			int counter = SpinTries;
+    template<typename TSequenceBarrier, typename TSequence>
+    int64_t wait_for(int64_t seq,
+                     const TSequence &cursor_sequence,
+                     const fixed_sequence_group<TSequence> &dependent_sequence,
+                     const TSequenceBarrier &seq_barrier)
+    {
+        int64_t available_sequence = 0;
+        int counter = SpinTries;
 
-			while ((available_sequence = dependent_sequence.get()) < seq)
-			{
-				counter = apply_wait_method(seq_barrier, counter);
-			}
-			return available_sequence;
-		}
+        while ((available_sequence = dependent_sequence.get()) < seq) {
+            counter = apply_wait_method(seq_barrier, counter);
+        }
+        return available_sequence;
+    }
 
-		void signal_all_when_blocking()
-		{
-		}
+    void signal_all_when_blocking() {}
 
-	private:
-		yielding_wait_strategy(const yielding_wait_strategy&) = delete;
-		yielding_wait_strategy& operator=(const yielding_wait_strategy&) = delete;
-		yielding_wait_strategy(yielding_wait_strategy&&) = delete;
-		yielding_wait_strategy& operator=(yielding_wait_strategy&&) = delete;
+private:
+    yielding_wait_strategy(const yielding_wait_strategy &) = delete;
+    yielding_wait_strategy &operator=(const yielding_wait_strategy &) = delete;
+    yielding_wait_strategy(yielding_wait_strategy &&) = delete;
+    yielding_wait_strategy &operator=(yielding_wait_strategy &&) = delete;
 
-		template <typename TSequenceBarrier>
-		int apply_wait_method(const TSequenceBarrier& seq_barrier, int counter)
-		{
-			seq_barrier.check_alert();
-			if (counter == 0)
-				std::this_thread::yield();
-			else
-				--counter;
-			return counter;
-		}
-	};
-}
+    template<typename TSequenceBarrier>
+    int apply_wait_method(const TSequenceBarrier &seq_barrier, int counter)
+    {
+        seq_barrier.check_alert();
+        if (counter == 0)
+            std::this_thread::yield();
+        else
+            --counter;
+        return counter;
+    }
+};
+} // namespace disruptor4cpp
 
 #endif

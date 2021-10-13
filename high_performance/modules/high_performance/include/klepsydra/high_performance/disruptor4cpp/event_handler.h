@@ -53,21 +53,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 #include <exception>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<typename TEvent>
+class event_handler
 {
-	template <typename TEvent>
-	class event_handler
-	{
-	public:
-		virtual ~event_handler() { }
-		virtual void on_start() = 0;
-		virtual void on_shutdown() = 0;
-		virtual void on_event(TEvent& event, int64_t sequence, bool end_of_batch) = 0;
-		virtual void on_timeout(int64_t sequence) = 0;
-		virtual void on_event_exception(const std::exception& ex, int64_t sequence, TEvent* event) = 0;
-		virtual void on_start_exception(const std::exception& ex) = 0;
-		virtual void on_shutdown_exception(const std::exception& ex) = 0;
-	};
-}
+public:
+    virtual ~event_handler() {}
+    virtual void on_start() = 0;
+    virtual void on_shutdown() = 0;
+    virtual void on_event(TEvent &event, int64_t sequence, bool end_of_batch) = 0;
+    virtual void on_timeout(int64_t sequence) = 0;
+    virtual void on_event_exception(const std::exception &ex, int64_t sequence, TEvent *event) = 0;
+    virtual void on_start_exception(const std::exception &ex) = 0;
+    virtual void on_shutdown_exception(const std::exception &ex) = 0;
+};
+} // namespace disruptor4cpp
 
 #endif

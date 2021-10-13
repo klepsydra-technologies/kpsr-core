@@ -33,7 +33,8 @@ namespace dds_mdlw {
  *
  * @ingroup kpsr-dds-internal
  */
-struct DDSEnvironmentData {
+struct DDSEnvironmentData
+{
 public:
     /**
      * @brief configurationKey
@@ -44,7 +45,7 @@ public:
      */
     std::string configurationData;
 };
-}
-}
+} // namespace dds_mdlw
+} // namespace kpsr
 
 #endif // DDS_ENVIRONMENT_DATA_H

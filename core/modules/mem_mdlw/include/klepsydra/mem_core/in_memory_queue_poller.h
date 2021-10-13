@@ -20,23 +20,21 @@
 #ifndef IN_MEMORY_QUEUE_POLLER_H
 #define IN_MEMORY_QUEUE_POLLER_H
 
-#include <map>
-#include <thread>
 #include <atomic>
-#include <string>
 #include <future>
+#include <map>
+#include <string>
+#include <thread>
 
 #include <klepsydra/core/event_emitter.h>
 
 #include <klepsydra/mem_core/basic_event_data.h>
 
-namespace kpsr
-{
-namespace mem
-{
+namespace kpsr {
+namespace mem {
 
 static const long MEM_START_TIMEOUT_MILLISEC = 100;
-    
+
 /**
  * @brief The InMemoryQueuePoller class
  *
@@ -62,7 +60,7 @@ public:
      * @param eventName
      * @param sleepPeriodUS The time in microseconds to sleep/wait
      */
-    InMemoryQueuePoller(EventEmitter & eventEmitter,
+    InMemoryQueuePoller(EventEmitter &eventEmitter,
                         std::string eventName,
                         unsigned int sleepPeriodUS,
                         long timeoutMS = MEM_START_TIMEOUT_MILLISEC)
@@ -74,7 +72,7 @@ public:
         , _sleepPeriodUS(sleepPeriodUS)
         , _loopFunction(std::bind(&InMemoryQueuePoller::pollingLoop, this))
         , _threadNotifierFuture(_loopFunction.get_future())
-        , _timeoutUs(timeoutMS*1000)
+        , _timeoutUs(timeoutMS * 1000)
     {}
 
     /**
@@ -98,6 +96,7 @@ public:
      * @brief isRunning
      */
     bool isRunning();
+
 private:
     std::atomic<bool> _started;
     bool isStarted();
@@ -106,15 +105,16 @@ private:
     virtual void takeEventFromQueue() = 0;
 
 protected:
-    EventEmitter & _eventEmitter;
+    EventEmitter &_eventEmitter;
     std::string _eventName;
     std::thread _threadNotifier;
     unsigned int _sleepPeriodUS;
+
 private:
     std::packaged_task<void()> _loopFunction;
     std::future<void> _threadNotifierFuture;
     long _timeoutUs;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif

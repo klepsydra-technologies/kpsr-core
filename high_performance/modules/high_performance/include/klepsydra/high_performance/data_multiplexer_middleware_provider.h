@@ -24,16 +24,14 @@
 
 #include <klepsydra/core/event_transform_forwarder.h>
 
-#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
+#include <klepsydra/high_performance/data_multiplexer_event_data.h>
 #include <klepsydra/high_performance/data_multiplexer_publisher.h>
 #include <klepsydra/high_performance/data_multiplexer_subscriber.h>
-#include <klepsydra/high_performance/data_multiplexer_event_data.h>
+#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
-template <typename TEvent, std::size_t BufferSize>
+namespace kpsr {
+namespace high_performance {
+template<typename TEvent, std::size_t BufferSize>
 /**
  * @brief The DataMultiplexerMiddlewareProvider class
  *
@@ -65,14 +63,18 @@ template <typename TEvent, std::size_t BufferSize>
 class DataMultiplexerMiddlewareProvider
 {
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>, BufferSize, disruptor4cpp::blocking_wait_strategy, disruptor4cpp::producer_type::single, disruptor4cpp::sequence>;
+    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+                                                  BufferSize,
+                                                  disruptor4cpp::blocking_wait_strategy,
+                                                  disruptor4cpp::producer_type::single,
+                                                  disruptor4cpp::sequence>;
 
     /**
      * @brief DataMultiplexerMiddlewareProvider basic constructor without any performance tuning params
      * @param container
      * @param name
      */
-    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name)
+    DataMultiplexerMiddlewareProvider(Container *container, const std::string &name)
         : _modelEvent(nullptr)
         , _ringBuffer()
         , _publisher(container, name, nullptr, _ringBuffer)
@@ -85,10 +87,12 @@ public:
      * @param name
      * @param eventInitializer function to initialize the events allocated in the ring buffer
      */
-    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
-                                std::function<void(TEvent &)> eventInitializer)
+    DataMultiplexerMiddlewareProvider(Container *container,
+                                      const std::string &name,
+                                      std::function<void(TEvent &)> eventInitializer)
         : _modelEvent(nullptr)
-        , _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
+        , _ringBuffer(
+              [&eventInitializer](EventData<TEvent> &event) { eventInitializer(event.eventData); })
         , _publisher(container, name, nullptr, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
@@ -99,7 +103,9 @@ public:
      * @param name
      * @param event used as event to clone the events allocated in the ring buffer.
      */
-    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name, const TEvent & event)
+    DataMultiplexerMiddlewareProvider(Container *container,
+                                      const std::string &name,
+                                      const TEvent &event)
         : _modelEvent(new EventData<TEvent>(event))
         , _ringBuffer(_modelEvent)
         , _publisher(container, name, nullptr, _ringBuffer)
@@ -113,11 +119,13 @@ public:
      * @param eventInitializer function to initialize the events allocated in the ring buffer
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
      */
-    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
-                                std::function<void(TEvent &)> eventInitializer,
-                                std::function<void(const TEvent &, TEvent &)> eventCloner)
+    DataMultiplexerMiddlewareProvider(Container *container,
+                                      const std::string &name,
+                                      std::function<void(TEvent &)> eventInitializer,
+                                      std::function<void(const TEvent &, TEvent &)> eventCloner)
         : _modelEvent(nullptr)
-        , _ringBuffer([&eventInitializer](EventData<TEvent> & event) { eventInitializer(event.eventData); })
+        , _ringBuffer(
+              [&eventInitializer](EventData<TEvent> &event) { eventInitializer(event.eventData); })
         , _publisher(container, name, eventCloner, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
@@ -129,16 +137,18 @@ public:
      * @param event used as event to clone the events allocated in the ring buffer.
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
      */
-    DataMultiplexerMiddlewareProvider(Container * container, const std::string & name,
-                                const TEvent & event,
-                                std::function<void(const TEvent &, TEvent &)> eventCloner)
+    DataMultiplexerMiddlewareProvider(Container *container,
+                                      const std::string &name,
+                                      const TEvent &event,
+                                      std::function<void(const TEvent &, TEvent &)> eventCloner)
         : _modelEvent(new EventData<TEvent>(event))
         , _ringBuffer(_modelEvent)
         , _publisher(container, name, eventCloner, _ringBuffer)
         , _subscriber(container, name, _ringBuffer)
     {}
 
-    ~DataMultiplexerMiddlewareProvider() {
+    ~DataMultiplexerMiddlewareProvider()
+    {
         if (_modelEvent) {
             delete _modelEvent;
         }
@@ -148,17 +158,13 @@ public:
      * @brief getPublisher
      * @return
      */
-    Publisher<TEvent> * getPublisher() {
-        return &_publisher;
-    }
+    Publisher<TEvent> *getPublisher() { return &_publisher; }
 
     /**
      * @brief getSubscriber
      * @return
      */
-    Subscriber<TEvent> * getSubscriber() {
-        return &_subscriber;
-    }
+    Subscriber<TEvent> *getSubscriber() { return &_subscriber; }
 
     template<typename SourceEvent>
     std::shared_ptr<EventTransformForwarder<SourceEvent, TEvent>>
@@ -166,25 +172,28 @@ public:
      * @brief getProcessForwarder
      * @param transformFunction
      */
-    getProcessForwarder(const std::function<void(const SourceEvent &, TEvent &)> & transformFunction) {
+    getProcessForwarder(const std::function<void(const SourceEvent &, TEvent &)> &transformFunction)
+    {
         return std::make_shared<EventTransformForwarder<SourceEvent, TEvent>>(transformFunction,
                                                                               getPublisher());
     }
 
-    void setContainer(Container * container) {
+    void setContainer(Container *container)
+    {
         if (container) {
             container->attach(&_publisher._publicationStats);
             _subscriber.setContainer(container);
         }
     }
+
 private:
-    EventData<TEvent> * _modelEvent;
+    EventData<TEvent> *_modelEvent;
 
     RingBuffer _ringBuffer;
 
     DataMultiplexerPublisher<TEvent, BufferSize> _publisher;
     DataMultiplexerSubscriber<TEvent, BufferSize> _subscriber;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 #endif // DATA_MULTIPLEXER_MIDDLEWARE_PROVIDER_H

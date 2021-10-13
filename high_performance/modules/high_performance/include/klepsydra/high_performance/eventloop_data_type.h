@@ -20,9 +20,9 @@
 #ifndef EVENTLOOP_DATA_WRAPPER_H
 #define EVENTLOOP_DATA_WRAPPER_H
 
-#include <string>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <string>
 
 namespace kpsr {
 namespace high_performance {
@@ -36,12 +36,13 @@ namespace high_performance {
  * @ingroup kpsr-eventloop-internal
  *
  */
-struct EventloopDataWrapper {
+struct EventloopDataWrapper
+{
     std::string eventName;
     std::shared_ptr<const void> eventData;
     long long unsigned int enqueuedTimeInNs;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif // EVENTLOOP_DATA_WRAPPER_H

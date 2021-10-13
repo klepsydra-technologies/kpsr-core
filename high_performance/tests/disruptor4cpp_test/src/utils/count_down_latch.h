@@ -36,53 +36,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstddef>
 #include <mutex>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+class count_down_latch
 {
-	namespace test
-	{
-		class count_down_latch
-		{
-		public:
-			explicit count_down_latch(int count)
-				: count_(count)
-			{
-			}
+public:
+    explicit count_down_latch(int count)
+        : count_(count)
+    {}
 
-			~count_down_latch() = default;
+    ~count_down_latch() = default;
 
-			void wait()
-			{
-				std::unique_lock<std::mutex> lock(mutex_);
-				condition_.wait(lock, [this] { return count_ == 0; });
-			}
+    void wait()
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        condition_.wait(lock, [this] { return count_ == 0; });
+    }
 
-			// Return true if the count reached zero
-			// and false if the waiting time elapsed before the count reached zero.
-			template< class Rep, class Period>
-			bool wait(const std::chrono::duration<Rep, Period>& timeout)
-			{
-				std::unique_lock<std::mutex> lock(mutex_);
-				return condition_.wait_for(lock, timeout, [this] { return count_ <= 0; });
-			}
+    // Return true if the count reached zero
+    // and false if the waiting time elapsed before the count reached zero.
+    template<class Rep, class Period>
+    bool wait(const std::chrono::duration<Rep, Period> &timeout)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        return condition_.wait_for(lock, timeout, [this] { return count_ <= 0; });
+    }
 
-			void count_down()
-			{
-				std::lock_guard<std::mutex> lock(mutex_);
-				if (--count_ <= 0)
-					condition_.notify_all();
-			}
+    void count_down()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (--count_ <= 0)
+            condition_.notify_all();
+    }
 
-		private:
-			count_down_latch(const count_down_latch&) = delete;
-			count_down_latch& operator=(const count_down_latch&) = delete;
-			count_down_latch(count_down_latch&&) = delete;
-			count_down_latch& operator=(count_down_latch&&) = delete;
+private:
+    count_down_latch(const count_down_latch &) = delete;
+    count_down_latch &operator=(const count_down_latch &) = delete;
+    count_down_latch(count_down_latch &&) = delete;
+    count_down_latch &operator=(count_down_latch &&) = delete;
 
-			std::mutex mutex_;
-			std::condition_variable condition_;
-			int count_;
-		};
-	}
-}
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    int count_;
+};
+} // namespace test
+} // namespace disruptor4cpp
 
 #endif

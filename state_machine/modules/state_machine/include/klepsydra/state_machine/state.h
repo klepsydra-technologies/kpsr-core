@@ -27,10 +27,11 @@
 
 namespace kpsr {
 namespace fsm {
-class State {
+class State
+{
 public:
-  virtual std::string getId() = 0;
-  virtual std::vector<std::shared_ptr<Transition>> getTransitions() = 0;
+    virtual std::string getId() = 0;
+    virtual std::vector<std::shared_ptr<Transition>> getTransitions() = 0;
 };
 } // namespace fsm
 } // namespace kpsr

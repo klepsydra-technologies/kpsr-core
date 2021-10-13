@@ -22,10 +22,8 @@
 
 #include <klepsydra/socket_core/data_socket.h>
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 
 /**
  * @brief The ConnectSocket class
@@ -38,7 +36,7 @@ namespace socket_mdlw
  *
  * @details A class the conects to a remote machine. Allows read/write accesses to the remote machine.
  */
-class ConnectSocket: public DataSocket
+class ConnectSocket : public DataSocket
 {
 public:
     /**
@@ -46,17 +44,16 @@ public:
      * @param host
      * @param port
      */
-    ConnectSocket(const std::string & host, int port);
+    ConnectSocket(const std::string &host, int port);
 
     /**
      * @brief ConnectSocket
      * @param path
      */
-    explicit ConnectSocket(const std::string & path);
+    explicit ConnectSocket(const std::string &path);
 };
 
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif
-

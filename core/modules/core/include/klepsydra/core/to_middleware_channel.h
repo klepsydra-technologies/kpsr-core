@@ -20,8 +20,8 @@
 #ifndef TO_MIDDLEWARE_CHANNEL_H
 #define TO_MIDDLEWARE_CHANNEL_H
 
-#include <functional>
 #include <exception>
+#include <functional>
 
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/serialization/mapper.h>
@@ -47,46 +47,52 @@ public:
      * @param container
      * @param middlewarePublisher real native middleware publisher
      */
-    ToMiddlewareChannel(Container * container, const std::string & name, Publisher<MddlwClass> * middlewarePublisher)
+    ToMiddlewareChannel(Container *container,
+                        const std::string &name,
+                        Publisher<MddlwClass> *middlewarePublisher)
         : Publisher<KpsrClass>(container, name, "TO_MDLWR_CHANNEL")
         , _middlewarePublisher(middlewarePublisher)
         , _middlewareMapper()
-        , _transformFunction(std::bind(&Mapper<KpsrClass, MddlwClass>::toMiddleware, &_middlewareMapper,
-                                       std::placeholders::_1, std::placeholders::_2))
+        , _transformFunction(std::bind(&Mapper<KpsrClass, MddlwClass>::toMiddleware,
+                                       &_middlewareMapper,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2))
     {}
 
     /*!
      * @brief processAndPublish
      * @param process
      */
-    void processAndPublish(std::function<void(KpsrClass &)> process) {
+    void processAndPublish(std::function<void(KpsrClass &)> process)
+    {
         std::shared_ptr<KpsrClass> newEvent = std::shared_ptr<KpsrClass>(new KpsrClass());
         this->_publicationStats._totalEventAllocations++;
-        process(* newEvent.get());
+        process(*newEvent.get());
         internalPublish(newEvent);
         return;
     }
 
 protected:
-
-    void internalPublish(const KpsrClass& event) {
+    void internalPublish(const KpsrClass &event)
+    {
         // This function can be optimised by creating in the constructor
         // and adding a pointer to the event to this class. However,
         // for thread-safety sake, I am keeping it for now.
         // benchmark results show an overhead of 3-4ns per call.
-        std::function<void(MddlwClass &)> mapper = [&event, this] (MddlwClass & newEvent) {
+        std::function<void(MddlwClass &)> mapper = [&event, this](MddlwClass &newEvent) {
             this->_transformFunction(event, newEvent);
         };
 
         _middlewarePublisher->processAndPublish(mapper);
     }
 
-    void internalPublish(std::shared_ptr<const KpsrClass> event) {
+    void internalPublish(std::shared_ptr<const KpsrClass> event)
+    {
         // This function can be optimised by creating in the constructor
         // and adding a pointer to the event to this class. However,
         // for thread-safety sake, I am keeping it for now.
         // benchmark results show an overhead of 3-4ns per call.
-        std::function<void(MddlwClass &)> mapper = [&event, this] (MddlwClass & newEvent) {
+        std::function<void(MddlwClass &)> mapper = [&event, this](MddlwClass &newEvent) {
             this->_transformFunction((*event.get()), newEvent);
         };
 
@@ -94,10 +100,10 @@ protected:
     }
 
 private:
-    Publisher<MddlwClass> * _middlewarePublisher;
+    Publisher<MddlwClass> *_middlewarePublisher;
     Mapper<KpsrClass, MddlwClass> _middlewareMapper;
     std::function<void(const KpsrClass &, MddlwClass &)> _transformFunction;
 };
-}
+} // namespace kpsr
 
 #endif // TO_MIDDLEWARE_CHANNEL_H

@@ -17,27 +17,32 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
-#include <klepsydra/codegen/header.h>
 #include <klepsydra/codegen/gps.h>
+#include <klepsydra/codegen/header.h>
+#include <klepsydra/codegen/imu.h>
 #include <klepsydra/codegen/quaternion.h>
 #include <klepsydra/codegen/vector3.h>
-#include <klepsydra/codegen/imu.h>
 
-TEST(CodegenPocoTests, HeaderPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Header> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, HeaderPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Header> provider(nullptr,
+                                                                          "event",
+                                                                          0,
+                                                                          nullptr,
+                                                                          nullptr);
 
     kpsr::mem::CacheListener<kpsr::geometry::Header> eventListener;
 
@@ -51,8 +56,13 @@ TEST(CodegenPocoTests, HeaderPocoTest) {
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, GpsPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Gps> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, GpsPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Gps> provider(nullptr,
+                                                                       "event",
+                                                                       0,
+                                                                       nullptr,
+                                                                       nullptr);
 
     kpsr::mem::CacheListener<kpsr::geometry::Gps> eventListener;
 
@@ -67,8 +77,13 @@ TEST(CodegenPocoTests, GpsPocoTest) {
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, QuaternionPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Quaternion> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, QuaternionPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Quaternion> provider(nullptr,
+                                                                              "event",
+                                                                              0,
+                                                                              nullptr,
+                                                                              nullptr);
 
     kpsr::mem::CacheListener<kpsr::geometry::Quaternion> eventListener;
 
@@ -84,8 +99,13 @@ TEST(CodegenPocoTests, QuaternionPocoTest) {
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, Vector3PocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Vector3> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, Vector3PocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Vector3> provider(nullptr,
+                                                                           "event",
+                                                                           0,
+                                                                           nullptr,
+                                                                           nullptr);
 
     kpsr::mem::CacheListener<kpsr::geometry::Vector3> eventListener;
 
@@ -100,8 +120,13 @@ TEST(CodegenPocoTests, Vector3PocoTest) {
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }
 
-TEST(CodegenPocoTests, ImuPocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Imu> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, ImuPocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::geometry::Imu> provider(nullptr,
+                                                                       "event",
+                                                                       0,
+                                                                       nullptr,
+                                                                       nullptr);
 
     kpsr::mem::CacheListener<kpsr::geometry::Imu> eventListener;
 
@@ -112,10 +137,15 @@ TEST(CodegenPocoTests, ImuPocoTest) {
     kpsr::geometry::Vector3 angular_velocity(2, 0.5, 0.6, 0.7);
     std::array<double, 9> angular_velocity_covariance{{2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9}};
     kpsr::geometry::Vector3 linear_acceleration(3, 0.8, 0.9, 1.0);
-    std::array<double, 9> linear_acceleration_covariance{{3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9}};
+    std::array<double, 9> linear_acceleration_covariance{
+        {3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9}};
 
-    kpsr::geometry::Imu event(1, orientation, orientation_covariance, angular_velocity,
-                              angular_velocity_covariance, linear_acceleration,
+    kpsr::geometry::Imu event(1,
+                              orientation,
+                              orientation_covariance,
+                              angular_velocity,
+                              angular_velocity_covariance,
+                              linear_acceleration,
                               linear_acceleration_covariance);
     provider.getPublisher()->publish(event);
 
@@ -128,15 +158,21 @@ TEST(CodegenPocoTests, ImuPocoTest) {
     ASSERT_EQ(event.angular_velocity.y, eventListener.getLastReceivedEvent()->angular_velocity.y);
     ASSERT_EQ(event.angular_velocity.z, eventListener.getLastReceivedEvent()->angular_velocity.z);
 
-    for (int i = 0; i < 9; i ++) {
-        ASSERT_EQ(event.orientation_covariance[i], eventListener.getLastReceivedEvent()->orientation_covariance[i]);
-        ASSERT_EQ(event.angular_velocity_covariance[i], eventListener.getLastReceivedEvent()->angular_velocity_covariance[i]);
-        ASSERT_EQ(event.linear_acceleration_covariance[i], eventListener.getLastReceivedEvent()->linear_acceleration_covariance[i]);
+    for (int i = 0; i < 9; i++) {
+        ASSERT_EQ(event.orientation_covariance[i],
+                  eventListener.getLastReceivedEvent()->orientation_covariance[i]);
+        ASSERT_EQ(event.angular_velocity_covariance[i],
+                  eventListener.getLastReceivedEvent()->angular_velocity_covariance[i]);
+        ASSERT_EQ(event.linear_acceleration_covariance[i],
+                  eventListener.getLastReceivedEvent()->linear_acceleration_covariance[i]);
     }
 
-    ASSERT_EQ(event.linear_acceleration.x, eventListener.getLastReceivedEvent()->linear_acceleration.x);
-    ASSERT_EQ(event.linear_acceleration.y, eventListener.getLastReceivedEvent()->linear_acceleration.y);
-    ASSERT_EQ(event.linear_acceleration.z, eventListener.getLastReceivedEvent()->linear_acceleration.z);
+    ASSERT_EQ(event.linear_acceleration.x,
+              eventListener.getLastReceivedEvent()->linear_acceleration.x);
+    ASSERT_EQ(event.linear_acceleration.y,
+              eventListener.getLastReceivedEvent()->linear_acceleration.y);
+    ASSERT_EQ(event.linear_acceleration.z,
+              eventListener.getLastReceivedEvent()->linear_acceleration.z);
 
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
 }

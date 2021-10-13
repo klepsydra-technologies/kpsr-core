@@ -20,15 +20,14 @@
 #ifndef IDENTITY_MAPPER_H
 #define IDENTITY_MAPPER_H
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <vector>
 
 #include <klepsydra/serialization/mapper.h>
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 /**
  * @brief The Mapper<T, std::vector<unsigned char> > class
  *
@@ -47,7 +46,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const std::vector<unsigned char>& message, T& event) {
+    void fromMiddleware(const std::vector<unsigned char> &message, T &event)
+    {
         std::memcpy(&event, message.data(), sizeof(T));
     }
 
@@ -56,11 +56,13 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const T& event, std::vector<unsigned char>& message) {
-        std::vector<unsigned char> data((unsigned char*)(&event), (unsigned char*)&event + sizeof(T));
+    void toMiddleware(const T &event, std::vector<unsigned char> &message)
+    {
+        std::vector<unsigned char> data((unsigned char *) (&event),
+                                        (unsigned char *) &event + sizeof(T));
         message = data;
     }
 };
-}
+} // namespace kpsr
 
 #endif // IDENTITY_MAPPER_H

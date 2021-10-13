@@ -20,40 +20,41 @@
 #ifndef CONVERT_H
 #define CONVERT_H
 
-#include <string>
-#include <sstream>
-#include <typeinfo>
 #include <exception>
+#include <sstream>
+#include <string>
+#include <typeinfo>
 
-namespace kpsr
-{
+namespace kpsr {
 class PropertyFileConvert
 {
 public:
-    template <typename T>
-    static std::string T_to_string(T const &val) {
+    template<typename T>
+    static std::string T_to_string(T const &val)
+    {
         std::ostringstream ostr;
         ostr << val;
 
         return ostr.str();
     }
 
-    template <typename T>
-    static T string_to_T(const std::string & val) {
+    template<typename T>
+    static T string_to_T(const std::string &val)
+    {
         T returnVal;
         std::istringstream iss(val);
-        std::string::size_type hexCode = val.find( "0x", 0 );
+        std::string::size_type hexCode = val.find("0x", 0);
         if (hexCode == std::string::npos) {
             if (!(iss >> returnVal))
-                throw std::invalid_argument("CFG: Not a valid " + (std::string)typeid(T).name() + " received!\n");
-        }
-        else {
+                throw std::invalid_argument("CFG: Not a valid " + (std::string) typeid(T).name() +
+                                            " received!\n");
+        } else {
             iss >> std::hex >> returnVal;
         }
 
         return returnVal;
     }
 };
-}
+} // namespace kpsr
 
 #endif

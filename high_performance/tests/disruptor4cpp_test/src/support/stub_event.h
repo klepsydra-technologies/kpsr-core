@@ -33,53 +33,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+class stub_event
 {
-	namespace test
-	{
-		class stub_event
-		{
-		public:
-			stub_event()
-				: value_(-1)
-			{
-			}
+public:
+    stub_event()
+        : value_(-1)
+    {}
 
-			stub_event(int value)
-				: value_(value)
-			{
-			}
+    stub_event(int value)
+        : value_(value)
+    {}
 
-			void copy(const stub_event& event)
-			{
-				value_ = event.value_;
-			}
+    void copy(const stub_event &event) { value_ = event.value_; }
 
-			int get_value() const
-			{
-				return value_;
-			}
+    int get_value() const { return value_; }
 
-			void set_value(int value)
-			{
-				value_ = value;
-			}
+    void set_value(int value) { value_ = value; }
 
-			const std::string& get_test_string() const
-			{
-				return test_string_;
-			}
+    const std::string &get_test_string() const { return test_string_; }
 
-			void set_test_string(const std::string& test_string)
-			{
-				test_string_ = test_string;
-			}
+    void set_test_string(const std::string &test_string) { test_string_ = test_string; }
 
-		private:
-			int value_;
-			std::string test_string_;
-		};
-	}
-}
+private:
+    int value_;
+    std::string test_string_;
+};
+} // namespace test
+} // namespace disruptor4cpp
 
 #endif

@@ -20,10 +20,10 @@
 #ifndef CONCURRENT_QUEUE_POLLER_H
 #define CONCURRENT_QUEUE_POLLER_H
 
-#include <map>
-#include <thread>
 #include <atomic>
+#include <map>
 #include <string>
+#include <thread>
 
 #include <klepsydra/core/event_emitter.h>
 
@@ -32,11 +32,9 @@
 
 #include <concurrentqueue.h>
 
-namespace kpsr
-{
-namespace mem
-{
-template <class T>
+namespace kpsr {
+namespace mem {
+template<class T>
 /**
  * @brief The ConcurrentQueuePoller class
  *
@@ -63,33 +61,31 @@ public:
      * @param sleepPeriodUS The time in microseconds to sleep/wait
      * @param token The producer token used by the publisher
      */
-    ConcurrentQueuePoller(moodycamel::ConcurrentQueue <EventData<const T>> & concurrentQueue,
-                          EventEmitter & eventEmitter,
+    ConcurrentQueuePoller(moodycamel::ConcurrentQueue<EventData<const T>> &concurrentQueue,
+                          EventEmitter &eventEmitter,
                           std::string eventName,
                           unsigned int sleepPeriodUS,
-                          moodycamel::ProducerToken & token)
+                          moodycamel::ProducerToken &token)
         : InMemoryQueuePoller(eventEmitter, eventName, sleepPeriodUS)
         , _internalQueue(concurrentQueue)
         , _token(token)
     {}
 
 private:
-
-    void takeEventFromQueue() override {
+    void takeEventFromQueue() override
+    {
         EventData<const T> event;
         bool ok = _internalQueue.try_dequeue_from_producer(_token, event);
         if (ok) {
-            _eventEmitter.emitEvent(_eventName, event.enqueuedTimeInNs, * event.eventData.get());
-        }
-        else {
+            _eventEmitter.emitEvent(_eventName, event.enqueuedTimeInNs, *event.eventData.get());
+        } else {
             std::this_thread::sleep_for(std::chrono::microseconds(_sleepPeriodUS));
         }
     }
 
-
-    moodycamel::ConcurrentQueue <EventData<const T>> &_internalQueue;
-    moodycamel::ProducerToken & _token;
+    moodycamel::ConcurrentQueue<EventData<const T>> &_internalQueue;
+    moodycamel::ProducerToken &_token;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif
