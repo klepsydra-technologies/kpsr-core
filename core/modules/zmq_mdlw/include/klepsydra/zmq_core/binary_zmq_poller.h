@@ -48,25 +48,24 @@ public:
      * @param subscriber
      * @param pollPeriod
      */
-    BinaryZMQPoller(zmq::socket_t & subscriber, long pollPeriod)
+    BinaryZMQPoller(zmq::socket_t &subscriber, long pollPeriod)
         : ZMQPoller(subscriber, pollPeriod)
     {}
 
     /**
      * @brief poll
      */
-    virtual void poll() {
+    virtual void poll()
+    {
         while (_running) {
-            zmq::pollitem_t items [] = {
-                { _subscriber, 0, ZMQ_POLLIN, 0 }
-            };
+            zmq::pollitem_t items[] = {{_subscriber, 0, ZMQ_POLLIN, 0}};
             if (zmq::poll(items, 1, _pollPeriod) == -1)
                 break;
 
             if (items[0].revents & ZMQ_POLLIN) {
                 zmq::message_t topicMsg;
                 _subscriber.recv(topicMsg);
-                std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
+                std::string topic(static_cast<char *>(topicMsg.data()), topicMsg.size());
                 zmq::message_t content;
                 _subscriber.recv(content);
                 kpsr::core::NonCopyingStringBuffer buffer((char *) content.data(), content.size());
@@ -76,7 +75,7 @@ public:
         }
     }
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // ZMQ_BINARY_POLLER_H

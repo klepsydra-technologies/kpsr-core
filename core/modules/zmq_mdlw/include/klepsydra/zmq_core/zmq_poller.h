@@ -20,18 +20,18 @@
 #ifndef ZMQ_POLLER_H
 #define ZMQ_POLLER_H
 
-#include <string>
-#include <functional>
 #include <atomic>
-#include <mutex>
+#include <functional>
 #include <future>
 #include <map>
+#include <mutex>
+#include <string>
 
 namespace kpsr {
 namespace zmq_mdlw {
 
 static const long ZMQ_START_TIMEOUT_MILLISEC = 100;
-    
+
 template<class T>
 /**
  * @brief The ZMQPoller class
@@ -43,14 +43,16 @@ template<class T>
  * @ingroup kpsr-zmq-internal
  *
  */
-class ZMQPoller {
+class ZMQPoller
+{
 public:
     /**
      * @brief ZMQPoller
      * @param subscriber
      * @param pollPeriod
      */
-    ZMQPoller(zmq::socket_t & subscriber, long pollPeriod,
+    ZMQPoller(zmq::socket_t &subscriber,
+              long pollPeriod,
               long timeoutMS = ZMQ_START_TIMEOUT_MILLISEC)
         : _subscriber(subscriber)
         , _pollPeriod(pollPeriod)
@@ -59,13 +61,14 @@ public:
         , _started(false)
         , _poller(std::bind(&ZMQPoller::pollingLoop, this))
         , _threadNotifierFuture(_poller.get_future())
-        , _timeoutUs(timeoutMS*1000)
+        , _timeoutUs(timeoutMS * 1000)
     {}
 
     /**
      * @brief start
      */
-    virtual void start() {
+    virtual void start()
+    {
         if (isStarted()) {
             return;
         }
@@ -84,22 +87,24 @@ public:
     /**
      * @brief stop
      */
-    virtual void stop() {
+    virtual void stop()
+    {
         if (!isStarted()) {
             return;
         }
         _running.store(false, std::memory_order_release);
-        if(_threadNotifier.joinable()) {
-		    _threadNotifier.join();
+        if (_threadNotifier.joinable()) {
+            _threadNotifier.join();
         }
         _poller = std::packaged_task<void()>(std::bind(&ZMQPoller::pollingLoop, this));
         _started.store(false, std::memory_order_release);
     }
 
-    ~ZMQPoller() {
+    ~ZMQPoller()
+    {
         _running = false;
-        if(_threadNotifier.joinable()) {
-		    _threadNotifier.join();
+        if (_threadNotifier.joinable()) {
+            _threadNotifier.join();
         }
     }
 
@@ -108,7 +113,8 @@ public:
      * @param topic
      * @param function
      */
-    void registerToTopic(const std::string & topic, std::function<void(const T &)> function) {
+    void registerToTopic(const std::string &topic, std::function<void(const T &)> function)
+    {
         std::lock_guard<std::mutex> lock(mutex);
         _functionTopicMap[topic] = function;
     }
@@ -117,7 +123,8 @@ public:
      * @brief unregisterFromTopic
      * @param topic
      */
-    void unregisterFromTopic(const std::string & topic) {
+    void unregisterFromTopic(const std::string &topic)
+    {
         std::lock_guard<std::mutex> lock(mutex);
         _functionTopicMap.erase(topic);
     }
@@ -127,7 +134,8 @@ public:
      * @param topic
      * @param event
      */
-    void executeFunction(const std::string & topic, const T & event) {
+    void executeFunction(const std::string &topic, const T &event)
+    {
         std::lock_guard<std::mutex> lock(mutex);
         auto search = _functionTopicMap.find(topic);
         if (search != _functionTopicMap.end()) {
@@ -141,7 +149,8 @@ public:
     virtual void poll() = 0;
 
 protected:
-    void pollingLoop() {
+    void pollingLoop()
+    {
         _running.store(true, std::memory_order_relaxed);
         this->poll();
     }
@@ -149,18 +158,14 @@ protected:
     /**
      * @brief isRunning
      */
-    bool isRunning() {
-        return _running.load(std::memory_order_acquire);
-    }
+    bool isRunning() { return _running.load(std::memory_order_acquire); }
 
     /**
      * @brief isStarted
      */
-    bool isStarted() {
-        return _started.load(std::memory_order_acquire);
-    }
+    bool isStarted() { return _started.load(std::memory_order_acquire); }
 
-    zmq::socket_t & _subscriber;
+    zmq::socket_t &_subscriber;
     long _pollPeriod;
     std::thread _threadNotifier;
     std::atomic<bool> _running;
@@ -174,7 +179,7 @@ protected:
     typedef typename std::map<std::string, std::function<void(const T &)>>::iterator it_type;
     long _timeoutUs;
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // ZMQ_POLLER_H

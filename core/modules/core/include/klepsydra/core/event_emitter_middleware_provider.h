@@ -26,7 +26,7 @@
 #include <klepsydra/core/event_transform_forwarder.h>
 
 namespace kpsr {
-template <class T>
+template<class T>
 /*!
  * @brief The EventEmitterMiddlewareProvider class
  *
@@ -39,7 +39,8 @@ template <class T>
  * @details This class a is facility wizard to create pub-sub pairs. It keeps tracks of them in a map. This particular implementation of a provider is intenteded for testing purposes only.
  *
  */
-class EventEmitterMiddlewareProvider {
+class EventEmitterMiddlewareProvider
+{
 public:
     /*!
      * \brief EventEmitterMiddlewareProvider
@@ -49,7 +50,7 @@ public:
      * \param initializerFunction
      * \param eventCloner
      */
-    EventEmitterMiddlewareProvider(Container * container,
+    EventEmitterMiddlewareProvider(Container *container,
                                    std::string eventName,
                                    int poolSize,
                                    std::function<void(T &)> initializerFunction,
@@ -64,29 +65,25 @@ public:
      * @brief getPublisher
      * @return
      */
-    Publisher<T> * getPublisher() {
-        return &_publisher;
-    }
+    Publisher<T> *getPublisher() { return &_publisher; }
 
     /*!
      * @brief getSubscriber
      * @return
      */
-    Subscriber<T> * getSubscriber() {
-        return &_subscriber;
-    }
+    Subscriber<T> *getSubscriber() { return &_subscriber; }
 
     /*!
      * @brief getProcessForwarder creates a listener forwarder to transform or process an event on arrival and for further publication.
      * @param transformFunction
      * @return
      */
-    template <class S>
-    std::shared_ptr<EventTransformForwarder<S, T>>
-    getProcessForwarder(const std::function<void(const S &, T &)> & transformFunction) {
-        return std::shared_ptr<EventTransformForwarder<S, T>>(new EventTransformForwarder<S, T>(
-                                                                  transformFunction,
-                                                                  getPublisher()));
+    template<class S>
+    std::shared_ptr<EventTransformForwarder<S, T>> getProcessForwarder(
+        const std::function<void(const S &, T &)> &transformFunction)
+    {
+        return std::shared_ptr<EventTransformForwarder<S, T>>(
+            new EventTransformForwarder<S, T>(transformFunction, getPublisher()));
     }
 
 private:
@@ -95,6 +92,6 @@ private:
     EventEmitterPublisher<T> _publisher;
     EventEmitterSubscriber<T> _subscriber;
 };
-}
+} // namespace kpsr
 
 #endif // EVENT_EMITTER_MIDDLEWARE_PROVIDER_H

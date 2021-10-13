@@ -25,7 +25,6 @@
 
 #include <spdlog/spdlog.h>
 
-
 #include <zmq.hpp>
 
 #include <klepsydra/core/from_middleware_channel.h>
@@ -34,10 +33,8 @@
 #include <klepsydra/zmq_core/json_zmq_poller.h>
 #include <klepsydra/zmq_core/void_caster_zmq_poller.h>
 
-namespace kpsr
-{
-namespace zmq_mdlw
-{
+namespace kpsr {
+namespace zmq_mdlw {
 
 /**
  * @brief The FromZmqChannel class
@@ -60,7 +57,7 @@ public:
      * @brief FromZmqChannel
      * @param zmqPoller injected object that establish the type of deserialization
      */
-    FromZmqChannel(ZMQPoller<U> * zmqPoller)
+    FromZmqChannel(ZMQPoller<U> *zmqPoller)
         : _zmqPoller(zmqPoller)
     {}
 
@@ -70,14 +67,20 @@ public:
      * @param topic zmq topic to listen to
      * @param internalPublisher Klepsydra publisher to send the deserialized event to.
      */
-    void registerToTopic(const std::string & topic, Publisher<T> * internalPublisher) {
+    void registerToTopic(const std::string &topic, Publisher<T> *internalPublisher)
+    {
         auto search = _subscriberMap.find(topic);
         if (search == _subscriberMap.end()) {
-            std::shared_ptr<FromMiddlewareChannel<T, U>> fromMiddlewareChannel(new FromMiddlewareChannel<T, U>(internalPublisher));
-            std::function<void(U)> onDataAvailableFunction = std::bind(&FromMiddlewareChannel<T, U>::onMiddlewareMessage, fromMiddlewareChannel.get(), std::placeholders::_1);
+            std::shared_ptr<FromMiddlewareChannel<T, U>> fromMiddlewareChannel(
+                new FromMiddlewareChannel<T, U>(internalPublisher));
+            std::function<void(U)> onDataAvailableFunction =
+                std::bind(&FromMiddlewareChannel<T, U>::onMiddlewareMessage,
+                          fromMiddlewareChannel.get(),
+                          std::placeholders::_1);
             _zmqPoller->registerToTopic(topic, onDataAvailableFunction);
 
-            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(fromMiddlewareChannel);
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(
+                fromMiddlewareChannel);
             _subscriberMap[topic] = internalPointer;
         }
     }
@@ -86,26 +89,20 @@ public:
      * @brief unregisterFromTopic
      * @param topic
      */
-    void unregisterFromTopic(const std::string & topic) {
-        _zmqPoller->unregisterFromTopic(topic);
-    }
+    void unregisterFromTopic(const std::string &topic) { _zmqPoller->unregisterFromTopic(topic); }
 
     /**
      * @brief start Launches the polling thread.
      */
-    void start() {
-        _zmqPoller->start();
-    }
+    void start() { _zmqPoller->start(); }
 
     /**
      * @brief stop
      */
-    void stop() {
-        _zmqPoller->stop();
-    }
+    void stop() { _zmqPoller->stop(); }
 
 private:
-    ZMQPoller<U> * _zmqPoller;
+    ZMQPoller<U> *_zmqPoller;
 
     std::map<std::string, std::shared_ptr<void>> _subscriberMap;
 };
@@ -146,8 +143,8 @@ private:
 @endcode
  *
  */
-class FromZmqMiddlewareProvider {
-
+class FromZmqMiddlewareProvider
+{
 public:
     template<class U>
     /**
@@ -156,8 +153,9 @@ public:
      * @param pollPeriod in milliseconds
      * @return a FromZmqChannel with binary deserialization
      */
-    FromZmqChannel<Base> * getBinaryFromMiddlewareChannel(zmq::socket_t & subscriber, long pollPeriod) {
-        BinaryZMQPoller * binaryZMQPoller = new BinaryZMQPoller(subscriber, pollPeriod);
+    FromZmqChannel<Base> *getBinaryFromMiddlewareChannel(zmq::socket_t &subscriber, long pollPeriod)
+    {
+        BinaryZMQPoller *binaryZMQPoller = new BinaryZMQPoller(subscriber, pollPeriod);
         return new FromZmqChannel<Base>(binaryZMQPoller);
     }
 
@@ -168,8 +166,10 @@ public:
      * @param pollPeriod in milliseconds
      * @return a FromZmqChannel with json deserialization
      */
-    FromZmqChannel<std::string> * getJsonFromMiddlewareChannel(zmq::socket_t & subscriber, long pollPeriod) {
-        JsonZMQPoller * jsonZMQPoller = new JsonZMQPoller(subscriber, pollPeriod);
+    FromZmqChannel<std::string> *getJsonFromMiddlewareChannel(zmq::socket_t &subscriber,
+                                                              long pollPeriod)
+    {
+        JsonZMQPoller *jsonZMQPoller = new JsonZMQPoller(subscriber, pollPeriod);
         return new FromZmqChannel<std::string>(jsonZMQPoller);
     }
 
@@ -180,12 +180,14 @@ public:
      * @param pollPeriod in milliseconds
      * @return a FromZmqChannel with json deserialization
      */
-    FromZmqChannel<std::vector<unsigned char>> * getVoidCasterFromMiddlewareChannel(zmq::socket_t & subscriber, long pollPeriod) {
-        VoidCasterZMQPoller * voidCasterZMQPoller = new VoidCasterZMQPoller(subscriber, pollPeriod);
+    FromZmqChannel<std::vector<unsigned char>> *getVoidCasterFromMiddlewareChannel(
+        zmq::socket_t &subscriber, long pollPeriod)
+    {
+        VoidCasterZMQPoller *voidCasterZMQPoller = new VoidCasterZMQPoller(subscriber, pollPeriod);
         return new FromZmqChannel<std::vector<unsigned char>>(voidCasterZMQPoller);
     }
 };
 
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 #endif // FROM_ZMQ_MIDDLEWARE_PROVIDER_H

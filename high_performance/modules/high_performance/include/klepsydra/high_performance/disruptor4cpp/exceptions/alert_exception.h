@@ -52,11 +52,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <exception>
 
-namespace disruptor4cpp
-{
-	class alert_exception : public std::exception
-	{
-	};
-}
+namespace disruptor4cpp {
+class alert_exception : public std::exception
+{};
+} // namespace disruptor4cpp
 
 #endif

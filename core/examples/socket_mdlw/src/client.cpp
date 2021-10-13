@@ -19,8 +19,8 @@
 
 #include <cstdlib>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <klepsydra/socket_core/connect_socket.h>
 #include <klepsydra/socket_core/protocol_simple.h>
@@ -31,34 +31,29 @@
 //     client <host_ip> <port> <message>
 //
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-	std::string messageToSend(argv[argc-1]);
-	std::string message;
-	std::shared_ptr<kpsr::socket_mdlw::ConnectSocket> connect;
+    std::string messageToSend(argv[argc - 1]);
+    std::string message;
+    std::shared_ptr<kpsr::socket_mdlw::ConnectSocket> connect;
 
-	if (argc == 3) {
-		std::shared_ptr<kpsr::socket_mdlw::ConnectSocket> connectT(
-			new kpsr::socket_mdlw::ConnectSocket(argv[1]));
-		connect = connectT;
-	}
-	else if (argc == 4) {
-		int port(std::atoi(argv[2]));
-		std::shared_ptr<kpsr::socket_mdlw::ConnectSocket> connectF(
-			new kpsr::socket_mdlw::ConnectSocket(argv[1], port));
-		connect = connectF;
-	}
-	else {
+    if (argc == 3) {
+        std::shared_ptr<kpsr::socket_mdlw::ConnectSocket> connectT(
+            new kpsr::socket_mdlw::ConnectSocket(argv[1]));
+        connect = connectT;
+    } else if (argc == 4) {
+        int port(std::atoi(argv[2]));
+        std::shared_ptr<kpsr::socket_mdlw::ConnectSocket> connectF(
+            new kpsr::socket_mdlw::ConnectSocket(argv[1], port));
+        connect = connectF;
+    } else {
         spdlog::error("Usage: client <host> <Message>\n"
-        "Or\n: client <hostIP> <port> <Message>\n");
+                      "Or\n: client <hostIP> <port> <Message>\n");
         std::exit(1);
     }
-	kpsr::socket_mdlw::ProtocolSimple   simpleConnect(connect);
-	simpleConnect.sendMessage(messageToSend);
+    kpsr::socket_mdlw::ProtocolSimple simpleConnect(connect);
+    simpleConnect.sendMessage(messageToSend);
 
-	simpleConnect.recvMessage(message);
+    simpleConnect.recvMessage(message);
     spdlog::info(message);
 }
-
-

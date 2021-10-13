@@ -18,55 +18,57 @@
 ****************************************************************************/
 
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <cstring>
+#include <unistd.h>
 
 #include <klepsydra/socket_core/data_socket.h>
 #include <klepsydra/socket_core/utility.h>
 
-void kpsr::socket_mdlw::DataSocket::putMessageData(char const* buffer, std::size_t size)
+void kpsr::socket_mdlw::DataSocket::putMessageData(char const *buffer, std::size_t size)
 {
-    std::size_t     dataWritten = 0;
+    std::size_t dataWritten = 0;
 
-    while(dataWritten < size)
-    {
+    while (dataWritten < size) {
         std::size_t put = write(getSocketId(), buffer + dataWritten, size - dataWritten);
-        if (put == static_cast<std::size_t>(-1))
-        {
-            switch(errno)
-            {
+        if (put == static_cast<std::size_t>(-1)) {
+            switch (errno) {
             case EINVAL:
             case EBADF:
             case ECONNRESET:
             case ENXIO:
-            case EPIPE:
-            {
+            case EPIPE: {
                 // Fatal error. Programming bug
-                throw std::domain_error(buildErrorMessage("DataSocket::", __func__, ": write: critical error: ", strerror(errno)));
+                throw std::domain_error(buildErrorMessage("DataSocket::",
+                                                          __func__,
+                                                          ": write: critical error: ",
+                                                          strerror(errno)));
             }
             case EDQUOT:
             case EFBIG:
             case EIO:
             case ENETDOWN:
             case ENETUNREACH:
-            case ENOSPC:
-            {
+            case ENOSPC: {
                 // Resource acquisition failure or device error
-                throw std::runtime_error(buildErrorMessage("DataSocket::", __func__, ": write: resource failure: ", strerror(errno)));
+                throw std::runtime_error(buildErrorMessage("DataSocket::",
+                                                           __func__,
+                                                           ": write: resource failure: ",
+                                                           strerror(errno)));
             }
             case EINTR:
                 // TODO: Check for user interrupt flags.
                 //       Beyond the scope of this project
                 //       so continue normal operations.
-            case EAGAIN:
-            {
+            case EAGAIN: {
                 // Temporary error.
                 // Simply retry the read.
                 continue;
             }
-            default:
-            {
-                throw std::runtime_error(buildErrorMessage("DataSocket::", __func__, ": write: returned -1: ", strerror(errno)));
+            default: {
+                throw std::runtime_error(buildErrorMessage("DataSocket::",
+                                                           __func__,
+                                                           ": write: returned -1: ",
+                                                           strerror(errno)));
             }
             }
         }
@@ -77,9 +79,10 @@ void kpsr::socket_mdlw::DataSocket::putMessageData(char const* buffer, std::size
 
 void kpsr::socket_mdlw::DataSocket::putMessageClose()
 {
-    if (::shutdown(getSocketId(), SHUT_WR) != 0)
-    {
-        throw std::domain_error(buildErrorMessage("HTTPProtocol::", __func__, ": shutdown: critical error: ", strerror(errno)));
+    if (::shutdown(getSocketId(), SHUT_WR) != 0) {
+        throw std::domain_error(buildErrorMessage("HTTPProtocol::",
+                                                  __func__,
+                                                  ": shutdown: critical error: ",
+                                                  strerror(errno)));
     }
 }
-

@@ -17,19 +17,19 @@
 *
 ****************************************************************************/
 
-#include <sstream>
 #include <getopt.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <zmq.hpp>
 
-#include <klepsydra/serialization/json_cereal_mapper.h>
 #include <klepsydra/serialization/binary_cereal_mapper.h>
+#include <klepsydra/serialization/json_cereal_mapper.h>
 
 #include <klepsydra/zmq_core/from_zmq_middleware_provider.h>
 #include <klepsydra/zmq_core/to_zmq_middleware_provider.h>
@@ -42,12 +42,13 @@
 #include "gtest/gtest.h"
 
 //  Provide random number from 0..(num-1)
-#define within(num) (int) ((float)((num) * random ()) / (RAND_MAX + 1.0))
+#define within(num) (int) ((float) ((num) *random()) / (RAND_MAX + 1.0))
 
-class WeatherDataClient {
+class WeatherDataClient
+{
 public:
-
-    void onWeatherDataReceived(const WeatherData & weatherData) {
+    void onWeatherDataReceived(const WeatherData &weatherData)
+    {
         _totalTemp += weatherData.currentTemp.value;
         _numSamples++;
         if (_numSamples == 100) {
@@ -56,11 +57,13 @@ public:
     }
 
     int _numSamples = 0;
+
 private:
     long _totalTemp = 0;
 };
 
-class ZMQMiddlewareTest : public ::testing::Test {
+class ZMQMiddlewareTest : public ::testing::Test
+{
 protected:
     ZMQMiddlewareTest()
         : serverUrl("tcp://*:5556")
@@ -68,63 +71,69 @@ protected:
         , syncUrl("tcp://localhost:5557")
         , syncServiceUrl("tcp://*:5557")
         , topic("Weather")
-        , context (1)
+        , context(1)
         , publisher(context, ZMQ_PUB)
         , subscriber(context, ZMQ_SUB)
         , syncclient(context, ZMQ_REQ)
-        , syncservice (context, ZMQ_REP)
+        , syncservice(context, ZMQ_REP)
         , toZMQMiddlewareProvider(nullptr, publisher)
-        {
-            WeatherData::emptyConstructorInvokations = 0;
-            WeatherData::constructorInvokations = 0;
-            WeatherData::copyInvokations = 0;
-            publisher.bind(serverUrl);
-            publisher.bind("ipc://weather.ipc");
+    {
+        WeatherData::emptyConstructorInvokations = 0;
+        WeatherData::constructorInvokations = 0;
+        WeatherData::copyInvokations = 0;
+        publisher.bind(serverUrl);
+        publisher.bind("ipc://weather.ipc");
 
-            //  Socket to talk to server
-            spdlog::info("Collecting updates from weather server...\n");
+        //  Socket to talk to server
+        spdlog::info("Collecting updates from weather server...\n");
 
-            subscriber.connect(clientUrl);
-            subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-            // Set up publisher corresponding to each input.
-            syncclient.connect(syncUrl);
-            //  - send a synchronization request
-            zmq::message_t message("", 1);
-            syncservice.bind(syncServiceUrl);
-            // Set up publisher corresponding to each input.
-            syncclient.connect(syncUrl);
-            //  - send a synchronization request
-            syncclient.send(message);
-            //  - wait for synchronization reply
-            zmq::message_t recvMessage;
-            syncservice.recv(recvMessage);
-            syncservice.send(message);
-            syncclient.recv(recvMessage);
-        }
+        subscriber.connect(clientUrl);
+        subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+        // Set up publisher corresponding to each input.
+        syncclient.connect(syncUrl);
+        //  - send a synchronization request
+        zmq::message_t message("", 1);
+        syncservice.bind(syncServiceUrl);
+        // Set up publisher corresponding to each input.
+        syncclient.connect(syncUrl);
+        //  - send a synchronization request
+        syncclient.send(message);
+        //  - wait for synchronization reply
+        zmq::message_t recvMessage;
+        syncservice.recv(recvMessage);
+        syncservice.send(message);
+        syncclient.recv(recvMessage);
+    }
 
-    void createAndPublishData(kpsr::Publisher<WeatherData> * toZMQPublisher, int numAttempts) {
+    void createAndPublishData(kpsr::Publisher<WeatherData> *toZMQPublisher, int numAttempts)
+    {
         //  Initialize random number generator
-        srandom ((unsigned) time (NULL));
-        for (int i = 0; i < numAttempts; i ++) {
+        srandom((unsigned) time(NULL));
+        for (int i = 0; i < numAttempts; i++) {
             std::vector<int> historyRelHumidity(0);
-            historyRelHumidity.push_back(within (50) + 10);
-            historyRelHumidity.push_back(within (50) + 10);
+            historyRelHumidity.push_back(within(50) + 10);
+            historyRelHumidity.push_back(within(50) + 10);
 
             std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
-            historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
-            historyTemperature.push_back(std::shared_ptr<Temperature>(new Temperature(within (215) - 80, Temperature::CELSIUS)));
+            historyTemperature.push_back(std::shared_ptr<Temperature>(
+                new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            historyTemperature.push_back(std::shared_ptr<Temperature>(
+                new Temperature(within(215) - 80, Temperature::CELSIUS)));
 
-            Temperature temperature(within (215) - 80, Temperature::CELSIUS);
+            Temperature temperature(within(215) - 80, Temperature::CELSIUS);
 
-            WeatherData weatherData("100000", temperature, within (50) + 10,
-                                    historyTemperature, historyRelHumidity);
+            WeatherData weatherData("100000",
+                                    temperature,
+                                    within(50) + 10,
+                                    historyTemperature,
+                                    historyRelHumidity);
             //  Send message to all subscribers
             toZMQPublisher->publish(weatherData);
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 
-    std::string serverUrl; 
+    std::string serverUrl;
     std::string clientUrl;
     std::string syncUrl;
     std::string syncServiceUrl;
@@ -138,13 +147,16 @@ protected:
     kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
 };
 
-TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
-    kpsr::Publisher<WeatherData> * toZMQPublisher = toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
+TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool)
+{
+    kpsr::Publisher<WeatherData> *toZMQPublisher =
+        toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
 
     const size_t BUFFER_SIZE = 4;
     //  Process 100 updates
     kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::zmq_mdlw::FromZmqChannel<std::string> *_jsonFromZMQProvider =
+        _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::high_performance::EventLoopMiddlewareProvider<BUFFER_SIZE> eventloopProvider(nullptr);
     eventloopProvider.start();
     _jsonFromZMQProvider->start();
@@ -152,9 +164,12 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
     auto publisher = eventloopProvider.getPublisher<WeatherData>("weatherData", 0, nullptr, nullptr);
     _jsonFromZMQProvider->registerToTopic(topic, publisher);
     WeatherDataClient weatherDataClient;
-    std::function<void(const WeatherData &)> listener = std::bind(
-                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
-    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+    std::function<void(const WeatherData &)> listener =
+        std::bind(&WeatherDataClient::onWeatherDataReceived,
+                  &weatherDataClient,
+                  std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")
+        ->registerListener("WeatherDataClient", listener);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -170,7 +185,9 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
     eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
     eventloopProvider.stop();
 
-    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE>*) publisher)->_discardedMessages;
+    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE> *)
+                             publisher)
+                            ->_discardedMessages;
     ASSERT_EQ(weatherDataClient._numSamples + discardItems, 100);
 
     spdlog::info("FINISHED!!!");
@@ -180,13 +197,15 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool) {
     ASSERT_EQ(WeatherData::copyInvokations, 0);
 }
 
-
-TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
-    kpsr::Publisher<WeatherData> * toZMQPublisher =  toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
+TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool)
+{
+    kpsr::Publisher<WeatherData> *toZMQPublisher =
+        toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
 
     const size_t BUFFER_SIZE = 4;
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::zmq_mdlw::FromZmqChannel<std::string> *_jsonFromZMQProvider =
+        _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::high_performance::EventLoopMiddlewareProvider<BUFFER_SIZE> eventloopProvider(nullptr);
     eventloopProvider.start();
     _jsonFromZMQProvider->start();
@@ -194,9 +213,12 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
     auto publisher = eventloopProvider.getPublisher<WeatherData>("weatherData", 6, nullptr, nullptr);
     _jsonFromZMQProvider->registerToTopic(topic, publisher);
     WeatherDataClient weatherDataClient;
-    std::function<void(const WeatherData &)> listener = std::bind(
-                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
-    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+    std::function<void(const WeatherData &)> listener =
+        std::bind(&WeatherDataClient::onWeatherDataReceived,
+                  &weatherDataClient,
+                  std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")
+        ->registerListener("WeatherDataClient", listener);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -212,7 +234,9 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
     eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
     eventloopProvider.stop();
 
-    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE>*) publisher)->_discardedMessages;
+    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE> *)
+                             publisher)
+                            ->_discardedMessages;
     ASSERT_EQ(weatherDataClient._numSamples + discardItems, 100);
 
     spdlog::info("FINISHED!!!");
@@ -222,12 +246,15 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool) {
     ASSERT_EQ(WeatherData::copyInvokations, 0);
 }
 
-TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
-    kpsr::Publisher<WeatherData> * toZMQPublisher = toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
+TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool)
+{
+    kpsr::Publisher<WeatherData> *toZMQPublisher =
+        toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
 
     const size_t BUFFER_SIZE = 4;
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<Base> * _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::zmq_mdlw::FromZmqChannel<Base> *_binaryFromZMQProvider =
+        _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::high_performance::EventLoopMiddlewareProvider<BUFFER_SIZE> eventloopProvider(nullptr);
     eventloopProvider.start();
     _binaryFromZMQProvider->start();
@@ -235,9 +262,12 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
     auto publisher = eventloopProvider.getPublisher<WeatherData>("weatherData", 0, nullptr, nullptr);
     _binaryFromZMQProvider->registerToTopic(topic, publisher);
     WeatherDataClient weatherDataClient;
-    std::function<void(const WeatherData &)> listener = std::bind(
-                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
-    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+    std::function<void(const WeatherData &)> listener =
+        std::bind(&WeatherDataClient::onWeatherDataReceived,
+                  &weatherDataClient,
+                  std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")
+        ->registerListener("WeatherDataClient", listener);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -253,7 +283,9 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
     eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
     eventloopProvider.stop();
 
-    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE>*) publisher)->_discardedMessages;
+    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE> *)
+                             publisher)
+                            ->_discardedMessages;
     ASSERT_EQ(weatherDataClient._numSamples + discardItems, 100);
 
     spdlog::info("FINISHED!!!");
@@ -263,13 +295,15 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool) {
     ASSERT_EQ(WeatherData::copyInvokations, 0);
 }
 
-
-TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
-    kpsr::Publisher<WeatherData> * toZMQPublisher =  toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
+TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool)
+{
+    kpsr::Publisher<WeatherData> *toZMQPublisher =
+        toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
 
     const size_t BUFFER_SIZE = 4;
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<Base> * _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    kpsr::zmq_mdlw::FromZmqChannel<Base> *_binaryFromZMQProvider =
+        _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::high_performance::EventLoopMiddlewareProvider<BUFFER_SIZE> eventloopProvider(nullptr);
     eventloopProvider.start();
     _binaryFromZMQProvider->start();
@@ -277,9 +311,12 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
     auto publisher = eventloopProvider.getPublisher<WeatherData>("weatherData", 6, nullptr, nullptr);
     _binaryFromZMQProvider->registerToTopic(topic, publisher);
     WeatherDataClient weatherDataClient;
-    std::function<void(const WeatherData &)> listener = std::bind(
-                &WeatherDataClient::onWeatherDataReceived, &weatherDataClient, std::placeholders::_1);
-    eventloopProvider.getSubscriber<WeatherData>("weatherData")->registerListener("WeatherDataClient", listener);
+    std::function<void(const WeatherData &)> listener =
+        std::bind(&WeatherDataClient::onWeatherDataReceived,
+                  &weatherDataClient,
+                  std::placeholders::_1);
+    eventloopProvider.getSubscriber<WeatherData>("weatherData")
+        ->registerListener("WeatherDataClient", listener);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -295,7 +332,9 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool) {
     eventloopProvider.getSubscriber<WeatherData>("weatherData")->removeListener("WeatherDataClient");
     eventloopProvider.stop();
 
-    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE>*) publisher)->_discardedMessages;
+    auto discardItems = ((kpsr::high_performance::EventLoopPublisher<WeatherData, BUFFER_SIZE> *)
+                             publisher)
+                            ->_discardedMessages;
     ASSERT_EQ(weatherDataClient._numSamples + discardItems, 100);
 
     spdlog::info("FINISHED!!!");

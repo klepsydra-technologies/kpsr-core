@@ -60,7 +60,7 @@ private:
  */
 struct FunctionStats
 {
-    explicit FunctionStats(const std::string & name)
+    explicit FunctionStats(const std::string &name)
         : _name(name)
         , _processingStarted(false)
     {}
@@ -84,7 +84,8 @@ struct FunctionStats
      * @brief getMillisecondsSinceCreation
      * @return
      */
-    long long unsigned int getMillisecondsSinceCreation() {
+    long long unsigned int getMillisecondsSinceCreation()
+    {
         return TimeUtils::getCurrentMillisecondsAsLlu() - _creationTimeMs;
     }
 
@@ -92,14 +93,16 @@ struct FunctionStats
      * @brief getMillisecondsSinceStart
      * @return
      */
-    long long unsigned int getMillisecondsSinceStart() {
+    long long unsigned int getMillisecondsSinceStart()
+    {
         if (_processingStarted) {
             return TimeUtils::getCurrentMillisecondsAsLlu() - _processingStartedTimeMs;
         }
         return 0;
     }
 
-    void startProcessMeassure() {
+    void startProcessMeassure()
+    {
         _beforeTimeNs = TimeUtils::getCurrentNanosecondsAsLlu();
         if (!_processingStarted) {
             _processingStartedTimeMs = TimeUtils::getCurrentMillisecondsAsLlu();
@@ -107,13 +110,13 @@ struct FunctionStats
         }
     }
 
-    void stopProcessMeassure() {
+    void stopProcessMeassure()
+    {
         _totalProcessingTimeInNanoSecs += TimeUtils::getCurrentNanosecondsAsLlu() - _beforeTimeNs;
         _totalProcessed++;
     }
 
 protected:
-
     const long long unsigned int _creationTimeMs = TimeUtils::getCurrentMillisecondsAsLlu();
 
     std::atomic_ullong _beforeTimeNs;
@@ -123,6 +126,6 @@ protected:
     std::atomic_ullong _processingStartedTimeMs;
 };
 
-}
+} // namespace kpsr
 
 #endif // KPSR_FUNC_STATS_H

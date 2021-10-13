@@ -43,29 +43,28 @@ public:
      * @param subscriber
      * @param pollPeriod
      */
-    VoidCasterZMQPoller(zmq::socket_t & subscriber, long pollPeriod)
+    VoidCasterZMQPoller(zmq::socket_t &subscriber, long pollPeriod)
         : ZMQPoller<std::vector<unsigned char>>(subscriber, pollPeriod)
     {}
 
     /**
      * @brief poll
      */
-    void poll() override {
+    void poll() override
+    {
         while (this->_running) {
-            zmq::pollitem_t items [] = {
-                { this->_subscriber, 0, ZMQ_POLLIN, 0 }
-            };
+            zmq::pollitem_t items[] = {{this->_subscriber, 0, ZMQ_POLLIN, 0}};
             if (zmq::poll(items, 1, this->_pollPeriod) == -1)
                 break;
 
             if (items[0].revents & ZMQ_POLLIN) {
                 zmq::message_t topicMsg;
                 _subscriber.recv(topicMsg);
-                std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
+                std::string topic(static_cast<char *>(topicMsg.data()), topicMsg.size());
                 zmq::message_t content;
                 this->_subscriber.recv(content);
 
-                unsigned char* data = (unsigned char*)content.data();
+                unsigned char *data = (unsigned char *) content.data();
                 std::vector<unsigned char> event(content.size());
                 memcpy(&event[0], data, content.size());
 
@@ -74,7 +73,7 @@ public:
         }
     }
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // VOID_CASTER_ZMQ_POLLER_H

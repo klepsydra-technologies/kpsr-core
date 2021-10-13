@@ -50,16 +50,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef DISRUPTOR4CPP_DISRUPTOR4CPP_H_
 #define DISRUPTOR4CPP_DISRUPTOR4CPP_H_
 
+#include <klepsydra/high_performance/disruptor4cpp/batch_event_processor.h>
+#include <klepsydra/high_performance/disruptor4cpp/event_handler.h>
 #include <klepsydra/high_performance/disruptor4cpp/exceptions/alert_exception.h>
 #include <klepsydra/high_performance/disruptor4cpp/exceptions/insufficient_capacity_exception.h>
 #include <klepsydra/high_performance/disruptor4cpp/exceptions/timeout_exception.h>
-#include <klepsydra/high_performance/disruptor4cpp/batch_event_processor.h>
-#include <klepsydra/high_performance/disruptor4cpp/event_handler.h>
 #include <klepsydra/high_performance/disruptor4cpp/no_op_event_processor.h>
 #include <klepsydra/high_performance/disruptor4cpp/producer_type.h>
 #include <klepsydra/high_performance/disruptor4cpp/ring_buffer.h>
-#include <klepsydra/high_performance/disruptor4cpp/sequence_barrier.h>
 #include <klepsydra/high_performance/disruptor4cpp/sequence.h>
+#include <klepsydra/high_performance/disruptor4cpp/sequence_barrier.h>
 #include <klepsydra/high_performance/disruptor4cpp/wait_strategies/blocking_wait_strategy.h>
 #include <klepsydra/high_performance/disruptor4cpp/wait_strategies/busy_spin_wait_strategy.h>
 #include <klepsydra/high_performance/disruptor4cpp/wait_strategies/lite_blocking_wait_strategy.h>

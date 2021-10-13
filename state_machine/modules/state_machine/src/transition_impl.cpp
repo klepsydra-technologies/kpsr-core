@@ -22,13 +22,18 @@
 namespace kpsr {
 namespace fsm {
 
-TransitionImpl::TransitionImpl(const std::string &destinationStateId,
-                               const std::string &event)
-    : _destStateId(destinationStateId), _eventId(event) {}
-bool TransitionImpl::canTransition(const std::string &event) {
-  return event == _eventId;
+TransitionImpl::TransitionImpl(const std::string &destinationStateId, const std::string &event)
+    : _destStateId(destinationStateId)
+    , _eventId(event)
+{}
+bool TransitionImpl::canTransition(const std::string &event)
+{
+    return event == _eventId;
 }
-std::string TransitionImpl::getDestinationStateId() { return _destStateId; }
+std::string TransitionImpl::getDestinationStateId()
+{
+    return _destStateId;
+}
 
 } // namespace fsm
 } // namespace kpsr

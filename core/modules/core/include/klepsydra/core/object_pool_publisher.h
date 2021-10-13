@@ -22,13 +22,11 @@
 
 #include <spdlog/spdlog.h>
 
-
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/core/smart_object_pool.h>
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 /*!
  * \brief The ObjectPoolPublisher class
  *
@@ -54,8 +52,8 @@ public:
      * \param initializerFunction init function to execute after creation.
      * \param eventCloner optional function to use instead of the copy.
      */
-    ObjectPoolPublisher(Container * container,
-                        const std::string & name,
+    ObjectPoolPublisher(Container *container,
+                        const std::string &name,
                         const std::string type,
                         int poolSize,
                         std::function<void(T &)> initializerFunction,
@@ -64,11 +62,13 @@ public:
         , _initializerFunction(initializerFunction)
         , _eventCloner(eventCloner)
     {
-        _objectPool = poolSize == 0 ? nullptr : new SmartObjectPool<T>(name, poolSize, initializerFunction);
+        _objectPool = poolSize == 0 ? nullptr
+                                    : new SmartObjectPool<T>(name, poolSize, initializerFunction);
         this->_publicationStats._totalEventAllocations = poolSize;
     }
 
-    virtual ~ObjectPoolPublisher() {
+    virtual ~ObjectPoolPublisher()
+    {
         if (_objectPool) {
             delete _objectPool;
         }
@@ -77,7 +77,8 @@ public:
      * @brief internalPublish
      * @param eventData
      */
-    void internalPublish(const T & eventData) override {
+    void internalPublish(const T &eventData) override
+    {
         if (_objectPool != nullptr) {
             try {
                 std::shared_ptr<T> newEvent = std::move(_objectPool->acquire());
@@ -88,8 +89,9 @@ public:
                 }
                 internalPublish(newEvent);
                 return;
-            } catch (const std::out_of_range& ex) {
-                spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}", this->_publicationStats._name);
+            } catch (const std::out_of_range &ex) {
+                spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}",
+                             this->_publicationStats._name);
             }
         }
         this->_publicationStats._totalEventAllocations++;
@@ -100,7 +102,7 @@ public:
         } else {
             std::shared_ptr<T> newEvent = std::make_shared<T>();
             if (_initializerFunction != nullptr) {
-                _initializerFunction(* newEvent);
+                _initializerFunction(*newEvent);
             }
             _eventCloner(eventData, (*newEvent));
             internalPublish(newEvent);
@@ -111,7 +113,8 @@ public:
      * @brief processAndPublish
      * @param process
      */
-    void processAndPublish(std::function<void(T &)> process) {
+    void processAndPublish(std::function<void(T &)> process)
+    {
         if (_objectPool != nullptr) {
             try {
                 std::shared_ptr<T> newEvent = std::move(_objectPool->acquire());
@@ -121,8 +124,9 @@ public:
                 process(*newEvent);
                 this->publish(newEvent);
                 return;
-            } catch (const std::out_of_range& ex) {
-                spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}", this->_publicationStats._name);
+            } catch (const std::out_of_range &ex) {
+                spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}",
+                             this->_publicationStats._name);
             }
         }
         this->_publicationStats._totalEventAllocations++;
@@ -142,8 +146,8 @@ public:
 
 private:
     std::function<void(T &)> _initializerFunction;
-    SmartObjectPool<T> * _objectPool;
+    SmartObjectPool<T> *_objectPool;
     std::function<void(const T &, T &)> _eventCloner;
 };
-}
+} // namespace kpsr
 #endif

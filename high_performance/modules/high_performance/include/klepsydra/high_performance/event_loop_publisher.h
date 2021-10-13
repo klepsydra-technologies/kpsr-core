@@ -26,18 +26,15 @@
 
 #include <spdlog/spdlog.h>
 
-
 #include <klepsydra/core/object_pool_publisher.h>
 
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
 #include <klepsydra/high_performance/event_loop_event_handler.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
-template <typename T, std::size_t BufferSize>
+namespace kpsr {
+namespace high_performance {
+template<typename T, std::size_t BufferSize>
 /**
  * @brief The EventLoopPublisher class
  *
@@ -55,9 +52,14 @@ template <typename T, std::size_t BufferSize>
  * check how long the message was enqueued before proceed.
  *
  */
-class EventLoopPublisher : public ObjectPoolPublisher<T> {
+class EventLoopPublisher : public ObjectPoolPublisher<T>
+{
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventloopDataWrapper, BufferSize, disruptor4cpp::blocking_wait_strategy, disruptor4cpp::producer_type::multi, disruptor4cpp::sequence>;
+    using RingBuffer = disruptor4cpp::ring_buffer<EventloopDataWrapper,
+                                                  BufferSize,
+                                                  disruptor4cpp::blocking_wait_strategy,
+                                                  disruptor4cpp::producer_type::multi,
+                                                  disruptor4cpp::sequence>;
 
     /**
      * @brief EventLoopPublisher
@@ -68,27 +70,31 @@ public:
      * @param initializerFunction
      * @param eventCloner
      */
-    EventLoopPublisher(Container * container,
-                       RingBuffer & ringBuffer,
+    EventLoopPublisher(Container *container,
+                       RingBuffer &ringBuffer,
                        std::string eventName,
                        int poolSize,
                        std::function<void(T &)> initializerFunction,
                        std::function<void(const T &, T &)> eventCloner)
-        : ObjectPoolPublisher<T>(container, eventName, "EVENT_LOOP", poolSize, initializerFunction, eventCloner)
+        : ObjectPoolPublisher<T>(container,
+                                 eventName,
+                                 "EVENT_LOOP",
+                                 poolSize,
+                                 initializerFunction,
+                                 eventCloner)
         , _discardedMessages(0)
         , _ringBuffer(ringBuffer)
         , _eventName(eventName)
         , _poolSize(poolSize)
-    {
-    }
+    {}
 
     /**
      * @brief internalPublish
      * @param event
      */
-    void internalPublish(std::shared_ptr<const T> event) {
-        try
-        {
+    void internalPublish(std::shared_ptr<const T> event)
+    {
+        try {
             int64_t seq = _ringBuffer.try_next();
             if (_ringBuffer[seq].eventData) {
                 _ringBuffer[seq].eventData.reset();
@@ -97,8 +103,7 @@ public:
             _ringBuffer[seq].eventName = _eventName;
             _ringBuffer[seq].enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
             _ringBuffer.publish(seq);
-        }
-        catch (disruptor4cpp::insufficient_capacity_exception& ice) {
+        } catch (disruptor4cpp::insufficient_capacity_exception &ice) {
             spdlog::info("EventLoopPublisher::internalPublish. no more capacity.{}", _eventName);
             _discardedMessages++;
         }
@@ -110,12 +115,11 @@ public:
     long long unsigned int _discardedMessages;
 
 private:
-
-    RingBuffer & _ringBuffer;
+    RingBuffer &_ringBuffer;
     std::string _eventName;
     int _poolSize;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif // EVENT_LOOP_PUBLISHER_H

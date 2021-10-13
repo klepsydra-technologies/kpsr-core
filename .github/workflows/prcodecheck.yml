@@ -1,0 +1,28 @@
+name: Code style check
+
+on:
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  format-check:
+    name: Code style
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-os/cpplint:1.0.0
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Code format check
+        run: |
+          mkdir build && cd build
+          cmake ../
+          make formatcheck

@@ -54,54 +54,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 #include <vector>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+class util
 {
-	class util
-	{
-	public:
-		template <typename TSequence>
-		static int64_t get_minimum_sequence(const std::vector<const TSequence*>& sequences)
-		{
-			return get_minimum_sequence(sequences, LLONG_MAX);
-		}
+public:
+    template<typename TSequence>
+    static int64_t get_minimum_sequence(const std::vector<const TSequence *> &sequences)
+    {
+        return get_minimum_sequence(sequences, LLONG_MAX);
+    }
 
-		template <typename TSequence>
-		static int64_t get_minimum_sequence(const std::vector<const TSequence*>& sequences, int64_t minimum)
-		{
-			for (const auto& seq : sequences)
-			{
-				int64_t value = seq->get();
-				if (value < minimum)
-					minimum = value;
-			}
-			return minimum;
-		}
+    template<typename TSequence>
+    static int64_t get_minimum_sequence(const std::vector<const TSequence *> &sequences,
+                                        int64_t minimum)
+    {
+        for (const auto &seq : sequences) {
+            int64_t value = seq->get();
+            if (value < minimum)
+                minimum = value;
+        }
+        return minimum;
+    }
 
-		template <typename TSequence>
-		static int64_t get_minimum_sequence(const std::vector<TSequence*>& sequences)
-		{
-			return get_minimum_sequence(sequences, LLONG_MAX);
-		}
+    template<typename TSequence>
+    static int64_t get_minimum_sequence(const std::vector<TSequence *> &sequences)
+    {
+        return get_minimum_sequence(sequences, LLONG_MAX);
+    }
 
-		template <typename TSequence>
-		static int64_t get_minimum_sequence(const std::vector<TSequence*>& sequences, int64_t minimum)
-		{
-			for (const auto& seq : sequences)
-			{
-				int64_t value = seq->get();
-				if (value < minimum)
-					minimum = value;
-			}
-			return minimum;
-		}
+    template<typename TSequence>
+    static int64_t get_minimum_sequence(const std::vector<TSequence *> &sequences, int64_t minimum)
+    {
+        for (const auto &seq : sequences) {
+            int64_t value = seq->get();
+            if (value < minimum)
+                minimum = value;
+        }
+        return minimum;
+    }
 
-		constexpr static int log2(int value)
-		{
-            return value > 0
-                ? ((value / 2 == 1) ? 1 : log2(value / 2) + 1)
-                : throw std::invalid_argument("value must be > 0");
-		}
-	};
-}
+    constexpr static int log2(int value)
+    {
+        return value > 0 ? ((value / 2 == 1) ? 1 : log2(value / 2) + 1)
+                         : throw std::invalid_argument("value must be > 0");
+    }
+};
+} // namespace disruptor4cpp
 
 #endif

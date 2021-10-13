@@ -34,14 +34,14 @@ namespace kpsr {
  *
  * @details Statistics associated to the performance of the services. The messures include the FunctionStats messures plus the total running time. A service can be dynamically stopeed and started during the execution life time of the process.
  */
-struct ServiceStats : public FunctionStats {
+struct ServiceStats : public FunctionStats
+{
 public:
-
     /*!
      * @brief ServiceStats
      * @param serviceName service name to gather stats for.
      */
-    explicit ServiceStats(const std::string & serviceName)
+    explicit ServiceStats(const std::string &serviceName)
         : FunctionStats(serviceName)
         , _totalRunningTimeMs(0)
         , _running(false)
@@ -51,7 +51,8 @@ public:
     /*!
      * @brief startTimeWatch
      */
-    void startTimeWatch() {
+    void startTimeWatch()
+    {
         if (!_started) {
             _totalRunningTimeMs = 0;
             _started = true;
@@ -66,7 +67,8 @@ public:
     /*!
      * @brief stopTimeWatch
      */
-    void stopTimeWatch() {
+    void stopTimeWatch()
+    {
         if (_running) {
             _totalRunningTimeMs += TimeUtils::getCurrentMillisecondsAsLlu() - _timetWatchMs;
         }
@@ -77,17 +79,16 @@ public:
      * @brief getTotalRunningTimeMs
      * @return
      */
-    long long unsigned int getTotalRunningTimeMs() {
+    long long unsigned int getTotalRunningTimeMs()
+    {
         if (_running) {
             return _totalRunningTimeMs + TimeUtils::getCurrentMillisecondsAsLlu() - _timetWatchMs;
-        }
-        else {
+        } else {
             return _totalRunningTimeMs;
         }
     }
 
 private:
-
     std::atomic_ullong _totalRunningTimeMs;
 
     std::atomic_ullong _timetWatchMs;
@@ -95,8 +96,7 @@ private:
     std::atomic_bool _running;
 
     std::atomic_bool _started;
-
 };
-}
+} // namespace kpsr
 
 #endif // SERVICE_STATS_H

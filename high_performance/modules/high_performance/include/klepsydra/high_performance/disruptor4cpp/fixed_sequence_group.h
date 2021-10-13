@@ -57,45 +57,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <klepsydra/high_performance/disruptor4cpp/sequence.h>
 #include <klepsydra/high_performance/disruptor4cpp/utils/util.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<typename TSequence = sequence>
+class fixed_sequence_group
 {
-	template <typename TSequence = sequence>
-	class fixed_sequence_group
-	{
-	public:
-		static fixed_sequence_group<TSequence> create(const std::vector<const TSequence*>& sequences)
-		{
-			fixed_sequence_group<TSequence> group;
-			group.sequences_.insert(group.sequences_.begin(), sequences.begin(), sequences.end());
-			return group;
-		}
+public:
+    static fixed_sequence_group<TSequence> create(const std::vector<const TSequence *> &sequences)
+    {
+        fixed_sequence_group<TSequence> group;
+        group.sequences_.insert(group.sequences_.begin(), sequences.begin(), sequences.end());
+        return group;
+    }
 
-		static fixed_sequence_group<TSequence> create(const std::vector<TSequence*>& sequences)
-		{
-			fixed_sequence_group<TSequence> group;
-			group.sequences_.insert(group.sequences_.begin(), sequences.begin(), sequences.end());
-			return group;
-		}
+    static fixed_sequence_group<TSequence> create(const std::vector<TSequence *> &sequences)
+    {
+        fixed_sequence_group<TSequence> group;
+        group.sequences_.insert(group.sequences_.begin(), sequences.begin(), sequences.end());
+        return group;
+    }
 
-		static fixed_sequence_group<TSequence> create(const TSequence& sequence)
-		{
-			fixed_sequence_group<TSequence> group;
-			group.sequences_.push_back(&sequence);
-			return group;
-		}
+    static fixed_sequence_group<TSequence> create(const TSequence &sequence)
+    {
+        fixed_sequence_group<TSequence> group;
+        group.sequences_.push_back(&sequence);
+        return group;
+    }
 
-		fixed_sequence_group() = default;
-		~fixed_sequence_group() = default;
+    fixed_sequence_group() = default;
+    ~fixed_sequence_group() = default;
 
-		int64_t get() const
-		{
-			return sequences_.size() == 1 ? sequences_[0]->get()
-				: util::get_minimum_sequence(sequences_);
-		}
+    int64_t get() const
+    {
+        return sequences_.size() == 1 ? sequences_[0]->get()
+                                      : util::get_minimum_sequence(sequences_);
+    }
 
-	private:
-		std::vector<const TSequence*> sequences_;
-	};
-}
+private:
+    std::vector<const TSequence *> sequences_;
+};
+} // namespace disruptor4cpp
 
 #endif

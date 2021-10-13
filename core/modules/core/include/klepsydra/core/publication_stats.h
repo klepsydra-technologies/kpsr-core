@@ -35,14 +35,14 @@ namespace kpsr {
  * @details Statistics associated to the performance of the publisher. The messures include the FunctionStats
  * messures plus discarded event and total event object allocations.
  */
-struct PublicationStats : public FunctionStats {
-
+struct PublicationStats : public FunctionStats
+{
     /*!
      * @brief ServiceStats
      * @param name service name to gather stats for.
      * @param type service name to gather stats for.
      */
-    PublicationStats(const std::string & name, const std::string & type)
+    PublicationStats(const std::string &name, const std::string &type)
         : FunctionStats(name)
         , _type(type)
         , _totalEventAllocations(0)
@@ -63,8 +63,7 @@ struct PublicationStats : public FunctionStats {
      * \brief _totalDiscardedEvents
      */
     std::atomic_ullong _totalDiscardedEvents;
-
 };
-}
+} // namespace kpsr
 
 #endif // PUBLICATION_STATS_H

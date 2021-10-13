@@ -36,16 +36,19 @@ template<class KpsrClass, class MddlwClass>
  *
  * @details Internal facility abstract class for reading data from middleware. Concrete implementations are available for ZMQ, ROS and DDS.
 */
-class FromMiddlewareChannel {
+class FromMiddlewareChannel
+{
 public:
     /*!
      * @brief FromMiddlewareChannel
      * @param internalPublisher
      */
-    FromMiddlewareChannel(Publisher<KpsrClass> * internalPublisher)
+    FromMiddlewareChannel(Publisher<KpsrClass> *internalPublisher)
         : _middlewareMapper()
-        , _transformFunction(std::bind(&Mapper<KpsrClass, MddlwClass>::fromMiddleware, &_middlewareMapper,
-                                       std::placeholders::_1, std::placeholders::_2))
+        , _transformFunction(std::bind(&Mapper<KpsrClass, MddlwClass>::fromMiddleware,
+                                       &_middlewareMapper,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2))
         , _transformer(_transformFunction, internalPublisher)
     {}
 
@@ -53,15 +56,13 @@ public:
      * @brief onMiddlewareMessage
      * @param message
      */
-    void onMiddlewareMessage(const MddlwClass & message) {
-        _transformer.onEventReceived(message);
-    }
+    void onMiddlewareMessage(const MddlwClass &message) { _transformer.onEventReceived(message); }
 
 private:
     Mapper<KpsrClass, MddlwClass> _middlewareMapper;
     std::function<void(const MddlwClass &, KpsrClass &)> _transformFunction;
     EventTransformForwarder<MddlwClass, KpsrClass> _transformer;
 };
-}
+} // namespace kpsr
 
 #endif // FROM_MIDDLEWARE_CHANNEL_H

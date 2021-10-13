@@ -20,17 +20,17 @@
 #ifndef BASIC_MIDDLEWARE_PROVIDER_H
 #define BASIC_MIDDLEWARE_PROVIDER_H
 
-#include <klepsydra/core/event_transform_forwarder.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
+#include <klepsydra/core/event_transform_forwarder.h>
 
-#include <klepsydra/mem_core/in_memory_middleware_provider.h>
 #include <klepsydra/mem_core/basic_publisher.h>
+#include <klepsydra/mem_core/in_memory_middleware_provider.h>
 #include <klepsydra/mem_core/safe_queue_poller.h>
 
 namespace kpsr {
 namespace mem {
 
-template <class T>
+template<class T>
 /**
  * @brief The BasicMiddlewareProvider class
  *
@@ -43,7 +43,8 @@ template <class T>
  * @details This class is a wizard that creates the safequeue, publishers and subscriber in combination
  * with some memory management functions.
  */
-class BasicMiddlewareProvider : public InMemoryMiddlewareProvider<T> {
+class BasicMiddlewareProvider : public InMemoryMiddlewareProvider<T>
+{
 public:
     /**
      * @brief BasicMiddlewareProvider
@@ -57,7 +58,7 @@ public:
      * In the false case, the publisher will block until there is free space to put new events in the queue, if the queue
      * is full.
      */
-    BasicMiddlewareProvider(Container * container,
+    BasicMiddlewareProvider(Container *container,
                             std::string eventName,
                             int queueSize,
                             int poolSize,
@@ -67,15 +68,20 @@ public:
         : InMemoryMiddlewareProvider<T>(container, eventName)
         , _internalQueue(queueSize)
     {
-        this->_publisher = new BasicPublisher<T>(container, eventName, poolSize, initializerFunction, eventCloner, _internalQueue, discardItemsWhenFull);
+        this->_publisher = new BasicPublisher<T>(container,
+                                                 eventName,
+                                                 poolSize,
+                                                 initializerFunction,
+                                                 eventCloner,
+                                                 _internalQueue,
+                                                 discardItemsWhenFull);
         // By default, we use a sleep/wait period of 1000 microseconds for the poller.
         this->_poller = new SafeQueuePoller<T>(_internalQueue, this->_eventEmitter, eventName, 1000);
     }
 
-    SafeQueue <EventData<const T>>_internalQueue;
-
+    SafeQueue<EventData<const T>> _internalQueue;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 
 #endif // BASIC_MIDDLEWARE_PROVIDER_H

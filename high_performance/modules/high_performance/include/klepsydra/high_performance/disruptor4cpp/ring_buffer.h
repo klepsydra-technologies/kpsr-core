@@ -52,38 +52,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstddef>
 #include <cstdint>
-#include <type_traits>
 #include <functional>
+#include <type_traits>
 
 #include <klepsydra/high_performance/disruptor4cpp/producer_type.h>
 #include <klepsydra/high_performance/disruptor4cpp/sequencer_traits.h>
 #include <klepsydra/high_performance/disruptor4cpp/utils/cache_line_storage.h>
 
-namespace disruptor4cpp
-{
-template <typename TEvent, std::size_t BufferSize,
-          typename TWaitStrategy, producer_type ProducerType, typename TSequence = sequence>
-class ring_buffer :
-        public sequencer_traits<BufferSize, TWaitStrategy, TSequence, ProducerType>::sequencer_type
+namespace disruptor4cpp {
+template<typename TEvent,
+         std::size_t BufferSize,
+         typename TWaitStrategy,
+         producer_type ProducerType,
+         typename TSequence = sequence>
+class ring_buffer
+    : public sequencer_traits<BufferSize, TWaitStrategy, TSequence, ProducerType>::sequencer_type
 {
 public:
-    static_assert(std::is_default_constructible<TEvent>::value, "Event type must be default constructible");
-    static_assert((BufferSize & (~BufferSize + 1)) == BufferSize, "Ring buffer size must be a power of 2");
+    static_assert(std::is_default_constructible<TEvent>::value,
+                  "Event type must be default constructible");
+    static_assert((BufferSize & (~BufferSize + 1)) == BufferSize,
+                  "Ring buffer size must be a power of 2");
 
     typedef TEvent event_type;
     typedef TWaitStrategy wait_strategy_type;
     typedef TSequence sequence_type;
-    typedef typename sequencer_traits<BufferSize, TWaitStrategy, TSequence, ProducerType>::sequence_barrier_type sequence_barrier_type;
+    typedef typename sequencer_traits<BufferSize, TWaitStrategy, TSequence, ProducerType>::
+        sequence_barrier_type sequence_barrier_type;
 
     static constexpr std::size_t BUFFER_SIZE = BufferSize;
     static constexpr producer_type PRODUCER_TYPE = ProducerType;
 
     ring_buffer() = default;
 
-    explicit ring_buffer(const TEvent * value)
+    explicit ring_buffer(const TEvent *value)
     {
-        for (int i = 0; i < static_cast<int>(BufferSize); i++)
-        {
+        for (int i = 0; i < static_cast<int>(BufferSize); i++) {
             if (value) {
                 events_[i].data = *value;
             }
@@ -92,32 +96,31 @@ public:
 
     explicit ring_buffer(std::function<void(TEvent &)> initializer)
     {
-        for (int i = 0; i < static_cast<int>(BufferSize); i++)
-        {
+        for (int i = 0; i < static_cast<int>(BufferSize); i++) {
             initializer(events_[i].data);
         }
     }
 
     ~ring_buffer() = default;
 
-    TEvent& operator[](int64_t seq)
+    TEvent &operator[](int64_t seq)
     {
         return events_[seq & (static_cast<int64_t>(BufferSize) - 1)].data;
     }
 
-    const TEvent& operator[](int64_t seq) const
+    const TEvent &operator[](int64_t seq) const
     {
         return events_[seq & (static_cast<int64_t>(BufferSize) - 1)].data;
     }
 
 private:
-    ring_buffer(const ring_buffer&) = delete;
-    ring_buffer& operator=(const ring_buffer&) = delete;
-    ring_buffer(ring_buffer&&) = delete;
-    ring_buffer& operator=(ring_buffer&&) = delete;
+    ring_buffer(const ring_buffer &) = delete;
+    ring_buffer &operator=(const ring_buffer &) = delete;
+    ring_buffer(ring_buffer &&) = delete;
+    ring_buffer &operator=(ring_buffer &&) = delete;
 
     cache_line_storage<TEvent> events_[BufferSize];
 };
-}
+} // namespace disruptor4cpp
 
 #endif

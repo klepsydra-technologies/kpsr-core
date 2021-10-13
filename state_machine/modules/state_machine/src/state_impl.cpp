@@ -24,12 +24,17 @@
 namespace kpsr {
 namespace fsm {
 
-StateImpl::StateImpl(const std::string &id,
-                     std::vector<std::shared_ptr<Transition>> transitions)
-    : _id(id), _transitions(transitions) {}
-std::string StateImpl::getId() { return _id; }
-std::vector<std::shared_ptr<Transition>> StateImpl::getTransitions() {
-  return _transitions;
+StateImpl::StateImpl(const std::string &id, std::vector<std::shared_ptr<Transition>> transitions)
+    : _id(id)
+    , _transitions(transitions)
+{}
+std::string StateImpl::getId()
+{
+    return _id;
+}
+std::vector<std::shared_ptr<Transition>> StateImpl::getTransitions()
+{
+    return _transitions;
 }
 } // namespace fsm
 } // namespace kpsr

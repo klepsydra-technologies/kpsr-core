@@ -20,15 +20,15 @@
 #ifndef IN_MEMORY_MIDDLEWARE_PROVIDER_H
 #define IN_MEMORY_MIDDLEWARE_PROVIDER_H
 
-#include <klepsydra/core/event_transform_forwarder.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
+#include <klepsydra/core/event_transform_forwarder.h>
 
 #include <klepsydra/mem_core/in_memory_queue_poller.h>
 
 namespace kpsr {
 namespace mem {
 
-template <class T>
+template<class T>
 /**
  * @brief The InMemoryMiddlewareProvider class
  *
@@ -42,7 +42,8 @@ template <class T>
  * the wizard that creates the internal queue, publishers and subscriber in
  * combination with some memory management functions.
  */
-class InMemoryMiddlewareProvider {
+class InMemoryMiddlewareProvider
+{
 public:
     /**
      * @brief InMemoryMiddlewareProvider
@@ -50,8 +51,7 @@ public:
      * @param eventName
      * @param poolSize
      */
-    InMemoryMiddlewareProvider(Container * container,
-                               std::string eventName)
+    InMemoryMiddlewareProvider(Container *container, std::string eventName)
         : _eventEmitter()
         , _eventName(eventName)
         , _publisher(nullptr)
@@ -59,7 +59,8 @@ public:
         , _subscriber(container, _eventEmitter, eventName)
     {}
 
-    virtual ~InMemoryMiddlewareProvider() {
+    virtual ~InMemoryMiddlewareProvider()
+    {
         delete _publisher;
         delete _poller;
     }
@@ -67,40 +68,30 @@ public:
     /**
      * @brief start
      */
-    virtual void start () {
-        _poller->start();
-    }
+    virtual void start() { _poller->start(); }
 
     /**
      * @brief stop
      */
-    virtual void stop() {
-        _poller->stop();
-    }
+    virtual void stop() { _poller->stop(); }
 
     /**
      * @brief isRunning
      * @return
      */
-    virtual bool isRunning() {
-        return _poller->_running;
-    }
+    virtual bool isRunning() { return _poller->_running; }
 
     /**
      * @brief getPublisher
      * @return
      */
-    Publisher<T> * getPublisher() {
-        return _publisher;
-    }
+    Publisher<T> *getPublisher() { return _publisher; }
 
     /**
      * @brief getSubscriber
      * @return
      */
-    Subscriber<T> * getSubscriber() {
-        return &_subscriber;
-    }
+    Subscriber<T> *getSubscriber() { return &_subscriber; }
 
     template<class S>
     /**
@@ -108,11 +99,11 @@ public:
      * @param transformFunction
      * @return
      */
-    std::shared_ptr<EventTransformForwarder<S, T>>
-    getProcessForwarder(const std::function<void(const S &, T &)> & transformFunction) {
-        return std::shared_ptr<EventTransformForwarder<S, T>>(new EventTransformForwarder<S, T>(
-                                                                  transformFunction,
-                                                                  getPublisher()));
+    std::shared_ptr<EventTransformForwarder<S, T>> getProcessForwarder(
+        const std::function<void(const S &, T &)> &transformFunction)
+    {
+        return std::shared_ptr<EventTransformForwarder<S, T>>(
+            new EventTransformForwarder<S, T>(transformFunction, getPublisher()));
     }
 
     /**
@@ -125,11 +116,11 @@ public:
     std::string _eventName;
 
 protected:
-    Publisher<T> * _publisher;
-    InMemoryQueuePoller * _poller;
+    Publisher<T> *_publisher;
+    InMemoryQueuePoller *_poller;
     EventEmitterSubscriber<T> _subscriber;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 
 #endif // BASIC_MIDDLEWARE_PROVIDER_H

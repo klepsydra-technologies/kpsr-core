@@ -25,18 +25,18 @@
 
 namespace kpsr {
 namespace fsm {
-class StateMachine {
+class StateMachine
+{
 public:
-  virtual void start() = 0;
-  virtual void stop() = 0;
-  virtual void update() = 0;
-  virtual void enqueueAndUpdate(const std::string &event) = 0;
-  virtual void reset() = 0;
-  virtual void enqueueEvent(const std::string &event) = 0;
-  virtual void registerObserver(
-      std::function<void(const std::string &currentState, bool stateChanged)>
-          smObserver) = 0;
-  virtual void unregisterObservers() = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
+    virtual void update() = 0;
+    virtual void enqueueAndUpdate(const std::string &event) = 0;
+    virtual void reset() = 0;
+    virtual void enqueueEvent(const std::string &event) = 0;
+    virtual void registerObserver(
+        std::function<void(const std::string &currentState, bool stateChanged)> smObserver) = 0;
+    virtual void unregisterObservers() = 0;
 };
 } // namespace fsm
 } // namespace kpsr

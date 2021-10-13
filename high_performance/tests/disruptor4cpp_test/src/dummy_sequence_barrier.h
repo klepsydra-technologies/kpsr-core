@@ -33,50 +33,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstdint>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+class dummy_sequence_barrier
 {
-	namespace test
-	{
-		class dummy_sequence_barrier
-		{
-		public:
-			dummy_sequence_barrier() = default;
-			~dummy_sequence_barrier() = default;
+public:
+    dummy_sequence_barrier() = default;
+    ~dummy_sequence_barrier() = default;
 
-			int64_t wait_for(int64_t seq)
-			{
-				return 0;
-			}
+    int64_t wait_for(int64_t seq) { return 0; }
 
-			int64_t get_cursor() const
-			{
-				return 0;
-			}
+    int64_t get_cursor() const { return 0; }
 
-			bool is_alerted() const
-			{
-				return false;
-			}
+    bool is_alerted() const { return false; }
 
-			void alert()
-			{
-			}
+    void alert() {}
 
-			void clear_alert()
-			{
-			}
+    void clear_alert() {}
 
-			void check_alert() const
-			{
-			}
+    void check_alert() const {}
 
-		private:
-			dummy_sequence_barrier(const dummy_sequence_barrier&) = delete;
-			dummy_sequence_barrier& operator=(const dummy_sequence_barrier&) = delete;
-			dummy_sequence_barrier(dummy_sequence_barrier&&) = delete;
-			dummy_sequence_barrier& operator=(dummy_sequence_barrier&&) = delete;
-		};
-	}
-}
+private:
+    dummy_sequence_barrier(const dummy_sequence_barrier &) = delete;
+    dummy_sequence_barrier &operator=(const dummy_sequence_barrier &) = delete;
+    dummy_sequence_barrier(dummy_sequence_barrier &&) = delete;
+    dummy_sequence_barrier &operator=(dummy_sequence_barrier &&) = delete;
+};
+} // namespace test
+} // namespace disruptor4cpp
 
 #endif

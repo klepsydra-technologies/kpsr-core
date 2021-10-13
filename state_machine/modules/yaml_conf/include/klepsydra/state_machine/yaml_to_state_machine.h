@@ -24,67 +24,76 @@
 #include <klepsydra/state_machine/config_state_machine.h>
 
 namespace YAML {
-template <> struct convert<kpsr::fsm::ConfigTransition> {
-  static Node encode(const kpsr::fsm::ConfigTransition &transition) {
-    Node node;
-    node["destination"] = transition.destinationId;
-    node["event"] = transition.event;
-    return node;
-  }
+template<>
+struct convert<kpsr::fsm::ConfigTransition>
+{
+    static Node encode(const kpsr::fsm::ConfigTransition &transition)
+    {
+        Node node;
+        node["destination"] = transition.destinationId;
+        node["event"] = transition.event;
+        return node;
+    }
 
-  static bool decode(const Node &node,
-                     kpsr::fsm::ConfigTransition &transition) {
-    transition.destinationId = node["destination"].as<std::string>();
-    transition.event = node["event"].as<std::string>();
-    return true;
-  }
+    static bool decode(const Node &node, kpsr::fsm::ConfigTransition &transition)
+    {
+        transition.destinationId = node["destination"].as<std::string>();
+        transition.event = node["event"].as<std::string>();
+        return true;
+    }
 };
 
-template <> struct convert<kpsr::fsm::ConfigState> {
-  static Node encode(const kpsr::fsm::ConfigState &state) {
-    Node node;
-    node["id"] = state.id;
-    for (auto transition : state.transitions) {
-      Node configTransition;
-      configTransition["transition"] = transition;
-      node["transitions"].push_back(configTransition);
+template<>
+struct convert<kpsr::fsm::ConfigState>
+{
+    static Node encode(const kpsr::fsm::ConfigState &state)
+    {
+        Node node;
+        node["id"] = state.id;
+        for (auto transition : state.transitions) {
+            Node configTransition;
+            configTransition["transition"] = transition;
+            node["transitions"].push_back(configTransition);
+        }
+        return node;
     }
-    return node;
-  }
 
-  static bool decode(const Node &node, kpsr::fsm::ConfigState &state) {
-    state.id = node["id"].as<std::string>();
-    if (node["transitions"]) {
-      for (auto transition : node["transitions"]) {
-        state.transitions.push_back(
-            transition["transition"].as<kpsr::fsm::ConfigTransition>());
-      }
+    static bool decode(const Node &node, kpsr::fsm::ConfigState &state)
+    {
+        state.id = node["id"].as<std::string>();
+        if (node["transitions"]) {
+            for (auto transition : node["transitions"]) {
+                state.transitions.push_back(
+                    transition["transition"].as<kpsr::fsm::ConfigTransition>());
+            }
+        }
+        return true;
     }
-    return true;
-  }
 };
 
-template <> struct convert<kpsr::fsm::ConfigStateMachine> {
-  static Node encode(const kpsr::fsm::ConfigStateMachine &stateMachine) {
-    Node node;
-    node["id"] = stateMachine.id;
-    for (auto state : stateMachine.states) {
-      Node configState;
-      configState["state"] = state;
-      node["states"].push_back(configState);
+template<>
+struct convert<kpsr::fsm::ConfigStateMachine>
+{
+    static Node encode(const kpsr::fsm::ConfigStateMachine &stateMachine)
+    {
+        Node node;
+        node["id"] = stateMachine.id;
+        for (auto state : stateMachine.states) {
+            Node configState;
+            configState["state"] = state;
+            node["states"].push_back(configState);
+        }
+        return node;
     }
-    return node;
-  }
 
-  static bool decode(const Node &node,
-                     kpsr::fsm::ConfigStateMachine &stateMachine) {
-    Node sm = node["state_machine"];
-    stateMachine.id = sm["id"].as<std::string>();
-    for (auto state : sm["states"]) {
-      stateMachine.states.push_back(
-          state["state"].as<kpsr::fsm::ConfigState>());
+    static bool decode(const Node &node, kpsr::fsm::ConfigStateMachine &stateMachine)
+    {
+        Node sm = node["state_machine"];
+        stateMachine.id = sm["id"].as<std::string>();
+        for (auto state : sm["states"]) {
+            stateMachine.states.push_back(state["state"].as<kpsr::fsm::ConfigState>());
+        }
+        return true;
     }
-    return true;
-  }
 };
 } // namespace YAML

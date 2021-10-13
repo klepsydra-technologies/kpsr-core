@@ -22,7 +22,6 @@
 #ifndef KPSR_SENSORS_LASER_SCAN_EVENT_H_
 #define KPSR_SENSORS_LASER_SCAN_EVENT_H_
 
-
 // Include section.
 #include <vector>
 
@@ -31,31 +30,28 @@
 namespace kpsr {
 namespace sensors {
 // Klepsydra generated event class.
-class LaserScanEvent : public Sensor {
+class LaserScanEvent : public Sensor
+{
 public:
     static int constructorInvokations;
     static int emptyConstructorInvokations;
     static int copyConstructorInvokations;
 
     // Default constructor.
-    LaserScanEvent() {
-        LaserScanEvent::copyConstructorInvokations++;
-
-    }
+    LaserScanEvent() { LaserScanEvent::copyConstructorInvokations++; }
 
     // Main constructor.
-    LaserScanEvent(
-            std::string frameId,
-            int seq,
-            float angle_min,
-            float angle_max,
-            float angle_increment,
-            float time_increment,
-            float scan_time,
-            float range_min,
-            float range_max,
-            std::vector<float> ranges,
-            std::vector<float> intensities)
+    LaserScanEvent(std::string frameId,
+                   int seq,
+                   float angle_min,
+                   float angle_max,
+                   float angle_increment,
+                   float time_increment,
+                   float scan_time,
+                   float range_min,
+                   float range_max,
+                   std::vector<float> ranges,
+                   std::vector<float> intensities)
         : Sensor(frameId, seq)
         , angle_min(angle_min)
         , angle_max(angle_max)
@@ -71,7 +67,7 @@ public:
     }
 
     // Clone constructor. Needed by klepsydra core APIs.
-    LaserScanEvent(const LaserScanEvent & that)
+    LaserScanEvent(const LaserScanEvent &that)
         : angle_min(that.angle_min)
         , angle_max(that.angle_max)
         , angle_increment(that.angle_increment)
@@ -86,7 +82,8 @@ public:
     }
 
     // Clone method. Needed by klepsydra core APIs.
-    void clone(const LaserScanEvent & that) {
+    void clone(const LaserScanEvent &that)
+    {
         Sensor::clone(that);
         this->angle_min = that.angle_min;
         this->angle_max = that.angle_max;
@@ -110,8 +107,8 @@ public:
     std::vector<float> ranges;
     std::vector<float> intensities;
 };
-}
-}
+} // namespace sensors
+} // namespace kpsr
 
 int kpsr::sensors::LaserScanEvent::constructorInvokations = 0;
 int kpsr::sensors::LaserScanEvent::emptyConstructorInvokations = 0;

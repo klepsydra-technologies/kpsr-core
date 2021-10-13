@@ -20,9 +20,8 @@
 #ifndef MAPPER_H
 #define MAPPER_H
 
-namespace kpsr
-{
-template <class KpsrClass, class MddlwClass>
+namespace kpsr {
+template<class KpsrClass, class MddlwClass>
 /*!
  * @brief The Mapper class
  *
@@ -44,7 +43,7 @@ public:
      * @param message
      * @param event
      */
-    virtual void fromMiddleware(const MddlwClass& message, KpsrClass& event) = 0;
+    virtual void fromMiddleware(const MddlwClass &message, KpsrClass &event) = 0;
     /*!
      * @brief toMiddleware
      * This method converts a Klepsydra realm <a href="https://en.wikipedia.org/wiki/Plain_Old_C%2B%2B_Object">POCO</a> (e.g., kpsr::geometry::PoseEventData)
@@ -52,7 +51,7 @@ public:
      * @param event
      * @param message
      */
-    virtual void toMiddleware(const KpsrClass& event, MddlwClass& message) = 0;
+    virtual void toMiddleware(const KpsrClass &event, MddlwClass &message) = 0;
 };
-}
+} // namespace kpsr
 #endif

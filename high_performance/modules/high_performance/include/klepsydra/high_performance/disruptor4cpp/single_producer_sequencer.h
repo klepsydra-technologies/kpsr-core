@@ -62,90 +62,73 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <klepsydra/high_performance/disruptor4cpp/sequence_barrier.h>
 #include <klepsydra/high_performance/disruptor4cpp/utils/util.h>
 
-namespace disruptor4cpp
-{
-template <std::size_t BufferSize, typename TWaitStrategy, typename TSequence = sequence>
+namespace disruptor4cpp {
+template<std::size_t BufferSize, typename TWaitStrategy, typename TSequence = sequence>
 class single_producer_sequencer
 {
 public:
     typedef TWaitStrategy wait_strategy_type;
     typedef TSequence sequence_type;
-    typedef sequence_barrier<
-    single_producer_sequencer<BufferSize, TWaitStrategy, TSequence>> sequence_barrier_type;
+    typedef sequence_barrier<single_producer_sequencer<BufferSize, TWaitStrategy, TSequence>>
+        sequence_barrier_type;
 
     static constexpr int64_t INITIAL_CURSOR_VALUE = -1;
     static constexpr std::size_t BUFFER_SIZE = BufferSize;
 
     single_producer_sequencer()
-        : cursor_(),
-          wait_strategy_(),
-          gating_sequences_(),
-          next_value_(TSequence::INITIAL_VALUE),
-          cached_value_(TSequence::INITIAL_VALUE)
-    {
-    }
+        : cursor_()
+        , wait_strategy_()
+        , gating_sequences_()
+        , next_value_(TSequence::INITIAL_VALUE)
+        , cached_value_(TSequence::INITIAL_VALUE)
+    {}
 
     ~single_producer_sequencer() = default;
 
-    int64_t get_cursor() const
-    {
-        return cursor_.get();
-    }
+    int64_t get_cursor() const { return cursor_.get(); }
 
-    constexpr std::size_t get_buffer_size() const
-    {
-        return BUFFER_SIZE;
-    }
+    constexpr std::size_t get_buffer_size() const { return BUFFER_SIZE; }
 
-    TWaitStrategy& get_wait_strategy()
-    {
-        return wait_strategy_;
-    }
+    TWaitStrategy &get_wait_strategy() { return wait_strategy_; }
 
-    void add_gating_sequences(const std::vector<TSequence*>& sequences_to_add)
+    void add_gating_sequences(const std::vector<TSequence *> &sequences_to_add)
     {
         // TODO: It is different from the java version.
         // The java version allows to change gating sequences after high_performance is started.
         int64_t cursor_sequence = cursor_.get();
-        for (auto seq : sequences_to_add)
-        {
+        for (auto seq : sequences_to_add) {
             seq->set(cursor_sequence);
             gating_sequences_.push_back(seq);
         }
     }
 
-    bool remove_gating_sequence(const TSequence& seq)
+    bool remove_gating_sequence(const TSequence &seq)
     {
         // TODO: It is different from the java version.
         // The java version allows to change gating sequences after high_performance is started.
         bool removed = false;
-        for (auto iter = gating_sequences_.begin(); iter != gating_sequences_.end();)
-        {
-            if (*iter == &seq)
-            {
+        for (auto iter = gating_sequences_.begin(); iter != gating_sequences_.end();) {
+            if (*iter == &seq) {
                 removed = true;
                 iter = gating_sequences_.erase(iter);
-            }
-            else
+            } else
                 ++iter;
         }
         return removed;
     }
 
-    int64_t get_minimum_sequence() const
-    {
-        return util::get_minimum_sequence(gating_sequences_);
-    }
+    int64_t get_minimum_sequence() const { return util::get_minimum_sequence(gating_sequences_); }
 
     std::unique_ptr<sequence_barrier_type> new_barrier()
     {
-        return new_barrier(std::vector<TSequence*>());
+        return new_barrier(std::vector<TSequence *>());
     }
 
-    std::unique_ptr<sequence_barrier_type> new_barrier(const std::vector<TSequence*>& sequences_to_track)
+    std::unique_ptr<sequence_barrier_type> new_barrier(
+        const std::vector<TSequence *> &sequences_to_track)
     {
         return std::unique_ptr<sequence_barrier_type>(
-                    new sequence_barrier_type(*this, wait_strategy_, cursor_, sequences_to_track));
+            new sequence_barrier_type(*this, wait_strategy_, cursor_, sequences_to_track));
     }
 
     bool has_available_capacity(int required_capacity)
@@ -153,8 +136,7 @@ public:
         int64_t next_value = next_value_;
         int64_t wrap_point = (next_value + required_capacity) - static_cast<int64_t>(BufferSize);
         int64_t cached_gating_sequence = cached_value_;
-        if (wrap_point > cached_gating_sequence || cached_gating_sequence > next_value)
-        {
+        if (wrap_point > cached_gating_sequence || cached_gating_sequence > next_value) {
             int64_t min_sequence = util::get_minimum_sequence(gating_sequences_, next_value);
             cached_value_ = min_sequence;
             if (wrap_point > min_sequence)
@@ -163,10 +145,7 @@ public:
         return true;
     }
 
-    int64_t next()
-    {
-        return next(1);
-    }
+    int64_t next() { return next(1); }
 
     int64_t next(int n)
     {
@@ -178,11 +157,10 @@ public:
         int64_t wrap_point = next_sequence - static_cast<int64_t>(BufferSize);
         int64_t cached_gating_sequence = cached_value_;
 
-        if (wrap_point > cached_gating_sequence || cached_gating_sequence > next_value)
-        {
+        if (wrap_point > cached_gating_sequence || cached_gating_sequence > next_value) {
             int64_t min_sequence;
-            while (wrap_point > (min_sequence = util::get_minimum_sequence(gating_sequences_, next_value)))
-            {
+            while (wrap_point >
+                   (min_sequence = util::get_minimum_sequence(gating_sequences_, next_value))) {
                 std::this_thread::yield();
             }
             cached_value_ = min_sequence;
@@ -191,10 +169,7 @@ public:
         return next_sequence;
     }
 
-    int64_t try_next()
-    {
-        return try_next(1);
-    }
+    int64_t try_next() { return try_next(1); }
 
     int64_t try_next(int n)
     {
@@ -215,10 +190,7 @@ public:
         return static_cast<int64_t>(BufferSize) - (produced - consumed);
     }
 
-    void claim(int64_t seq)
-    {
-        next_value_ = seq;
-    }
+    void claim(int64_t seq) { next_value_ = seq; }
 
     void publish(int64_t seq)
     {
@@ -226,15 +198,9 @@ public:
         wait_strategy_.signal_all_when_blocking();
     }
 
-    void publish(int64_t lo, int64_t hi)
-    {
-        publish(hi);
-    }
+    void publish(int64_t lo, int64_t hi) { publish(hi); }
 
-    bool is_available(int64_t seq) const
-    {
-        return seq <= cursor_.get();
-    }
+    bool is_available(int64_t seq) const { return seq <= cursor_.get(); }
 
     int64_t get_highest_published_sequence(int64_t lower_bound, int64_t available_sequence) const
     {
@@ -242,17 +208,17 @@ public:
     }
 
 private:
-    single_producer_sequencer(const single_producer_sequencer&) = delete;
-    single_producer_sequencer& operator=(const single_producer_sequencer&) = delete;
-    single_producer_sequencer(single_producer_sequencer&&) = delete;
-    single_producer_sequencer& operator=(single_producer_sequencer&&) = delete;
+    single_producer_sequencer(const single_producer_sequencer &) = delete;
+    single_producer_sequencer &operator=(const single_producer_sequencer &) = delete;
+    single_producer_sequencer(single_producer_sequencer &&) = delete;
+    single_producer_sequencer &operator=(single_producer_sequencer &&) = delete;
 
     TSequence cursor_;
     TWaitStrategy wait_strategy_;
-    std::vector<TSequence*> gating_sequences_;
+    std::vector<TSequence *> gating_sequences_;
     int64_t next_value_;
     int64_t cached_value_;
 };
-}
+} // namespace disruptor4cpp
 
 #endif

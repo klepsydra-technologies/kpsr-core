@@ -58,56 +58,54 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <klepsydra/high_performance/disruptor4cpp/exceptions/timeout_exception.h>
 #include <klepsydra/high_performance/disruptor4cpp/fixed_sequence_group.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<int64_t TimeoutNanoseconds>
+class timeout_blocking_wait_strategy
 {
-	template <int64_t TimeoutNanoseconds>
-	class timeout_blocking_wait_strategy
-	{
-	public:
-		timeout_blocking_wait_strategy() = default;
-		~timeout_blocking_wait_strategy() = default;
+public:
+    timeout_blocking_wait_strategy() = default;
+    ~timeout_blocking_wait_strategy() = default;
 
-		template <typename TSequenceBarrier, typename TSequence>
-		int64_t wait_for(int64_t seq, const TSequence& cursor_sequence,
-			const fixed_sequence_group<TSequence>& dependent_sequence,
-			const TSequenceBarrier& seq_barrier)
-		{
-			int64_t available_sequence = 0;
-			if ((available_sequence = cursor_sequence.get()) < seq)
-			{
-				std::unique_lock<std::recursive_mutex> lock(mutex_);
-				while ((available_sequence = cursor_sequence.get()) < seq)
-				{
-					seq_barrier.check_alert();
-					std::cv_status status = processor_notify_condition_.wait_for(lock,
-						std::chrono::nanoseconds(TimeoutNanoseconds));
-					if (status == std::cv_status::timeout)
-						throw timeout_exception();
-				}
-			}
+    template<typename TSequenceBarrier, typename TSequence>
+    int64_t wait_for(int64_t seq,
+                     const TSequence &cursor_sequence,
+                     const fixed_sequence_group<TSequence> &dependent_sequence,
+                     const TSequenceBarrier &seq_barrier)
+    {
+        int64_t available_sequence = 0;
+        if ((available_sequence = cursor_sequence.get()) < seq) {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
+            while ((available_sequence = cursor_sequence.get()) < seq) {
+                seq_barrier.check_alert();
+                std::cv_status status = processor_notify_condition_
+                                            .wait_for(lock,
+                                                      std::chrono::nanoseconds(TimeoutNanoseconds));
+                if (status == std::cv_status::timeout)
+                    throw timeout_exception();
+            }
+        }
 
-			while ((available_sequence = dependent_sequence.get()) < seq)
-			{
-				seq_barrier.check_alert();
-			}
-			return available_sequence;
-		}
+        while ((available_sequence = dependent_sequence.get()) < seq) {
+            seq_barrier.check_alert();
+        }
+        return available_sequence;
+    }
 
-		void signal_all_when_blocking()
-		{
-			std::lock_guard<std::recursive_mutex> lock(mutex_);
-			processor_notify_condition_.notify_all();
-		}
+    void signal_all_when_blocking()
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        processor_notify_condition_.notify_all();
+    }
 
-	private:
-		timeout_blocking_wait_strategy(const timeout_blocking_wait_strategy&) = delete;
-		timeout_blocking_wait_strategy& operator=(const timeout_blocking_wait_strategy&) = delete;
-		timeout_blocking_wait_strategy(timeout_blocking_wait_strategy&&) = delete;
-		timeout_blocking_wait_strategy& operator=(timeout_blocking_wait_strategy&&) = delete;
+private:
+    timeout_blocking_wait_strategy(const timeout_blocking_wait_strategy &) = delete;
+    timeout_blocking_wait_strategy &operator=(const timeout_blocking_wait_strategy &) = delete;
+    timeout_blocking_wait_strategy(timeout_blocking_wait_strategy &&) = delete;
+    timeout_blocking_wait_strategy &operator=(timeout_blocking_wait_strategy &&) = delete;
 
-		std::recursive_mutex mutex_;
-		std::condition_variable_any processor_notify_condition_;
-	};
-}
+    std::recursive_mutex mutex_;
+    std::condition_variable_any processor_notify_condition_;
+};
+} // namespace disruptor4cpp
 
 #endif

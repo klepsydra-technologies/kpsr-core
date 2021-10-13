@@ -19,11 +19,11 @@
 
 #include <gtest/gtest.h>
 
-#include <klepsydra/core/service.h>
-#include <klepsydra/core/publisher.h>
-#include <klepsydra/core/subscriber.h>
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
+#include <klepsydra/core/publisher.h>
+#include <klepsydra/core/service.h>
+#include <klepsydra/core/subscriber.h>
 
 #include <klepsydra/mem_core/basic_middleware_provider.h>
 
@@ -33,7 +33,8 @@
 #include <klepsydra/serialization/binary_cereal_mapper.h>
 #include <klepsydra/serialization/json_cereal_mapper.h>
 
-class ZmqCVTest : public ::testing::Test {
+class ZmqCVTest : public ::testing::Test
+{
 protected:
     ZmqCVTest()
         : serverUrl("tcp://*:5556")
@@ -41,35 +42,35 @@ protected:
         , syncUrl("tcp://localhost:5557")
         , syncServiceUrl("tcp://*:5557")
         , topic("image_data")
-        , context (1)
+        , context(1)
         , publisher(context, ZMQ_PUB)
         , subscriber(context, ZMQ_SUB)
         , syncclient(context, ZMQ_REQ)
-        , syncservice (context, ZMQ_REP)
-        {
-            publisher.bind(serverUrl);
-            publisher.bind("ipc://cvMat-tests.ipc");
+        , syncservice(context, ZMQ_REP)
+    {
+        publisher.bind(serverUrl);
+        publisher.bind("ipc://cvMat-tests.ipc");
 
-            //  Socket to talk to server
-            subscriber.connect(clientUrl);
-            subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-            // Set up publisher corresponding to each input.
-            syncclient.connect(syncUrl);
-            //  - send a synchronization request
-            zmq::message_t message("", 1);
-            syncservice.bind(syncServiceUrl);
-            // Set up publisher corresponding to each input.
-            syncclient.connect(syncUrl);
-            //  - send a synchronization request
-            syncclient.send(message);
-            //  - wait for synchronization reply
-            zmq::message_t recvMessage;
-            syncservice.recv(recvMessage);
-            syncservice.send(message);
-            syncclient.recv(recvMessage);
-        }
-    
-    std::string serverUrl; 
+        //  Socket to talk to server
+        subscriber.connect(clientUrl);
+        subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+        // Set up publisher corresponding to each input.
+        syncclient.connect(syncUrl);
+        //  - send a synchronization request
+        zmq::message_t message("", 1);
+        syncservice.bind(syncServiceUrl);
+        // Set up publisher corresponding to each input.
+        syncclient.connect(syncUrl);
+        //  - send a synchronization request
+        syncclient.send(message);
+        //  - wait for synchronization reply
+        zmq::message_t recvMessage;
+        syncservice.recv(recvMessage);
+        syncservice.send(message);
+        syncclient.recv(recvMessage);
+    }
+
+    std::string serverUrl;
     std::string clientUrl;
     std::string syncUrl;
     std::string syncServiceUrl;
@@ -81,26 +82,29 @@ protected:
     zmq::socket_t syncservice;
 };
 
-TEST_F(ZmqCVTest, ZmqTestIntJson) {
-
+TEST_F(ZmqCVTest, ZmqTestIntJson)
+{
     kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
-    kpsr::Publisher<int> * toZMQPublisher = toZMQMiddlewareProvider.getJsonToMiddlewareChannel<int>(topic, 0);
+    kpsr::Publisher<int> *toZMQPublisher = toZMQMiddlewareProvider
+                                               .getJsonToMiddlewareChannel<int>(topic, 0);
 
     //  Process 100 updates
     kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> * _jsonFromZMQProvider = _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<int>(subscriber, 100);
+    kpsr::zmq_mdlw::FromZmqChannel<std::string> *_jsonFromZMQProvider =
+        _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<int>(subscriber, 100);
     _jsonFromZMQProvider->start();
     kpsr::EventEmitterMiddlewareProvider<int> imageDataProvider(nullptr, topic, 0, nullptr, nullptr);
 
     _jsonFromZMQProvider->registerToTopic(topic, imageDataProvider.getPublisher());
     kpsr::mem::TestCacheListener<int> cacheListener(10);
-    imageDataProvider.getSubscriber()->registerListener("simple_reader", cacheListener.cacheListenerFunction);
+    imageDataProvider.getSubscriber()->registerListener("simple_reader",
+                                                        cacheListener.cacheListenerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     for (unsigned int i = 0; i < 5; ++i) {
-        int matToSend = i+1;
+        int matToSend = i + 1;
         toZMQPublisher->publish(matToSend);
-        
+
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         auto event = cacheListener.getLastReceivedEvent();
@@ -114,27 +118,31 @@ TEST_F(ZmqCVTest, ZmqTestIntJson) {
     _jsonFromZMQProvider->stop();
 }
 
-TEST_F(ZmqCVTest, ZmqTestIntBinary) {
+TEST_F(ZmqCVTest, ZmqTestIntBinary)
+{
     kpsr::zmq_mdlw::ToZMQMiddlewareProvider toZMQMiddlewareProvider(nullptr, publisher);
-    kpsr::Publisher<int> * toZMQPublisher = toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<int>(topic, 0);
+    kpsr::Publisher<int> *toZMQPublisher = toZMQMiddlewareProvider
+                                               .getBinaryToMiddlewareChannel<int>(topic, 0);
 
     //  Process 100 updates
     kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
-    auto _binaryFromZMQProvider = _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<int>(subscriber, 100);
+    auto _binaryFromZMQProvider = _fromZmqMiddlewareProvider
+                                      .getBinaryFromMiddlewareChannel<int>(subscriber, 100);
     _binaryFromZMQProvider->start();
     kpsr::EventEmitterMiddlewareProvider<int> imageDataProvider(nullptr, topic, 0, nullptr, nullptr);
 
     _binaryFromZMQProvider->registerToTopic(topic, imageDataProvider.getPublisher());
     kpsr::mem::TestCacheListener<int> cacheListener(10);
-    imageDataProvider.getSubscriber()->registerListener("simple_reader", cacheListener.cacheListenerFunction);
+    imageDataProvider.getSubscriber()->registerListener("simple_reader",
+                                                        cacheListener.cacheListenerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     for (int i = 0; i < 5; ++i) {
-        int matToSend = i+1;
+        int matToSend = i + 1;
         toZMQPublisher->publish(matToSend);
-        
-        while (cacheListener.counter < i+1) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        while (cacheListener.counter < i + 1) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         auto event = cacheListener.getLastReceivedEvent();

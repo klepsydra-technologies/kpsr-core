@@ -17,82 +17,82 @@
 *
 ****************************************************************************/
 
-#include <memory>
-#include <vector>
 #include <functional>
+#include <memory>
 #include <sstream>
+#include <vector>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
-#include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/smart_object_pool.h>
 
-#include <klepsydra/mem_core/mem_env.h>
 #include <klepsydra/high_performance/event_loop_middleware_provider.h>
+#include <klepsydra/mem_core/mem_env.h>
 
 #include "gtest/gtest.h"
 
-class SensorData {
+class SensorData
+{
 public:
     int id;
     std::vector<double> data;
 
     SensorData(int id, std::vector<double> data)
         : id(id)
-        , data(data) {
+        , data(data)
+    {
         spdlog::info("SensorData::SensorData. Main");
     }
 
-    SensorData() {
-        spdlog::info("SensorData::SensorData. Empty");
-    }
+    SensorData() { spdlog::info("SensorData::SensorData. Empty"); }
 
-    SensorData(const SensorData & that)
+    SensorData(const SensorData &that)
         : id(that.id)
-        , data(that.data) {
+        , data(that.data)
+    {
         spdlog::info("SensorData::SensorData. Copy");
     }
 };
 
-class ELTestEvent {
+class ELTestEvent
+{
 public:
-
     static int constructorInvokations;
     static int emptyConstructorInvokations;
     static int copyInvokations;
 
-    ELTestEvent(int id, const std::string & message)
+    ELTestEvent(int id, const std::string &message)
         : _id(id)
-        , _message(message) {
+        , _message(message)
+    {
         ELTestEvent::constructorInvokations++;
     }
 
-    ELTestEvent(const ELTestEvent & that)
+    ELTestEvent(const ELTestEvent &that)
         : _id(that._id)
-        , _message(that._message) {
+        , _message(that._message)
+    {
         ELTestEvent::copyInvokations++;
     }
 
-    ELTestEvent() {
-        ELTestEvent::emptyConstructorInvokations++;
-    }
+    ELTestEvent() { ELTestEvent::emptyConstructorInvokations++; }
 
     int _id;
     std::string _message;
 };
 
-class ELTestNewEvent {
+class ELTestNewEvent
+{
 public:
-
-    ELTestNewEvent(const std::string & label, std::vector<double> values)
+    ELTestNewEvent(const std::string &label, std::vector<double> values)
         : _label(label)
-        , _values(values) {
-    }
+        , _values(values)
+    {}
 
-    ELTestNewEvent() {
-    }
+    ELTestNewEvent() {}
 
     std::string _label;
     std::vector<double> _values;
@@ -102,55 +102,63 @@ int ELTestEvent::constructorInvokations = 0;
 int ELTestEvent::emptyConstructorInvokations = 0;
 int ELTestEvent::copyInvokations = 0;
 
-class EventLoopTest : public ::testing::Test {
+class EventLoopTest : public ::testing::Test
+{
 protected:
-    EventLoopTest() {
+    EventLoopTest()
+    {
         ELTestEvent::constructorInvokations = 0;
         ELTestEvent::emptyConstructorInvokations = 0;
         ELTestEvent::copyInvokations = 0;
     }
 };
 
-TEST_F(EventLoopTest, SharePointerCasting) {
-
+TEST_F(EventLoopTest, SharePointerCasting)
+{
     std::shared_ptr<void> ringBufferPointer;
     {
         std::shared_ptr<SensorData> sensorDataPointer(new SensorData(1, {1, 2, 3}));
         ringBufferPointer = std::static_pointer_cast<void>(sensorDataPointer);
     }
-    std::shared_ptr<SensorData> newSensorDataPointer = std::static_pointer_cast<SensorData>(ringBufferPointer);
+    std::shared_ptr<SensorData> newSensorDataPointer = std::static_pointer_cast<SensorData>(
+        ringBufferPointer);
 
     ASSERT_EQ(1, newSensorDataPointer->id);
     ASSERT_EQ(std::vector<double>({1, 2, 3}), newSensorDataPointer->data);
 }
 
-TEST_F(EventLoopTest, SharePointerCastingWithPool) {
-
+TEST_F(EventLoopTest, SharePointerCastingWithPool)
+{
     kpsr::SmartObjectPool<SensorData> pool("EventLoopTest", 4);
-    for (int i = 0; i < 10; i ++) {
+    for (int i = 0; i < 10; i++) {
         std::shared_ptr<void> ringBufferPointer;
         {
             std::shared_ptr<SensorData> sensorDataPointer = std::move(pool.acquire());
             ringBufferPointer = std::static_pointer_cast<void>(sensorDataPointer);
         }
-        std::shared_ptr<SensorData> newSensorDataPointer = std::static_pointer_cast<SensorData>(ringBufferPointer);
+        std::shared_ptr<SensorData> newSensorDataPointer = std::static_pointer_cast<SensorData>(
+            ringBufferPointer);
     }
 }
 
-TEST_F(EventLoopTest, SingleEventEmitterTopicWitOuthPool) {
+TEST_F(EventLoopTest, SingleEventEmitterTopicWitOuthPool)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
     provider.start();
 
     kpsr::mem::TestCacheListener<ELTestEvent> eventListener(-1);
 
-    kpsr::Subscriber<ELTestEvent> * subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
+    kpsr::Subscriber<ELTestEvent> *subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
     subscriber->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
     ASSERT_EQ(ELTestEvent::constructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::copyInvokations, 0);
 
-    kpsr::Publisher<ELTestEvent> * publisher = provider.getPublisher<ELTestEvent>("ELTestEvent", 0, nullptr, nullptr);
+    kpsr::Publisher<ELTestEvent> *publisher = provider.getPublisher<ELTestEvent>("ELTestEvent",
+                                                                                 0,
+                                                                                 nullptr,
+                                                                                 nullptr);
     for (int i = 0; i < 10; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         ELTestEvent event(i, "hola");
@@ -168,23 +176,26 @@ TEST_F(EventLoopTest, SingleEventEmitterTopicWitOuthPool) {
     ASSERT_EQ(ELTestEvent::constructorInvokations, 10);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::copyInvokations, 20);
-
 }
 
-TEST_F(EventLoopTest, SingleEventEmitterTopicWithPool) {
+TEST_F(EventLoopTest, SingleEventEmitterTopicWithPool)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
     provider.start();
 
     kpsr::mem::TestCacheListener<ELTestEvent> eventListener(-1);
 
-    kpsr::Subscriber<ELTestEvent> * subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
+    kpsr::Subscriber<ELTestEvent> *subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
     subscriber->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
     ASSERT_EQ(ELTestEvent::constructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::copyInvokations, 0);
 
-    kpsr::Publisher<ELTestEvent> * publisher = provider.getPublisher<ELTestEvent>("ELTestEvent", 4, nullptr, nullptr);
+    kpsr::Publisher<ELTestEvent> *publisher = provider.getPublisher<ELTestEvent>("ELTestEvent",
+                                                                                 4,
+                                                                                 nullptr,
+                                                                                 nullptr);
     for (int i = 0; i < 10; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         ELTestEvent event(i, "hola");
@@ -204,16 +215,19 @@ TEST_F(EventLoopTest, SingleEventEmitterTopicWithPool) {
     ASSERT_EQ(ELTestEvent::copyInvokations, eventListener.counter);
 }
 
-TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool) {
+TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
     provider.start();
 
     kpsr::mem::TestCacheListener<ELTestEvent> eventListener(-1);
 
-    kpsr::Subscriber<ELTestEvent> * subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
+    kpsr::Subscriber<ELTestEvent> *subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
     subscriber->registerListener("eventListener", eventListener.cacheListenerFunction);
 
-    kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> * publisher = (kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> * ) provider.getPublisher<ELTestEvent>("ELTestEvent", 0, nullptr, nullptr);
+    kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> *publisher =
+        (kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> *)
+            provider.getPublisher<ELTestEvent>("ELTestEvent", 0, nullptr, nullptr);
 
     ASSERT_EQ(ELTestEvent::constructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 0);
@@ -221,13 +235,16 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool) {
 
     kpsr::mem::TestCacheListener<ELTestNewEvent> newEventListener(-1);
 
-    kpsr::Subscriber<ELTestNewEvent> * newSubscriber = provider.getSubscriber<ELTestNewEvent>("ELTestNewEvent");
+    kpsr::Subscriber<ELTestNewEvent> *newSubscriber = provider.getSubscriber<ELTestNewEvent>(
+        "ELTestNewEvent");
     newSubscriber->registerListener("newEventListener", newEventListener.cacheListenerFunction);
 
-    kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> * newPublisher = (kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> * ) provider.getPublisher<ELTestNewEvent>("ELTestNewEvent", 0, nullptr, nullptr);
+    kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> *newPublisher =
+        (kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> *)
+            provider.getPublisher<ELTestNewEvent>("ELTestNewEvent", 0, nullptr, nullptr);
     const int t1Iterations = 100;
     const int t2Iterations = 200;
-    std::thread t1([&publisher]{
+    std::thread t1([&publisher] {
         for (int i = 0; i < t1Iterations; i++) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             ELTestEvent event(i, "hola");
@@ -236,15 +253,14 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool) {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     });
 
-    std::thread t2([&newPublisher]{
+    std::thread t2([&newPublisher] {
         for (int i = 0; i < t2Iterations; i++) {
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            ELTestNewEvent event("hola", {(double)i});
+            ELTestNewEvent event("hola", {(double) i});
             newPublisher->publish(event);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     });
-
 
     t1.join();
     t2.join();
@@ -252,14 +268,16 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool) {
     // Wait for all events to be processed.
     const int ATTEMPTS = 10;
     int attemptNo = 0;
-    while ((eventListener.counter < t1Iterations ) && (newEventListener.counter < t2Iterations) && (attemptNo < ATTEMPTS)) {
+    while ((eventListener.counter < t1Iterations) && (newEventListener.counter < t2Iterations) &&
+           (attemptNo < ATTEMPTS)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         attemptNo++;
     }
 
     auto eventListenerStats = subscriber->getSubscriptionStats("eventListener")->_totalProcessed;
     auto publisherDiscarded = publisher->_discardedMessages;
-    auto newEventListenerStats = newSubscriber->getSubscriptionStats("newEventListener")->_totalProcessed;
+    auto newEventListenerStats = newSubscriber->getSubscriptionStats("newEventListener")
+                                     ->_totalProcessed;
     auto newPublisherDiscarded = newPublisher->_discardedMessages;
     auto totalMessages = eventListenerStats + publisherDiscarded;
     auto totalNewMessages = newEventListenerStats + newPublisherDiscarded;
@@ -267,30 +285,32 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithOutPool) {
     newSubscriber->removeListener("newEventListener");
     provider.stop();
 
-    ASSERT_EQ(t1Iterations-1, eventListener.getLastReceivedEvent()->_id);
+    ASSERT_EQ(t1Iterations - 1, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
 
-    ASSERT_EQ(t2Iterations-1, newEventListener.getLastReceivedEvent()->_values[0]);
+    ASSERT_EQ(t2Iterations - 1, newEventListener.getLastReceivedEvent()->_values[0]);
 
     ASSERT_EQ(totalMessages, t1Iterations);
     ASSERT_EQ(totalNewMessages, t2Iterations);
-
 
     ASSERT_EQ(ELTestEvent::constructorInvokations, t1Iterations);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::copyInvokations, t1Iterations + eventListenerStats);
 }
 
-TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
+TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithPool)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
     provider.start();
 
     kpsr::mem::TestCacheListener<ELTestEvent> eventListener(10);
 
-    kpsr::Subscriber<ELTestEvent> * subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
+    kpsr::Subscriber<ELTestEvent> *subscriber = provider.getSubscriber<ELTestEvent>("ELTestEvent");
     subscriber->registerListener("eventListener", eventListener.cacheListenerFunction);
 
-    kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> * publisher = (kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> * ) provider.getPublisher<ELTestEvent>("ELTestEvent", 6, nullptr, nullptr);
+    kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> *publisher =
+        (kpsr::high_performance::EventLoopPublisher<ELTestEvent, 4> *)
+            provider.getPublisher<ELTestEvent>("ELTestEvent", 6, nullptr, nullptr);
 
     ASSERT_EQ(ELTestEvent::constructorInvokations, 0);
     ASSERT_EQ(ELTestEvent::emptyConstructorInvokations, 6);
@@ -298,13 +318,16 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
 
     kpsr::mem::TestCacheListener<ELTestNewEvent> newEventListener(1);
 
-    kpsr::Subscriber<ELTestNewEvent> * newSubscriber = provider.getSubscriber<ELTestNewEvent>("ELTestNewEvent");
+    kpsr::Subscriber<ELTestNewEvent> *newSubscriber = provider.getSubscriber<ELTestNewEvent>(
+        "ELTestNewEvent");
     newSubscriber->registerListener("newEventListener", newEventListener.cacheListenerFunction);
 
-    kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> * newPublisher = ( kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> * ) provider.getPublisher<ELTestNewEvent>("ELTestNewEvent", 6, nullptr, nullptr);
+    kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> *newPublisher =
+        (kpsr::high_performance::EventLoopPublisher<ELTestNewEvent, 4> *)
+            provider.getPublisher<ELTestNewEvent>("ELTestNewEvent", 6, nullptr, nullptr);
     const int t1Iterations = 100;
     const int t2Iterations = 200;
-    std::thread t1([&publisher]{
+    std::thread t1([&publisher] {
         for (int i = 0; i < t1Iterations; i++) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             ELTestEvent event(i, "hola");
@@ -312,10 +335,10 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
         }
     });
 
-    std::thread t2([&newPublisher]{
+    std::thread t2([&newPublisher] {
         for (int i = 0; i < t2Iterations; i++) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            ELTestNewEvent event("hola", {(double)i});
+            ELTestNewEvent event("hola", {(double) i});
             newPublisher->publish(event);
         }
     });
@@ -330,14 +353,13 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
     provider.stop();
     spdlog::info("EventLoopTest::SingleEventEmitterTwoTopicsWithPool. Finishing.2");
 
-
     if (publisher->_discardedMessages == 0) {
-        ASSERT_EQ(t1Iterations-1, eventListener.getLastReceivedEvent()->_id);
+        ASSERT_EQ(t1Iterations - 1, eventListener.getLastReceivedEvent()->_id);
     }
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
 
     if (newPublisher->_discardedMessages == 0) {
-        ASSERT_EQ(t2Iterations-1, newEventListener.getLastReceivedEvent()->_values[0]);
+        ASSERT_EQ(t2Iterations - 1, newEventListener.getLastReceivedEvent()->_values[0]);
     }
 
     long totalMessages = stats->_totalProcessed + publisher->_discardedMessages;
@@ -350,8 +372,8 @@ TEST_F(EventLoopTest, SingleEventEmitterTwoTopicsWithPool) {
     ASSERT_EQ(ELTestEvent::copyInvokations, eventListener.counter);
 }
 
-TEST_F(EventLoopTest, SetContainerSuccessTest) {
-
+TEST_F(EventLoopTest, SetContainerSuccessTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
 
     kpsr::mem::MemEnv environment;
@@ -362,8 +384,8 @@ TEST_F(EventLoopTest, SetContainerSuccessTest) {
     ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
 }
 
-TEST_F(EventLoopTest, SetContainerAfterStartTest) {
-
+TEST_F(EventLoopTest, SetContainerAfterStartTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
     provider.start();
     kpsr::mem::MemEnv environment;
@@ -376,8 +398,8 @@ TEST_F(EventLoopTest, SetContainerAfterStartTest) {
     provider.stop();
 }
 
-TEST_F(EventLoopTest, SetContainerAfterSubscribersTest) {
-
+TEST_F(EventLoopTest, SetContainerAfterSubscribersTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
 
     kpsr::mem::MemEnv environment;
@@ -385,7 +407,7 @@ TEST_F(EventLoopTest, SetContainerAfterSubscribersTest) {
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
 
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
@@ -398,19 +420,19 @@ TEST_F(EventLoopTest, SetContainerAfterSubscribersTest) {
     auto console = spdlog::stdout_color_mt("default");
     spdlog::set_default_logger(console);
     spdlog::drop("my_logger");
-
 }
 
-TEST_F(EventLoopTest, SetContainerAfterPublisherTest) {
-
+TEST_F(EventLoopTest, SetContainerAfterPublisherTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
 
     kpsr::mem::MemEnv environment;
     kpsr::Container testContainer(&environment, "testContainer");
-    auto dummyPublisherTest __attribute__((unused)) = provider.getPublisher<int>("testSubscriber", 0, nullptr, nullptr);
+    auto dummyPublisherTest
+        __attribute__((unused)) = provider.getPublisher<int>("testSubscriber", 0, nullptr, nullptr);
 
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
@@ -423,12 +445,10 @@ TEST_F(EventLoopTest, SetContainerAfterPublisherTest) {
     auto console = spdlog::stdout_color_mt("default");
     spdlog::set_default_logger(console);
     spdlog::drop("my_logger");
-
 }
 
-
-TEST_F(EventLoopTest, SetContainerWithScheduler) {
-
+TEST_F(EventLoopTest, SetContainerWithScheduler)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
 
     kpsr::mem::MemEnv environment;
@@ -436,7 +456,7 @@ TEST_F(EventLoopTest, SetContainerWithScheduler) {
     auto dummyScheduler __attribute__((unused)) = provider.getScheduler("testScheduler");
 
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
@@ -449,11 +469,12 @@ TEST_F(EventLoopTest, SetContainerWithScheduler) {
     spdlog::drop("my_logger");
 }
 
-TEST_F(EventLoopTest, StartStopTest) {
+TEST_F(EventLoopTest, StartStopTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
     kpsr::EventEmitter _eventEmitter;
     std::string name = "kpsr_EL";
- 
+
     kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
 
     eventLoop.start();
@@ -463,11 +484,12 @@ TEST_F(EventLoopTest, StartStopTest) {
     ASSERT_FALSE(eventLoop.isStarted());
 }
 
-TEST_F(EventLoopTest, StartStopFastTest) {
+TEST_F(EventLoopTest, StartStopFastTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
     kpsr::EventEmitter _eventEmitter;
     std::string name = "kpsr_EL";
- 
+
     kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
 
     eventLoop.start();
@@ -476,19 +498,20 @@ TEST_F(EventLoopTest, StartStopFastTest) {
     ASSERT_FALSE(eventLoop.isRunning());
 }
 
-TEST_F(EventLoopTest, StartTwiceTest) {
+TEST_F(EventLoopTest, StartTwiceTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
     kpsr::EventEmitter _eventEmitter;
     std::string name = "kpsr_EL";
-    std::string messageToCheck (kpsr::high_performance::EVENT_LOOP_START_MESSAGE);
+    std::string messageToCheck(kpsr::high_performance::EVENT_LOOP_START_MESSAGE);
     kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
 
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     logger->set_pattern("%v");
     logger->set_level(spdlog::level::debug);
-    
+
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
     ASSERT_NO_THROW(eventLoop.start());
@@ -504,19 +527,19 @@ TEST_F(EventLoopTest, StartTwiceTest) {
     ASSERT_EQ(spdlogString.find(messageToCheck, ++found), std::string::npos);
 }
 
-
-TEST_F(EventLoopTest, StartStopTwiceTest) {
+TEST_F(EventLoopTest, StartStopTwiceTest)
+{
     kpsr::high_performance::EventLoopMiddlewareProvider<256>::RingBuffer _ringBuffer;
     kpsr::EventEmitter _eventEmitter;
     std::string name = "kpsr_EL";
-    std::string messageToCheck (kpsr::high_performance::EVENT_LOOP_START_MESSAGE);
+    std::string messageToCheck(kpsr::high_performance::EVENT_LOOP_START_MESSAGE);
     messageToCheck += "\n";
     kpsr::high_performance::EventLoop<256> eventLoop(_eventEmitter, _ringBuffer, name);
 
     ASSERT_NO_THROW(eventLoop.start());
     eventLoop.stop();
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     logger->set_pattern("%v");
     logger->set_level(spdlog::level::debug);

@@ -39,34 +39,31 @@ namespace socket_mdlw {
  */
 class StringSizer
 {
-    std::string&    stringData;
-    std::size_t&    currentSize;
+    std::string &stringData;
+    std::size_t &currentSize;
+
 public:
     /**
      * @brief StringSizer
      * @param stringData
      * @param currentSize
      */
-    StringSizer(std::string& stringData, std::size_t& currentSize)
+    StringSizer(std::string &stringData, std::size_t &currentSize)
         : stringData(stringData)
-        , currentSize(currentSize) {
+        , currentSize(currentSize)
+    {
         stringData.resize(stringData.capacity());
     }
 
-    ~StringSizer() {
-        stringData.resize(currentSize);
-    }
+    ~StringSizer() { stringData.resize(currentSize); }
 
     /**
      * @brief incrementSize
      * @param amount
      */
-    void incrementSize(std::size_t amount) {
-        currentSize += amount;
-    }
+    void incrementSize(std::size_t amount) { currentSize += amount; }
 };
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #endif // STRING_RESIZER
-

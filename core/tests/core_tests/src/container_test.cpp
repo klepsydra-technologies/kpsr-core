@@ -17,27 +17,31 @@
 *
 ****************************************************************************/
 
+#include "gtest/gtest.h"
 #include <klepsydra/core/container.h>
 #include <klepsydra/core/service.h>
-#include "gtest/gtest.h"
 
 class dummyService : public kpsr::Service
 {
 public:
-    explicit dummyService(const std::string& name) : kpsr::Service(nullptr, name) {}
+    explicit dummyService(const std::string &name)
+        : kpsr::Service(nullptr, name)
+    {}
+
 protected:
     virtual void execute() {}
     virtual void start() {}
     virtual void stop() {}
 };
 
-TEST(ContainerTest, ConstructorTest) {
-
+TEST(ContainerTest, ConstructorTest)
+{
     ASSERT_NO_THROW(kpsr::Container testContainer(nullptr, "testContainer"));
     ASSERT_NO_THROW(kpsr::Container testContainer2(nullptr, ""));
 }
 
-TEST(ContainerTest, BasicTests) {
+TEST(ContainerTest, BasicTests)
+{
     kpsr::Container testContainer(nullptr, "testContainer");
 
     ASSERT_NO_FATAL_FAILURE(testContainer.start());
@@ -65,19 +69,20 @@ TEST(ContainerTest, BasicTests) {
     ASSERT_NO_FATAL_FAILURE(testContainer.detach(&dummyServiceStats));
 }
 
-TEST(ContainerTest, NullptrChecks) {
+TEST(ContainerTest, NullptrChecks)
+{
     kpsr::Container testContainer(nullptr, "testContainer");
-    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::Service*) nullptr));
-    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::Service*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::Service *) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::Service *) nullptr));
 
-    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::FunctionStats*) nullptr));
-    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::FunctionStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::FunctionStats *) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::FunctionStats *) nullptr));
 
-    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::PublicationStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::PublicationStats *) nullptr));
 
-    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::SubscriptionStats*) nullptr));
-    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::SubscriptionStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::SubscriptionStats *) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::SubscriptionStats *) nullptr));
 
-    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::ServiceStats*) nullptr));
-    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::ServiceStats*) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.attach((kpsr::ServiceStats *) nullptr));
+    ASSERT_NO_FATAL_FAILURE(testContainer.detach((kpsr::ServiceStats *) nullptr));
 }

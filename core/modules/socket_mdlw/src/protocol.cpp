@@ -23,6 +23,4 @@ kpsr::socket_mdlw::Protocol::Protocol(std::shared_ptr<DataSocket> dataSocket)
     : _dataSocket(dataSocket)
 {}
 
-kpsr::socket_mdlw::Protocol::~Protocol()
-{}
-
+kpsr::socket_mdlw::Protocol::~Protocol() {}

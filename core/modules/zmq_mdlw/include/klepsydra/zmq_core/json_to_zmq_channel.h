@@ -27,10 +27,8 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-namespace kpsr
-{
-namespace zmq_mdlw
-{
+namespace kpsr {
+namespace zmq_mdlw {
 /**
  * @brief The JsonToZMQChannel class
  *
@@ -45,7 +43,6 @@ namespace zmq_mdlw
  */
 class JsonToZMQChannel : public ObjectPoolPublisher<std::string>
 {
-
 public:
     /**
      * @brief JsonToZMQChannel
@@ -53,28 +50,34 @@ public:
      * @param publisher this ZMQ socket has to be provided. Meaning that we give control to the user on how to setup ZMQ.
      * @param topic to include in the multi-part message
      */
-    JsonToZMQChannel(Container * container,
+    JsonToZMQChannel(Container *container,
                      std::string topic,
                      int poolSize,
                      std::function<void(std::string &)> initializerFunction,
-                     zmq::socket_t & publisher)
-        : ObjectPoolPublisher<std::string>(container, topic, "ZMQ_JSON", poolSize, initializerFunction, nullptr)
+                     zmq::socket_t &publisher)
+        : ObjectPoolPublisher<std::string>(container,
+                                           topic,
+                                           "ZMQ_JSON",
+                                           poolSize,
+                                           initializerFunction,
+                                           nullptr)
         , _publisher(publisher)
-        , _topic(topic) {
-    }
+        , _topic(topic)
+    {}
 
 protected:
-    void internalPublish(std::shared_ptr<const std::string> event) override {
+    void internalPublish(std::shared_ptr<const std::string> event) override
+    {
         _publisher.send(zmq::const_buffer(_topic.data(), _topic.size()), zmq::send_flags::sndmore);
         zmq::message_t message(event->c_str(), event->size());
         _publisher.send(message);
     }
 
 private:
-    zmq::socket_t & _publisher;
+    zmq::socket_t &_publisher;
     std::string _topic;
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // JSON_TO_ZMQ_CHANNEL_H

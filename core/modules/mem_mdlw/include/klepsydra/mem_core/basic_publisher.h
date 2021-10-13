@@ -22,14 +22,12 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-#include <klepsydra/mem_core/safe_queue.h>
 #include <klepsydra/mem_core/basic_event_data.h>
+#include <klepsydra/mem_core/safe_queue.h>
 
-namespace kpsr
-{
-namespace mem
-{
-template <class T>
+namespace kpsr {
+namespace mem {
+template<class T>
 /*!
  * \brief The BasicPublisher class
  *
@@ -58,14 +56,19 @@ public:
      * In the false case, the publisher will block until there is free space to put new events in the queue, if the queue
      * is full.
      */
-    BasicPublisher(Container * container,
-                   const std::string & name,
+    BasicPublisher(Container *container,
+                   const std::string &name,
                    int poolSize,
                    std::function<void(T &)> initializerFunction,
                    std::function<void(const T &, T &)> eventCloner,
-                   SafeQueue <EventData<const T>> & safeQueue,
+                   SafeQueue<EventData<const T>> &safeQueue,
                    bool discardItemsWhenFull)
-        : ObjectPoolPublisher<T>(container, name, "SAFE_QUEUE", poolSize, initializerFunction, eventCloner)
+        : ObjectPoolPublisher<T>(container,
+                                 name,
+                                 "SAFE_QUEUE",
+                                 poolSize,
+                                 initializerFunction,
+                                 eventCloner)
         , _internalQueue(safeQueue)
         , _discardItemsWhenFull(discardItemsWhenFull)
     {}
@@ -74,7 +77,8 @@ public:
      * @brief internalPublish publish by a safe queue push into queue.
      * @param eventData
      */
-    void internalPublish(std::shared_ptr<const T> eventData) override {
+    void internalPublish(std::shared_ptr<const T> eventData) override
+    {
         EventData<const T> safeQueueEvent;
         safeQueueEvent.enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
         safeQueueEvent.eventData = eventData;
@@ -89,9 +93,9 @@ public:
     }
 
 private:
-    SafeQueue <EventData<const T>> & _internalQueue;
+    SafeQueue<EventData<const T>> &_internalQueue;
     bool _discardItemsWhenFull;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif

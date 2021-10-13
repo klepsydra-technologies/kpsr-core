@@ -20,8 +20,8 @@
 #ifndef ZMQ_JSON_POLLER_H
 #define ZMQ_JSON_POLLER_H
 
-#include <zmq.hpp>
 #include <iostream>
+#include <zmq.hpp>
 
 #include <klepsydra/zmq_core/zmq_poller.h>
 
@@ -45,18 +45,17 @@ public:
      * @param subscriber
      * @param pollPeriod
      */
-    JsonZMQPoller(zmq::socket_t & subscriber, long pollPeriod)
+    JsonZMQPoller(zmq::socket_t &subscriber, long pollPeriod)
         : ZMQPoller(subscriber, pollPeriod)
     {}
 
     /**
      * @brief poll
      */
-    void poll() {
+    void poll()
+    {
         while (_running) {
-            zmq::pollitem_t items [] = {
-                { _subscriber, 0, ZMQ_POLLIN, 0 }
-            };
+            zmq::pollitem_t items[] = {{_subscriber, 0, ZMQ_POLLIN, 0}};
             if (zmq::poll(items, 1, _pollPeriod) == -1)
                 break;
 
@@ -65,14 +64,14 @@ public:
                 zmq::message_t content;
                 _subscriber.recv(topicMsg);
                 _subscriber.recv(content);
-                std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
-                std::string contentString(static_cast<char*>(content.data()), content.size());
+                std::string topic(static_cast<char *>(topicMsg.data()), topicMsg.size());
+                std::string contentString(static_cast<char *>(content.data()), content.size());
                 executeFunction(topic, contentString);
             }
         }
     }
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // ZMQ_JSON_POLLER_H

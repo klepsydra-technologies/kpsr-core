@@ -20,15 +20,14 @@
 #ifndef PUBLISHER_H
 #define PUBLISHER_H
 
-#include <memory>
 #include <functional>
+#include <memory>
 
-#include <klepsydra/core/publication_stats.h>
 #include <klepsydra/core/container.h>
+#include <klepsydra/core/publication_stats.h>
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 /*!
  * @brief The Publisher class
  *
@@ -43,15 +42,15 @@ template <class T>
 class Publisher
 {
 public:
-
     /*!
      * @brief Publisher
      * @param container
      * @param name
      * @param type
      */
-    Publisher(Container * container, const std::string& name, const std::string& type)
-        : _publicationStats(name, type) {
+    Publisher(Container *container, const std::string &name, const std::string &type)
+        : _publicationStats(name, type)
+    {
         if (container != nullptr) {
             container->attach(&this->_publicationStats);
         }
@@ -62,7 +61,8 @@ public:
      * @brief publish
      * @param event
      */
-    void publish(const T& event) {
+    void publish(const T &event)
+    {
         _publicationStats.startProcessMeassure();
         internalPublish(event);
         _publicationStats.stopProcessMeassure();
@@ -72,7 +72,8 @@ public:
      * @brief publish without copy
      * @param event
      */
-    void publish(std::shared_ptr<const T> event) {
+    void publish(std::shared_ptr<const T> event)
+    {
         _publicationStats.startProcessMeassure();
         internalPublish(event);
         _publicationStats.stopProcessMeassure();
@@ -90,13 +91,12 @@ public:
     PublicationStats _publicationStats;
 
 protected:
-
     /*!
      * @brief internalPublish
      * @param event
       * Real implementation of the publishing method.
      */
-    virtual void internalPublish(const T& event) = 0;
+    virtual void internalPublish(const T &event) = 0;
 
     /*!
      * @brief internalPublish
@@ -105,5 +105,5 @@ protected:
      */
     virtual void internalPublish(std::shared_ptr<const T> event) = 0;
 };
-}
+} // namespace kpsr
 #endif

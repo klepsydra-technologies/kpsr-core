@@ -57,65 +57,59 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/fixed_sequence_group.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+class lite_blocking_wait_strategy
 {
-	class lite_blocking_wait_strategy
-	{
-	public:
-		lite_blocking_wait_strategy()
-			: signal_needed_(false)
-		{
-		}
+public:
+    lite_blocking_wait_strategy()
+        : signal_needed_(false)
+    {}
 
-		~lite_blocking_wait_strategy() = default;
+    ~lite_blocking_wait_strategy() = default;
 
-		template <typename TSequenceBarrier, typename TSequence>
-		int64_t wait_for(int64_t seq, const TSequence& cursor_sequence,
-			const fixed_sequence_group<TSequence>& dependent_sequence,
-			const TSequenceBarrier& seq_barrier)
-		{
-			int64_t available_sequence = 0;
-			if ((available_sequence = cursor_sequence.get()) < seq)
-			{
-				std::unique_lock<std::recursive_mutex> lock(mutex_);
-				do
-				{
-					signal_needed_.store(true, std::memory_order_release);
-					if ((available_sequence = cursor_sequence.get()) >= seq)
-						break;
+    template<typename TSequenceBarrier, typename TSequence>
+    int64_t wait_for(int64_t seq,
+                     const TSequence &cursor_sequence,
+                     const fixed_sequence_group<TSequence> &dependent_sequence,
+                     const TSequenceBarrier &seq_barrier)
+    {
+        int64_t available_sequence = 0;
+        if ((available_sequence = cursor_sequence.get()) < seq) {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
+            do {
+                signal_needed_.store(true, std::memory_order_release);
+                if ((available_sequence = cursor_sequence.get()) >= seq)
+                    break;
 
-					seq_barrier.check_alert();
-					processor_notify_condition_.wait(lock);
-				}
-				while ((available_sequence = cursor_sequence.get()) < seq);
-			}
+                seq_barrier.check_alert();
+                processor_notify_condition_.wait(lock);
+            } while ((available_sequence = cursor_sequence.get()) < seq);
+        }
 
-			while ((available_sequence = dependent_sequence.get()) < seq)
-			{
-				seq_barrier.check_alert();
-			}
-			return available_sequence;
-		}
+        while ((available_sequence = dependent_sequence.get()) < seq) {
+            seq_barrier.check_alert();
+        }
+        return available_sequence;
+    }
 
-		void signal_all_when_blocking()
-		{
-			if (signal_needed_.exchange(false, std::memory_order_release))
-			{
-				std::lock_guard<std::recursive_mutex> lock(mutex_);
-				processor_notify_condition_.notify_all();
-			}
-		}
+    void signal_all_when_blocking()
+    {
+        if (signal_needed_.exchange(false, std::memory_order_release)) {
+            std::lock_guard<std::recursive_mutex> lock(mutex_);
+            processor_notify_condition_.notify_all();
+        }
+    }
 
-	private:
-		lite_blocking_wait_strategy(const lite_blocking_wait_strategy&) = delete;
-		lite_blocking_wait_strategy& operator=(const lite_blocking_wait_strategy&) = delete;
-		lite_blocking_wait_strategy(lite_blocking_wait_strategy&&) = delete;
-		lite_blocking_wait_strategy& operator=(lite_blocking_wait_strategy&&) = delete;
+private:
+    lite_blocking_wait_strategy(const lite_blocking_wait_strategy &) = delete;
+    lite_blocking_wait_strategy &operator=(const lite_blocking_wait_strategy &) = delete;
+    lite_blocking_wait_strategy(lite_blocking_wait_strategy &&) = delete;
+    lite_blocking_wait_strategy &operator=(lite_blocking_wait_strategy &&) = delete;
 
-		std::recursive_mutex mutex_;
-		std::condition_variable_any processor_notify_condition_;
-		std::atomic<bool> signal_needed_;
-	};
-}
+    std::recursive_mutex mutex_;
+    std::condition_variable_any processor_notify_condition_;
+    std::atomic<bool> signal_needed_;
+};
+} // namespace disruptor4cpp
 
 #endif

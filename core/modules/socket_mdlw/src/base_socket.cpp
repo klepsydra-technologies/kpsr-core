@@ -18,8 +18,8 @@
 ****************************************************************************/
 
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <cstring>
+#include <unistd.h>
 
 #include <klepsydra/socket_core/base_socket.h>
 #include <klepsydra/socket_core/utility.h>
@@ -27,28 +27,24 @@
 kpsr::socket_mdlw::BaseSocket::BaseSocket(int socketId)
     : socketId(socketId)
 {
-    if (socketId == -1)
-    {
-        throw std::runtime_error(buildErrorMessage("BaseSocket::", __func__, ": bad socket: ", std::strerror(errno)));
+    if (socketId == -1) {
+        throw std::runtime_error(
+            buildErrorMessage("BaseSocket::", __func__, ": bad socket: ", std::strerror(errno)));
     }
 }
 
 kpsr::socket_mdlw::BaseSocket::~BaseSocket()
 {
-    if (socketId == invalidSocketId)
-    {
+    if (socketId == invalidSocketId) {
         // This object has been closed or moved.
         // So we don't need to call close.
         return;
     }
 
-    try
-    {
+    try {
         close();
-    }
-    catch(...)
-    {
-        // We should log this 
+    } catch (...) {
+        // We should log this
         // TODO: LOGGING CODE HERE
 
         // If the user really want to catch close errors
@@ -61,49 +57,53 @@ kpsr::socket_mdlw::BaseSocket::~BaseSocket()
 
 void kpsr::socket_mdlw::BaseSocket::close()
 {
-    if (socketId == invalidSocketId)
-    {
-        throw std::logic_error(buildErrorMessage("DataSocket::", __func__, ": accept called on a bad socket object (this object was moved)"));
+    if (socketId == invalidSocketId) {
+        throw std::logic_error(
+            buildErrorMessage("DataSocket::",
+                              __func__,
+                              ": accept called on a bad socket object (this object was moved)"));
     }
-    while(true)
-    {
+    while (true) {
         int state = ::close(socketId);
-        if (state == invalidSocketId)
-        {
+        if (state == invalidSocketId) {
             break;
         }
-        switch(errno)
-        {
-            case EBADF: throw std::domain_error(buildErrorMessage("BaseSocket::", __func__, ": close: EBADF: ", socketId, " ", std::strerror(errno)));
-            case EIO:   throw std::runtime_error(buildErrorMessage("BaseSocket::", __func__, ": close: EIO:  ", socketId, " ", std::strerror(errno)));
-            case EINTR:
-            {
-                        // TODO: Check for user interrupt flags.
-                        //       Beyond the scope of this project
-                        //       so continue normal operations.
-                break;
-            }
-            default:    throw std::runtime_error(buildErrorMessage("BaseSocket::", __func__, ": close: ???:  ", socketId, " ", std::strerror(errno)));
+        switch (errno) {
+        case EBADF:
+            throw std::domain_error(buildErrorMessage(
+                "BaseSocket::", __func__, ": close: EBADF: ", socketId, " ", std::strerror(errno)));
+        case EIO:
+            throw std::runtime_error(buildErrorMessage(
+                "BaseSocket::", __func__, ": close: EIO:  ", socketId, " ", std::strerror(errno)));
+        case EINTR: {
+            // TODO: Check for user interrupt flags.
+            //       Beyond the scope of this project
+            //       so continue normal operations.
+            break;
+        }
+        default:
+            throw std::runtime_error(buildErrorMessage(
+                "BaseSocket::", __func__, ": close: ???:  ", socketId, " ", std::strerror(errno)));
         }
     }
     socketId = invalidSocketId;
 }
 
-void kpsr::socket_mdlw::BaseSocket::swap(kpsr::socket_mdlw::BaseSocket& other) noexcept
+void kpsr::socket_mdlw::BaseSocket::swap(kpsr::socket_mdlw::BaseSocket &other) noexcept
 {
     using std::swap;
-    swap(socketId,   other.socketId);
+    swap(socketId, other.socketId);
 }
 
-kpsr::socket_mdlw::BaseSocket::BaseSocket(kpsr::socket_mdlw::BaseSocket&& move) noexcept
+kpsr::socket_mdlw::BaseSocket::BaseSocket(kpsr::socket_mdlw::BaseSocket &&move) noexcept
     : socketId(invalidSocketId)
 {
     move.swap(*this);
 }
 
-kpsr::socket_mdlw::BaseSocket& kpsr::socket_mdlw::BaseSocket::operator=(kpsr::socket_mdlw::BaseSocket&& move) noexcept
+kpsr::socket_mdlw::BaseSocket &kpsr::socket_mdlw::BaseSocket::operator=(
+    kpsr::socket_mdlw::BaseSocket &&move) noexcept
 {
     move.swap(*this);
     return *this;
 }
-

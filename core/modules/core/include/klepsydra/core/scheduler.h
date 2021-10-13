@@ -27,7 +27,8 @@
 #include <klepsydra/core/service.h>
 
 namespace kpsr {
-class Scheduler {
+class Scheduler
+{
 public:
     virtual ~Scheduler() {}
     /**
@@ -37,7 +38,10 @@ public:
      * @param repeat
      * @param function
      */
-    virtual void startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) = 0;
+    virtual void startScheduledTask(const std::string &name,
+                                    int after,
+                                    bool repeat,
+                                    std::shared_ptr<std::function<void()>> task) = 0;
 
     /**
      * @brief startScheduledService
@@ -45,20 +49,20 @@ public:
      * @param repeat
      * @param service
      */
-    virtual void startScheduledService(int after, bool repeat, Service * service) = 0;
+    virtual void startScheduledService(int after, bool repeat, Service *service) = 0;
 
     /**
      * @brief deleteFromSchedule
      * @param name
      */
-    virtual void stopScheduledTask(const std::string & name) = 0;
+    virtual void stopScheduledTask(const std::string &name) = 0;
 
     /**
      * @brief stopScheduledService
      * @param service
      */
-    virtual void stopScheduledService(Service * service) = 0;
+    virtual void stopScheduledService(Service *service) = 0;
 };
-}
+} // namespace kpsr
 
 #endif // SCHEDULER_H

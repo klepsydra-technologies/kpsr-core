@@ -21,21 +21,19 @@
 #define CALLBACK_HANDLER_H
 
 #include <functional>
-#include <tuple>
-#include <vector>
-#include <utility>
 #include <mutex>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 #include <spdlog/spdlog.h>
-
 
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/core/subscriber.h>
 
-namespace kpsr
-{
+namespace kpsr {
 
-template <class Request, class Reply>
+template<class Request, class Reply>
 /**
  * @brief The CallbackHandler class
  *
@@ -97,37 +95,40 @@ public:
      * @param subscriber Used to register the reply listener on.
      * @param correlationFunction Used to determine if a request and a reply are correlated.
      */
-    CallbackHandler(const std::string & name,
-                    Publisher<Request> * publisher,
-                    Subscriber<Reply> * subscriber,
+    CallbackHandler(const std::string &name,
+                    Publisher<Request> *publisher,
+                    Subscriber<Reply> *subscriber,
                     std::function<bool(const Request &, const Reply &)> correlationFunction)
         : _publisher(publisher)
         , _subscriber(subscriber)
         , _correlationFunction(correlationFunction)
-        , _name(name) {
-        std::function<void(const Reply &)> replyListener = std::bind(&CallbackHandler::onReplyReceived, this, std::placeholders::_1);
+        , _name(name)
+    {
+        std::function<void(const Reply &)> replyListener =
+            std::bind(&CallbackHandler::onReplyReceived, this, std::placeholders::_1);
         _subscriber->registerListener(_name, replyListener);
     }
 
-    virtual ~CallbackHandler() {
-        _subscriber->removeListener(_name);
-    }
+    virtual ~CallbackHandler() { _subscriber->removeListener(_name); }
 
     /**
      * @brief requestAndReply
      * @param request Event to publish
      * @param callback std::function to invoke when the reply is received.
      */
-    virtual void requestAndReply(const Request & request, const std::function<void(const Reply &)> & callback) {
-        std::pair<Request, std::function<void(const Reply &)>> pair = std::make_pair(request, callback);
+    virtual void requestAndReply(const Request &request,
+                                 const std::function<void(const Reply &)> &callback)
+    {
+        std::pair<Request, std::function<void(const Reply &)>> pair = std::make_pair(request,
+                                                                                     callback);
         _requestCallbackVector.push_back(pair);
         _publisher->publish(request);
     }
 
 protected:
-
-    virtual void onReplyReceived(const Reply & reply) {
-        for(auto it = _requestCallbackVector.begin(); it != _requestCallbackVector.end();) {
+    virtual void onReplyReceived(const Reply &reply)
+    {
+        for (auto it = _requestCallbackVector.begin(); it != _requestCallbackVector.end();) {
             if (_correlationFunction((*it).first, reply)) {
                 (*it).second(reply);
                 _requestCallbackVector.erase(it);
@@ -135,22 +136,23 @@ protected:
             }
             ++it;
         }
-        spdlog::info("CallbackHandler::onReplyReceived. Reply not mapped. Callback name: {}. _publisher: {}", _name, _publisher->_publicationStats._name);
+        spdlog::info(
+            "CallbackHandler::onReplyReceived. Reply not mapped. Callback name: {}. _publisher: {}",
+            _name,
+            _publisher->_publicationStats._name);
     }
 
 private:
-    Publisher<Request> * _publisher;
-    Subscriber<Reply> * _subscriber;
+    Publisher<Request> *_publisher;
+    Subscriber<Reply> *_subscriber;
     bool _threadSafe;
     std::function<bool(const Request &, const Reply &)> _correlationFunction;
     std::string _name;
     std::vector<std::pair<Request, std::function<void(const Reply &)>>> _requestCallbackVector;
     mutable std::mutex _mutex;
-
 };
 
-
-template <class Request, class Reply>
+template<class Request, class Reply>
 /**
  * @brief The MultiThreadCallbackHandler class
  *
@@ -212,10 +214,11 @@ public:
      * @param subscriber Used to register the reply listener on.
      * @param correlationFunction Used to determine if a request and a reply are correlated.
      */
-    MultiThreadCallbackHandler(const std::string & name,
-                               Publisher<Request> * publisher,
-                               Subscriber<Reply> * subscriber,
-                               std::function<bool(const Request &, const Reply &)> correlationFunction)
+    MultiThreadCallbackHandler(
+        const std::string &name,
+        Publisher<Request> *publisher,
+        Subscriber<Reply> *subscriber,
+        std::function<bool(const Request &, const Reply &)> correlationFunction)
         : CallbackHandler<Request, Reply>(name, publisher, subscriber, correlationFunction)
     {}
 
@@ -226,21 +229,22 @@ public:
      * @param request Event to publish
      * @param callback std::function to invoke when the reply is received.
      */
-    void requestAndReply(const Request & request, const std::function<void(const Reply &)> & callback) override {
-        std::lock_guard<std::mutex> lock (_mutex);
+    void requestAndReply(const Request &request,
+                         const std::function<void(const Reply &)> &callback) override
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         CallbackHandler<Request, Reply>::requestAndReply(request, callback);
     }
 
 protected:
-
-    void onReplyReceived(const Reply & reply) override {
-        std::lock_guard<std::mutex> lock (_mutex);
+    void onReplyReceived(const Reply &reply) override
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         CallbackHandler<Request, Reply>::onReplyReceived(reply);
     }
 
 private:
     mutable std::mutex _mutex;
-
 };
-}
+} // namespace kpsr
 #endif // CALLBACK_HANDLER_H

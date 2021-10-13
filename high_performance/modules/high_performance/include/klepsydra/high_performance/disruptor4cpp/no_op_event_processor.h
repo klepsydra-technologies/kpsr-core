@@ -60,99 +60,76 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <klepsydra/high_performance/disruptor4cpp/exceptions/timeout_exception.h>
 #include <klepsydra/high_performance/disruptor4cpp/sequence.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<typename TRingBuffer>
+class no_op_event_processor
 {
-	template <typename TRingBuffer>
-	class no_op_event_processor
-	{
-	public:
-		no_op_event_processor(TRingBuffer& ring_buffer,
-			typename TRingBuffer::sequence_barrier_type& sequence_barrier)
-			: sequence_(),
-			  ring_buffer_(ring_buffer),
-			  sequence_barrier_(sequence_barrier),
-			  running_(false)
-		{
-		}
+public:
+    no_op_event_processor(TRingBuffer &ring_buffer,
+                          typename TRingBuffer::sequence_barrier_type &sequence_barrier)
+        : sequence_()
+        , ring_buffer_(ring_buffer)
+        , sequence_barrier_(sequence_barrier)
+        , running_(false)
+    {}
 
-		no_op_event_processor(TRingBuffer& ring_buffer,
-			std::unique_ptr<typename TRingBuffer::sequence_barrier_type> sequence_barrier_ptr)
-			: sequence_(),
-			  ring_buffer_(ring_buffer),
-			  sequence_barrier_(*sequence_barrier_ptr),
-			  sequence_barrier_ptr_(std::move(sequence_barrier_ptr)),
-			  running_(false)
-		{
-		}
+    no_op_event_processor(
+        TRingBuffer &ring_buffer,
+        std::unique_ptr<typename TRingBuffer::sequence_barrier_type> sequence_barrier_ptr)
+        : sequence_()
+        , ring_buffer_(ring_buffer)
+        , sequence_barrier_(*sequence_barrier_ptr)
+        , sequence_barrier_ptr_(std::move(sequence_barrier_ptr))
+        , running_(false)
+    {}
 
-		typename TRingBuffer::sequence_type& get_sequence()
-		{
-			return sequence_;
-		}
+    typename TRingBuffer::sequence_type &get_sequence() { return sequence_; }
 
-		void halt()
-		{
-			running_.store(false, std::memory_order_release);
-		}
+    void halt() { running_.store(false, std::memory_order_release); }
 
-		bool is_running() const
-		{
-			return running_.load(std::memory_order_acquire);
-		}
+    bool is_running() const { return running_.load(std::memory_order_acquire); }
 
-		void run()
-		{
-			bool expected_running_state = false;
-			if (!running_.compare_exchange_strong(expected_running_state, true))
-				throw std::runtime_error("Thread is already running");
+    void run()
+    {
+        bool expected_running_state = false;
+        if (!running_.compare_exchange_strong(expected_running_state, true))
+            throw std::runtime_error("Thread is already running");
 
-			// Implemenent with the same logic in batch event processor without notification.
-			// Different from the java version.
-			sequence_barrier_.clear_alert();
-			int64_t next_sequence = sequence_.get() + 1;
-			try
-			{
-				while (true)
-				{
-					try
-					{
-						const int64_t available_sequence = sequence_barrier_.wait_for(next_sequence);
-						while (next_sequence <= available_sequence)
-						{
-							next_sequence++;
-						}
-						sequence_.set(available_sequence);
-					}
-					catch (timeout_exception& timeout_ex)
-					{
-					}
-					catch (alert_exception& alert_ex)
-					{
-						if (!running_.load(std::memory_order_acquire))
-							break;
-					}
-					catch (std::exception& ex)
-					{
-						sequence_.set(next_sequence);
-						next_sequence++;
-					}
-				}
-			}
-			catch (...)
-			{
-				running_.store(false, std::memory_order_release);
-				throw;
-			}
-			running_.store(false, std::memory_order_release);
-		}
+        // Implemenent with the same logic in batch event processor without notification.
+        // Different from the java version.
+        sequence_barrier_.clear_alert();
+        int64_t next_sequence = sequence_.get() + 1;
+        try {
+            while (true) {
+                try {
+                    const int64_t available_sequence = sequence_barrier_.wait_for(next_sequence);
+                    while (next_sequence <= available_sequence) {
+                        next_sequence++;
+                    }
+                    sequence_.set(available_sequence);
+                } catch (timeout_exception &timeout_ex) {
+                } catch (alert_exception &alert_ex) {
+                    if (!running_.load(std::memory_order_acquire))
+                        break;
+                } catch (std::exception &ex) {
+                    sequence_.set(next_sequence);
+                    next_sequence++;
+                }
+            }
+        } catch (...) {
+            running_.store(false, std::memory_order_release);
+            throw;
+        }
+        running_.store(false, std::memory_order_release);
+    }
 
-	private:
-		typename TRingBuffer::sequence_type sequence_;
-		TRingBuffer& ring_buffer_;
-		typename TRingBuffer::sequence_barrier_type& sequence_barrier_;
-		std::unique_ptr<typename TRingBuffer::sequence_barrier_type> sequence_barrier_ptr_;
-		std::atomic<bool> running_;
-	};
-}
+private:
+    typename TRingBuffer::sequence_type sequence_;
+    TRingBuffer &ring_buffer_;
+    typename TRingBuffer::sequence_barrier_type &sequence_barrier_;
+    std::unique_ptr<typename TRingBuffer::sequence_barrier_type> sequence_barrier_ptr_;
+    std::atomic<bool> running_;
+};
+} // namespace disruptor4cpp
 
 #endif

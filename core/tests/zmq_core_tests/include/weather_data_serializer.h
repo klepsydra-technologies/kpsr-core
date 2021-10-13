@@ -24,23 +24,21 @@
 
 #include <cereal/cereal.hpp>
 
-#include "weather_data.h"
-#include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
-#include <cereal/types/memory.hpp>
 #include "temperature_serializer.h"
+#include "weather_data.h"
+#include <cereal/types/memory.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/vector.hpp>
 
 namespace cereal {
 template<class Archive>
-void serialize(Archive & archive, WeatherData & event)
+void serialize(Archive &archive, WeatherData &event)
 {
-   archive(
-      CEREAL_NVP(event.zipcode),
-      CEREAL_NVP(event.currentTemp),
-      CEREAL_NVP(event.currentRelHumidity),
-      CEREAL_NVP(event.historicTemp),
-      CEREAL_NVP(event.historicRelHumidity)
-   );
+    archive(CEREAL_NVP(event.zipcode),
+            CEREAL_NVP(event.currentTemp),
+            CEREAL_NVP(event.currentRelHumidity),
+            CEREAL_NVP(event.historicTemp),
+            CEREAL_NVP(event.historicRelHumidity));
 }
-}
+} // namespace cereal
 #endif // WEATHER_DATA_H
