@@ -160,7 +160,9 @@ ADD_SUBDIRECTORY(thirdparties)
 ADD_SUBDIRECTORY(serialization)
 ADD_SUBDIRECTORY(core)
 ADD_SUBDIRECTORY(high_performance)
-ADD_SUBDIRECTORY(state_machine)
+IF (KPSR_WITH_YAML)
+  ADD_SUBDIRECTORY(state_machine)
+ENDIF()
 if (KPSR_RUNTIME)
 else()
    ADD_SUBDIRECTORY(code_generator)
@@ -245,6 +247,9 @@ export(PACKAGE klepsydra)
 
 # Create the KlepsydraConfig.cmake and KlepsydraConfigVersion files
 include(CMakePackageConfigHelpers)
+IF(KPSR_WITH_YAML)
+  SET(KPSR_YAML_DEP "find_dependency(yaml-cpp 0.5)")
+ENDIF()
 configure_package_config_file(
   "KlepsydraConfig.cmake.in"
   "KlepsydraConfig.cmake"

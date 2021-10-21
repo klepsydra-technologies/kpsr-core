@@ -23,9 +23,6 @@ set(KLEPSYDRA_CODE_GENERATOR "@INSTALL_CMAKE_DIR@/KpsrCodeGen.cmake")
 
 IF (KLEPSYDRA_ZMQ_LIBRARIES)
   find_dependency(cppzmq 4.3 QUIET)
-  find_dependency(yaml-cpp 0.5 QUIET)
 ENDIF()
 
-IF(KLEPSYDRA_DDS_LIBRARIES)
-  find_dependency(yaml-cpp 0.5 QUIET)
-ENDIF()
+@KPSR_YAML_DEP@
