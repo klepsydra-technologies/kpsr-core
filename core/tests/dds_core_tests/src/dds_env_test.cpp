@@ -17,20 +17,21 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <klepsydra/dds_core/dds_env.h>
 #include "config.h"
+#include <klepsydra/dds_core/dds_env.h>
 
-TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
+TEST(DdsEnvironmentTest, DdsEnvironmentTest)
+{
     dds::domain::DomainParticipant dp(0);
     dds::pub::Publisher pub(dp);
     dds::sub::Subscriber sub(dp);
@@ -43,11 +44,13 @@ TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
     dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> datareader2(sub, topic);
 
     kpsr::YamlEnvironment yamlEnvSub;
-    yamlEnvSub.updateConfiguration("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
+    yamlEnvSub.updateConfiguration(
+        "greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
     kpsr::dds_mdlw::DDSEnv envSub(&yamlEnvSub, &datawriter1, &datareader1);
 
     kpsr::YamlEnvironment yamlEnvPub;
-    yamlEnvPub.updateConfiguration("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
+    yamlEnvPub.updateConfiguration(
+        "greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"");
     kpsr::dds_mdlw::DDSEnv envPub(&yamlEnvPub, &datawriter2, &datareader2);
 
     envPub.setPropertyString("greeting", "hola");
@@ -57,7 +60,7 @@ TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
     do {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
         envSub.getPropertyString("greeting", greeting);
-    } while ((greeting.compare("hola")  != 0) && (--attempts >= 0));
+    } while ((greeting.compare("hola") != 0) && (--attempts >= 0));
     ASSERT_GT(attempts, 0);
     ASSERT_EQ(greeting, "hola");
 
@@ -75,7 +78,8 @@ TEST(DdsEnvironmentTest, DdsEnvironmentTest) {
     }
 }
 
-TEST(DdsEnvironmentTest, MultiYamlTestSingle) {
+TEST(DdsEnvironmentTest, MultiYamlTestSingle)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -98,7 +102,8 @@ TEST(DdsEnvironmentTest, MultiYamlTestSingle) {
     ASSERT_EQ(nameInFile, basename);
 }
 
-TEST(DdsEnvironmentTest, MultiYamlUpdateConfigurationTest) {
+TEST(DdsEnvironmentTest, MultiYamlUpdateConfigurationTest)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
@@ -118,7 +123,9 @@ TEST(DdsEnvironmentTest, MultiYamlUpdateConfigurationTest) {
     dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> datawriter2(pub, topic);
     dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> datareader2(sub, topic);
     kpsr::YamlEnvironment yamlEnvPub;
-    yamlEnvPub.updateConfiguration("greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"", kpsr::DEFAULT_ROOT);
+    yamlEnvPub.updateConfiguration(
+        "greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_dds_env_key: \"test\"",
+        kpsr::DEFAULT_ROOT);
     kpsr::dds_mdlw::DDSEnv envPub(&yamlEnvPub, &datawriter2, &datareader2);
 
     std::string basename2("testfile2.yaml");

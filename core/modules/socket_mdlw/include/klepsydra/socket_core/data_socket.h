@@ -22,10 +22,8 @@
 
 #include <klepsydra/socket_core/base_socket.h>
 
-namespace kpsr
-{
-namespace socket_mdlw
-{
+namespace kpsr {
+namespace socket_mdlw {
 /**
  * @brief The DataSocket class
  *
@@ -37,7 +35,7 @@ namespace socket_mdlw
  *
  * @details A class that can read/write to a socket
  */
-class DataSocket: public BaseSocket
+class DataSocket : public BaseSocket
 {
 public:
     /**
@@ -55,26 +53,25 @@ public:
      * @param size
      * @param scanForEnd
      */
-    std::size_t getMessageData(char* buffer, std::size_t size, F scanForEnd = [](std::size_t){return false;});
+    std::size_t getMessageData(
+        char *buffer, std::size_t size, F scanForEnd = [](std::size_t) { return false; });
 
     /**
      * @brief putMessageData
      * @param buffer
      * @param size
      */
-    void        putMessageData(char const* buffer, std::size_t size);
+    void putMessageData(char const *buffer, std::size_t size);
 
     /**
      * @brief putMessageClose
      */
-    void        putMessageClose();
+    void putMessageClose();
 };
 
-
-}
-}
+} // namespace socket_mdlw
+} // namespace kpsr
 
 #include <klepsydra/socket_core/data_socket.tpp>
 
 #endif
-

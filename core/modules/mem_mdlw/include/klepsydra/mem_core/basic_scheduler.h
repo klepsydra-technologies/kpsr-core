@@ -20,9 +20,9 @@
 #ifndef BASIC_SCHEDULER_H
 #define BASIC_SCHEDULER_H
 
-#include <thread>
 #include <map>
 #include <memory>
+#include <thread>
 
 #include <klepsydra/core/scheduler.h>
 
@@ -36,7 +36,8 @@ namespace mem {
  * @version   2.1.0
  *
  */
-class BasicScheduler : public Scheduler {
+class BasicScheduler : public Scheduler
+{
 public:
     /**
      * @brief Start Scheduled Task
@@ -45,30 +46,34 @@ public:
      * @param repeat Repeat task
      * @param task Task.
      */
-    void startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) override;
+    void startScheduledTask(const std::string &name,
+                            int after,
+                            bool repeat,
+                            std::shared_ptr<std::function<void()>> task) override;
     /**
      * @brief Start Service
      * @param after Start after uS
      * @param repeat Repeat service function
      * @param service Service to execute
      */
-    void startScheduledService(int after, bool repeat, Service * service) override;
+    void startScheduledService(int after, bool repeat, Service *service) override;
     /**
      * @brief Stop Task
      * @param name Name of task
      */
-    void stopScheduledTask(const std::string & name) override;
+    void stopScheduledTask(const std::string &name) override;
     /**
      * @brief Stop Service
      * @param service Service to stop
      */
-    void stopScheduledService(Service * service) override;
+    void stopScheduledService(Service *service) override;
 
 private:
     /**
      * @brief Internel Thread class
      */
-    class ScheduledThread {
+    class ScheduledThread
+    {
     public:
         /**
          * @brief ScheduledThread
@@ -77,7 +82,7 @@ private:
          * @param repeat Repeat task
          * @param task Task
          */
-        ScheduledThread(int after, bool repeat, std::shared_ptr<std::function<void ()>> task);
+        ScheduledThread(int after, bool repeat, std::shared_ptr<std::function<void()>> task);
 
         /**
          * @brief
@@ -94,12 +99,12 @@ private:
         bool _repeat;
         bool _isRunning;
         std::thread _thread;
-        std::shared_ptr<std::function<void ()>> _task;
+        std::shared_ptr<std::function<void()>> _task;
     };
 
     std::map<std::string, std::shared_ptr<ScheduledThread>> _threadMap;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 
 #endif // BASIC_SCHEDULER_H

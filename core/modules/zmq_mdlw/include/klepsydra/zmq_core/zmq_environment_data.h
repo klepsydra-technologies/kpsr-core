@@ -25,10 +25,8 @@
 #include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
 
-namespace kpsr
-{
-namespace zmq_mdlw
-{
+namespace kpsr {
+namespace zmq_mdlw {
 /**
  * @brief The ZMQEnvironmentData struct
  *
@@ -39,7 +37,8 @@ namespace zmq_mdlw
  * @ingroup kpsr-zmq-internal
  *
  */
-struct ZMQEnvironmentData {
+struct ZMQEnvironmentData
+{
 public:
     /**
      * @brief _configurationKey
@@ -67,14 +66,16 @@ public:
      * @param configurationData
      * @param sourceId
      */
-    ZMQEnvironmentData(const std::string & configurationKey, const std::string & configurationData, long sourceId)
+    ZMQEnvironmentData(const std::string &configurationKey,
+                       const std::string &configurationData,
+                       long sourceId)
         : _configurationKey(configurationKey)
         , _configurationData(configurationData)
         , _sourceId(sourceId)
     {}
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 namespace cereal {
 template<class Archive>
@@ -83,12 +84,12 @@ template<class Archive>
  * @param archive
  * @param event
  */
-void serialize(Archive & archive, kpsr::zmq_mdlw::ZMQEnvironmentData & event)
+void serialize(Archive &archive, kpsr::zmq_mdlw::ZMQEnvironmentData &event)
 {
-    archive( CEREAL_NVP(event._configurationKey),
-             CEREAL_NVP(event._configurationData),
-             CEREAL_NVP(event._sourceId) );
+    archive(CEREAL_NVP(event._configurationKey),
+            CEREAL_NVP(event._configurationData),
+            CEREAL_NVP(event._sourceId));
 }
-}
+} // namespace cereal
 
 #endif // ZMQ_ENVIRONMENT_DATA_H

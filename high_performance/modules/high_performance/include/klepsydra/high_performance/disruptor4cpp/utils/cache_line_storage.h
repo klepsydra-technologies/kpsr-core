@@ -54,16 +54,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CACHE_LINE_SIZE 64
 #endif
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<typename T>
+struct cache_line_storage
 {
-	template <typename T>
-	struct cache_line_storage
-	{
-		alignas(CACHE_LINE_SIZE) T data;
+    alignas(CACHE_LINE_SIZE) T data;
 
-	private:
-		char padding[CACHE_LINE_SIZE > sizeof(T) ? CACHE_LINE_SIZE - sizeof(T) : 1];
-	};
-}
+private:
+    char padding[CACHE_LINE_SIZE > sizeof(T) ? CACHE_LINE_SIZE - sizeof(T) : 1];
+};
+} // namespace disruptor4cpp
 
 #endif

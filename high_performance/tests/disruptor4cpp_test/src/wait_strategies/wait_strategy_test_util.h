@@ -36,35 +36,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtest/gtest.h>
 
-#include <disruptor4cpp/disruptor4cpp.h>
-#include "sequence_updater.h"
 #include "../dummy_sequence_barrier.h"
+#include "sequence_updater.h"
+#include <disruptor4cpp/disruptor4cpp.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+class wait_strategy_test_util
 {
-	namespace test
-	{
-		class wait_strategy_test_util
-		{
-		public:
-			template <class Rep, class Period, typename TWaitStrategy>
-			static void assert_wait_for_with_delay_of(const std::chrono::duration<Rep, Period>& sleep_time,
-				TWaitStrategy& wait_strategy)
-			{
-				sequence_updater<Rep, Period, TWaitStrategy> seq_updater(sleep_time, wait_strategy);
-				std::thread t([&seq_updater] { seq_updater.run(); });
-				seq_updater.wait_for_startup();
+public:
+    template<class Rep, class Period, typename TWaitStrategy>
+    static void assert_wait_for_with_delay_of(const std::chrono::duration<Rep, Period> &sleep_time,
+                                              TWaitStrategy &wait_strategy)
+    {
+        sequence_updater<Rep, Period, TWaitStrategy> seq_updater(sleep_time, wait_strategy);
+        std::thread t([&seq_updater] { seq_updater.run(); });
+        seq_updater.wait_for_startup();
 
-				sequence cursor(0);
-				dummy_sequence_barrier seq_barrier;
-				auto dependent_sequences = fixed_sequence_group<sequence>::create(seq_updater.get_sequence());
-				int64_t seq = wait_strategy.wait_for(0, cursor, dependent_sequences, seq_barrier);
-				ASSERT_EQ(0, seq);
+        sequence cursor(0);
+        dummy_sequence_barrier seq_barrier;
+        auto dependent_sequences = fixed_sequence_group<sequence>::create(
+            seq_updater.get_sequence());
+        int64_t seq = wait_strategy.wait_for(0, cursor, dependent_sequences, seq_barrier);
+        ASSERT_EQ(0, seq);
 
-				t.join();
-			}
-		};
-	}
-}
+        t.join();
+    }
+};
+} // namespace test
+} // namespace disruptor4cpp
 
 #endif

@@ -22,40 +22,59 @@
 #include "std_msgs/String.h"
 #include <gtest/gtest.h>
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
 #include <kpsr_ros_serialization/primitive_type_ros_mapper.h>
 
-#include <kpsr_ros_core/to_ros_middleware_provider.h>
 #include <kpsr_ros_core/from_ros_middleware_provider.h>
+#include <kpsr_ros_core/to_ros_middleware_provider.h>
 
 #include "inheritance_vector4_ros_mapper.h"
 
-TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
-
+TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_codegen_test");
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> basicProvider(nullptr, "test", 0, nullptr, nullptr);
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> basicProvider(nullptr,
+                                                                                          "test",
+                                                                                          0,
+                                                                                          nullptr,
+                                                                                          nullptr);
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
-    fromRosProvider.registerToTopic<kpsr::codegen::InheritanceVector4, kpsr_ros_codegen::InheritanceVector4>("kpsr_ros_codegen_test_topic1", 10, basicProvider.getPublisher());
+    fromRosProvider
+        .registerToTopic<kpsr::codegen::InheritanceVector4, kpsr_ros_codegen::InheritanceVector4>(
+            "kpsr_ros_codegen_test_topic1", 10, basicProvider.getPublisher());
 
     kpsr::mem::CacheListener<kpsr::codegen::InheritanceVector4> cacheListener;
-    basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    basicProvider.getSubscriber()->registerListener("cacheListener",
+                                                    cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
-
-    rate.sleep();
-    ros::Publisher stringPublisher = nodeHandle.advertise<kpsr_ros_codegen::InheritanceVector4>("kpsr_ros_codegen_test_topic1", 10, true);
+    ros::Publisher stringPublisher =
+        nodeHandle.advertise<kpsr_ros_codegen::InheritanceVector4>("kpsr_ros_codegen_test_topic1",
+                                                                   10,
+                                                                   true);
 
     kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
 
-    kpsr::Publisher<kpsr::codegen::InheritanceVector4> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<kpsr::codegen::InheritanceVector4, kpsr_ros_codegen::InheritanceVector4>("kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
+    kpsr::Publisher<kpsr::codegen::InheritanceVector4> *kpsrPublisher =
+        toRosProvider.getToMiddlewareChannel<kpsr::codegen::InheritanceVector4,
+                                             kpsr_ros_codegen::InheritanceVector4>(
+            "kpsr_ros_codegen_test_topic1", 1, nullptr, stringPublisher);
+
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
 
     {
         kpsr::codegen::InheritanceVector4 event(1.0, 1.1, 1.2, 1.3);
@@ -90,7 +109,9 @@ TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
     ros::spinOnce();
     rate.sleep();
 
-    while (cacheListener.counter < 5) {
+    numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && ros::ok()) {
+        numAttempts++;
         ros::spinOnce();
         rate.sleep();
     }
@@ -101,4 +122,3 @@ TEST(KpsrRosCodegeTest, inheritanceMapperMapperTest) {
     ASSERT_EQ(cacheListener.getLastReceivedEvent()->c, event.c);
     ASSERT_EQ(cacheListener.getLastReceivedEvent()->d, event.d);
 }
-

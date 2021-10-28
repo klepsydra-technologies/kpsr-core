@@ -17,46 +17,49 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include <klepsydra/core/cache_listener.h>
 
-#include <klepsydra/mem_core/mem_env.h>
 #include <klepsydra/high_performance/data_multiplexer_middleware_provider.h>
+#include <klepsydra/mem_core/mem_env.h>
 
 #include "gtest/gtest.h"
 
-class DataMultiplexerTestEvent {
+class DataMultiplexerTestEvent
+{
 public:
-
     static std::atomic_int constructorInvokations;
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    DataMultiplexerTestEvent(int id, const std::string & message)
+    DataMultiplexerTestEvent(int id, const std::string &message)
         : _id(id)
-        , _message(message) {
+        , _message(message)
+    {
         DataMultiplexerTestEvent::constructorInvokations++;
     }
 
-    DataMultiplexerTestEvent() {
-        spdlog::info("new empty invocation!!!");
+    DataMultiplexerTestEvent()
+    {
+        spdlog::debug("new empty invocation!!!");
         DataMultiplexerTestEvent::emptyConstructorInvokations++;
     }
 
-    DataMultiplexerTestEvent(const DataMultiplexerTestEvent & that)
+    DataMultiplexerTestEvent(const DataMultiplexerTestEvent &that)
         : _id(that._id)
-        , _message(that._message) {
+        , _message(that._message)
+    {
         DataMultiplexerTestEvent::copyInvokations++;
     }
 
@@ -64,16 +67,15 @@ public:
     std::string _message;
 };
 
-class DataMultiplexerNewTestEvent {
+class DataMultiplexerNewTestEvent
+{
 public:
-
-    DataMultiplexerNewTestEvent(const std::string & label, std::vector<double> values)
+    DataMultiplexerNewTestEvent(const std::string &label, std::vector<double> values)
         : _label(label)
-        , _values(values) {
-    }
+        , _values(values)
+    {}
 
-    DataMultiplexerNewTestEvent() {
-    }
+    DataMultiplexerNewTestEvent() {}
 
     std::string _label;
     std::vector<double> _values;
@@ -83,151 +85,189 @@ std::atomic_int DataMultiplexerTestEvent::constructorInvokations(0);
 std::atomic_int DataMultiplexerTestEvent::emptyConstructorInvokations(0);
 std::atomic_int DataMultiplexerTestEvent::copyInvokations(0);
 
-TEST(DataMultiplexerMiddlewareTest, NominalCase) {
-    kpsr::high_performance::DataMultiplexerMiddlewareProvider<DataMultiplexerTestEvent, 4> provider(nullptr, "test");
+class DataMultiplexerMiddlewareTest : public ::testing::Test
+{
+protected:
+    DataMultiplexerMiddlewareTest()
+    {
+        DataMultiplexerTestEvent::constructorInvokations = 0;
+        DataMultiplexerTestEvent::emptyConstructorInvokations = 0;
+        DataMultiplexerTestEvent::copyInvokations = 0;
+    }
+};
+
+TEST_F(DataMultiplexerMiddlewareTest, NominalCase)
+{
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<DataMultiplexerTestEvent, 4>
+        provider(nullptr, "test");
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 0);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations, 0);
 
+    auto publisher = provider.getPublisher();
+    auto subscriber = provider.getSubscriber();
     kpsr::mem::TestCacheListener<DataMultiplexerTestEvent> eventListener(-1);
-    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+    subscriber->registerListener("cacheListener", eventListener.cacheListenerFunction);
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 0);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations, 0);
 
-    for (int i = 0; i < 10; i ++) {
+    for (int i = 0; i < 10; i++) {
         std::this_thread::sleep_for(std::chrono::microseconds(20));
         DataMultiplexerTestEvent event(i, "hola");
-        provider.getPublisher()->publish(event);
+        publisher->publish(event);
     }
-    std::shared_ptr<kpsr::SubscriptionStats> subscriptionStats = provider.getSubscriber()->getSubscriptionStats("cacheListener");
+    std::shared_ptr<kpsr::SubscriptionStats> subscriptionStats = subscriber->getSubscriptionStats(
+        "cacheListener");
 
-    for (int i = 0; i < 10; i ++) {
-       if (provider.getPublisher()->_publicationStats._totalDiscardedEvents +
-           subscriptionStats->_totalProcessed + subscriptionStats->_totalDiscardedEvents >= 10) {
-           break;
+    for (int i = 0; i < 10; i++) {
+        if (publisher->_publicationStats._totalDiscardedEvents +
+                subscriptionStats->_totalProcessed + subscriptionStats->_totalDiscardedEvents >=
+            10) {
+            break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    provider.getSubscriber()->removeListener("cacheListener");
+    subscriber->removeListener("cacheListener");
 
-    int discardedMessages = provider.getPublisher()->_publicationStats._totalDiscardedEvents;
+    int discardedMessages = publisher->_publicationStats._totalDiscardedEvents;
 
     spdlog::info("discardedMessages:{}", discardedMessages);
     spdlog::info("subscriptionStats->_totalProcessed:{}", subscriptionStats->_totalProcessed);
-    spdlog::info("subscriptionStats->_totalDiscardedEvents:{}", subscriptionStats->_totalDiscardedEvents);
+    spdlog::info("subscriptionStats->_totalDiscardedEvents:{}",
+                 subscriptionStats->_totalDiscardedEvents);
 
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 10);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
-    ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations + subscriptionStats->_totalDiscardedEvents*2, 20);
+    ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations +
+                  (subscriptionStats->_totalDiscardedEvents + discardedMessages) * 2,
+              20);
 
     ASSERT_EQ(9, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
-    ASSERT_EQ(subscriptionStats->_totalProcessed + subscriptionStats->_totalDiscardedEvents, 10);
+    ASSERT_EQ(subscriptionStats->_totalProcessed + subscriptionStats->_totalDiscardedEvents,
+              publisher->_publicationStats._totalProcessed - discardedMessages);
 }
 
-TEST(DataMultiplexerMiddlewareTest, SingleSlowConsumer) {
-    DataMultiplexerTestEvent::constructorInvokations = 0;
-    DataMultiplexerTestEvent::emptyConstructorInvokations = 0;
-    DataMultiplexerTestEvent::copyInvokations = 0;
-    kpsr::high_performance::DataMultiplexerMiddlewareProvider<DataMultiplexerTestEvent, 4> provider(nullptr, "test");
+TEST_F(DataMultiplexerMiddlewareTest, SingleSlowConsumer)
+{
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<DataMultiplexerTestEvent, 4>
+        provider(nullptr, "test");
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 0);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations, 0);
 
+    auto high_performancePublisher = provider.getPublisher();
+    auto subscriber = provider.getSubscriber();
     kpsr::mem::TestCacheListener<DataMultiplexerTestEvent> eventListener(2);
-    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+    subscriber->registerListener("cacheListener", eventListener.cacheListenerFunction);
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 0);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations, 0);
 
-    for (int i = 0; i < 500; i ++) {
+    for (int i = 0; i < 500; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         DataMultiplexerTestEvent event(i, "hola");
-        provider.getPublisher()->publish(event);
+        high_performancePublisher->publish(event);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(3));
-    std::shared_ptr<kpsr::SubscriptionStats> subscriptionStats = provider.getSubscriber()->getSubscriptionStats("cacheListener");
-    provider.getSubscriber()->removeListener("cacheListener");
+    std::shared_ptr<kpsr::SubscriptionStats> subscriptionStats = subscriber->getSubscriptionStats(
+        "cacheListener");
+    subscriber->removeListener("cacheListener");
 
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 500);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
-    kpsr::high_performance::DataMultiplexerPublisher<DataMultiplexerTestEvent, 4> * high_performancePublisher =
-            ((kpsr::high_performance::DataMultiplexerPublisher<DataMultiplexerTestEvent, 4> *) provider.getPublisher());
     int discardedMessages = high_performancePublisher->_publicationStats._totalDiscardedEvents;
-    ASSERT_EQ(eventListener.counter + discardedMessages + subscriptionStats->_totalDiscardedEvents, 500);
+    ASSERT_EQ(subscriptionStats->_totalProcessed + discardedMessages +
+                  subscriptionStats->_totalDiscardedEvents,
+              500);
 
-    ASSERT_EQ(499, eventListener.getLastReceivedEvent()->_id);
+    auto lastSentId = subscriptionStats->_totalProcessed + discardedMessages +
+                      subscriptionStats->_totalDiscardedEvents - 1;
+    ASSERT_EQ(lastSentId, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hola", eventListener.getLastReceivedEvent()->_message);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, eventListener.counter);
+    ASSERT_EQ(subscriptionStats->_totalProcessed, eventListener.counter);
 }
 
-TEST(DataMultiplexerMiddlewareTest, TwoConsumer) {
-    DataMultiplexerTestEvent::constructorInvokations = 0;
-    DataMultiplexerTestEvent::emptyConstructorInvokations = 0;
-    DataMultiplexerTestEvent::copyInvokations = 0;
+TEST_F(DataMultiplexerMiddlewareTest, TwoConsumer)
+{
     DataMultiplexerTestEvent event(0, "hola");
-    kpsr::high_performance::DataMultiplexerMiddlewareProvider<DataMultiplexerTestEvent, 4> provider(nullptr, "test", event);
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<DataMultiplexerTestEvent, 4>
+        provider(nullptr, "test", event);
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 1);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations, 2);
 
-    kpsr::mem::TestCacheListener<DataMultiplexerTestEvent> slowListener(2);
-    provider.getSubscriber()->registerListener("slowListener", slowListener.cacheListenerFunction);
+    auto high_performancePublisher = provider.getPublisher();
+    auto subscriber = provider.getSubscriber();
+    int slowListenerSleepTime = 2;
+    kpsr::mem::TestCacheListener<DataMultiplexerTestEvent> slowListener(slowListenerSleepTime);
+    subscriber->registerListener("slowListener", slowListener.cacheListenerFunction);
 
     kpsr::mem::TestCacheListener<DataMultiplexerTestEvent> fastListener(-1);
-    provider.getSubscriber()->registerListener("fastListener", fastListener.cacheListenerFunction);
+    subscriber->registerListener("fastListener", fastListener.cacheListenerFunction);
     ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 1);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(DataMultiplexerTestEvent::copyInvokations, 2);
 
-    for (int i = 0; i < 500; i ++) {
+    int numIterations = 500;
+    for (int i = 0; i < numIterations; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         DataMultiplexerTestEvent event(i, "hola");
-        provider.getPublisher()->publish(event);
-    }
-    while (fastListener.getLastReceivedEvent()->_id < 499) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    while (slowListener.getLastReceivedEvent()->_id < 499) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        high_performancePublisher->publish(event);
     }
 
-    std::shared_ptr<kpsr::SubscriptionStats> slowSubscriptionStats = provider.getSubscriber()->getSubscriptionStats("slowListener");
-    std::shared_ptr<kpsr::SubscriptionStats> fastSubscriptionStats = provider.getSubscriber()->getSubscriptionStats("fastListener");
-    provider.getSubscriber()->removeListener("slowListener");
-    provider.getSubscriber()->removeListener("fastListener");
+    std::this_thread::sleep_for(std::chrono::milliseconds(
+        2 *
+        slowListenerSleepTime)); // Give enough time for last publish event to reach the slow listener.
+    std::shared_ptr<kpsr::SubscriptionStats> slowSubscriptionStats =
+        subscriber->getSubscriptionStats("slowListener");
+    std::shared_ptr<kpsr::SubscriptionStats> fastSubscriptionStats =
+        subscriber->getSubscriptionStats("fastListener");
+    subscriber->removeListener("slowListener");
+    subscriber->removeListener("fastListener");
 
-    ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, 501);
+    ASSERT_EQ(DataMultiplexerTestEvent::constructorInvokations, numIterations + 1);
     ASSERT_EQ(DataMultiplexerTestEvent::emptyConstructorInvokations, 4);
-    kpsr::high_performance::DataMultiplexerPublisher<DataMultiplexerTestEvent, 4> * high_performancePublisher =
-            ((kpsr::high_performance::DataMultiplexerPublisher<DataMultiplexerTestEvent, 4> *) provider.getPublisher());
 
+    int publishedMessages = high_performancePublisher->_publicationStats._totalProcessed;
     int discardedMessages = high_performancePublisher->_publicationStats._totalDiscardedEvents;
+    spdlog::info("publishedMessages:{}", publishedMessages);
     spdlog::info("discardedMessages:{}", discardedMessages);
     spdlog::info("fastListener.counter:{}", fastListener.counter);
-    spdlog::info("fastSubscriptionStats->_totalProcessed:{}", fastSubscriptionStats->_totalProcessed);
-    spdlog::info("fastSubscriptionStats->_totalDiscardedEvents:{}", fastSubscriptionStats->_totalDiscardedEvents);
+    spdlog::info("fastSubscriptionStats->_totalProcessed:{}",
+                 fastSubscriptionStats->_totalProcessed);
+    spdlog::info("fastSubscriptionStats->_totalDiscardedEvents:{}",
+                 fastSubscriptionStats->_totalDiscardedEvents);
     spdlog::info("slowListener.counter:{}", slowListener.counter);
-    spdlog::info("slowSubscriptionStats->_totalProcessed:{}", slowSubscriptionStats->_totalProcessed);
-    spdlog::info("slowSubscriptionStats->_totalDiscardedEvents:{}", slowSubscriptionStats->_totalDiscardedEvents);
+    spdlog::info("slowSubscriptionStats->_totalProcessed:{}",
+                 slowSubscriptionStats->_totalProcessed);
+    spdlog::info("slowSubscriptionStats->_totalDiscardedEvents:{}",
+                 slowSubscriptionStats->_totalDiscardedEvents);
 
-    ASSERT_GT(fastSubscriptionStats->_totalProcessed,  slowSubscriptionStats->_totalProcessed);
-    ASSERT_EQ(fastListener.counter + slowListener.counter + discardedMessages + discardedMessages +
-              fastSubscriptionStats->_totalDiscardedEvents + slowSubscriptionStats->_totalDiscardedEvents, 1000);
+    auto fastSubscriberEvents = fastSubscriptionStats->_totalProcessed +
+                                fastSubscriptionStats->_totalDiscardedEvents;
+    auto slowSubscriberEvents = slowSubscriptionStats->_totalProcessed +
+                                slowSubscriptionStats->_totalDiscardedEvents;
 
-    ASSERT_EQ(499, fastListener.getLastReceivedEvent()->_id);
-    ASSERT_EQ("hola", fastListener.getLastReceivedEvent()->_message);
+    ASSERT_EQ(fastSubscriptionStats->_totalProcessed, fastListener.counter);
+    ASSERT_EQ(slowSubscriptionStats->_totalProcessed, slowListener.counter);
+    ASSERT_GT(fastSubscriptionStats->_totalProcessed, slowSubscriptionStats->_totalProcessed);
+    ASSERT_LE(fastSubscriberEvents, publishedMessages - discardedMessages);
+    ASSERT_LE(slowSubscriberEvents, publishedMessages - discardedMessages);
 
-    ASSERT_EQ(499, slowListener.getLastReceivedEvent()->_id);
-    ASSERT_EQ("hola", slowListener.getLastReceivedEvent()->_message);
-    ASSERT_EQ(fastSubscriptionStats->_totalProcessed + slowSubscriptionStats->_totalProcessed, fastListener.counter + slowListener.counter);
+    ASSERT_GE(publishedMessages - discardedMessages, fastListener.counter);
+    ASSERT_GE(publishedMessages - discardedMessages, slowListener.counter);
+
+    ASSERT_EQ(fastSubscriptionStats->_totalProcessed + slowSubscriptionStats->_totalProcessed,
+              fastListener.counter + slowListener.counter);
 }
 
-TEST(DataMultiplexerMiddlewareTest, SetContainerSuccessTest) {
-
-    kpsr::high_performance::DataMultiplexerMiddlewareProvider<int, 4> provider(nullptr, "testProvider");
+TEST_F(DataMultiplexerMiddlewareTest, SetContainerSuccessTest)
+{
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<int, 4> provider(nullptr,
+                                                                               "testProvider");
 
     kpsr::mem::MemEnv environment;
     kpsr::Container testContainer(&environment, "testContainer");
@@ -237,17 +277,20 @@ TEST(DataMultiplexerMiddlewareTest, SetContainerSuccessTest) {
     ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
 }
 
-TEST(DataMultiplexerMiddlewareTest, SetContainerAfterSubscriberStartTest) {
-
-    kpsr::high_performance::DataMultiplexerMiddlewareProvider<int, 4> provider(nullptr, "testProvider");
+TEST_F(DataMultiplexerMiddlewareTest, SetContainerAfterSubscriberStartTest)
+{
+    kpsr::high_performance::DataMultiplexerMiddlewareProvider<int, 4> provider(nullptr,
+                                                                               "testProvider");
     kpsr::mem::MemEnv environment;
     kpsr::Container testContainer(&environment, "testContainer");
     auto dummySubscriberTest = provider.getSubscriber();
-    dummySubscriberTest->registerListener("dummy", [](const int& event) {std::cout << "Got event : " << event << std::endl;});
+    dummySubscriberTest->registerListener("dummy", [](const int &event) {
+        std::cout << "Got event : " << event << std::endl;
+    });
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     std::stringstream programLogStream;
-    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt> (programLogStream);
+    auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);

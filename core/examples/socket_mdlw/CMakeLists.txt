@@ -20,28 +20,27 @@
 SET(PROJ_NAME kpsr_socket_${PROJ_MAIN_NAME}_example)
 PROJECT(${PROJ_NAME})
 
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/socket_mdlw/include )
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
     "src/*.cpp"
 )
 
-# Link libraries with Project
-#---------------------------------------------------#
-LINK_DIRECTORIES()
-
 # Create Library
 #---------------------------------------------------#
 ADD_EXECUTABLE(${PROJ_NAME}_server ${${PROJ_NAME}_HEADERS} src/server.cpp)
 ADD_EXECUTABLE(${PROJ_NAME}_client ${${PROJ_NAME}_HEADERS} src/client.cpp)
 
+# Link libraries with Project
+#---------------------------------------------------#
 TARGET_LINK_LIBRARIES(${PROJ_NAME}_server kpsr_socket_core)
 TARGET_LINK_LIBRARIES(${PROJ_NAME}_client kpsr_socket_core)
 
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}_server
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}_client
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )

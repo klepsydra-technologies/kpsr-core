@@ -28,10 +28,8 @@
 #include <klepsydra/core/event_emitter_subscriber.h>
 #include <klepsydra/core/from_middleware_channel.h>
 
-namespace kpsr
-{
-namespace ros_mdlw
-{
+namespace kpsr {
+namespace ros_mdlw {
 template<class T, class M>
 /**
  * @brief The RosSubscriptionData struct
@@ -43,7 +41,8 @@ template<class T, class M>
  * @ingroup kpsr-rosstg-internal
  *
  */
-struct RosSubscriptionData {
+struct RosSubscriptionData
+{
 public:
     /**
     * @brief RosSubscriptionData
@@ -52,9 +51,16 @@ public:
     * @param queueSize
     * @param internalPublisher
     */
-    RosSubscriptionData(ros::NodeHandle & rosNode, const char * topicName, int queueSize, Publisher<T> * internalPublisher)
-        : _fromMiddlewareChannel(internalPublisher) {
-        _rosSubscriber = rosNode.subscribe(topicName, queueSize, &FromMiddlewareChannel<T, M>::onMiddlewareMessage, &_fromMiddlewareChannel);
+    RosSubscriptionData(ros::NodeHandle &rosNode,
+                        const char *topicName,
+                        int queueSize,
+                        Publisher<T> *internalPublisher)
+        : _fromMiddlewareChannel(internalPublisher)
+    {
+        _rosSubscriber = rosNode.subscribe(topicName,
+                                           queueSize,
+                                           &FromMiddlewareChannel<T, M>::onMiddlewareMessage,
+                                           &_fromMiddlewareChannel);
     }
 
 private:
@@ -97,13 +103,14 @@ private:
 @endcode
  *
  */
-class FromRosMiddlewareProvider {
+class FromRosMiddlewareProvider
+{
 public:
     /**
      * @brief FromRosMiddlewareProvider
      * @param rosNode
      */
-    FromRosMiddlewareProvider(ros::NodeHandle & rosNode)
+    FromRosMiddlewareProvider(ros::NodeHandle &rosNode)
         : _rosNode(rosNode)
     {}
 
@@ -114,11 +121,15 @@ public:
      * @param queueSize
      * @param internalPublisher
      */
-    void registerToTopic(const char * topicName, int queueSize, Publisher<T> * internalPublisher) {
+    void registerToTopic(const char *topicName, int queueSize, Publisher<T> *internalPublisher)
+    {
         auto search = _subscriberMap.find(topicName);
         if (search == _subscriberMap.end()) {
-            std::shared_ptr<RosSubscriptionData<T, M>> rosSubscriptionData = std::shared_ptr<RosSubscriptionData<T, M>>(new RosSubscriptionData<T, M>(_rosNode, topicName, queueSize, internalPublisher));
-            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(rosSubscriptionData);
+            std::shared_ptr<RosSubscriptionData<T, M>> rosSubscriptionData =
+                std::shared_ptr<RosSubscriptionData<T, M>>(
+                    new RosSubscriptionData<T, M>(_rosNode, topicName, queueSize, internalPublisher));
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(
+                rosSubscriptionData);
             _subscriberMap[topicName] = internalPointer;
         }
     }
@@ -130,19 +141,24 @@ public:
      * @param queueSize
      * @param internalPublisher
      */
-    void registerToTopic(const char * topicName, int queueSize, Publisher<T> * internalPublisher) {
+    void registerToTopic(const char *topicName, int queueSize, Publisher<T> *internalPublisher)
+    {
         auto search = _subscriberMap.find(topicName);
         if (search == _subscriberMap.end()) {
-            auto rosSubscriptionData = std::make_shared<RosSubscriptionData<T, T>>(_rosNode, topicName, queueSize, internalPublisher);
-            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(rosSubscriptionData);
+            auto rosSubscriptionData = std::make_shared<RosSubscriptionData<T, T>>(_rosNode,
+                                                                                   topicName,
+                                                                                   queueSize,
+                                                                                   internalPublisher);
+            std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(
+                rosSubscriptionData);
             _subscriberMap[topicName] = internalPointer;
         }
     }
 
 private:
-    ros::NodeHandle & _rosNode;
+    ros::NodeHandle &_rosNode;
     std::map<std::string, std::shared_ptr<void>> _subscriberMap;
 };
-}
-}
+} // namespace ros_mdlw
+} // namespace kpsr
 #endif

@@ -29,16 +29,16 @@
 
 namespace kpsr {
 namespace fsm {
-class StateImpl : public State {
+class StateImpl : public State
+{
 public:
-  StateImpl(const std::string &id,
-            std::vector<std::shared_ptr<Transition>> transitions);
-  virtual std::string getId() override;
-  virtual std::vector<std::shared_ptr<Transition>> getTransitions() override;
+    StateImpl(const std::string &id, std::vector<std::shared_ptr<Transition>> transitions);
+    virtual std::string getId() override;
+    virtual std::vector<std::shared_ptr<Transition>> getTransitions() override;
 
 private:
-  std::string _id;
-  std::vector<std::shared_ptr<Transition>> _transitions;
+    std::string _id;
+    std::vector<std::shared_ptr<Transition>> _transitions;
 };
 } // namespace fsm
 } // namespace kpsr

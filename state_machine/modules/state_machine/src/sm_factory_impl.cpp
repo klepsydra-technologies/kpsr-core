@@ -29,26 +29,24 @@
 namespace kpsr {
 namespace fsm {
 
-std::shared_ptr<StateMachine>
-SMFactoryImpl::createStateMachine(const ConfigStateMachine &cnfSm) {
+std::shared_ptr<StateMachine> SMFactoryImpl::createStateMachine(const ConfigStateMachine &cnfSm)
+{
+    std::vector<std::shared_ptr<State>> stateList;
+    std::string initialStateId = "";
+    for (auto state : cnfSm.states) {
+        std::vector<std::shared_ptr<Transition>> transitionList;
 
-  std::vector<std::shared_ptr<State>> stateList;
-  std::string initialStateId = "";
-  for (auto state : cnfSm.states) {
-    std::vector<std::shared_ptr<Transition>> transitionList;
+        if (initialStateId == "") {
+            initialStateId = state.id;
+        }
 
-    if (initialStateId == "") {
-      initialStateId = state.id;
+        for (auto transition : state.transitions) {
+            transitionList.push_back(
+                std::make_shared<TransitionImpl>(transition.destinationId, transition.event));
+        }
+        stateList.push_back(std::make_shared<StateImpl>(state.id, transitionList));
     }
-
-    for (auto transition : state.transitions) {
-      transitionList.push_back(std::make_shared<TransitionImpl>(
-          transition.destinationId, transition.event));
-    }
-    stateList.push_back(std::make_shared<StateImpl>(state.id, transitionList));
-  }
-  return std::make_shared<StateMachineImpl>(cnfSm.id, stateList,
-                                            initialStateId);
+    return std::make_shared<StateMachineImpl>(cnfSm.id, stateList, initialStateId);
 }
 } // namespace fsm
 } // namespace kpsr

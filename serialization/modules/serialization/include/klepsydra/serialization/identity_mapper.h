@@ -22,9 +22,8 @@
 
 #include <klepsydra/serialization/mapper.h>
 
-namespace kpsr
-{
-template <class KpsrClass>
+namespace kpsr {
+template<class KpsrClass>
 /*!
  * @brief The Mapper class
  *
@@ -46,9 +45,7 @@ public:
      * @param message
      * @param event
      */
-    virtual void fromMiddleware(const KpsrClass& message, KpsrClass& event) {
-        event = message;
-    }
+    virtual void fromMiddleware(const KpsrClass &message, KpsrClass &event) { event = message; }
     /*!
      * @brief toMiddleware
      * This method converts a Klepsydra realm <a href="https://en.wikipedia.org/wiki/Plain_Old_C%2B%2B_Object">POCO</a> (e.g., kpsr::geometry::PoseEventData)
@@ -56,9 +53,7 @@ public:
      * @param event
      * @param message
      */
-    virtual void toMiddleware(const KpsrClass& event, KpsrClass& message) {
-        message = event;
-    }
+    virtual void toMiddleware(const KpsrClass &event, KpsrClass &message) { message = event; }
 };
-}
+} // namespace kpsr
 #endif

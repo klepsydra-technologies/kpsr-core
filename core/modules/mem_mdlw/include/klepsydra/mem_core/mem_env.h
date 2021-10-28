@@ -23,13 +23,11 @@
 #include <klepsydra/core/environment.h>
 
 #include <map>
-#include <string>
 #include <mutex>
+#include <string>
 
-namespace kpsr
-{
-namespace mem
-{
+namespace kpsr {
+namespace mem {
 /**
  * @brief The MemEnv class
  *
@@ -49,68 +47,83 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string & key, std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void getPropertyString(const std::string &key,
+                           std::string &value,
+                           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string & key, int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void getPropertyInt(const std::string &key,
+                        int &value,
+                        const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string & key, float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void getPropertyFloat(const std::string &key,
+                          float &value,
+                          const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string & key, bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void getPropertyBool(const std::string &key,
+                         bool &value,
+                         const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    void setPropertyString(const std::string & key, const std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void setPropertyString(const std::string &key,
+                           const std::string &value,
+                           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    void setPropertyInt(const std::string & key, const int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void setPropertyInt(const std::string &key,
+                        const int &value,
+                        const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    void setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void setPropertyFloat(const std::string &key,
+                          const float &value,
+                          const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    void setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT);
+    void setPropertyBool(const std::string &key,
+                         const bool &value,
+                         const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
-    void loadFile(const std::string & fileName, const std::string & nodeName) {};
+    void loadFile(const std::string &fileName, const std::string &nodeName){};
+
 private:
-
-   	std::map<std::string, std::string> stringDataMap;
-   	std::map<std::string, int> intDataMap;
-   	std::map<std::string, float> floatDataMap;
-   	std::map<std::string, bool> boolDataMap;
+    std::map<std::string, std::string> stringDataMap;
+    std::map<std::string, int> intDataMap;
+    std::map<std::string, float> floatDataMap;
+    std::map<std::string, bool> boolDataMap;
 
     std::mutex mutex;
-
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif

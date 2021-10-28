@@ -20,19 +20,6 @@
 SET(PROJ_NAME kpsr_zmq_${PROJ_MAIN_NAME}_tests)
 PROJECT(${PROJ_NAME})
 
-#find cppzmq wrapper, installed by make of cppzmq
-find_package(cppzmq)
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/core/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/mem_mdlw/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/zmq_mdlw/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/serialization/modules/serialization/include )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-include_directories( ${cppzmq_INCLUDE_DIR})
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
@@ -44,10 +31,13 @@ FILE(GLOB ${PROJ_NAME}_HEADERS
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES()
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 #---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} cppzmq kpsr_core atomic gtest_main)
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_zmq_core kpsr_high_performance kpsr_core gtest_main)
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

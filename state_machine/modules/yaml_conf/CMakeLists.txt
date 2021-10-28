@@ -20,12 +20,7 @@
 SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_yaml)
 PROJECT(${PROJ_NAME})
 
-find_package(yaml-cpp REQUIRED)
-
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
+find_package(yaml-cpp 0.5 REQUIRED)
 
 # Source
 #---------------------------------------------------#
@@ -45,7 +40,12 @@ ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} $
 
 # Link libraries with Project
 #---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_state_machine yaml-cpp)
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_state_machine kpsr_core yaml-cpp)
+TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 
 if (KPSR_WITH_CODE_METRICS)
     add_cppcheck(${PROJ_NAME} UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR)

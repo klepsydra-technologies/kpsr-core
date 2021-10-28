@@ -19,11 +19,11 @@
 
 #include <thread>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
-#include <klepsydra/socket_core/server_socket.h>
 #include <klepsydra/socket_core/protocol_simple.h>
+#include <klepsydra/socket_core/server_socket.h>
 
 // Usage:
 //     server path <path>
@@ -31,44 +31,38 @@
 //     server port <port>
 //
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-	std::shared_ptr<kpsr::socket_mdlw::ServerSocket> serverPtr;
-	if (1 == argc) {
-		std::shared_ptr<kpsr::socket_mdlw::ServerSocket> server(
-			new kpsr::socket_mdlw::ServerSocket("/tmp/CO_command_socket"));
-		serverPtr = server;
-	}
-	else if (3 == argc) {
-		std::string option(argv[1]);
-		if ("path" == option) {
-			std::string path(argv[2]);
-			std::shared_ptr<kpsr::socket_mdlw::ServerSocket> server(
-				new kpsr::socket_mdlw::ServerSocket(path));
-			serverPtr = server;
-		}
-		else if ("port" == option) {
-			int port = std::atoi(argv[2]);
-			std::shared_ptr<kpsr::socket_mdlw::ServerSocket> server(
-				new kpsr::socket_mdlw::ServerSocket(port));
-			serverPtr = server;
-		}
-		else {
+    std::shared_ptr<kpsr::socket_mdlw::ServerSocket> serverPtr;
+    if (1 == argc) {
+        std::shared_ptr<kpsr::socket_mdlw::ServerSocket> server(
+            new kpsr::socket_mdlw::ServerSocket("/tmp/CO_command_socket"));
+        serverPtr = server;
+    } else if (3 == argc) {
+        std::string option(argv[1]);
+        if ("path" == option) {
+            std::string path(argv[2]);
+            std::shared_ptr<kpsr::socket_mdlw::ServerSocket> server(
+                new kpsr::socket_mdlw::ServerSocket(path));
+            serverPtr = server;
+        } else if ("port" == option) {
+            int port = std::atoi(argv[2]);
+            std::shared_ptr<kpsr::socket_mdlw::ServerSocket> server(
+                new kpsr::socket_mdlw::ServerSocket(port));
+            serverPtr = server;
+        } else {
             spdlog::error("Usage: server path <hostpath>\n"
-			"Or\n:   server port <port>\n");
-			std::exit(1);
-		}
-	}
-	else {
+                          "Or\n:   server port <port>\n");
+            std::exit(1);
+        }
+    } else {
         spdlog::error("Usage: server path <hostpath>\n"
-		"Or\n:   server port <port>\n");
-		std::exit(1);
-	}
+                      "Or\n:   server port <port>\n");
+        std::exit(1);
+    }
     int finished = 0;
-    while(!finished)
-    {
-        std::shared_ptr<kpsr::socket_mdlw::DataSocket> accept  = serverPtr->accept();
+    while (!finished) {
+        std::shared_ptr<kpsr::socket_mdlw::DataSocket> accept = serverPtr->accept();
 
         std::thread socketThread([accept]() {
             kpsr::socket_mdlw::ProtocolSimple acceptSimple(accept);

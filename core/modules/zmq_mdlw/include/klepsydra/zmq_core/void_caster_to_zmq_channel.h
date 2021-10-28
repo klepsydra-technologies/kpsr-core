@@ -24,10 +24,8 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-namespace kpsr
-{
-namespace zmq_mdlw
-{
+namespace kpsr {
+namespace zmq_mdlw {
 /**
  * @brief The VoidCasterToZMQChannel class
  *
@@ -40,7 +38,6 @@ namespace zmq_mdlw
  */
 class VoidCasterToZMQChannel : public ObjectPoolPublisher<std::vector<unsigned char>>
 {
-
 public:
     /**
      * @brief VoidCasterToZMQChannel
@@ -48,28 +45,34 @@ public:
      * @param publisher this ZMQ socket has to be provided. Meaning that we give control to the user on how to setup ZMQ.
      * @param topic to include in the multi-part message
      */
-    VoidCasterToZMQChannel(Container * container,
-                       std::string topic,
-                       int poolSize,
-                       std::function<void(std::vector<unsigned char> &)> initializerFunction,
-                       zmq::socket_t & publisher)
-        : ObjectPoolPublisher<std::vector<unsigned char>>(container, topic, "ZMQ_VOID_CASTER", std::max(1, poolSize), initializerFunction, nullptr)
+    VoidCasterToZMQChannel(Container *container,
+                           std::string topic,
+                           int poolSize,
+                           std::function<void(std::vector<unsigned char> &)> initializerFunction,
+                           zmq::socket_t &publisher)
+        : ObjectPoolPublisher<std::vector<unsigned char>>(container,
+                                                          topic,
+                                                          "ZMQ_VOID_CASTER",
+                                                          std::max(1, poolSize),
+                                                          initializerFunction,
+                                                          nullptr)
         , _publisher(publisher)
         , _topic(topic)
     {}
 
 protected:
-    void internalPublish(std::shared_ptr<const std::vector<unsigned char>> event) override {
+    void internalPublish(std::shared_ptr<const std::vector<unsigned char>> event) override
+    {
         _publisher.send(zmq::const_buffer(_topic.data(), _topic.size()), zmq::send_flags::sndmore);
         zmq::message_t message(event->data(), event->size());
         _publisher.send(message);
     }
 
 private:
-    zmq::socket_t & _publisher;
+    zmq::socket_t &_publisher;
     std::string _topic;
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // VOID_CASTER_TO_ZMQ_CHANNEL_H

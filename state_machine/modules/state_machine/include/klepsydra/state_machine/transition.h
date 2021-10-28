@@ -23,10 +23,11 @@
 
 namespace kpsr {
 namespace fsm {
-class Transition {
+class Transition
+{
 public:
-  virtual bool canTransition(const std::string &event) = 0;
-  virtual std::string getDestinationStateId() = 0;
+    virtual bool canTransition(const std::string &event) = 0;
+    virtual std::string getDestinationStateId() = 0;
 };
 } // namespace fsm
 } // namespace kpsr

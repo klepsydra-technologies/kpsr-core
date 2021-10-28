@@ -8,5 +8,4 @@
  *
  */
 
-
 #endif // GROUP_DEFINITIONS_H

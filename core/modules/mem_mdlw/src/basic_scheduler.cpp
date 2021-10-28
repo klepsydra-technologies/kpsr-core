@@ -19,24 +19,24 @@
 
 #include <klepsydra/mem_core/basic_scheduler.h>
 
-kpsr::mem::BasicScheduler::ScheduledThread::ScheduledThread(int after, bool repeat, std::shared_ptr<std::function<void ()>> task)
+kpsr::mem::BasicScheduler::ScheduledThread::ScheduledThread(
+    int after, bool repeat, std::shared_ptr<std::function<void()>> task)
     : _after(after)
     , _repeat(repeat)
     , _isRunning(false)
     , _task(task)
 {}
 
-void kpsr::mem::BasicScheduler::ScheduledThread::start() {
-
+void kpsr::mem::BasicScheduler::ScheduledThread::start()
+{
     _isRunning = true;
-    std::function<void ()> scheduledTask = [this]() {
+    std::function<void()> scheduledTask = [this]() {
         if (_repeat) {
             while (_isRunning) {
                 std::this_thread::sleep_for(std::chrono::microseconds(_after));
                 (*_task.get())();
             }
-        }
-        else {
+        } else {
             std::this_thread::sleep_for(std::chrono::microseconds(_after));
             (*_task.get())();
         }
@@ -45,32 +45,41 @@ void kpsr::mem::BasicScheduler::ScheduledThread::start() {
     _thread = std::thread(scheduledTask);
 }
 
-void kpsr::mem::BasicScheduler::ScheduledThread::stop() {
+void kpsr::mem::BasicScheduler::ScheduledThread::stop()
+{
     _isRunning = false;
-    if(_thread.joinable()) {
+    if (_thread.joinable()) {
         _thread.join();
     }
 }
 
-void kpsr::mem::BasicScheduler::startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void ()>> task) {
+void kpsr::mem::BasicScheduler::startScheduledTask(const std::string &name,
+                                                   int after,
+                                                   bool repeat,
+                                                   std::shared_ptr<std::function<void()>> task)
+{
     _threadMap[name] = std::shared_ptr<ScheduledThread>(new ScheduledThread(after, repeat, task));
     _threadMap[name]->start();
 }
 
-void kpsr::mem::BasicScheduler::stopScheduledTask(const std::string & name) {
+void kpsr::mem::BasicScheduler::stopScheduledTask(const std::string &name)
+{
     if (_threadMap.find(name) != _threadMap.end()) {
         _threadMap[name]->stop();
         _threadMap.erase(name);
     }
 }
 
-void kpsr::mem::BasicScheduler::startScheduledService(int after, bool repeat, Service * service) {
+void kpsr::mem::BasicScheduler::startScheduledService(int after, bool repeat, Service *service)
+{
     std::string name = service->_serviceStats._name;
-    std::shared_ptr<std::function<void ()>> task = std::make_shared<std::function<void ()>>(std::bind(&Service::runOnce, service));
+    std::shared_ptr<std::function<void()>> task = std::make_shared<std::function<void()>>(
+        std::bind(&Service::runOnce, service));
     startScheduledTask(name, after, repeat, task);
 }
 
-void kpsr::mem::BasicScheduler::stopScheduledService(Service *service) {
+void kpsr::mem::BasicScheduler::stopScheduledService(Service *service)
+{
     std::string name = service->_serviceStats._name;
     stopScheduledTask(name);
 }

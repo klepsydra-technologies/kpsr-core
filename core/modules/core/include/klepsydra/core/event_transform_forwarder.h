@@ -20,14 +20,13 @@
 #ifndef EVENT_TRANSFORM_FORWARDER_H
 #define EVENT_TRANSFORM_FORWARDER_H
 
-#include <functional>
 #include <atomic>
+#include <functional>
 
 #include <klepsydra/core/publisher.h>
 
-namespace kpsr
-{
-template <class T, class U>
+namespace kpsr {
+template<class T, class U>
 /*!
  * @brief The EventTransformForwarder class
  *
@@ -40,7 +39,8 @@ template <class T, class U>
  * @details An optimised forwarding helper class. Its purpose is to optimise memory allocation and callstack when processing events,
  * transforming and forwarding them.
  */
-class EventTransformForwarder {
+class EventTransformForwarder
+{
 public:
     /*!
      * @brief EventTransformForwarder
@@ -48,15 +48,15 @@ public:
      * @param destPublisher forwarding publisher.
      */
     EventTransformForwarder(std::function<void(const T &, U &)> transformFunction,
-                            Publisher<U> * destPublisher)
-        : forwarderListenerFunction(std::bind(&kpsr::EventTransformForwarder<T, U>::onEventReceived, this, std::placeholders::_1))
+                            Publisher<U> *destPublisher)
+        : forwarderListenerFunction(std::bind(&kpsr::EventTransformForwarder<T, U>::onEventReceived,
+                                              this,
+                                              std::placeholders::_1))
         , _transformFunction(transformFunction)
         , _destPublisher(destPublisher)
         , _eventReference(nullptr)
     {
-        _process = [this] (U & newEvent) {
-            this->_transformFunction(* _eventReference, newEvent);
-        };
+        _process = [this](U &newEvent) { this->_transformFunction(*_eventReference, newEvent); };
     }
 
     /*!
@@ -68,16 +68,17 @@ public:
      * \brief onEventReceived
      * \param event
      */
-    void onEventReceived(const T & event) {
+    void onEventReceived(const T &event)
+    {
         _eventReference = &event;
         _destPublisher->processAndPublish(_process);
     }
 
 private:
     std::function<void(const T &, U &)> _transformFunction;
-    Publisher<U> * _destPublisher;
+    Publisher<U> *_destPublisher;
     std::atomic<const T *> _eventReference;
     std::function<void(U &)> _process;
 };
-}
+} // namespace kpsr
 #endif // EVENT_TRANSFORM_FORWARDER_H

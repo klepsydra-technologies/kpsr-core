@@ -17,23 +17,28 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
 #include <klepsydra/codegen/inheritance_vector4.h>
 
-TEST(CodegenPocoTests, InheritanceVector4PocoTest) {
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> provider(nullptr, "event", 0, nullptr, nullptr);
+TEST(CodegenPocoTests, InheritanceVector4PocoTest)
+{
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> provider(nullptr,
+                                                                                     "event",
+                                                                                     0,
+                                                                                     nullptr,
+                                                                                     nullptr);
 
     kpsr::mem::CacheListener<kpsr::codegen::InheritanceVector4> eventListener;
 

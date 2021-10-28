@@ -19,25 +19,35 @@
 
 #include <klepsydra/high_performance/event_loop_scheduler.h>
 
-kpsr::high_performance::EventLoopScheduler::EventLoopScheduler(Publisher<std::function<void()>> * publisher)
+kpsr::high_performance::EventLoopScheduler::EventLoopScheduler(
+    Publisher<std::function<void()>> *publisher)
     : _publisher(publisher)
 {}
 
-void kpsr::high_performance::EventLoopScheduler::startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void()>> task) {
-    std::shared_ptr<std::function<void()>> eventloopTask = std::make_shared<std::function<void()>>([task, this] () { _publisher->publish(task); });
+void kpsr::high_performance::EventLoopScheduler::startScheduledTask(
+    const std::string &name, int after, bool repeat, std::shared_ptr<std::function<void()>> task)
+{
+    std::shared_ptr<std::function<void()>> eventloopTask = std::make_shared<std::function<void()>>(
+        [task, this]() { _publisher->publish(task); });
     _decorableScheduler.startScheduledTask(name, after, repeat, eventloopTask);
 }
 
-void kpsr::high_performance::EventLoopScheduler::startScheduledService(int after, bool repeat, Service * service) {
+void kpsr::high_performance::EventLoopScheduler::startScheduledService(int after,
+                                                                       bool repeat,
+                                                                       Service *service)
+{
     std::string name = service->_serviceStats._name;
-    std::shared_ptr<std::function<void()>> task = std::make_shared<std::function<void()>>(std::bind(&Service::runOnce, service));
+    std::shared_ptr<std::function<void()>> task = std::make_shared<std::function<void()>>(
+        std::bind(&Service::runOnce, service));
     startScheduledTask(name, after, repeat, task);
 }
 
-void kpsr::high_performance::EventLoopScheduler::stopScheduledTask(const std::string & name) {
+void kpsr::high_performance::EventLoopScheduler::stopScheduledTask(const std::string &name)
+{
     _decorableScheduler.stopScheduledTask(name);
 }
 
-void kpsr::high_performance::EventLoopScheduler::stopScheduledService(Service *service) {
+void kpsr::high_performance::EventLoopScheduler::stopScheduledService(Service *service)
+{
     _decorableScheduler.stopScheduledService(service);
 }

@@ -50,13 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef DISRUPTOR4CPP_PRODUCER_TYPE_H_
 #define DISRUPTOR4CPP_PRODUCER_TYPE_H_
 
-namespace disruptor4cpp
-{
-	enum class producer_type : int
-	{
-		single,
-		multi
-	};
+namespace disruptor4cpp {
+enum class producer_type : int { single, multi };
 }
 
 #endif

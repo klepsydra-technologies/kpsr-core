@@ -1,7 +1,7 @@
 #****************************************************************************
 #
 #                           Klepsydra Core Modules
-#              Copyright (C) 2019-2020  Klepsydra Technologies GmbH
+#              Copyright (C) 2020-2022  Klepsydra Technologies GmbH
 #                            All Rights Reserved.
 #
 #  This file is subject to the terms and conditions defined in
@@ -19,7 +19,7 @@
 
 # Main header: Project name & Configuration
 # ------------------------------------------------------------------------------------------------------
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 SET(PROJ_MAIN_NAME "klepsydra")
 PROJECT(${PROJ_MAIN_NAME})
@@ -45,7 +45,7 @@ message(STATUS "Thirdparties install path: " ${THIRDPARTIES_PATH})
 
 IF(DEFINED GTEST_PATH)
 ELSE()
-        SET(GTEST_PATH ${THIRDPARTIES_PATH}/googletest) #default google test path
+  SET(GTEST_PATH ${THIRDPARTIES_PATH}/googletest) #default google test path
 ENDIF()
 message(STATUS "Google test path: " ${GTEST_PATH})
 if(DEFINED KPSR_BUILD_PATH)
@@ -78,6 +78,7 @@ if (HAS_CXX11)
 endif()
 
 if (NOT APPLE)
+    set(CMAKE_INSTALL_RPATH $ORIGIN)
     check_cxx_compiler_flag(-Wl,--no-undefined HAS_NO_UNDEFINED)
     if (HAS_NO_UNDEFINED)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")
@@ -114,26 +115,30 @@ endif()
 
 add_definitions(-fno-strict-overflow)
 if (KPSR_WITH_ZMQ)
+   SET(KPSR_WITH_YAML True)
    add_definitions(-Wno-deprecated-declarations)
    add_definitions(-Wno-comment)
 ENDIF()
 
-if (KPSR_WITH_CODE_METRICS)
-   # Code Coverage
-   IF (CMAKE_BUILD_TYPE MATCHES Debug)
-       add_definitions(--coverage)
-       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
-       SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
-       include(FindPythonInterp)
-       include(CodeCoverage)
-       setup_target_for_all_tests_coverage()
-       setup_target_for_all_tests_coverage_cobertura(coverage)
-   ENDIF()
+if (KPSR_WITH_DDS)
+  SET(KPSR_WITH_YAML True)
+ENDIF()
 
+IF(KPSR_WITH_YAML)
+   find_package(yaml-cpp 0.5 REQUIRED)
+ENDIF()
+
+if (KPSR_WITH_CODE_METRICS)
+  include(CodeCoverage)
+  set(CODE_COVERAGE_VERBOSE ON)
+  APPEND_COVERAGE_COMPILER_FLAGS()
    # Code style check
    include(CppcheckTargets)
    include(Findcppcheck)
 ENDIF()
+
+# Code format check
+include(CodeFormat)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -159,13 +164,30 @@ ADD_SUBDIRECTORY(thirdparties)
 ADD_SUBDIRECTORY(serialization)
 ADD_SUBDIRECTORY(core)
 ADD_SUBDIRECTORY(high_performance)
-ADD_SUBDIRECTORY(state_machine)
+IF (KPSR_WITH_YAML)
+  ADD_SUBDIRECTORY(state_machine)
+ENDIF()
 if (KPSR_RUNTIME)
 else()
    ADD_SUBDIRECTORY(code_generator)
 ENDIF()
 IF(KPSR_WITH_NODE)
     ADD_SUBDIRECTORY(node)
+ENDIF()
+
+# Code Coverage
+if (KPSR_WITH_CODE_METRICS AND CMAKE_BUILD_TYPE MATCHES Debug AND CMAKE_COMPILER_IS_GNUCXX)
+  STRING(REPLACE ${CMAKE_SOURCE_DIR}/ "" THIRDPARTIES_PATH_COVERAGE ${THIRDPARTIES_PATH})
+  LIST(APPEND COVERAGE_EXCLUDES
+    ${THIRDPARTIES_PATH_COVERAGE}
+    ${CMAKE_PREFIX_PATH}
+    /usr/
+    /opt
+    )
+  setup_target_for_coverage_gcovr_xml(
+    NAME coverage
+    EXECUTABLE make test
+    )
 ENDIF()
 
 if (KPSR_RUNTIME)
@@ -228,26 +250,29 @@ export(TARGETS ${CORE_EXPORT_TARGETS} ${DDS_EXPORT_TARGETS} ${ZMQ_EXPORT_TARGETS
 export(PACKAGE klepsydra)
 
 # Create the KlepsydraConfig.cmake and KlepsydraConfigVersion files
-configure_file(KlepsydraConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/KlepsydraConfig.cmake" @ONLY)
-
-configure_file(KlepsydraConfig.cmake.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/KlepsydraConfig.cmake" @ONLY)
-# ... for both
+include(CMakePackageConfigHelpers)
+IF(KPSR_WITH_YAML)
+  SET(KPSR_YAML_DEP "find_dependency(yaml-cpp 0.5)")
+ENDIF()
+configure_package_config_file(
+  "KlepsydraConfig.cmake.in"
+  "KlepsydraConfig.cmake"
+  INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}"
+  PATH_VARS
+    CMAKE_INSTALL_LIBDIR
+  )
 configure_file(KlepsydraConfigVersion.cmake.in
   "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake" @ONLY)
 
-configure_file(${CMAKE_SOURCE_DIR}/.githooks/pre-commit.in
-  "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit" @ONLY)
-
 # Install the KlepsydraConfig.cmake and KlepsydraConfigVersion.cmake
 install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/KlepsydraConfig.cmake"
+  "${PROJECT_BINARY_DIR}/KlepsydraConfig.cmake"
   "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake"
   "${CMAKE_SOURCE_DIR}/code_generator/cmake/KpsrCodeGen.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Install the export set for use with the install-tree
-install(EXPORT KlepsydraTargets DESTINATION
-  "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
+install(EXPORT KlepsydraTargets
+  FILE KlepsydraTargets.cmake
+  DESTINATION "${INSTALL_CMAKE_DIR}"
+  COMPONENT dev)

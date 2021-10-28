@@ -26,10 +26,8 @@
 
 #include <klepsydra/core/from_middleware_channel.h>
 
-namespace kpsr
-{
-namespace dds_mdlw
-{
+namespace kpsr {
+namespace dds_mdlw {
 template<class T, class M>
 /**
  * @brief The DDSListener class
@@ -48,7 +46,7 @@ public:
      * @param useTake
      * @param internalPublisher
      */
-    DDSListener(bool useTake, Publisher<T> * internalPublisher, const std::string & topicName)
+    DDSListener(bool useTake, Publisher<T> *internalPublisher, const std::string &topicName)
         : _useTake(useTake)
         , _fromMiddlewareChannel(internalPublisher)
         , _topicName(topicName)
@@ -58,26 +56,30 @@ public:
      * @brief on_data_available
      * @param ddsReader
      */
-    void on_data_available(dds::sub::DataReader<M> & ddsReader) {
+    void on_data_available(dds::sub::DataReader<M> &ddsReader)
+    {
         if (_useTake) {
-            auto samples =  ddsReader.take();
-            std::for_each(samples.begin(), samples.end(), [this](const rti::sub::LoanedSample<M>& s) {
-                this->_fromMiddlewareChannel.onMiddlewareMessage(s.data());
-            });
-        }
-        else {
-            auto samples =  ddsReader.select().state(dds::sub::status::DataState::new_data()).read();
-            std::for_each(samples.begin(), samples.end(), [this](const rti::sub::LoanedSample<M>& s) {
-                this->_fromMiddlewareChannel.onMiddlewareMessage(s.data());
-            });
+            auto samples = ddsReader.take();
+            std::for_each(samples.begin(),
+                          samples.end(),
+                          [this](const rti::sub::LoanedSample<M> &s) {
+                              this->_fromMiddlewareChannel.onMiddlewareMessage(s.data());
+                          });
+        } else {
+            auto samples = ddsReader.select().state(dds::sub::status::DataState::new_data()).read();
+            std::for_each(samples.begin(),
+                          samples.end(),
+                          [this](const rti::sub::LoanedSample<M> &s) {
+                              this->_fromMiddlewareChannel.onMiddlewareMessage(s.data());
+                          });
         }
     }
+
 private:
     bool _useTake;
     FromMiddlewareChannel<T, M> _fromMiddlewareChannel;
     std::string _topicName;
 };
-
 
 /**
  * @brief The FromDDSMiddlewareProvider class
@@ -117,7 +119,6 @@ private:
 class FromDDSMiddlewareProvider
 {
 public:
-
     /**
      * @brief registerToTopic
      * @param topicName
@@ -127,12 +128,14 @@ public:
      */
     template<class T, class M>
     void registerToTopic(std::string topicName,
-                         dds::sub::DataReader<M> * ddsReader,
+                         dds::sub::DataReader<M> *ddsReader,
                          bool useTake,
-                         Publisher<T> * internalPublisher) {
+                         Publisher<T> *internalPublisher)
+    {
         auto search = _subscriberMap.find(topicName);
         if (search == _subscriberMap.end()) {
-            std::shared_ptr<DDSListener<T, M>> ddsListener = std::shared_ptr<DDSListener<T, M>>(new DDSListener<T, M>(useTake, internalPublisher, topicName));
+            std::shared_ptr<DDSListener<T, M>> ddsListener = std::shared_ptr<DDSListener<T, M>>(
+                new DDSListener<T, M>(useTake, internalPublisher, topicName));
             ddsReader->listener(ddsListener.get(), dds::core::status::StatusMask::data_available());
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(ddsListener);
             _subscriberMap[topicName] = internalPointer;
@@ -147,20 +150,19 @@ public:
      * @param internalPublisher
      */
     template<class M>
-    void unregisterFromTopic(std::string topicName,
-                             dds::sub::DataReader<M> * ddsReader) {
+    void unregisterFromTopic(std::string topicName, dds::sub::DataReader<M> *ddsReader)
+    {
         auto search = _subscriberMap.find(topicName);
         if (search == _subscriberMap.end()) {
             return;
         }
         ddsReader->listener(nullptr, dds::core::status::StatusMask::data_available());
         _subscriberMap.erase(search);
-
     }
 
 private:
     std::map<std::string, std::shared_ptr<void>> _subscriberMap;
 };
-}
-}
+} // namespace dds_mdlw
+} // namespace kpsr
 #endif

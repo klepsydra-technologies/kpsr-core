@@ -27,10 +27,8 @@
 
 #include <klepsydra/dds_core/dds_environment_data.h>
 
-namespace kpsr
-{
-namespace dds_mdlw
-{
+namespace kpsr {
+namespace dds_mdlw {
 class DDSEnv;
 /**
  * @brief The DDSConfigurationListener class
@@ -41,7 +39,8 @@ class DDSEnv;
  *
  * @ingroup kpsr-dds-internal
  */
-class DDSConfigurationListener : public dds::sub::NoOpDataReaderListener<kpsr_dds_core::DDSEnvironmentData>
+class DDSConfigurationListener
+    : public dds::sub::NoOpDataReaderListener<kpsr_dds_core::DDSEnvironmentData>
 {
 public:
     /**
@@ -50,18 +49,18 @@ public:
      * @param ddsEnv
      * @param sourceId
      */
-    DDSConfigurationListener(const std::string & ddsKey, DDSEnv * ddsEnv, long sourceId)
+    DDSConfigurationListener(const std::string &ddsKey, DDSEnv *ddsEnv, long sourceId)
         : _ddsKey(ddsKey)
         , _ddsEnv(ddsEnv)
         , _sourceId(sourceId)
     {}
 
-
-    virtual void on_data_available(dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> & dataReader);
+    virtual void on_data_available(
+        dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> &dataReader);
 
 private:
     std::string _ddsKey;
-    DDSEnv * _ddsEnv;
+    DDSEnv *_ddsEnv;
     long _sourceId;
 };
 
@@ -101,10 +100,11 @@ public:
      * @param dataWriter
      * @param dataReader
      */
-    DDSEnv(const std::string yamlFileName, std::string ddsKey,
-           dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> * dataWriter,
-           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader,
-           const std::string& rootNode = kpsr::DEFAULT_ROOT);
+    DDSEnv(const std::string yamlFileName,
+           std::string ddsKey,
+           dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> *dataWriter,
+           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> *dataReader,
+           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
      * @brief DDSEnv
@@ -112,11 +112,10 @@ public:
      * @param dataWriter
      * @param dataReader
      */
-    DDSEnv(YamlEnvironment * yamlEnvironment,
-           dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> * dataWriter,
-           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * dataReader,
-           const std::string& rootNode = kpsr::DEFAULT_ROOT);
-
+    DDSEnv(YamlEnvironment *yamlEnvironment,
+           dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> *dataWriter,
+           dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> *dataReader,
+           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     ~DDSEnv();
 
@@ -125,84 +124,100 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string & key, std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyString(const std::string &key,
+                           std::string &value,
+                           const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyInt
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string & key, int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyInt(const std::string &key,
+                        int &value,
+                        const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyFloat
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string & key, float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyFloat(const std::string &key,
+                          float &value,
+                          const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief getPropertyBool
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string & key, bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void getPropertyBool(const std::string &key,
+                         bool &value,
+                         const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyString
      * @param key
      * @param value
      */
-    void setPropertyString(const std::string & key, const std::string & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyString(const std::string &key,
+                           const std::string &value,
+                           const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyInt
      * @param key
      * @param value
      */
-    void setPropertyInt(const std::string & key, const int & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyInt(const std::string &key,
+                        const int &value,
+                        const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyFloat
      * @param key
      * @param value
      */
-    void setPropertyFloat(const std::string & key, const float & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyFloat(const std::string &key,
+                          const float &value,
+                          const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
      * @brief setPropertyBool
      * @param key
      * @param value
      */
-    void setPropertyBool(const std::string & key, const bool & value, const std::string & rootNode = kpsr::DEFAULT_ROOT) override;
+    void setPropertyBool(const std::string &key,
+                         const bool &value,
+                         const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
-    virtual void loadFile(const std::string & fileName, const std::string & nodeName);
+    virtual void loadFile(const std::string &fileName, const std::string &nodeName);
 
     /**
      * @brief updateConfiguration
      * @param configurationData
      */
-    void updateConfiguration(const std::string & configurationData);
+    void updateConfiguration(const std::string &configurationData);
 
     /**
      * @brief updateConfiguration
      * @param configurationData
      * @param rootNode
      */
-    void updateConfiguration(const std::string & configurationData, const std::string & rootNode);
+    void updateConfiguration(const std::string &configurationData, const std::string &rootNode);
 
 private:
     void publishConfiguration();
 
-    YamlEnvironment * _decorableEnv;
+    YamlEnvironment *_decorableEnv;
 
-    dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> * _dataWriter;
-    dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> * _dataReader;
-    DDSConfigurationListener * _listener;
+    dds::pub::DataWriter<kpsr_dds_core::DDSEnvironmentData> *_dataWriter;
+    dds::sub::DataReader<kpsr_dds_core::DDSEnvironmentData> *_dataReader;
+    DDSConfigurationListener *_listener;
     std::string _ddsKey;
     long _timestamp;
     bool _isEnvLocal;
 };
-}
-}
+} // namespace dds_mdlw
+} // namespace kpsr
 #endif

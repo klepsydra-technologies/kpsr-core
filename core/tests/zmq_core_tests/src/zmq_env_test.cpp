@@ -19,11 +19,11 @@
 
 #include <gtest/gtest.h>
 
-#include <klepsydra/core/service.h>
-#include <klepsydra/core/publisher.h>
-#include <klepsydra/core/subscriber.h>
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
+#include <klepsydra/core/publisher.h>
+#include <klepsydra/core/service.h>
+#include <klepsydra/core/subscriber.h>
 
 #include <klepsydra/mem_core/basic_middleware_provider.h>
 
@@ -36,31 +36,61 @@
 
 #include "config.h"
 
-TEST(ZMQEnvTest, EnvironmentTests) {
-    std::string serverUrl = "tcp://*:9001";
-    std::string topic = "env_data";
+class ZMQEnvTest : public ::testing::Test
+{
+protected:
+    ZMQEnvTest()
+        : serverUrl("tcp://*:5556")
+        , clientUrl("tcp://localhost:5556")
+        , syncUrl("tcp://localhost:5557")
+        , syncServiceUrl("tcp://*:5557")
+        , topic("env_data")
+        , context(1)
+        , publisher(context, ZMQ_PUB)
+        , subscriber(context, ZMQ_SUB)
+        , syncclient(context, ZMQ_REQ)
+        , syncservice(context, ZMQ_REP)
+    {
+        publisher.bind(serverUrl);
+        publisher.bind("ipc://cvMat-tests.ipc");
 
-    //  Prepare our context and publisher and subscriber.
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind(serverUrl);
-    publisher.bind("ipc://cvMat-tests.ipc");
+        //  Socket to talk to server
+        subscriber.connect(clientUrl);
+        subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+        // Set up publisher corresponding to each input.
+        syncclient.connect(syncUrl);
+        //  - send a synchronization request
+        zmq::message_t message("", 1);
+        syncservice.bind(syncServiceUrl);
+        // Set up publisher corresponding to each input.
+        syncclient.connect(syncUrl);
+        //  - send a synchronization request
+        syncclient.send(message);
+        //  - wait for synchronization reply
+        zmq::message_t recvMessage;
+        syncservice.recv(recvMessage);
+        syncservice.send(message);
+        syncclient.recv(recvMessage);
+    }
 
-    std::string clientUrl = "tcp://localhost:9001";
-    zmq::socket_t subscriber (context, ZMQ_SUB);
-    subscriber.connect(clientUrl);
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+    std::string serverUrl;
+    std::string clientUrl;
+    std::string syncUrl;
+    std::string syncServiceUrl;
+    std::string topic;
+    zmq::context_t context;
+    zmq::socket_t publisher;
+    zmq::socket_t subscriber;
+    zmq::socket_t syncclient;
+    zmq::socket_t syncservice;
+};
 
+TEST_F(ZMQEnvTest, EnvironmentTests)
+{
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
-
-    kpsr::zmq_mdlw::ZMQEnv envTest(filename,
-                                   "test",
-                                   topic,
-                                   100,
-                                   publisher,
-                                   subscriber);
+    kpsr::zmq_mdlw::ZMQEnv envTest(filename, "test", topic, 100, publisher, subscriber);
     std::string nameInFile;
     envTest.getPropertyString("filename", nameInFile);
     ASSERT_EQ(nameInFile, basename);
@@ -72,52 +102,28 @@ TEST(ZMQEnvTest, EnvironmentTests) {
     std::string nameFile2;
     envTest.getPropertyString("filename", nameFile2, "file2");
     ASSERT_EQ(nameFile2, basename2);
-
-    
 }
 
-
-TEST(ZMQEnvTest, UpdateConfigurationTests) {
-    std::string serverUrl = "tcp://*:9001";
-    std::string topic = "env_data";
-
-    //  Prepare our context and publisher and subscriber.
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind(serverUrl);
-    publisher.bind("ipc://cvMat-tests.ipc");
-
-    std::string clientUrl = "tcp://localhost:9001";
-    zmq::socket_t subscriber (context, ZMQ_SUB);
-    subscriber.connect(clientUrl);
-    subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
-
-    zmq::socket_t subscriber2 (context, ZMQ_SUB);
+TEST_F(ZMQEnvTest, UpdateConfigurationTests)
+{
+    zmq::socket_t subscriber2(context, ZMQ_SUB);
     subscriber2.connect(clientUrl);
     subscriber2.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 
     std::string basename("testfile1.yaml");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
-    kpsr::zmq_mdlw::ZMQEnv envTest(filename,
-                                   "test",
-                                   topic,
-                                   1000,
-                                   publisher,
-                                   subscriber,
-                                   "file1");
+    kpsr::zmq_mdlw::ZMQEnv envTest(filename, "test", topic, 1000, publisher, subscriber, "file1");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     kpsr::YamlEnvironment yamlEnvPub;
 
     yamlEnvPub.updateConfiguration(
-        "greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_zmq_env_key: \"test\"\nkpsr_zmq_env_topic_name: \"env_data\"\nkpsr_zmq_env_poll_period: 1000",
+        "greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_zmq_env_key: "
+        "\"test\"\nkpsr_zmq_env_topic_name: \"env_data\"\nkpsr_zmq_env_poll_period: 1000",
         kpsr::DEFAULT_ROOT);
-    kpsr::zmq_mdlw::ZMQEnv zmqEnvTest(&yamlEnvPub,
-                                      publisher,
-                                      subscriber2,
-                                      kpsr::DEFAULT_ROOT);
+    kpsr::zmq_mdlw::ZMQEnv zmqEnvTest(&yamlEnvPub, publisher, subscriber2, kpsr::DEFAULT_ROOT);
     std::string default_greeting;
     zmqEnvTest.getPropertyString("greeting", default_greeting);
     // Check that default values have been loaded correctly to zmqEnvTest
@@ -138,4 +144,3 @@ TEST(ZMQEnvTest, UpdateConfigurationTests) {
     std::string greeting;
     ASSERT_ANY_THROW(zmqEnvTest.getPropertyString("greeting", greeting));
 }
-

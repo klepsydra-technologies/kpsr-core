@@ -53,21 +53,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+TEST(fixed_sequence_group_test, should_return_minimum_of_2_sequences)
 {
-	namespace test
-	{
-		TEST(fixed_sequence_group_test, should_return_minimum_of_2_sequences)
-		{
-			sequence sequence1(34);
-			sequence sequence2(47);
-			auto group = fixed_sequence_group<sequence>::create(std::vector<sequence*> { &sequence1, &sequence2 });
+    sequence sequence1(34);
+    sequence sequence2(47);
+    auto group = fixed_sequence_group<sequence>::create(
+        std::vector<sequence *>{&sequence1, &sequence2});
 
-			ASSERT_EQ(34, group.get());
-			sequence1.set(35);
-			ASSERT_EQ(35, group.get());
-			sequence1.set(48);
-			ASSERT_EQ(47, group.get());
-		}
-	}
+    ASSERT_EQ(34, group.get());
+    sequence1.set(35);
+    ASSERT_EQ(35, group.get());
+    sequence1.set(48);
+    ASSERT_EQ(47, group.get());
 }
+} // namespace test
+} // namespace disruptor4cpp

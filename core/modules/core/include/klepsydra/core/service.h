@@ -26,8 +26,7 @@
 #include <klepsydra/core/environment.h>
 #include <klepsydra/core/service_stats.h>
 
-namespace kpsr
-{
+namespace kpsr {
 /*!
  * @brief The Service class
  *
@@ -53,9 +52,7 @@ public:
      * @param serviceName
      * @param isMaster
      */
-    Service(Environment * environment,
-            const std::string& serviceName,
-            bool isMaster = true)
+    Service(Environment *environment, const std::string &serviceName, bool isMaster = true)
         : _environment(environment)
         , _serviceStats(serviceName)
         , _isMaster(isMaster)
@@ -70,7 +67,8 @@ public:
      * Usually this method is invoked within a main application. E.g., in the Ros world, this will be invoked within
      * the runOnce of Ros.
      */
-    virtual void runOnce() final {
+    virtual void runOnce() final
+    {
         if (_started) {
             _serviceStats.startProcessMeassure();
             execute();
@@ -84,7 +82,8 @@ public:
      * This public method is used to invoke the custom service start method.
      * Usually this method is invoked within a main application.
      */
-    virtual void startup() final {
+    virtual void startup() final
+    {
         if (_started) {
             return;
         }
@@ -101,7 +100,8 @@ public:
      * This public method is used to invoke the custom service stop method.
      * Usually this method is invoked within a main application.
      */
-    virtual void shutdown() final {
+    virtual void shutdown() final
+    {
         if (!_started) {
             return;
         }
@@ -120,7 +120,8 @@ public:
      *
      * @return
      */
-    virtual std::map<std::string, std::string> getMetadata() {
+    virtual std::map<std::string, std::string> getMetadata()
+    {
         std::map<std::string, std::string> metadata;
         return metadata;
     }
@@ -128,7 +129,7 @@ public:
     /*!
      * @brief _environment
      */
-    Environment * _environment;
+    Environment *_environment;
 
     /*!
      * @brief _serviceStats
@@ -150,5 +151,5 @@ protected:
     virtual void start() = 0;
     virtual void stop() = 0;
 };
-}
+} // namespace kpsr
 #endif

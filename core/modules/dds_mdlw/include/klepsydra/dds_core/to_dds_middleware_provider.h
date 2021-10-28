@@ -29,10 +29,8 @@
 
 #include <klepsydra/dds_core/to_dds_channel.h>
 
-namespace kpsr
-{
-namespace dds_mdlw
-{
+namespace kpsr {
+namespace dds_mdlw {
 /**
  * @brief The ToDDSMiddlewareProvider class
  *
@@ -60,14 +58,14 @@ namespace dds_mdlw
 @endcode
  *
  */
-class ToDDSMiddlewareProvider {
+class ToDDSMiddlewareProvider
+{
 public:
-
     /**
      * @brief ToDDSMiddlewareProvider
      * @param container
      */
-    ToDDSMiddlewareProvider(Container * container)
+    ToDDSMiddlewareProvider(Container *container)
         : _container(container)
     {}
 
@@ -79,20 +77,26 @@ public:
      * @param dataWriter
      * @return
      */
-    template <class T, class M>
-    Publisher<T> * getToMiddlewareChannel(std::string topic,
-                                          int poolSize,
-                                          std::function<void(M &)> initializerFunction,
-                                          dds::pub::DataWriter<M> * dataWriter) {
+    template<class T, class M>
+    Publisher<T> *getToMiddlewareChannel(std::string topic,
+                                         int poolSize,
+                                         std::function<void(M &)> initializerFunction,
+                                         dds::pub::DataWriter<M> *dataWriter)
+    {
         auto search = _publisherMap.find(topic);
         if (search != _publisherMap.end()) {
             std::shared_ptr<void> internalPointer = search->second;
-            std::shared_ptr<Publisher<T>> publisher = std::static_pointer_cast<Publisher<T>>(internalPointer);
+            std::shared_ptr<Publisher<T>> publisher = std::static_pointer_cast<Publisher<T>>(
+                internalPointer);
             return publisher.get();
-        }
-        else {
-            ToDDSChannel<M> * toDDSChannel = new ToDDSChannel<M>(_container, topic, poolSize, initializerFunction, dataWriter);
-            std::shared_ptr<Publisher<T>> publisher(new ToMiddlewareChannel<T, M>(_container, topic + "_dds", toDDSChannel));
+        } else {
+            ToDDSChannel<M> *toDDSChannel = new ToDDSChannel<M>(_container,
+                                                                topic,
+                                                                poolSize,
+                                                                initializerFunction,
+                                                                dataWriter);
+            std::shared_ptr<Publisher<T>> publisher(
+                new ToMiddlewareChannel<T, M>(_container, topic + "_dds", toDDSChannel));
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
             _publisherMap[topic] = internalPointer;
             return publisher.get();
@@ -100,11 +104,10 @@ public:
     }
 
 private:
-    Container * _container;
+    Container *_container;
     std::map<std::string, std::shared_ptr<void>> _publisherMap;
 };
-}
-}
+} // namespace dds_mdlw
+} // namespace kpsr
 
 #endif // TO_DDS_MIDDLEWARE_PROVIDER_H
-

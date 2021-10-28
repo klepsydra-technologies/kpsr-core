@@ -24,10 +24,8 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-namespace kpsr
-{
-namespace dds_mdlw
-{
+namespace kpsr {
+namespace dds_mdlw {
 template<class M>
 /**
  * @brief The ToDDSChannel class
@@ -43,7 +41,6 @@ template<class M>
  */
 class ToDDSChannel : public ObjectPoolPublisher<M>
 {
-
 public:
     /**
      * @brief ToDDSChannel
@@ -53,23 +50,24 @@ public:
      * @param initializerFunction
      * @param ddsWriter
      */
-    ToDDSChannel(Container * container,
-                 const std::string & name,
+    ToDDSChannel(Container *container,
+                 const std::string &name,
                  int poolSize,
                  std::function<void(M &)> initializerFunction,
-                 dds::pub::DataWriter<M> * ddsWriter)
+                 dds::pub::DataWriter<M> *ddsWriter)
         : ObjectPoolPublisher<M>(container, name, "DDS", poolSize, initializerFunction, nullptr)
         , _ddsWriter(ddsWriter)
     {}
 
 protected:
-    void internalPublish(std::shared_ptr<const M> event) override {
+    void internalPublish(std::shared_ptr<const M> event) override
+    {
         _ddsWriter->write(*event.get());
     }
 
 private:
-    dds::pub::DataWriter<M> * _ddsWriter;
+    dds::pub::DataWriter<M> *_ddsWriter;
 };
-}
-}
+} // namespace dds_mdlw
+} // namespace kpsr
 #endif

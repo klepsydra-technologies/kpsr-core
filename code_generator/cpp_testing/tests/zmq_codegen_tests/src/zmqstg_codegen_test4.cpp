@@ -21,30 +21,30 @@
 
 #include <gtest/gtest.h>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <zmq.hpp>
 
-#include <klepsydra/serialization/json_cereal_mapper.h>
 #include <klepsydra/serialization/binary_cereal_mapper.h>
+#include <klepsydra/serialization/json_cereal_mapper.h>
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
-#include <klepsydra/zmq_core/to_zmq_middleware_provider.h>
 #include <klepsydra/zmq_core/from_zmq_middleware_provider.h>
+#include <klepsydra/zmq_core/to_zmq_middleware_provider.h>
 
 #include <klepsydra/codegen/cereal/inheritance_vector4_serializer.h>
 
-TEST(KpsrZMQCodegeTest, inheritanceMapperMapperTest) {
-
+TEST(KpsrZMQCodegeTest, inheritanceMapperMapperTest)
+{
     std::string serverUrl = "tcp://*:5556";
     std::string topic = "test";
 
     //  Prepare our context and publisher
-    zmq::context_t context (1);
-    zmq::socket_t publisher (context, ZMQ_PUB);
+    zmq::context_t context(1);
+    zmq::socket_t publisher(context, ZMQ_PUB);
     publisher.bind(serverUrl);
     publisher.bind("ipc://weather.ipc");
 
@@ -54,26 +54,32 @@ TEST(KpsrZMQCodegeTest, inheritanceMapperMapperTest) {
 
     //  Socket to talk to server
     spdlog::info("Collecting updates from weather server...\n");
-    zmq::socket_t subscriber (context, ZMQ_SUB);
+    zmq::socket_t subscriber(context, ZMQ_SUB);
 
     subscriber.connect(clientUrl);
     subscriber.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 
     //  Process 100 updates
     kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> * fromZMQProvider =
-            _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<kpsr::codegen::InheritanceVector4>(subscriber, 10);
+    kpsr::zmq_mdlw::FromZmqChannel<std::string> *fromZMQProvider =
+        _fromZmqMiddlewareProvider
+            .getJsonFromMiddlewareChannel<kpsr::codegen::InheritanceVector4>(subscriber, 10);
     fromZMQProvider->start();
 
-    kpsr::Publisher<kpsr::codegen::InheritanceVector4> * kpsrPublisher =
-            toZMQProvider.getJsonToMiddlewareChannel<kpsr::codegen::InheritanceVector4>(topic, 0);
+    kpsr::Publisher<kpsr::codegen::InheritanceVector4> *kpsrPublisher =
+        toZMQProvider.getJsonToMiddlewareChannel<kpsr::codegen::InheritanceVector4>(topic, 0);
 
-    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> basicProvider(nullptr, "test", 0, nullptr, nullptr);
+    kpsr::EventEmitterMiddlewareProvider<kpsr::codegen::InheritanceVector4> basicProvider(nullptr,
+                                                                                          "test",
+                                                                                          0,
+                                                                                          nullptr,
+                                                                                          nullptr);
 
     fromZMQProvider->registerToTopic(topic, basicProvider.getPublisher());
 
     kpsr::mem::CacheListener<kpsr::codegen::InheritanceVector4> cacheListener;
-    basicProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    basicProvider.getSubscriber()->registerListener("cacheListener",
+                                                    cacheListener.cacheListenerFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
 
@@ -113,4 +119,3 @@ TEST(KpsrZMQCodegeTest, inheritanceMapperMapperTest) {
     ASSERT_EQ(cacheListener.getLastReceivedEvent()->c, event.c);
     ASSERT_EQ(cacheListener.getLastReceivedEvent()->d, event.d);
 }
-

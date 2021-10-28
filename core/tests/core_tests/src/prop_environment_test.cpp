@@ -17,20 +17,21 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
-#include <klepsydra/core/prop_file_environment.h>
 #include "config.h"
+#include <klepsydra/core/prop_file_environment.h>
 
 #include "gtest/gtest.h"
 
-TEST(PropertyFileEnvironment, BasicTest) {
+TEST(PropertyFileEnvironment, BasicTest)
+{
     std::stringstream stream;
     stream << "str.property=value\n"
            << "bool.property=1\n"
@@ -60,7 +61,8 @@ TEST(PropertyFileEnvironment, BasicTest) {
     ASSERT_FLOAT_EQ(floatValue, 3.14f);
 }
 
-TEST(PropertyFileEnvironment, FileTest) {
+TEST(PropertyFileEnvironment, FileTest)
+{
     std::string folderName(TEST_DATA);
     std::string basename("propenvtest.txt");
     std::string filename = folderName + "/" + basename;
@@ -87,7 +89,8 @@ TEST(PropertyFileEnvironment, FileTest) {
     ASSERT_FLOAT_EQ(floatValue, 3.14f);
 }
 
-TEST(PropertyFileEnvironment, FileTestNoExist) {
+TEST(PropertyFileEnvironment, FileTestNoExist)
+{
     std::string folderName(TEST_DATA);
     std::string basename("propenvtest.txt");
     std::string filename = folderName + "/" + basename;

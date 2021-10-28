@@ -21,22 +21,20 @@
 #define DATA_MULTIPLEXER_LISTENER_H
 
 #include <functional>
-#include <memory>
 #include <future>
+#include <memory>
 
 #include <klepsydra/core/subscription_stats.h>
 
-#include <klepsydra/high_performance/data_multiplexer_event_handler.h>
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
+#include <klepsydra/high_performance/data_multiplexer_event_handler.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
+namespace kpsr {
+namespace high_performance {
 
 static const long MULTIPLEXER_START_TIMEOUT_MILLISEC = 100;
 
-template <typename TEvent, std::size_t BufferSize>
+template<typename TEvent, std::size_t BufferSize>
 /**
  * @brief The DataMultiplexerListener class
  *
@@ -51,39 +49,46 @@ template <typename TEvent, std::size_t BufferSize>
 class DataMultiplexerListener
 {
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>, BufferSize, disruptor4cpp::blocking_wait_strategy, disruptor4cpp::producer_type::single, disruptor4cpp::sequence>;
+    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+                                                  BufferSize,
+                                                  disruptor4cpp::blocking_wait_strategy,
+                                                  disruptor4cpp::producer_type::single,
+                                                  disruptor4cpp::sequence>;
     using BatchProcessor = disruptor4cpp::batch_event_processor<RingBuffer>;
 
-    DataMultiplexerListener(const std::function<void(TEvent)> & listener,
-                            RingBuffer & ringBuffer,
-                            const std::shared_ptr<SubscriptionStats>& listenerStat,
+    DataMultiplexerListener(const std::function<void(TEvent)> &listener,
+                            RingBuffer &ringBuffer,
+                            const std::shared_ptr<SubscriptionStats> &listenerStat,
                             long timeoutMS = MULTIPLEXER_START_TIMEOUT_MILLISEC)
         : _ringBuffer(ringBuffer)
         , _eventHandler(listener, listenerStat)
         , _name(listenerStat->_name)
         , _started(false)
         , _batchProcessorTask([this] {
-                                  std::vector<disruptor4cpp::sequence * > sequences_to_add;
-                                  sequences_to_add.resize(1);
-                                  sequences_to_add[0] = &batchEventProcessor.get()->get_sequence();
-                                  this->_ringBuffer.add_gating_sequences(sequences_to_add);
-                                  this->batchEventProcessor->run();
-                              })
+            std::vector<disruptor4cpp::sequence *> sequences_to_add;
+            sequences_to_add.resize(1);
+            sequences_to_add[0] = &batchEventProcessor.get()->get_sequence();
+            this->_ringBuffer.add_gating_sequences(sequences_to_add);
+            this->batchEventProcessor->run();
+        })
         , _batchProcessorThread()
         , _batchProcessorThreadFuture(_batchProcessorTask.get_future())
-        , _timeoutUs(timeoutMS*1000) {
+        , _timeoutUs(timeoutMS * 1000)
+    {
         auto barrier = _ringBuffer.new_barrier();
-        batchEventProcessor = std::unique_ptr<BatchProcessor>(new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler));
+        batchEventProcessor = std::unique_ptr<BatchProcessor>(
+            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler));
     }
 
-    void start() {
+    void start()
+    {
         if (_started) {
             return;
         }
         _batchProcessorThread = std::thread(std::move(_batchProcessorTask));
         _started = true;
         long counterUs = 0;
-        while(!this->batchEventProcessor->is_running()) {
+        while (!this->batchEventProcessor->is_running()) {
             if (counterUs > _timeoutUs) {
                 throw std::runtime_error("Could not start the DataMultiplexerListener");
             }
@@ -92,13 +97,13 @@ public:
         }
     }
 
-    void stop() {
+    void stop()
+    {
         if (!_started) {
             return;
         }
         batchEventProcessor->halt();
-        if (_batchProcessorThread.joinable())
-        {
+        if (_batchProcessorThread.joinable()) {
             _batchProcessorThread.join();
         }
     }
@@ -106,7 +111,7 @@ public:
     std::unique_ptr<BatchProcessor> batchEventProcessor;
 
 private:
-    RingBuffer & _ringBuffer;
+    RingBuffer &_ringBuffer;
     DataMultiplexerEventHandler<TEvent> _eventHandler;
     std::string _name;
     std::atomic<bool> _started;
@@ -115,7 +120,7 @@ private:
     std::future<void> _batchProcessorThreadFuture;
     long _timeoutUs;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif // DATA_MULTIPLEXER_LISTENER_H

@@ -24,8 +24,7 @@
 
 #include <klepsydra/serialization/mapper.h>
 
-namespace kpsr
-{
+namespace kpsr {
 template<class E>
 /**
  * @brief The Mapper<E, kpsr_dds_serialization::LongData> class
@@ -45,7 +44,8 @@ public:
      * @param message
      * @param event
      */
-    void fromMiddleware(const kpsr_dds_serialization::LongData& message, E& event) {
+    void fromMiddleware(const kpsr_dds_serialization::LongData &message, E &event)
+    {
         event = (E) message.data();
     }
 
@@ -54,7 +54,8 @@ public:
      * @param event
      * @param message
      */
-    void toMiddleware(const E& event, kpsr_dds_serialization::LongData& message) {
+    void toMiddleware(const E &event, kpsr_dds_serialization::LongData &message)
+    {
         message.data(event);
         message.id(_id++);
     }
@@ -62,5 +63,5 @@ public:
 private:
     int _id = 0;
 };
-}
-#endif//ENUM_DDS_MAPPER_H
+} // namespace kpsr
+#endif //ENUM_DDS_MAPPER_H

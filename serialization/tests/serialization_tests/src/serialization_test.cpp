@@ -17,38 +17,39 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
 #include <klepsydra/serialization/void_caster_mapper.h>
 
-struct Event {
-   int id;
-   float fValue;
-   double dValue;
+struct Event
+{
+    int id;
+    float fValue;
+    double dValue;
 };
 
-TEST(SerializationTests, VoidCasterMapperTest) {
-   std::vector<unsigned char> message;
-   Event event;
-   event.id = 1;
-   event.fValue = 2.0;
-   event.dValue = 3.0;
+TEST(SerializationTests, VoidCasterMapperTest)
+{
+    std::vector<unsigned char> message;
+    Event event;
+    event.id = 1;
+    event.fValue = 2.0;
+    event.dValue = 3.0;
 
-   kpsr::Mapper<Event, std::vector<unsigned char>> voidCasterMapper;
-   voidCasterMapper.toMiddleware(event, message);
+    kpsr::Mapper<Event, std::vector<unsigned char>> voidCasterMapper;
+    voidCasterMapper.toMiddleware(event, message);
 
-   Event fmEvent;
-   voidCasterMapper.fromMiddleware(message, fmEvent);
-   ASSERT_EQ(event.id, fmEvent.id);
-   ASSERT_EQ(event.fValue, fmEvent.fValue);
-   ASSERT_EQ(event.dValue, fmEvent.dValue);
+    Event fmEvent;
+    voidCasterMapper.fromMiddleware(message, fmEvent);
+    ASSERT_EQ(event.id, fmEvent.id);
+    ASSERT_EQ(event.fValue, fmEvent.fValue);
+    ASSERT_EQ(event.dValue, fmEvent.dValue);
 }
-

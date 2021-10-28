@@ -20,19 +20,18 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 
+#include <algorithm>
+#include <atomic>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <atomic>
-#include <algorithm>
-#include <mutex>
 
 #include <klepsydra/core/publication_stats.h>
-#include <klepsydra/core/subscription_stats.h>
-#include <klepsydra/core/service_stats.h>
 #include <klepsydra/core/service.h>
+#include <klepsydra/core/service_stats.h>
+#include <klepsydra/core/subscription_stats.h>
 
-namespace kpsr
-{
+namespace kpsr {
 /**
  * @brief The Container class
  *
@@ -56,7 +55,7 @@ public:
      * @param env to administer
      * @param applicationName to use as id of the process running these services.
      */
-    Container(Environment * env, const std::string & applicationName);
+    Container(Environment *env, const std::string &applicationName);
 
     virtual ~Container();
 
@@ -74,53 +73,52 @@ public:
      * @brief attach a service and its statistics variable to the container
      * @param service Pointer to a service
      */
-    void attach(Service * service);
+    void attach(Service *service);
 
     /**
      * @brief detach
      * @param service Pointer to a service
      */
-    void detach(Service * service);
+    void detach(Service *service);
 
     /**
      * @brief attach a custom method statistics to the container
      * @param functionStats Pointer to a basic stat object.
      */
-    void attach(FunctionStats * functionStats);
+    void attach(FunctionStats *functionStats);
 
     /**
      * @brief detach
      * @param functionStats
      */
-    void detach(FunctionStats * functionStats);
+    void detach(FunctionStats *functionStats);
 
     /**
      * @brief attach a service statistics to the container
      * @param serviceStats Pointer to a service stats.
      */
-    void attach(ServiceStats * serviceStats);
+    void attach(ServiceStats *serviceStats);
 
     /**
      * @brief attach a publication statistics to the container
      * @param publicationStats Pointer to a publication stats.
      */
-    void attach(PublicationStats * publicationStats);
+    void attach(PublicationStats *publicationStats);
 
     /**
      * @brief attach a subscription statistics to the container
      * @param subscriptionStats Pointer to a subscription stats.
      */
-    void attach(SubscriptionStats * subscriptionStats);
+    void attach(SubscriptionStats *subscriptionStats);
 
     /**
      * @brief detach
      * @param subscriptionStats
      */
-    void detach(SubscriptionStats * subscriptionStats);
-
+    void detach(SubscriptionStats *subscriptionStats);
 
 protected:
-    Environment * _env;
+    Environment *_env;
     std::string _applicationName;
     std::atomic_bool _running;
 
@@ -135,6 +133,6 @@ protected:
     mutable std::mutex _subscriptionStatsMutex;
     mutable std::mutex _functionStatsMutex;
 };
-}
+} // namespace kpsr
 
 #endif // CONTAINER_H

@@ -17,45 +17,61 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
-#include <klepsydra/core/callback_handler.h>
-#include <klepsydra/core/event_emitter_subscriber.h>
-#include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/callback_handler.h>
+#include <klepsydra/core/event_emitter_publisher.h>
+#include <klepsydra/core/event_emitter_subscriber.h>
 
 #include "gtest/gtest.h"
 
-class TestRequest {
+class TestRequest
+{
 public:
     int id;
     std::string message;
 };
 
-class TestReply {
+class TestReply
+{
 public:
     int id;
     bool ack;
 };
 
-TEST(CallbackHandler, BasicTest) {
+TEST(CallbackHandler, BasicTest)
+{
     kpsr::EventEmitter eventEmitter;
     kpsr::EventEmitterSubscriber<TestRequest> requestSubcriber(nullptr, eventEmitter, "request");
-    kpsr::EventEmitterPublisher<TestRequest> requestPublisher(nullptr, "request", eventEmitter, 0, nullptr, nullptr);
+    kpsr::EventEmitterPublisher<TestRequest> requestPublisher(nullptr,
+                                                              "request",
+                                                              eventEmitter,
+                                                              0,
+                                                              nullptr,
+                                                              nullptr);
 
     kpsr::EventEmitterSubscriber<TestReply> replySubcriber(nullptr, eventEmitter, "reply");
-    kpsr::EventEmitterPublisher<TestReply> replyPublisher(nullptr, "reply", eventEmitter, 0, nullptr, nullptr);
+    kpsr::EventEmitterPublisher<TestReply> replyPublisher(nullptr,
+                                                          "reply",
+                                                          eventEmitter,
+                                                          0,
+                                                          nullptr,
+                                                          nullptr);
 
-    kpsr::CallbackHandler<TestRequest, TestReply> callbackHandler("test", &requestPublisher, &replySubcriber,
-                                                                  [] (const TestRequest & request, const TestReply & reply) {
-        return request.id == reply.id;
-    });
+    kpsr::CallbackHandler<TestRequest, TestReply> callbackHandler("test",
+                                                                  &requestPublisher,
+                                                                  &replySubcriber,
+                                                                  [](const TestRequest &request,
+                                                                     const TestReply &reply) {
+                                                                      return request.id == reply.id;
+                                                                  });
 
     kpsr::mem::CacheListener<TestReply> replyListener;
 

@@ -22,7 +22,7 @@
 
 namespace kpsr {
 namespace high_performance {
-template <class T>
+template<class T>
 /**
  * @brief The EventData struct
  *
@@ -34,9 +34,11 @@ template <class T>
  *
  * @details Internal wrapper class that is actually stored in the high_performance and eventloop.
  */
-struct EventData {
-
-    EventData() {}
+struct EventData
+{
+    EventData()
+        : eventData()
+    {}
 
     EventData(T eventData)
         : eventData(eventData)
@@ -52,7 +54,7 @@ struct EventData {
      */
     long long unsigned int enqueuedTimeInNs;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif // DATA_MULTIPLEXER_EVENT_DATA_H

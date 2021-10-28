@@ -17,52 +17,50 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
-#include <klepsydra/core/event_emitter_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/event_emitter_middleware_provider.h>
 
-class EETestEvent {
+class EETestEvent
+{
 public:
-
     static int constructorInvokations;
     static int copyInvokations;
 
-    EETestEvent(int id, const std::string & message)
+    EETestEvent(int id, const std::string &message)
         : _id(id)
-        , _message(message) {
+        , _message(message)
+    {
         EETestEvent::constructorInvokations++;
     }
 
-    EETestEvent() {
-        EETestEvent::constructorInvokations++;
-    }
+    EETestEvent() { EETestEvent::constructorInvokations++; }
 
     int _id;
     std::string _message;
 };
 
-class EETestNewEvent {
+class EETestNewEvent
+{
 public:
-
-    EETestNewEvent(const std::string & label, std::vector<double> values)
+    EETestNewEvent(const std::string &label, std::vector<double> values)
         : _label(label)
-        , _values(values) {
-    }
+        , _values(values)
+    {}
 
-    EETestNewEvent() {
-    }
+    EETestNewEvent() {}
 
     std::string _label;
     std::vector<double> _values;
@@ -71,7 +69,8 @@ public:
 int EETestEvent::constructorInvokations = 0;
 int EETestEvent::copyInvokations = 0;
 
-TEST(EventEmitterTest, SingleEventEmitterTopic) {
+TEST(EventEmitterTest, SingleEventEmitterTopic)
+{
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
 
     EETestEvent::constructorInvokations = 0;
@@ -93,16 +92,22 @@ TEST(EventEmitterTest, SingleEventEmitterTopic) {
     ASSERT_NO_THROW(provider.getSubscriber()->removeListener("cacheListener"));
 
     EETestEvent event2(2, "hola2");
-    ASSERT_NO_THROW(provider.getSubscriber()->registerListenerOnce(eventListener.cacheListenerFunction));
+    ASSERT_NO_THROW(
+        provider.getSubscriber()->registerListenerOnce(eventListener.cacheListenerFunction));
     provider.getPublisher()->publish(event);
     ASSERT_NO_THROW(provider.getPublisher()->publish(event));
     ASSERT_EQ(event._id, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ(event._message, eventListener.getLastReceivedEvent()->_message);
 }
 
-TEST(EventEmitterTest, TwoEventEmitterTopics) {
+TEST(EventEmitterTest, TwoEventEmitterTopics)
+{
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
-    kpsr::EventEmitterMiddlewareProvider<EETestNewEvent> newProvider(nullptr, "newEvent", 0, nullptr, nullptr);
+    kpsr::EventEmitterMiddlewareProvider<EETestNewEvent> newProvider(nullptr,
+                                                                     "newEvent",
+                                                                     0,
+                                                                     nullptr,
+                                                                     nullptr);
 
     EETestEvent::constructorInvokations = 0;
 
@@ -110,7 +115,8 @@ TEST(EventEmitterTest, TwoEventEmitterTopics) {
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 
     kpsr::mem::CacheListener<EETestNewEvent> newEventListener;
-    newProvider.getSubscriber()->registerListener("cacheListener2", newEventListener.cacheListenerFunction);
+    newProvider.getSubscriber()->registerListener("cacheListener2",
+                                                  newEventListener.cacheListenerFunction);
 
     EETestEvent event(1, "hola");
     provider.getPublisher()->publish(event);
@@ -124,15 +130,22 @@ TEST(EventEmitterTest, TwoEventEmitterTopics) {
     ASSERT_EQ(newEvent._label, newEventListener.getLastReceivedEvent()->_label);
     ASSERT_EQ(newEvent._values, newEventListener.getLastReceivedEvent()->_values);
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener2")->_totalProcessed, 1);
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener2")->_totalProcessed,
+              1);
 }
 
-TEST(EventEmitterTest, ContainerTest) {
+TEST(EventEmitterTest, ContainerTest)
+{
     kpsr::Container testContainer(nullptr, "testContainer");
-    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(&testContainer, "event", 0, nullptr, nullptr);
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(&testContainer,
+                                                               "event",
+                                                               0,
+                                                               nullptr,
+                                                               nullptr);
     kpsr::mem::CacheListener<EETestEvent> eventListener;
 
-    ASSERT_NO_THROW(provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction));
+    ASSERT_NO_THROW(provider.getSubscriber()->registerListener("cacheListener",
+                                                               eventListener.cacheListenerFunction));
     EETestEvent event(1, "hola");
     ASSERT_NO_THROW(provider.getPublisher()->publish(event));
     ASSERT_EQ(event._id, eventListener.getLastReceivedEvent()->_id);
@@ -141,63 +154,81 @@ TEST(EventEmitterTest, ContainerTest) {
     ASSERT_NO_THROW(provider.getSubscriber()->removeListener("cacheListener"));
 }
 
-TEST(EventEmitterTest, TransformForwaringPerformanceTest) {
+TEST(EventEmitterTest, TransformForwaringPerformanceTest)
+{
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
-    kpsr::EventEmitterMiddlewareProvider<EETestNewEvent> newProvider(nullptr, "newEvent", 0, nullptr, nullptr);
+    kpsr::EventEmitterMiddlewareProvider<EETestNewEvent> newProvider(nullptr,
+                                                                     "newEvent",
+                                                                     0,
+                                                                     nullptr,
+                                                                     nullptr);
 
-    std::function<void(const EETestEvent &, EETestNewEvent &)> transformFunction = [] (const EETestEvent & src, EETestNewEvent & dest) {
-        dest._label = src._message;
-        dest._values = { (double) src._id };
-    };
+    std::function<void(const EETestEvent &, EETestNewEvent &)> transformFunction =
+        [](const EETestEvent &src, EETestNewEvent &dest) {
+            dest._label = src._message;
+            dest._values = {(double) src._id};
+        };
 
     auto forwarder = newProvider.getProcessForwarder(transformFunction);
-    provider.getSubscriber()->registerListener("forwarderListener", forwarder->forwarderListenerFunction);
+    provider.getSubscriber()->registerListener("forwarderListener",
+                                               forwarder->forwarderListenerFunction);
 
     kpsr::mem::CacheListener<EETestNewEvent> eventListener;
-    newProvider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+    newProvider.getSubscriber()->registerListener("cacheListener",
+                                                  eventListener.cacheListenerFunction);
 
     for (int i = 0; i < 1000000; i++) {
         EETestEvent event1(i, "hello");
         provider.getPublisher()->publish(event1);
     }
 
-    spdlog::info("total forwarding time: {}", provider.getSubscriber()->getSubscriptionStats("forwarderListener")->_totalProcessingTimeInNanoSecs);
+    spdlog::info("total forwarding time: {}",
+                 provider.getSubscriber()
+                     ->getSubscriptionStats("forwarderListener")
+                     ->_totalProcessingTimeInNanoSecs);
 }
 
-TEST(EventEmitterDeathTest, noSegmentationFault) {
+TEST(EventEmitterDeathTest, noSegmentationFault)
+{
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
 
     auto subscriber = provider.getSubscriber();
-    subscriber->registerListener("stats_test", [&] (const EETestEvent & event) {
-                                                   subscriber->removeListener("stats_test");});
+    subscriber->registerListener("stats_test", [&](const EETestEvent &event) {
+        subscriber->removeListener("stats_test");
+    });
 
     EETestEvent event1(0, "hello");
-    ASSERT_EXIT((provider.getPublisher()->publish(event1), exit(0)),::testing::ExitedWithCode(0),".*");
+    ASSERT_EXIT((provider.getPublisher()->publish(event1), exit(0)),
+                ::testing::ExitedWithCode(0),
+                ".*");
 }
 
-TEST(EventEmitterTest, listenerStatsNullAtEnd) {
+TEST(EventEmitterTest, listenerStatsNullAtEnd)
+{
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
 
     auto subscriber = provider.getSubscriber();
 
-    subscriber->registerListener("stats_test", [&] (const EETestEvent & event) {
-                                                   subscriber->removeListener("stats_test");});
+    subscriber->registerListener("stats_test", [&](const EETestEvent &event) {
+        subscriber->removeListener("stats_test");
+    });
 
     EETestEvent event1(0, "hello");
     provider.getPublisher()->publish(event1);
     // Ensure that listener stats are removed AFTER the publish action has completely terminated.
     ASSERT_EQ(subscriber->getSubscriptionStats("stats_test"), nullptr);
-
 }
 
-TEST(EventEmitterTest, NullListener) {
+TEST(EventEmitterTest, NullListener)
+{
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
 
     auto subscriber = provider.getSubscriber();
     ASSERT_ANY_THROW(subscriber->registerListener("null_test", nullptr));
 }
 
-TEST(EventEmitterTest, NullListenerNoArgs) {
+TEST(EventEmitterTest, NullListenerNoArgs)
+{
     kpsr::EventEmitter emitter;
 
     std::function<void()> cb = nullptr;
@@ -205,13 +236,13 @@ TEST(EventEmitterTest, NullListenerNoArgs) {
     ASSERT_ANY_THROW(emitter.once("null_test", cb));
 }
 
-TEST(EventEmitterTest, NoArgsListener) {
-
+TEST(EventEmitterTest, NoArgsListener)
+{
     kpsr::EventEmitter emitter;
 
     unsigned int id;
     std::string event_id("test");
-    ASSERT_NO_THROW(id = emitter.on(event_id, "test_name", []() {return;}));
+    ASSERT_NO_THROW(id = emitter.on(event_id, "test_name", []() { return; }));
 
     ASSERT_EQ(id, 1);
 
@@ -220,12 +251,12 @@ TEST(EventEmitterTest, NoArgsListener) {
     ASSERT_ANY_THROW(emitter.remove_listener(id));
 }
 
-TEST(EventEmitterTest, NoArgsListenerOnce) {
-
+TEST(EventEmitterTest, NoArgsListenerOnce)
+{
     kpsr::EventEmitter emitter;
 
     unsigned int id;
-    ASSERT_NO_THROW(id = emitter.once("test", []() {return;}));
+    ASSERT_NO_THROW(id = emitter.once("test", []() { return; }));
 
     ASSERT_EQ(id, 1);
 
@@ -233,13 +264,13 @@ TEST(EventEmitterTest, NoArgsListenerOnce) {
     ASSERT_ANY_THROW(emitter.remove_listener(id));
 }
 
-TEST(EventEmitterTest, NoArgsListenerOnceEmit) {
-
+TEST(EventEmitterTest, NoArgsListenerOnceEmit)
+{
     kpsr::EventEmitter emitter;
 
     unsigned int id;
     std::string event_id("test");
-    ASSERT_NO_THROW(id = emitter.once(event_id, []() {return;}));
+    ASSERT_NO_THROW(id = emitter.once(event_id, []() { return; }));
 
     ASSERT_EQ(id, 1);
 
@@ -248,7 +279,8 @@ TEST(EventEmitterTest, NoArgsListenerOnceEmit) {
     ASSERT_ANY_THROW(emitter.remove_listener(id));
 }
 
-TEST(EventEmitterTest, ListenerOnce) {
+TEST(EventEmitterTest, ListenerOnce)
+{
     kpsr::EventEmitter emitter;
 
     EETestEvent event(1, "hola");
@@ -262,4 +294,3 @@ TEST(EventEmitterTest, ListenerOnce) {
     ASSERT_NO_THROW(emitter.emitEvent(event_id, 0, event));
     ASSERT_ANY_THROW(emitter.remove_listener(id));
 }
-

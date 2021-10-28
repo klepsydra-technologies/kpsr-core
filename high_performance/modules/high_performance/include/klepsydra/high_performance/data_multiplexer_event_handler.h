@@ -26,14 +26,12 @@
 
 #include <klepsydra/core/subscription_stats.h>
 
-#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
+#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
-template <typename TEvent>
+namespace kpsr {
+namespace high_performance {
+template<typename TEvent>
 /**
  * @brief The DataMultiplexerEventHandler class
  *
@@ -56,7 +54,8 @@ public:
      * @param listener
      * @param listenerStat
      */
-    DataMultiplexerEventHandler(const std::function<void(TEvent)> & listener, std::shared_ptr<SubscriptionStats> listenerStat)
+    DataMultiplexerEventHandler(const std::function<void(TEvent)> &listener,
+                                std::shared_ptr<SubscriptionStats> listenerStat)
         : _listener(listener)
         , _listenerStat(listenerStat)
     {}
@@ -66,13 +65,12 @@ public:
     /**
      * @brief on_start
      */
-    void on_start() {
-    }
+    void on_start() {}
 
     /**
      * @brief on_shutdown
      */
-    void on_shutdown() { }
+    void on_shutdown() {}
 
     /**
      * @brief on_event
@@ -80,9 +78,10 @@ public:
      * @param sequence
      * @param end_of_batch
      */
-    void on_event(EventData<TEvent>& event, int64_t sequence, bool end_of_batch)
+    void on_event(EventData<TEvent> &event, int64_t sequence, bool end_of_batch)
     {
-        _listenerStat->_totalEnqueuedTimeInNs += TimeUtils::getCurrentNanosecondsAsLlu() - event.enqueuedTimeInNs;
+        _listenerStat->_totalEnqueuedTimeInNs += TimeUtils::getCurrentNanosecondsAsLlu() -
+                                                 event.enqueuedTimeInNs;
         if (end_of_batch) {
             _listenerStat->startProcessMeassure();
             _listener(event.eventData);
@@ -96,7 +95,7 @@ public:
      * @brief on_timeout
      * @param sequence
      */
-    void on_timeout(int64_t sequence) { }
+    void on_timeout(int64_t sequence) {}
 
     /**
      * @brief on_event_exception
@@ -104,26 +103,25 @@ public:
      * @param sequence
      * @param event
      */
-    void on_event_exception(const std::exception& ex, int64_t sequence, EventData<TEvent>* event) { }
+    void on_event_exception(const std::exception &ex, int64_t sequence, EventData<TEvent> *event) {}
 
     /**
      * @brief on_start_exception
      * @param ex
      */
-    void on_start_exception(const std::exception& ex) { }
+    void on_start_exception(const std::exception &ex) {}
 
     /**
      * @brief on_shutdown_exception
      * @param ex
      */
-    void on_shutdown_exception(const std::exception& ex) { }
+    void on_shutdown_exception(const std::exception &ex) {}
 
 private:
     std::function<void(TEvent)> _listener;
     std::shared_ptr<SubscriptionStats> _listenerStat;
-
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif // DATA_MULTIPLEXER_EVENT_HANDLER_H

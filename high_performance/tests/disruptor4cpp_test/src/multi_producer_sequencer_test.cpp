@@ -53,23 +53,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+namespace test {
+TEST(multi_producer_sequencer_test,
+     should_only_allow_messages_to_be_available_if_specifically_published)
 {
-	namespace test
-	{
-		TEST(multi_producer_sequencer_test, should_only_allow_messages_to_be_available_if_specifically_published)
-		{
-			multi_producer_sequencer<1024, blocking_wait_strategy> publisher;
-			publisher.publish(3);
-			publisher.publish(5);
+    multi_producer_sequencer<1024, blocking_wait_strategy> publisher;
+    publisher.publish(3);
+    publisher.publish(5);
 
-			ASSERT_FALSE(publisher.is_available(0));
-			ASSERT_FALSE(publisher.is_available(1));
-			ASSERT_FALSE(publisher.is_available(2));
-			ASSERT_TRUE(publisher.is_available(3));
-			ASSERT_FALSE(publisher.is_available(4));
-			ASSERT_TRUE(publisher.is_available(5));
-			ASSERT_FALSE(publisher.is_available(6));
-		}
-	}
+    ASSERT_FALSE(publisher.is_available(0));
+    ASSERT_FALSE(publisher.is_available(1));
+    ASSERT_FALSE(publisher.is_available(2));
+    ASSERT_TRUE(publisher.is_available(3));
+    ASSERT_FALSE(publisher.is_available(4));
+    ASSERT_TRUE(publisher.is_available(5));
+    ASSERT_FALSE(publisher.is_available(6));
 }
+} // namespace test
+} // namespace disruptor4cpp

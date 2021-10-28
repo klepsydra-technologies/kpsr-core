@@ -17,43 +17,46 @@
 *
 ****************************************************************************/
 
+#include <atomic>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <atomic>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <klepsydra/core/smart_object_pool.h>
 #include <klepsydra/core/time_utils.h>
 
-class PoolTestObject {
+class PoolTestObject
+{
 public:
-
     static std::atomic_int constructorInvokations;
     static std::atomic_int emptyConstructorInvokations;
     static std::atomic_int copyInvokations;
 
-    PoolTestObject(int id, const std::string & message)
+    PoolTestObject(int id, const std::string &message)
         : _id(id)
-        , _message(message) {
+        , _message(message)
+    {
         PoolTestObject::constructorInvokations++;
     }
 
-    PoolTestObject() {
+    PoolTestObject()
+    {
         spdlog::info("new empty invocation!!!");
         PoolTestObject::emptyConstructorInvokations++;
     }
 
-    PoolTestObject(const PoolTestObject & that)
+    PoolTestObject(const PoolTestObject &that)
         : _id(that._id)
-        , _message(that._message) {
+        , _message(that._message)
+    {
         PoolTestObject::copyInvokations++;
     }
 
@@ -65,8 +68,9 @@ std::atomic_int PoolTestObject::constructorInvokations(0);
 std::atomic_int PoolTestObject::emptyConstructorInvokations(0);
 std::atomic_int PoolTestObject::copyInvokations(0);
 
-TEST(SmartObjectPoolTest, nominalCase) {
-    kpsr::SmartObjectPool<PoolTestObject> objectPool(4);
+TEST(SmartObjectPoolTest, nominalCase)
+{
+    kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4);
     ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
 
     auto object1 = objectPool.acquire();
@@ -80,13 +84,13 @@ TEST(SmartObjectPoolTest, nominalCase) {
     ASSERT_EQ(objectPool.objectPoolFails, 3);
 }
 
-TEST(SmartObjectPoolTest, nominalCaseWithFailures) {
-
+TEST(SmartObjectPoolTest, nominalCaseWithFailures)
+{
     PoolTestObject::constructorInvokations = 0;
     PoolTestObject::emptyConstructorInvokations = 0;
     PoolTestObject::copyInvokations = 0;
 
-    kpsr::SmartObjectPool<PoolTestObject> objectPool(4);
+    kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4);
     ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
 
     auto object1 = objectPool.acquire();
@@ -100,20 +104,19 @@ TEST(SmartObjectPoolTest, nominalCaseWithFailures) {
     ASSERT_EQ(objectPool.objectPoolFails, 3);
 }
 
-TEST(SmartObjectPoolTest, initializerFunction) {
-
+TEST(SmartObjectPoolTest, initializerFunction)
+{
     PoolTestObject::constructorInvokations = 0;
     PoolTestObject::emptyConstructorInvokations = 0;
     PoolTestObject::copyInvokations = 0;
 
-    std::function<void(PoolTestObject &)> initializer = [] (PoolTestObject & object){
+    std::function<void(PoolTestObject &)> initializer = [](PoolTestObject &object) {
         spdlog::info("in initializer");
         object._id = 0;
         object._message = "hola";
     };
 
-
-    kpsr::SmartObjectPool<PoolTestObject> objectPool(4, initializer);
+    kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4, initializer);
     ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
 
     auto object1 = objectPool.acquire();
@@ -139,10 +142,12 @@ TEST(SmartObjectPoolTest, initializerFunction) {
     ASSERT_EQ(objectPool.objectPoolFails, 3);
 }
 
-TEST(SmartObjectPoolTest, performanceTest) {
-    class PoolTestThread {
+TEST(SmartObjectPoolTest, performanceTest)
+{
+    class PoolTestThread
+    {
     public:
-        PoolTestThread(kpsr::SmartObjectPool<PoolTestObject> & objectPool)
+        PoolTestThread(kpsr::SmartObjectPool<PoolTestObject> &objectPool)
             : noAllocations(0)
             , timeAcquiring(0)
             , totalTime(0)
@@ -150,13 +155,13 @@ TEST(SmartObjectPoolTest, performanceTest) {
             , _objectPool(objectPool)
         {}
 
-        void start() {
-            _thread = std::thread([&]{
-                this->run();
-            });
+        void start()
+        {
+            _thread = std::thread([&] { this->run(); });
         }
 
-        void run() {
+        void run()
+        {
             for (int i = 0; i < 5000; i++) {
                 long long unsigned int startMs = kpsr::TimeUtils::getCurrentMillisecondsAsLlu();
                 {
@@ -171,20 +176,18 @@ TEST(SmartObjectPoolTest, performanceTest) {
             }
         }
 
-        void stop() {
-            _thread.join();
-        }
+        void stop() { _thread.join(); }
 
         unsigned long long int noAllocations, timeAcquiring, totalTime;
 
     private:
         std::vector<std::shared_ptr<PoolTestObject>> _localObjects;
-        kpsr::SmartObjectPool<PoolTestObject> & _objectPool;
+        kpsr::SmartObjectPool<PoolTestObject> &_objectPool;
         std::thread _thread;
     };
 
     std::vector<std::shared_ptr<PoolTestThread>> threadPool(200);
-    kpsr::SmartObjectPool<PoolTestObject> pool(20000);
+    kpsr::SmartObjectPool<PoolTestObject> pool("SmartObjectPoolTest", 20000);
 
     for (int i = 0; i < 200; i++) {
         threadPool[i] = std::shared_ptr<PoolTestThread>(new PoolTestThread(pool));
@@ -196,10 +199,11 @@ TEST(SmartObjectPoolTest, performanceTest) {
 
     for (int i = 0; i < 200; i++) {
         spdlog::info("Thread[{}]. noAllocations: {}"
-                  ". timeAcquiring: {}"
-                  ". totalTime: {}", i, threadPool[i]->noAllocations,
-                  threadPool[i]->timeAcquiring,
-                  threadPool[i]->totalTime
-        );
+                     ". timeAcquiring: {}"
+                     ". totalTime: {}",
+                     i,
+                     threadPool[i]->noAllocations,
+                     threadPool[i]->timeAcquiring,
+                     threadPool[i]->totalTime);
     }
 }

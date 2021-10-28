@@ -17,16 +17,16 @@
 *
 ****************************************************************************/
 
+#include <math.h>
 #include <stdio.h>
 #include <thread>
 #include <unistd.h>
-#include <math.h>
 
-#include <sstream>
 #include <fstream>
+#include <sstream>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <getopt.h>
 #include <stdlib.h>
@@ -39,74 +39,94 @@
 
 #include "gtest/gtest.h"
 
-class PerformanceTest {
+class PerformanceTest
+{
 public:
     long totalExecutionTime = 0;
     long totalTransformationTime = 0;
     long totalConstructionTime = 0;
     long totalForwardingTime = 0;
 
-    void test(int objectPoolSize, bool withInitializer) {
-
+    void test(int objectPoolSize, bool withInitializer)
+    {
         int laserData = 50;
 
         std::function<void(kpsr::sensors::LaserScanEvent &)> laserScanInitFunc =
-                [&laserData] (kpsr::sensors::LaserScanEvent & event) {
-            event.ranges.resize(laserData);
-            event.intensities.resize(laserData);
-        };
+            [&laserData](kpsr::sensors::LaserScanEvent &event) {
+                event.ranges.resize(laserData);
+                event.intensities.resize(laserData);
+            };
 
-        std::function<void(Point3dCloud &)> point3CloudInitFunc =
-                [&laserData] (Point3dCloud & event) {
+        std::function<void(Point3dCloud &)> point3CloudInitFunc = [&laserData](Point3dCloud &event) {
             event._values.resize(laserData, Point3dCloud::Point3d());
         };
 
-        kpsr::mem::ConcurrentMiddlewareProvider<kpsr::sensors::LaserScanEvent> provider(nullptr, "event", 4, objectPoolSize, withInitializer ? laserScanInitFunc : nullptr, nullptr, false, 1000);
-        kpsr::mem::ConcurrentMiddlewareProvider<Point3dCloud> newProvider(nullptr, "newEvent", 4, objectPoolSize, withInitializer ? point3CloudInitFunc : nullptr, nullptr, false, 1000);
+        kpsr::mem::ConcurrentMiddlewareProvider<kpsr::sensors::LaserScanEvent>
+            provider(nullptr,
+                     "event",
+                     4,
+                     objectPoolSize,
+                     withInitializer ? laserScanInitFunc : nullptr,
+                     nullptr,
+                     false,
+                     1000);
+        kpsr::mem::ConcurrentMiddlewareProvider<Point3dCloud> newProvider(nullptr,
+                                                                          "newEvent",
+                                                                          4,
+                                                                          objectPoolSize,
+                                                                          withInitializer
+                                                                              ? point3CloudInitFunc
+                                                                              : nullptr,
+                                                                          nullptr,
+                                                                          false,
+                                                                          1000);
         provider.start();
         newProvider.start();
 
-        std::function<void(const kpsr::sensors::LaserScanEvent &, Point3dCloud &)> transformFunction = [this] (const kpsr::sensors::LaserScanEvent & src, Point3dCloud & dest) {
-            long before = kpsr::TimeUtils::getCurrentNanoseconds();
-            dest._values.resize(src.ranges.size());
-            dest._label = "hola";
-            double yaw = src.angle_min;
-            for (size_t i = 0; i < src.ranges.size(); i++) {
-                dest._values[i].x = src.ranges[i] * std::cos(yaw);
-                dest._values[i].y = src.ranges[i] * std::sin(yaw);
-                dest._values[i].z = 0;
-                yaw += src.angle_increment;
-            }
-            long after = kpsr::TimeUtils::getCurrentNanoseconds();
-            this->totalTransformationTime += after - before;
-        };
+        std::function<void(const kpsr::sensors::LaserScanEvent &, Point3dCloud &)> transformFunction =
+            [this](const kpsr::sensors::LaserScanEvent &src, Point3dCloud &dest) {
+                long before = kpsr::TimeUtils::getCurrentNanoseconds();
+                dest._values.resize(src.ranges.size());
+                dest._label = "hola";
+                double yaw = src.angle_min;
+                for (size_t i = 0; i < src.ranges.size(); i++) {
+                    dest._values[i].x = src.ranges[i] * std::cos(yaw);
+                    dest._values[i].y = src.ranges[i] * std::sin(yaw);
+                    dest._values[i].z = 0;
+                    yaw += src.angle_increment;
+                }
+                long after = kpsr::TimeUtils::getCurrentNanoseconds();
+                this->totalTransformationTime += after - before;
+            };
 
         auto forwarder = newProvider.getProcessForwarder(transformFunction);
-        provider.getSubscriber()->registerListener("forwarderListener", forwarder->forwarderListenerFunction);
+        provider.getSubscriber()->registerListener("forwarderListener",
+                                                   forwarder->forwarderListenerFunction);
 
         long before = kpsr::TimeUtils::getCurrentNanoseconds();
 
         for (int i = 0; i < 100; i++) {
             long before = kpsr::TimeUtils::getCurrentNanoseconds();
-            std::shared_ptr<kpsr::sensors::LaserScanEvent> event(new kpsr::sensors::LaserScanEvent());
+            std::shared_ptr<kpsr::sensors::LaserScanEvent> event(
+                new kpsr::sensors::LaserScanEvent());
             event->ranges.resize(laserData);
             event->intensities.resize(laserData);
-            event->angle_increment = M_PI/laserData;
-            event->angle_min = - M_PI/2;
-            event->angle_max = + M_PI/2;
-            for (int j = 0; j < laserData; j ++) {
+            event->angle_increment = M_PI / laserData;
+            event->angle_min = -M_PI / 2;
+            event->angle_max = +M_PI / 2;
+            for (int j = 0; j < laserData; j++) {
                 event->ranges[j] = (double) i;
-                event->intensities[j] = (double) i/60;
+                event->intensities[j] = (double) i / 60;
             }
             long after = kpsr::TimeUtils::getCurrentNanoseconds();
             totalConstructionTime += after - before;
-            provider.getPublisher()->publish(* event.get());
+            provider.getPublisher()->publish(*event.get());
         }
 
-        while (!(provider._internalQueue.size_approx()==0)) {
+        while (!(provider._internalQueue.size_approx() == 0)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        while (!(newProvider._internalQueue.size_approx()==0)) {
+        while (!(newProvider._internalQueue.size_approx() == 0)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         provider.stop();
@@ -114,10 +134,11 @@ public:
 
         long after = kpsr::TimeUtils::getCurrentNanoseconds();
         totalExecutionTime += after - before;
-        totalForwardingTime = provider.getSubscriber()->getSubscriptionStats("forwarderListener")->_totalProcessingTimeInNanoSecs;
+        totalForwardingTime = provider.getSubscriber()
+                                  ->getSubscriptionStats("forwarderListener")
+                                  ->_totalProcessingTimeInNanoSecs;
     }
 };
-
 
 int main(int argc, char **argv)
 {
@@ -126,7 +147,7 @@ int main(int argc, char **argv)
 
     char c;
     while ((c = getopt(argc, argv, "o:i")) != -1) {
-        switch(c) {
+        switch (c) {
         case 'o':
             objectPoolSize = atoi(optarg);
             break;
@@ -140,7 +161,9 @@ int main(int argc, char **argv)
             break;
         }
     }
-    spdlog::info("PerformanceTest::test/ objectPoolSize: {} . withInitializer: {}", objectPoolSize, (withInitializer ? "true" : "false"));
+    spdlog::info("PerformanceTest::test/ objectPoolSize: {} . withInitializer: {}",
+                 objectPoolSize,
+                 (withInitializer ? "true" : "false"));
 
     std::vector<long> totalExecutionTimes;
     std::vector<long> totalTransformationTimes;
@@ -149,7 +172,7 @@ int main(int argc, char **argv)
 
     PerformanceTest performanceTest;
 
-    for (int i = 0; i < 100; i ++) {
+    for (int i = 0; i < 100; i++) {
         performanceTest.test(objectPoolSize, withInitializer);
         totalExecutionTimes.push_back(performanceTest.totalExecutionTime);
         totalTransformationTimes.push_back(performanceTest.totalTransformationTime);
@@ -162,8 +185,16 @@ int main(int argc, char **argv)
     TestResults totalConstructionTimesResult = (totalConstructionTimes);
     TestResults totalForwardingTimesResult = (totalForwardingTimes);
 
-    spdlog::info("total execution time: {} / {}", totalExecutionTimesResult.average, totalExecutionTimesResult.stddev);
-    spdlog::info("total transformation time: {} / {}", totalTransformationTimesResult.average, totalTransformationTimesResult.stddev);
-    spdlog::info("total construction time: {} / {}", totalConstructionTimesResult.average, totalConstructionTimesResult.stddev);
-    spdlog::info("total forwarding time: {} / {}", totalForwardingTimesResult.average, totalForwardingTimesResult.stddev);
+    spdlog::info("total execution time: {} / {}",
+                 totalExecutionTimesResult.average,
+                 totalExecutionTimesResult.stddev);
+    spdlog::info("total transformation time: {} / {}",
+                 totalTransformationTimesResult.average,
+                 totalTransformationTimesResult.stddev);
+    spdlog::info("total construction time: {} / {}",
+                 totalConstructionTimesResult.average,
+                 totalConstructionTimesResult.stddev);
+    spdlog::info("total forwarding time: {} / {}",
+                 totalForwardingTimesResult.average,
+                 totalForwardingTimesResult.stddev);
 }

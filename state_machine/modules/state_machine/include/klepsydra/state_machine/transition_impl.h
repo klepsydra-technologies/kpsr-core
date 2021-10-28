@@ -24,16 +24,16 @@
 
 namespace kpsr {
 namespace fsm {
-class TransitionImpl : public Transition {
+class TransitionImpl : public Transition
+{
 public:
-  TransitionImpl(const std::string &destinationStateId,
-                 const std::string &event);
-  virtual bool canTransition(const std::string &event) override;
-  virtual std::string getDestinationStateId() override;
+    TransitionImpl(const std::string &destinationStateId, const std::string &event);
+    virtual bool canTransition(const std::string &event) override;
+    virtual std::string getDestinationStateId() override;
 
 private:
-  std::string _destStateId;
-  std::string _eventId;
+    std::string _destStateId;
+    std::string _eventId;
 };
 } // namespace fsm
 } // namespace kpsr

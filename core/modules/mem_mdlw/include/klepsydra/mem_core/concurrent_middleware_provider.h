@@ -20,18 +20,18 @@
 #ifndef CONCURRENT_MIDDLEWARE_PROVIDER_H
 #define CONCURRENT_MIDDLEWARE_PROVIDER_H
 
-#include <klepsydra/core/event_transform_forwarder.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
+#include <klepsydra/core/event_transform_forwarder.h>
 
-#include <klepsydra/mem_core/in_memory_middleware_provider.h>
-#include <klepsydra/mem_core/concurrent_queue_publisher.h>
-#include <klepsydra/mem_core/concurrent_queue_poller.h>
 #include <concurrentqueue.h>
+#include <klepsydra/mem_core/concurrent_queue_poller.h>
+#include <klepsydra/mem_core/concurrent_queue_publisher.h>
+#include <klepsydra/mem_core/in_memory_middleware_provider.h>
 
 namespace kpsr {
 namespace mem {
 
-template <class T>
+template<class T>
 /**
  * @brief The ConcurrentMiddlewareProvider class
  *
@@ -45,7 +45,8 @@ template <class T>
  * the lock free concurrent queue), publishers and subscriber in
  * combination with some memory management functions.
  */
-class ConcurrentMiddlewareProvider : public InMemoryMiddlewareProvider<T> {
+class ConcurrentMiddlewareProvider : public InMemoryMiddlewareProvider<T>
+{
 public:
     /**
      * @brief ConcurrentMiddlewareProvider
@@ -59,7 +60,7 @@ public:
      * In the false case, the publisher will block until there is free space to put new events in the queue, if the queue
      * is full.
      */
-    ConcurrentMiddlewareProvider(Container * container,
+    ConcurrentMiddlewareProvider(Container *container,
                                  std::string eventName,
                                  int queueSize,
                                  int poolSize,
@@ -71,20 +72,30 @@ public:
         , _internalQueue(queueSize, 1, 1)
         , _token(_internalQueue)
     {
-        this->_publisher = new ConcurrentQueuePublisher<T>(container, eventName, poolSize, initializerFunction, eventCloner, _internalQueue, discardItemsWhenFull, _token);
-        this->_poller = new ConcurrentQueuePoller<T>(_internalQueue, this->_eventEmitter, eventName, sleepPeriodUS, _token);
+        this->_publisher = new ConcurrentQueuePublisher<T>(container,
+                                                           eventName,
+                                                           poolSize,
+                                                           initializerFunction,
+                                                           eventCloner,
+                                                           _internalQueue,
+                                                           discardItemsWhenFull,
+                                                           _token);
+        this->_poller = new ConcurrentQueuePoller<T>(_internalQueue,
+                                                     this->_eventEmitter,
+                                                     eventName,
+                                                     sleepPeriodUS,
+                                                     _token);
     }
 
     /**
      * @brief _internalQueue
      */
-    moodycamel::ConcurrentQueue <EventData<const T>>_internalQueue;
+    moodycamel::ConcurrentQueue<EventData<const T>> _internalQueue;
 
 private:
     moodycamel::ProducerToken _token;
-
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 
 #endif // CONCURRENT_MIDDLEWARE_PROVIDER_H

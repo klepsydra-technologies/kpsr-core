@@ -28,18 +28,6 @@ add_definitions (
   ${Connext_DEFINITIONS}
   ${DEFINITIONS}
 )
-# Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/core/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/mem_mdlw/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/core/modules/dds_mdlw/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/serialization/modules/serialization/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/serialization/modules/dds_mdlw/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/serialization/modules/dds_mdlw/gen )
-INCLUDE_DIRECTORIES( ${Connext_INCLUDE_DIRS} )
-INCLUDE_DIRECTORIES( ${THIRDPARTIES_PATH}/include )
-
 # Source
 #---------------------------------------------------#
 FILE(GLOB ${PROJ_NAME}_SRC
@@ -48,10 +36,9 @@ FILE(GLOB ${PROJ_NAME}_SRC
 
 # Link libraries with Project
 #---------------------------------------------------#
-LINK_DIRECTORIES()
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
 #---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core atomic gtest_main kpsr_dds_serialization_datamodel ${Connext_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core atomic gtest_main kpsr_dds_serialization_datamodel kpsr_high_performance kpsr_dds_core)
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

@@ -20,24 +20,22 @@
 #ifndef DATA_MULTIPLEXER_SUBSCRIBER_H
 #define DATA_MULTIPLEXER_SUBSCRIBER_H
 
-#include <mutex>
 #include <chrono>
+#include <iostream>
 #include <map>
 #include <memory>
-#include <iostream>
+#include <mutex>
 #include <spdlog/spdlog.h>
 
 #include <klepsydra/core/subscriber.h>
 
-#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
-#include <klepsydra/high_performance/data_multiplexer_listener.h>
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
+#include <klepsydra/high_performance/data_multiplexer_listener.h>
+#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
-template <typename TEvent, std::size_t BufferSize>
+namespace kpsr {
+namespace high_performance {
+template<typename TEvent, std::size_t BufferSize>
 /**
  * @brief The DataMultiplexerSubscriber class
  *
@@ -54,9 +52,14 @@ template <typename TEvent, std::size_t BufferSize>
  * discarding any older ones.
  *
  */
-class DataMultiplexerSubscriber : public Subscriber<TEvent> {
+class DataMultiplexerSubscriber : public Subscriber<TEvent>
+{
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>, BufferSize, disruptor4cpp::blocking_wait_strategy, disruptor4cpp::producer_type::single, disruptor4cpp::sequence>;
+    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+                                                  BufferSize,
+                                                  disruptor4cpp::blocking_wait_strategy,
+                                                  disruptor4cpp::producer_type::single,
+                                                  disruptor4cpp::sequence>;
 
     /**
      * @brief DataMultiplexerSubscriber
@@ -64,7 +67,7 @@ public:
      * @param name
      * @param ringBuffer
      */
-    DataMultiplexerSubscriber(Container * container, const std::string & name, RingBuffer & ringBuffer)
+    DataMultiplexerSubscriber(Container *container, const std::string &name, RingBuffer &ringBuffer)
         : Subscriber<TEvent>(container, name, "DATA_MULTIPLEXER")
         , _ringBuffer(ringBuffer)
     {}
@@ -74,13 +77,22 @@ public:
      * @param name
      * @param listener
      */
-    void registerListener(const std::string & name, const std::function<void(const TEvent &)> listener) {
-        std::lock_guard<std::mutex> lock (m_mutex);
-        listenerStats.insert(std::make_pair(name, std::make_shared<kpsr::SubscriptionStats>(name, this->_name, "DATA_MULTIPLEXER")));
+    void registerListener(const std::string &name,
+                          const std::function<void(const TEvent &)> listener)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        listenerStats.insert(
+            std::make_pair(name,
+                           std::make_shared<kpsr::SubscriptionStats>(name,
+                                                                     this->_name,
+                                                                     "DATA_MULTIPLEXER")));
         if (this->_container != nullptr) {
             this->_container->attach(listenerStats[name].get());
         }
-        subscriberMap.insert(std::make_pair(name, std::make_shared<DataMultiplexerListener<TEvent, BufferSize>>(listener, _ringBuffer, listenerStats[name])));
+        subscriberMap.insert(
+            std::make_pair(name,
+                           std::make_shared<DataMultiplexerListener<TEvent, BufferSize>>(
+                               listener, _ringBuffer, listenerStats[name])));
         subscriberMap[name]->start();
     }
 
@@ -88,7 +100,8 @@ public:
      * @brief registerListenerOnce not support at the moment
      * @param listener
      */
-    void registerListenerOnce(const std::function<void(const TEvent &)> listener) {
+    void registerListenerOnce(const std::function<void(const TEvent &)> listener)
+    {
         // NOT SUPPORTED YET.
     }
 
@@ -96,8 +109,9 @@ public:
      * @brief removeListener
      * @param name
      */
-    void removeListener(const std::string & name) {
-        std::lock_guard<std::mutex> lock (m_mutex);
+    void removeListener(const std::string &name)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
         if (subscriberMap.find(name) != subscriberMap.end()) {
             subscriberMap[name]->stop();
             if (this->_container != nullptr) {
@@ -112,7 +126,8 @@ public:
      * @param name
      * @return
      */
-    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string & name) {
+    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string &name)
+    {
         return listenerStats[name];
     }
 
@@ -121,26 +136,28 @@ public:
      */
     std::map<std::string, std::shared_ptr<DataMultiplexerListener<TEvent, BufferSize>>> subscriberMap;
 
-    void setContainer(Container * container) {
-        std::lock_guard<std::mutex> lock (m_mutex);
+    void setContainer(Container *container)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
         this->_container = container;
         if (this->_container) {
-            for (auto& keyValue: subscriberMap) {
+            for (auto &keyValue : subscriberMap) {
                 if (!keyValue.second->batchEventProcessor->is_running()) {
                     this->_container->attach(getSubscriptionStats(keyValue.first).get());
                 } else {
-                    spdlog::info("Cannot attach container to Subscriber listeners which are running.");
+                    spdlog::info(
+                        "Cannot attach container to Subscriber listeners which are running.");
                 }
             }
         }
     }
-        
+
 private:
     mutable std::mutex m_mutex;
-    RingBuffer & _ringBuffer;
+    RingBuffer &_ringBuffer;
     std::map<std::string, std::shared_ptr<SubscriptionStats>> listenerStats;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif // DATA_MULTIPLEXER_SUBSCRIBER_H

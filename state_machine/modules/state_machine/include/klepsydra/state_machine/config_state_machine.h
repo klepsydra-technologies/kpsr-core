@@ -24,17 +24,20 @@
 
 namespace kpsr {
 namespace fsm {
-struct ConfigTransition {
-  std::string destinationId;
-  std::string event;
+struct ConfigTransition
+{
+    std::string destinationId;
+    std::string event;
 };
-struct ConfigState {
-  std::string id;
-  std::vector<ConfigTransition> transitions;
+struct ConfigState
+{
+    std::string id;
+    std::vector<ConfigTransition> transitions;
 };
-struct ConfigStateMachine {
-  std::string id;
-  std::vector<ConfigState> states;
+struct ConfigStateMachine
+{
+    std::string id;
+    std::vector<ConfigState> states;
 };
 
 } // namespace fsm

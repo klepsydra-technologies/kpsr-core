@@ -1,53 +1,50 @@
-#include <string>
 #include <algorithm>
+#include <string>
 
 #include "std_msgs/String.h"
 #include <gtest/gtest.h>
 
-#include <klepsydra/mem_core/basic_middleware_provider.h>
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/mem_core/basic_middleware_provider.h>
 
 #include <kpsr_ros_serialization/primitive_type_ros_mapper.h>
 
-#include "to_ros_middleware_provider.h"
 #include "from_ros_middleware_provider.h"
 #include "ros_env.h"
-#include <typeinfo>  // Needed to check type.
+#include "to_ros_middleware_provider.h"
+#include <typeinfo> // Needed to check type.
 
 // Setting up templates and params for google typed parameter tests.
 
 // Structure to make google test to believe there is only one template parameter.
-template <typename A, typename B>
+template<typename A, typename B>
 struct TypeDefinitions
 {
-  typedef  A MyA;
-  typedef  B MyB;
+    typedef A MyA;
+    typedef B MyB;
 };
-
 
 // Actual ros class to be tested for pair of templates.
 // typename A refers to native C object
 // typename B refers to the Ros primitive type.
-template  <typename A, typename B>
+template<typename A, typename B>
 class KpsrRosType
 {
 public:
-	KpsrRosType() {}
+    KpsrRosType() {}
 
-	A sampleA;
-	B sampleB;
+    A sampleA;
+    B sampleB;
 };
 
-
 //Constructors for above class.
-template <typename A, typename B>
-KpsrRosType<A, B>* CreateKpsrClass()
+template<typename A, typename B>
+KpsrRosType<A, B> *CreateKpsrClass()
 {
-	return new KpsrRosType < A, B >;
+    return new KpsrRosType<A, B>;
 }
 
-
-template <typename T>
+template<typename T>
 /*
   \brief Class to convert 1 template params into 2 params
 
@@ -55,43 +52,47 @@ template <typename T>
   us to take a template struct made of up two template parameters and
   gives access to both.
  */
-class KpsrRosWrapperTest : public ::testing::Test {
+class KpsrRosWrapperTest : public ::testing::Test
+{
 protected:
-	KpsrRosWrapperTest() : testClass(CreateKpsrClass<typename T::MyA, typename T::MyB>()){}
-	virtual ~KpsrRosWrapperTest() { delete testClass;}
-	KpsrRosType<typename T::MyA, typename T::MyB>* const testClass;
+    KpsrRosWrapperTest()
+        : testClass(CreateKpsrClass<typename T::MyA, typename T::MyB>())
+    {}
+    virtual ~KpsrRosWrapperTest() { delete testClass; }
+    KpsrRosType<typename T::MyA, typename T::MyB> *const testClass;
 };
-
 
 // The list of types we want to test. Each pair refers to the native c
 // object & the Ros equivalent msg type.
-typedef ::testing::Types <TypeDefinitions<bool,std_msgs::Bool>,
-                          TypeDefinitions<int,std_msgs::Int32>,
-                          TypeDefinitions<long, std_msgs::Int64>,
-                          TypeDefinitions<float, std_msgs::Float32> > Implementations;
+typedef ::testing::Types<TypeDefinitions<bool, std_msgs::Bool>,
+                         TypeDefinitions<int, std_msgs::Int32>,
+                         TypeDefinitions<long, std_msgs::Int64>,
+                         TypeDefinitions<float, std_msgs::Float32>>
+    Implementations;
 
 TYPED_TEST_CASE(KpsrRosWrapperTest, Implementations);
 
 // Check if above classes work as expected.
 TYPED_TEST(KpsrRosWrapperTest, DefaultConstructor)
 {
-	typename TypeParam::MyA itemA;
-	std::string typeA = typeid(itemA).name();
-	std::string typeSampleA = typeid(this->testClass->sampleA).name();
+    typename TypeParam::MyA itemA;
+    std::string typeA = typeid(itemA).name();
+    std::string typeSampleA = typeid(this->testClass->sampleA).name();
 
-	typename TypeParam::MyB itemB;
-	std::string typeB = typeid(itemB).name();
-	std::string typeSampleB = typeid(this->testClass->sampleB).name();
+    typename TypeParam::MyB itemB;
+    std::string typeB = typeid(itemB).name();
+    std::string typeSampleB = typeid(this->testClass->sampleB).name();
 
-	ASSERT_EQ(typeA, typeSampleA);
-	ASSERT_EQ(typeB, typeSampleB);
+    ASSERT_EQ(typeA, typeSampleA);
+    ASSERT_EQ(typeB, typeSampleB);
 }
 
 // Check if publisher/subscribers work and data is coherent.
-TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
-	// Set up ros node.
-	int argc = 0;
-    char ** argv = nullptr;
+TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool)
+{
+    // Set up ros node.
+    int argc = 0;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_test");
     ros::NodeHandle nodeHandle;
@@ -100,40 +101,50 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
     std::string topicName("kpsr_ros_core_test_topic");
 
     // Set up subscribers.
-    kpsr::mem::BasicMiddlewareProvider<typename TypeParam::MyA> safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<typename TypeParam::MyA>
+        safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
     safeQueueProvider.start();
 
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
     fromRosProvider.registerToTopic<typename TypeParam::MyA, typename TypeParam::MyB>(
-	    topicName.c_str(), 1, safeQueueProvider.getPublisher());
+        topicName.c_str(), 1, safeQueueProvider.getPublisher());
 
     kpsr::mem::CacheListener<typename TypeParam::MyA> cacheListener;
-    safeQueueProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    safeQueueProvider.getSubscriber()->registerListener("cacheListener",
+                                                        cacheListener.cacheListenerFunction);
 
-	// Create a publisher.
+    // Create a publisher.
     ros::Publisher publisher = nodeHandle.advertise<typename TypeParam::MyB>(topicName, 1, true);
 
     // Create a handler to the ros provider using klepsydra.
     kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
 
     // Create klepsydra publisher.
-    kpsr::Publisher<typename TypeParam::MyA> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<
-	    typename TypeParam::MyA, typename TypeParam::MyB>(topicName, 1, nullptr, publisher);
+    kpsr::Publisher<typename TypeParam::MyA> *kpsrPublisher =
+        toRosProvider
+            .getToMiddlewareChannel<typename TypeParam::MyA, typename TypeParam::MyB>(topicName,
+                                                                                      1,
+                                                                                      nullptr,
+                                                                                      publisher);
 
     ASSERT_EQ(cacheListener.counter, 0);
 
-    typename TypeParam::MyA item;  // Initialize to default value.
+    typename TypeParam::MyA item; // Initialize to default value.
     // Check if item is nan or -nan
-    if (item != item)
-    {
-	    item = 0.0;
+    if (item != item) {
+        item = 0.0;
+    } else {
+        ++item;
+        // This raises warning for boolean, but sets the boolean to False.
     }
-    else
-    {
-	    ++item;
-	    // This raises warning for boolean, but sets the boolean to False.
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == publisher.getNumSubscribers())) {
+        numAttempts++;
+        rate.sleep();
     }
-		    
+    ASSERT_LE(numAttempts, maxNumAttempts);
+
     kpsrPublisher->publish(item);
     ros::spinOnce();
     rate.sleep();
@@ -146,29 +157,36 @@ TYPED_TEST(KpsrRosWrapperTest, nomicalCaseNoPool) {
     safeQueueProvider.stop();
 
     ASSERT_EQ(cacheListener.counter, 1);
-    ASSERT_EQ(static_cast<typename TypeParam::MyA>(*cacheListener.getLastReceivedEvent().get()), item);
+    ASSERT_EQ(static_cast<typename TypeParam::MyA>(*cacheListener.getLastReceivedEvent().get()),
+              item);
 }
 
-
 // String is not included in the templated classes. this case is for that.
-TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
-
+TEST(KpsrRosCoreTest, nominalCaseNoPoolString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_test");
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
 
     std::string topicName = "kpsr_ros_core_test_topic";
-    kpsr::mem::BasicMiddlewareProvider<std::string> safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
+    kpsr::mem::BasicMiddlewareProvider<std::string>
+        safeQueueProvider(nullptr, "test", 8, 0, nullptr, nullptr, false);
     kpsr::ros_mdlw::FromRosMiddlewareProvider fromRosProvider(nodeHandle);
-    fromRosProvider.registerToTopic<std::string, std_msgs::String>(topicName.c_str(), 1, safeQueueProvider.getPublisher());
+    fromRosProvider.registerToTopic<std::string, std_msgs::String>(topicName.c_str(),
+                                                                   1,
+                                                                   safeQueueProvider.getPublisher());
 
     safeQueueProvider.start();
 
     kpsr::mem::CacheListener<std::string> cacheListener;
-    safeQueueProvider.getSubscriber()->registerListener("cacheListener", cacheListener.cacheListenerFunction);
+    auto callbackFunction = [&cacheListener](const std::string &event) {
+        cacheListener.cacheListenerFunction(event);
+        ros::shutdown();
+    };
+    safeQueueProvider.getSubscriber()->registerListener("cacheListener", callbackFunction);
 
     ASSERT_EQ(cacheListener.counter, 0);
 
@@ -176,41 +194,39 @@ TEST(KpsrRosCoreTest, nominalCaseNoPoolString) {
 
     kpsr::ros_mdlw::ToRosMiddlewareProvider toRosProvider(nullptr);
 
-    kpsr::Publisher<std::string> * kpsrPublisher = toRosProvider.getToMiddlewareChannel<std::string, std_msgs::String>(topicName, 1, nullptr, stringPublisher);
+    kpsr::Publisher<std::string> *kpsrPublisher =
+        toRosProvider.getToMiddlewareChannel<std::string, std_msgs::String>(topicName,
+                                                                            1,
+                                                                            nullptr,
+                                                                            stringPublisher);
 
-    kpsrPublisher->publish("hola.1");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.2");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.3");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.4");
-    ros::spinOnce();
-    rate.sleep();
-    kpsrPublisher->publish("hola.5");
-    ros::spinOnce();
-    rate.sleep();
-
-    while (cacheListener.counter < 5 && ros::ok()) {
+    int maxNumAttempts = 10;
+    int numAttempts = 0;
+    while ((numAttempts < maxNumAttempts) && (0 == stringPublisher.getNumSubscribers())) {
+        numAttempts++;
+        ros::spinOnce();
+        rate.sleep();
+    }
+    ASSERT_LE(numAttempts, maxNumAttempts);
+    while (ros::ok()) {
+        kpsrPublisher->publish("hola.1");
         ros::spinOnce();
         rate.sleep();
     }
 
     safeQueueProvider.stop();
 
-    ASSERT_EQ(cacheListener.counter, 5);
-    ASSERT_EQ(*cacheListener.getLastReceivedEvent().get(), "hola.5");
+    ASSERT_GT(cacheListener.counter, 0);
+    ASSERT_NE(cacheListener.getLastReceivedEvent().get(), nullptr);
+    ASSERT_EQ(*cacheListener.getLastReceivedEvent().get(), "hola.1");
 }
 
 ////// Int test ///////////////
 /// Set params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetInt) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetInt)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -229,10 +245,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetInt) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootSetInt) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootSetInt)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -247,7 +263,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetInt) {
 
     int checkValue;
     ASSERT_FALSE(nodeHandle.hasParam(testKey));
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
     ASSERT_TRUE(nodeHandle.hasParam(actualKey));
     nodeHandle.getParam(actualKey, checkValue);
     ASSERT_EQ(sampleValue, checkValue);
@@ -255,10 +271,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetInt) {
 }
 
 /// Get params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetInt) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetInt)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -276,10 +292,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetInt) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootGetInt) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootGetInt)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -289,7 +305,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetInt) {
     const std::string testRootNode("testroot");
     const std::string testKey("testkey");
     const int sampleValue(10);
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
 
     nodeHandle.setParam(actualKey, sampleValue);
 
@@ -301,10 +317,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetInt) {
 
 //////// Float tests ///////////////////
 /// Set params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetFloat) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetFloat)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -323,10 +339,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetFloat) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootSetFloat) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootSetFloat)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -341,7 +357,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetFloat) {
 
     float checkValue;
     ASSERT_FALSE(nodeHandle.hasParam(testKey));
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
     ASSERT_TRUE(nodeHandle.hasParam(actualKey));
     nodeHandle.getParam(actualKey, checkValue);
     ASSERT_EQ(sampleValue, checkValue);
@@ -349,10 +365,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetFloat) {
 }
 
 /// Get params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetFloat) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetFloat)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -370,10 +386,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetFloat) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootGetFloat) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootGetFloat)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -383,7 +399,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetFloat) {
     const std::string testRootNode("testroot");
     const std::string testKey("testkey");
     const float sampleValue(10.0F);
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
 
     nodeHandle.setParam(actualKey, sampleValue);
 
@@ -395,10 +411,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetFloat) {
 
 /////////// Bool test ////////////
 /// Set params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetBool) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetBool)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -417,10 +433,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetBool) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootSetBool) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootSetBool)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -435,7 +451,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetBool) {
 
     bool checkValue;
     ASSERT_FALSE(nodeHandle.hasParam(testKey));
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
     ASSERT_TRUE(nodeHandle.hasParam(actualKey));
     nodeHandle.getParam(actualKey, checkValue);
     ASSERT_EQ(sampleValue, checkValue);
@@ -443,10 +459,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetBool) {
 }
 
 /// Get params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetBool) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetBool)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -464,10 +480,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetBool) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootGetBool) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootGetBool)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -477,7 +493,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetBool) {
     const std::string testRootNode("testroot");
     const std::string testKey("testkey");
     const bool sampleValue(false);
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
 
     nodeHandle.setParam(actualKey, sampleValue);
 
@@ -489,10 +505,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetBool) {
 
 ////// String test ///////////////
 /// Set params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -511,10 +527,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetString) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootSetString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootSetString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -529,7 +545,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetString) {
 
     std::string checkValue;
     ASSERT_FALSE(nodeHandle.hasParam(testKey));
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
     ASSERT_TRUE(nodeHandle.hasParam(actualKey));
     nodeHandle.getParam(actualKey, checkValue);
     ASSERT_EQ(sampleValue, checkValue);
@@ -537,10 +553,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetString) {
 }
 
 /// Get params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -558,10 +574,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetString) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootGetString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootGetString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -571,7 +587,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetString) {
     const std::string testRootNode("testroot");
     const std::string testKey("testkey");
     const std::string sampleValue("sampleValue");
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
 
     nodeHandle.setParam(actualKey, sampleValue);
 
@@ -583,10 +599,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetString) {
 
 ////// Char String test ///////////////
 /// Set params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetCharString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetCharString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -605,10 +621,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootSetCharString) {
     nodeHandle.deleteParam("testKey");
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootSetCharString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootSetCharString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -623,7 +639,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetCharString) {
 
     std::string checkValue;
     ASSERT_FALSE(nodeHandle.hasParam(testKey));
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
     ASSERT_TRUE(nodeHandle.hasParam(actualKey));
     nodeHandle.getParam(actualKey, checkValue);
     ASSERT_EQ(sampleValue, checkValue);
@@ -631,17 +647,16 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootSetCharString) {
 }
 
 // /// Get params ///////////////
-TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetCharString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetCharString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
     kpsr::ros_mdlw::RosEnv environment(&nodeHandle);
 
-    
     const std::string sampleValue("sampleValue");
 
     nodeHandle.setParam("testKey", sampleValue);
@@ -652,10 +667,10 @@ TEST(KpsrRosCoreTest, EnvironmentTestDefaultRootGetCharString) {
     nodeHandle.deleteParam("testKey");
 }
 
-TEST(KpsrRosCoreTest, EnvironmentTestRootGetCharString) {
-
+TEST(KpsrRosCoreTest, EnvironmentTestRootGetCharString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
@@ -665,7 +680,7 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetCharString) {
     const std::string testRootNode("testroot");
     const std::string testKey("testkey");
     const std::string sampleValue("sampleValue");
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
 
     nodeHandle.setParam(actualKey, sampleValue);
 
@@ -675,21 +690,19 @@ TEST(KpsrRosCoreTest, EnvironmentTestRootGetCharString) {
     nodeHandle.deleteParam(actualKey);
 }
 
-
 //////////// Pointer tests
 
 // /// Get params ///////////////
-TEST(KpsrRosCoreTest, PointerEnvironmentTestDefaultRootGetString) {
-
+TEST(KpsrRosCoreTest, PointerEnvironmentTestDefaultRootGetString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
-    kpsr::Environment * environment = new kpsr::ros_mdlw::RosEnv(&nodeHandle);
+    kpsr::Environment *environment = new kpsr::ros_mdlw::RosEnv(&nodeHandle);
 
-    
     const std::string sampleValue("sampleValue");
     const std::string testKey("testkey");
     nodeHandle.setParam(testKey, sampleValue);
@@ -700,20 +713,20 @@ TEST(KpsrRosCoreTest, PointerEnvironmentTestDefaultRootGetString) {
     nodeHandle.deleteParam(testKey);
 }
 
-TEST(KpsrRosCoreTest, PointerEnvironmentTestRootGetString) {
-
+TEST(KpsrRosCoreTest, PointerEnvironmentTestRootGetString)
+{
     int argc = 0;
-    char ** argv = nullptr;
+    char **argv = nullptr;
 
     ros::init(argc, argv, "kpsr_ros_core_env_test");
     ros::NodeHandle nodeHandle;
     ros::Rate rate(100);
-    kpsr::Environment * environment = new kpsr::ros_mdlw::RosEnv(&nodeHandle);
+    kpsr::Environment *environment = new kpsr::ros_mdlw::RosEnv(&nodeHandle);
 
     const std::string testRootNode("testroot");
     const std::string testKey("testkey");
     const std::string sampleValue("sampleValue");
-    std::string actualKey ("/" + testRootNode + "/" + testKey);
+    std::string actualKey("/" + testRootNode + "/" + testKey);
 
     nodeHandle.setParam(actualKey, sampleValue);
 

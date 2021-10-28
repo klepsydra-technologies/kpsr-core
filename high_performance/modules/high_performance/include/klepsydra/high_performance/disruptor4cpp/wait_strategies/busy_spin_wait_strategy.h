@@ -54,37 +54,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <klepsydra/high_performance/disruptor4cpp/fixed_sequence_group.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+class busy_spin_wait_strategy
 {
-	class busy_spin_wait_strategy
-	{
-	public:
-		busy_spin_wait_strategy() = default;
-		~busy_spin_wait_strategy() = default;
+public:
+    busy_spin_wait_strategy() = default;
+    ~busy_spin_wait_strategy() = default;
 
-		template <typename TSequenceBarrier, typename TSequence>
-		int64_t wait_for(int64_t seq, const TSequence& cursor_sequence,
-			const fixed_sequence_group<TSequence>& dependent_sequence,
-			const TSequenceBarrier& seq_barrier)
-		{
-			int64_t available_sequence = 0;
-			while ((available_sequence = dependent_sequence.get()) < seq)
-			{
-				seq_barrier.check_alert();
-			}
-			return available_sequence;
-		}
+    template<typename TSequenceBarrier, typename TSequence>
+    int64_t wait_for(int64_t seq,
+                     const TSequence &cursor_sequence,
+                     const fixed_sequence_group<TSequence> &dependent_sequence,
+                     const TSequenceBarrier &seq_barrier)
+    {
+        int64_t available_sequence = 0;
+        while ((available_sequence = dependent_sequence.get()) < seq) {
+            seq_barrier.check_alert();
+        }
+        return available_sequence;
+    }
 
-		void signal_all_when_blocking()
-		{
-		}
+    void signal_all_when_blocking() {}
 
-	private:
-		busy_spin_wait_strategy(const busy_spin_wait_strategy&) = delete;
-		busy_spin_wait_strategy& operator=(const busy_spin_wait_strategy&) = delete;
-		busy_spin_wait_strategy(busy_spin_wait_strategy&&) = delete;
-		busy_spin_wait_strategy& operator=(busy_spin_wait_strategy&&) = delete;
-	};
-}
+private:
+    busy_spin_wait_strategy(const busy_spin_wait_strategy &) = delete;
+    busy_spin_wait_strategy &operator=(const busy_spin_wait_strategy &) = delete;
+    busy_spin_wait_strategy(busy_spin_wait_strategy &&) = delete;
+    busy_spin_wait_strategy &operator=(busy_spin_wait_strategy &&) = delete;
+};
+} // namespace disruptor4cpp
 
 #endif

@@ -20,19 +20,17 @@
 #ifndef EVENT_LOOP_SUBSCRIBER_H
 #define EVENT_LOOP_SUBSCRIBER_H
 
-#include <map>
-#include <string>
-#include <memory>
 #include <iostream>
+#include <map>
+#include <memory>
+#include <string>
 
 #include <klepsydra/core/event_emitter_subscriber.h>
 
 #include <klepsydra/high_performance/eventloop_data_type.h>
 
-namespace kpsr
-{
-namespace high_performance
-{
+namespace kpsr {
+namespace high_performance {
 template<class T>
 /**
  * @brief The EventLoopSubscriber class
@@ -56,23 +54,31 @@ public:
      * @param eventEmitter
      * @param eventName
      */
-    EventLoopSubscriber(Container * container, EventEmitter & eventEmitter, const std::string & eventName)
+    EventLoopSubscriber(Container *container,
+                        EventEmitter &eventEmitter,
+                        const std::string &eventName)
         : EventEmitterSubscriber<T>(container, _internalEventEmitter, eventName)
         , _externalEventEmitter(eventEmitter)
         , _internalEventEmitter()
         , _eventName(eventName)
     {
-        _eventLoopListener = [this] (const EventloopDataWrapper & eventDataType) {
-            std::shared_ptr<const T> reinterpreted = std::static_pointer_cast<const T>(eventDataType.eventData);
-            this->_internalEventEmitter.emitEvent(this->_eventName, eventDataType.enqueuedTimeInNs, *reinterpreted.get());
+        _eventLoopListener = [this](const EventloopDataWrapper &eventDataType) {
+            std::shared_ptr<const T> reinterpreted = std::static_pointer_cast<const T>(
+                eventDataType.eventData);
+            this->_internalEventEmitter.emitEvent(this->_eventName,
+                                                  eventDataType.enqueuedTimeInNs,
+                                                  *reinterpreted.get());
         };
-        _listenerId =_externalEventEmitter.on(eventName, "event_loop_subscriber", _eventLoopListener);
+        _listenerId = _externalEventEmitter.on(eventName,
+                                               "event_loop_subscriber",
+                                               _eventLoopListener);
         if (this->_container != nullptr) {
             this->_container->attach(_externalEventEmitter._listenerStats[_listenerId].get());
         }
     }
 
-    ~EventLoopSubscriber() {
+    ~EventLoopSubscriber()
+    {
         if (this->_container != nullptr) {
             this->_container->detach(_externalEventEmitter._listenerStats[_listenerId].get());
         }
@@ -80,12 +86,12 @@ public:
     }
 
 private:
-    EventEmitter & _externalEventEmitter;
+    EventEmitter &_externalEventEmitter;
     EventEmitter _internalEventEmitter;
     std::string _eventName;
     std::function<void(const EventloopDataWrapper &)> _eventLoopListener;
     int _listenerId;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 #endif

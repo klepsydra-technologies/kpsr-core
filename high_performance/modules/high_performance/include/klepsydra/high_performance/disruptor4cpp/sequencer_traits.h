@@ -57,35 +57,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <klepsydra/high_performance/disruptor4cpp/sequence_barrier.h>
 #include <klepsydra/high_performance/disruptor4cpp/single_producer_sequencer.h>
 
-namespace disruptor4cpp
+namespace disruptor4cpp {
+template<std::size_t BufferSize, typename TWaitStrategy, typename TSequence, producer_type ProducerType>
+struct sequencer_traits;
+
+template<std::size_t BufferSize, typename TWaitStrategy, typename TSequence>
+struct sequencer_traits<BufferSize, TWaitStrategy, TSequence, producer_type::single>
 {
-	template <std::size_t BufferSize, typename TWaitStrategy, typename TSequence
-		, producer_type ProducerType>
-	struct sequencer_traits;
+    typedef TWaitStrategy wait_strategy_type;
+    typedef TSequence sequence_type;
+    typedef single_producer_sequencer<BufferSize, TWaitStrategy, TSequence> sequencer_type;
+    typedef sequence_barrier<sequencer_type> sequence_barrier_type;
 
-	template <std::size_t BufferSize, typename TWaitStrategy, typename TSequence>
-	struct sequencer_traits<BufferSize, TWaitStrategy, TSequence, producer_type::single>
-	{
-		typedef TWaitStrategy wait_strategy_type;
-		typedef TSequence sequence_type;
-		typedef single_producer_sequencer<BufferSize, TWaitStrategy, TSequence> sequencer_type;
-		typedef sequence_barrier<sequencer_type> sequence_barrier_type;
+    static constexpr std::size_t BUFFER_SIZE = BufferSize;
+    static constexpr producer_type PRODUCER_TYPE = producer_type::single;
+};
 
-		static constexpr std::size_t BUFFER_SIZE = BufferSize;
-		static constexpr producer_type PRODUCER_TYPE = producer_type::single;
-	};
+template<std::size_t BufferSize, typename TWaitStrategy, typename TSequence>
+struct sequencer_traits<BufferSize, TWaitStrategy, TSequence, producer_type::multi>
+{
+    typedef TWaitStrategy wait_strategy_type;
+    typedef TSequence sequence_type;
+    typedef multi_producer_sequencer<BufferSize, TWaitStrategy, TSequence> sequencer_type;
+    typedef sequence_barrier<sequencer_type> sequence_barrier_type;
 
-	template <std::size_t BufferSize, typename TWaitStrategy, typename TSequence>
-	struct sequencer_traits<BufferSize, TWaitStrategy, TSequence, producer_type::multi>
-	{
-		typedef TWaitStrategy wait_strategy_type;
-		typedef TSequence sequence_type;
-		typedef multi_producer_sequencer<BufferSize, TWaitStrategy, TSequence> sequencer_type;
-		typedef sequence_barrier<sequencer_type> sequence_barrier_type;
-
-		static constexpr std::size_t BUFFER_SIZE = BufferSize;
-		static constexpr producer_type PRODUCER_TYPE = producer_type::multi;
-	};
-}
+    static constexpr std::size_t BUFFER_SIZE = BufferSize;
+    static constexpr producer_type PRODUCER_TYPE = producer_type::multi;
+};
+} // namespace disruptor4cpp
 
 #endif

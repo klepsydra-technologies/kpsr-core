@@ -20,15 +20,14 @@
 #ifndef SUBSCRIBER_H
 #define SUBSCRIBER_H
 
-#include <string>
 #include <functional>
+#include <string>
 
 #include <klepsydra/core/container.h>
 #include <klepsydra/core/subscription_stats.h>
 
-namespace kpsr
-{
-template <class T>
+namespace kpsr {
+template<class T>
 /*!
  * @brief The Subscriber class
  *
@@ -43,14 +42,13 @@ template <class T>
 class Subscriber
 {
 public:
-
     /*!
      * @brief Subscriber
      * @param container
      * @param name
      * @param type
      */
-    Subscriber(Container * container, const std::string& name, const std::string& type)
+    Subscriber(Container *container, const std::string &name, const std::string &type)
         : _container(container)
         , _name(name)
         , _type(type)
@@ -62,7 +60,8 @@ public:
      * @param name with which the listener is registered.
      * @param listener function to be invoked for an event.
      */
-    virtual void registerListener(const std::string & name, const std::function<void(const T &)> listener) = 0;
+    virtual void registerListener(const std::string &name,
+                                  const std::function<void(const T &)> listener) = 0;
 
     /*!
      * @brief registerListenerOnce registers an std::function to be invoked when an event is received.
@@ -75,20 +74,19 @@ public:
      * @brief removeListener removes the listener from the list of active listeners.
      * @param name
      */
-    virtual void removeListener(const std::string & name) = 0;
+    virtual void removeListener(const std::string &name) = 0;
 
     /*!
      * @brief getSubscriptionStats retrieves the performance information of the listener.
      * @param name
      */
-    virtual std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string & name) = 0;
+    virtual std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string &name) = 0;
 
-    Container * _container;
+    Container *_container;
 
     std::string _name;
 
     std::string _type;
-
 };
-}
+} // namespace kpsr
 #endif

@@ -20,28 +20,28 @@
 #include <klepsydra/socket_core/protocol_simple.h>
 #include <klepsydra/socket_core/string_resizer.h>
 
-void kpsr::socket_mdlw::ProtocolSimple::sendMessage(const std::string & message)
+void kpsr::socket_mdlw::ProtocolSimple::sendMessage(const std::string &message)
 {
     _dataSocket->putMessageData(message.c_str(), message.size());
     _dataSocket->putMessageClose();
 }
 
-void kpsr::socket_mdlw::ProtocolSimple::recvMessage(std::string& message)
+void kpsr::socket_mdlw::ProtocolSimple::recvMessage(std::string &message)
 {
-    std::size_t     dataRead = 0;
+    std::size_t dataRead = 0;
     message.clear();
 
-    while(true)
-    {
+    while (true) {
         // This outer loop handles resizing of the message when we run of space in the string.
         kpsr::socket_mdlw::StringSizer stringSizer(message, dataRead);
-        std::size_t const              dataMax  = message.capacity() - 1;
-        char*                          buffer   = &message[0];
+        std::size_t const dataMax = message.capacity() - 1;
+        char *buffer = &message[0];
 
-        std::size_t got = _dataSocket->getMessageData(buffer + dataRead, dataMax - dataRead, [](std::size_t){return false;});
-        dataRead    += got;
-        if (got == 0)
-        {
+        std::size_t got = _dataSocket->getMessageData(buffer + dataRead,
+                                                      dataMax - dataRead,
+                                                      [](std::size_t) { return false; });
+        dataRead += got;
+        if (got == 0) {
             break;
         }
 

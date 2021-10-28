@@ -23,11 +23,11 @@
 #include <klepsydra/core/publisher.h>
 #include <klepsydra/mem_core/basic_scheduler.h>
 
-#include <functional>
-#include <chrono>
-#include <thread>
 #include <atomic>
+#include <chrono>
+#include <functional>
 #include <memory>
+#include <thread>
 
 namespace kpsr {
 namespace high_performance {
@@ -44,18 +44,21 @@ namespace high_performance {
 class EventLoopScheduler : public Scheduler
 {
 public:
-    explicit EventLoopScheduler(Publisher<std::function<void()>> * publisher);
+    explicit EventLoopScheduler(Publisher<std::function<void()>> *publisher);
 
-    void startScheduledTask(const std::string & name, int after, bool repeat, std::shared_ptr<std::function<void()>> function) override;
-    void startScheduledService(int after, bool repeat, Service * service) override;
-    void stopScheduledTask(const std::string & name) override;
-    void stopScheduledService(Service * service) override;
+    void startScheduledTask(const std::string &name,
+                            int after,
+                            bool repeat,
+                            std::shared_ptr<std::function<void()>> function) override;
+    void startScheduledService(int after, bool repeat, Service *service) override;
+    void stopScheduledTask(const std::string &name) override;
+    void stopScheduledService(Service *service) override;
 
 private:
     kpsr::mem::BasicScheduler _decorableScheduler;
-    Publisher<std::function<void()>> * _publisher;
+    Publisher<std::function<void()>> *_publisher;
 };
-}
-}
+} // namespace high_performance
+} // namespace kpsr
 
 #endif

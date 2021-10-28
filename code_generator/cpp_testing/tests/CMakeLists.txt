@@ -32,6 +32,8 @@ add_subdirectory(${GTEST_PATH}
 # later. Otherwise we have to add them here ourselves.
 include_directories("${GTEST_PATH}/googletest/include")
 
+find_package(Klepsydra REQUIRED)
+
 add_subdirectory(${PROJ_MAIN_NAME}_tests)
 IF(KPSR_WITH_ZMQ)
    ADD_SUBDIRECTORY(zmq_${PROJ_MAIN_NAME}_tests)

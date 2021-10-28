@@ -24,7 +24,7 @@
 
 #include <zmq.hpp>
 
-#include <klepsydra/zmq_core/non_copying_stream_buffer.h>
+#include <klepsydra/core/non_copying_stream_buffer.h>
 #include <klepsydra/zmq_core/zmq_poller.h>
 
 using Base = std::basic_streambuf<char> *;
@@ -48,35 +48,34 @@ public:
      * @param subscriber
      * @param pollPeriod
      */
-    BinaryZMQPoller(zmq::socket_t & subscriber, long pollPeriod)
+    BinaryZMQPoller(zmq::socket_t &subscriber, long pollPeriod)
         : ZMQPoller(subscriber, pollPeriod)
     {}
 
     /**
      * @brief poll
      */
-    virtual void poll() {
+    virtual void poll()
+    {
         while (_running) {
-            zmq::pollitem_t items [] = {
-                { _subscriber, 0, ZMQ_POLLIN, 0 }
-            };
+            zmq::pollitem_t items[] = {{_subscriber, 0, ZMQ_POLLIN, 0}};
             if (zmq::poll(items, 1, _pollPeriod) == -1)
                 break;
 
             if (items[0].revents & ZMQ_POLLIN) {
                 zmq::message_t topicMsg;
                 _subscriber.recv(topicMsg);
-                std::string topic(static_cast<char*>(topicMsg.data()), topicMsg.size());
+                std::string topic(static_cast<char *>(topicMsg.data()), topicMsg.size());
                 zmq::message_t content;
                 _subscriber.recv(content);
-                NonCopyingStringBuffer buffer((char *) content.data(), content.size());
+                kpsr::core::NonCopyingStringBuffer buffer((char *) content.data(), content.size());
                 Base bufferPointer = &buffer;
                 executeFunction(topic, bufferPointer);
             }
         }
     }
 };
-}
-}
+} // namespace zmq_mdlw
+} // namespace kpsr
 
 #endif // ZMQ_BINARY_POLLER_H

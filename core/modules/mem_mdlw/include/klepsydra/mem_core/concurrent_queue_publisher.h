@@ -22,14 +22,12 @@
 
 #include <klepsydra/core/object_pool_publisher.h>
 
-#include <klepsydra/mem_core/basic_event_data.h>
 #include <concurrentqueue.h>
+#include <klepsydra/mem_core/basic_event_data.h>
 
-namespace kpsr
-{
-namespace mem
-{
-template <class T>
+namespace kpsr {
+namespace mem {
+template<class T>
 /*!
  * \brief The ConcurrentPublisher class
  *
@@ -58,15 +56,20 @@ public:
      * In the false case, the publisher will block until there is free space to put new events in the queue, if the queue
      * is full.
      */
-    ConcurrentQueuePublisher(Container * container,
-                             const std::string & name,
+    ConcurrentQueuePublisher(Container *container,
+                             const std::string &name,
                              int poolSize,
                              std::function<void(T &)> initializerFunction,
                              std::function<void(const T &, T &)> eventCloner,
-                             moodycamel::ConcurrentQueue<EventData<const T>> & safeQueue,
+                             moodycamel::ConcurrentQueue<EventData<const T>> &safeQueue,
                              bool discardItemsWhenFull,
-                             moodycamel::ProducerToken & token)
-        : ObjectPoolPublisher<T>(container, name, "SAFE_QUEUE", poolSize, initializerFunction, eventCloner)
+                             moodycamel::ProducerToken &token)
+        : ObjectPoolPublisher<T>(container,
+                                 name,
+                                 "SAFE_QUEUE",
+                                 poolSize,
+                                 initializerFunction,
+                                 eventCloner)
         , _internalQueue(safeQueue)
         , _discardItemsWhenFull(discardItemsWhenFull)
         , _token(token)
@@ -76,14 +79,15 @@ public:
      * @brief internalPublish publish by a safe queue push into queue.
      * @param eventData
      */
-    void internalPublish(std::shared_ptr<const T> eventData) override {
+    void internalPublish(std::shared_ptr<const T> eventData) override
+    {
         EventData<const T> safeQueueEvent;
         safeQueueEvent.enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
         safeQueueEvent.eventData = eventData;
         if (_discardItemsWhenFull) {
             // Non-blocking call
             uint discardedItems = 0;
-            while(!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
+            while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
                 EventData<const T> dummyEvent;
                 bool removed = _internalQueue.try_dequeue_from_producer(_token, dummyEvent);
                 if (removed) {
@@ -93,18 +97,17 @@ public:
             this->_publicationStats._totalDiscardedEvents += discardedItems;
         } else {
             // Blocking call
-            while(!_internalQueue.try_enqueue(_token, safeQueueEvent)){
+            while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
                 std::this_thread::sleep_for(std::chrono::microseconds(10));
             }
         }
     }
 
 private:
-    moodycamel::ConcurrentQueue<EventData<const T>> & _internalQueue;
+    moodycamel::ConcurrentQueue<EventData<const T>> &_internalQueue;
     bool _discardItemsWhenFull;
-    moodycamel::ProducerToken & _token;
-
+    moodycamel::ProducerToken &_token;
 };
-}
-}
+} // namespace mem
+} // namespace kpsr
 #endif
