@@ -37,6 +37,7 @@ public:
       std::function<void(const std::string &currentState, bool stateChanged)>
           smObserver) = 0;
   virtual void unregisterObservers() = 0;
+  virtual void cleanQueue() = 0;
 };
 } // namespace fsm
 } // namespace kpsr

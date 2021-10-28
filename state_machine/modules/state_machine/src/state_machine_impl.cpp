@@ -87,5 +87,11 @@ void StateMachineImpl::registerObserver(
 }
 
 void StateMachineImpl::unregisterObservers() { _observers.clear(); }
+
+void StateMachineImpl::cleanQueue() {
+  std::queue<std::string> empty;
+  std::swap(_eventQueue, empty );
+}
+
 } // namespace fsm
 } // namespace kpsr

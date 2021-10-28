@@ -46,6 +46,7 @@ public:
       std::function<void(const std::string &currentState, bool stateChanged)>
           smObserver) override;
   virtual void unregisterObservers() override;
+  virtual void cleanQueue() override;
 
 private:
   std::string _id;
