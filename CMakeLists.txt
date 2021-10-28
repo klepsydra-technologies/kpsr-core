@@ -124,6 +124,10 @@ if (KPSR_WITH_DDS)
   SET(KPSR_WITH_YAML True)
 ENDIF()
 
+IF(KPSR_WITH_YAML)
+   find_package(yaml-cpp 0.5 REQUIRED)
+ENDIF()
+
 if (KPSR_WITH_CODE_METRICS)
   include(CodeCoverage)
   set(CODE_COVERAGE_VERBOSE ON)
