@@ -1,0 +1,219 @@
+name: Check build
+
+on:
+  push:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  builddebug:
+    name: Vanilla Debug
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
+      options: --user root
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive         
+
+      - name: Build
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          make -j$(nproc)
+
+      - name: Unit tests
+        run: cd build && make test ARGS="--gtest_shuffle"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: builddebug-logs
+          path: |
+            build/CMakeFiles/CMakeOutput.log
+            build/CMakeFiles/CMakeError.log
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
+
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build
+
+  buildrelease:
+    needs: builddebug
+    strategy:
+      matrix:
+        include:
+          - name: Vanilla
+            zmq: 'false'
+            dds: 'false'
+
+          - name: ZMQ
+            zmq: 'true'
+            dds: 'false'
+
+    name: ${{ matrix.name }} Release
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
+      options: --user root
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          
+      - name: Build
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=${{ matrix.dds }} -DKPSR_WITH_ZMQ=${{ matrix.zmq }} -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../
+          make -j$(nproc)
+
+      - name: Unit tests
+        run: cd build && make test ARGS="--gtest_shuffle"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: builddebug-logs
+          path: |
+            build/CMakeFiles/CMakeOutput.log
+            build/CMakeFiles/CMakeError.log
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
+
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build
+
+  ros:
+    needs: builddebug
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rosrelease: ["kinetic", "melodic", "noetic"]
+    name: ROS ${{ matrix.rosrelease }}
+    env:
+      ROS_DISTRO: ${{ matrix.rosrelease }}
+    container:
+      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/ros:${{ matrix.rosrelease }}-1.0.0"
+      options: --user root
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/build
+          cd ${GITHUB_WORKSPACE}/build
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=false -DCMAKE_BUILD_TYPE=Release ../
+          make -j$(nproc)
+
+      - name: Test
+        run: |
+          cd ${GITHUB_WORKSPACE}/build
+          make test ARGS="--gtest_shuffle"
+
+      - name: Install
+        run: |
+          cd ${GITHUB_WORKSPACE}/build
+          sudo make install
+
+      - name: Create ROS environment
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          mkdir -p ${GITHUB_WORKSPACE}/kpsr-ros/src/build
+          cd ${GITHUB_WORKSPACE}/kpsr-ros/src
+          catkin_init_workspace
+          ln -s ${GITHUB_WORKSPACE}/core/modules/ros_mdlw/kpsr_ros_core . 
+          ln -s ${GITHUB_WORKSPACE}/serialization/modules/ros_mdlw/kpsr_ros_serialization .
+          ln -s ${GITHUB_WORKSPACE}/code_generator/cpp_testing/tests/kpsr_ros_codegen .
+
+      - name: Build ROS
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          cd ${GITHUB_WORKSPACE}/kpsr-ros/src/build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=../install -DCATKIN_DEVEL_PREFIX=../devel
+          make -j$(nproc)
+
+      - name: Test ROS
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          cd ${GITHUB_WORKSPACE}/kpsr-ros/src/build
+          make tests
+          roscore &
+          make test
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ros-${{ matrix.rosrelease }}
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
+            ${GITHUB_WORKSPACE}/kpsr-ros/src/build/Testing/Temporary
+            ${GITHUB_WORKSPACE}/kpsr-ros/src/build/test_results
+      
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build
+
+  rtems5:
+    needs: builddebug
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rtemstarget: ["zedboard", "zynqa9qemu"]
+    name: RTEMS5 ${{ matrix.rtemstarget }}
+    container:
+      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/rtems5:${{ matrix.rtemstarget }}-1.0.0"
+      options: --user root
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/build
+          cd ${GITHUB_WORKSPACE}/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DKPSR_RTEMS5_ZYNQ_ZC706=On -DCMAKE_FIND_ROOT_PATH=/opt/klepsydra -DCMAKE_INSTALL_PREFIX=/opt/klepsydra ../
+          make -j$(nproc)
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: rtems5-{{ matrix.rtemstarget }}
+          path: |
+            build/Testing/Temporary
+            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
+            ${GITHUB_WORKSPACE}/kpsr-ros/src/build/Testing/Temporary
+            ${GITHUB_WORKSPACE}/kpsr-ros/src/build/test_results
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build
+
+

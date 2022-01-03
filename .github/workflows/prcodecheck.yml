@@ -2,6 +2,9 @@ name: Code style check
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 defaults:
   run:
@@ -10,9 +13,11 @@ defaults:
 jobs:
   format-check:
     name: Code style
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.us-east-2.amazonaws.com/kpsr-os/cpplint:1.0.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
+      options: --user root
       credentials:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
@@ -26,3 +31,39 @@ jobs:
           mkdir build && cd build
           cmake ../
           make formatcheck
+
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build
+
+  codecoverage:
+    name: Code coverage      
+    runs-on: ubuntu-latest
+    container:
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
+      options: --user root
+      credentials:
+        username: AWS
+        password: ${{ secrets.ECR_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir build && cd build 
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          make -j$(nproc)
+          make -j$(nproc) coverage
+
+      - uses: codecov/codecov-action@v2
+        with:
+          files: build/coverage.xml
+      
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build
