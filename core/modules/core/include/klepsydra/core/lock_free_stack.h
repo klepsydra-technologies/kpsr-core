@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <iostream>
+#include <memory>
 
 namespace kpsr {
 
