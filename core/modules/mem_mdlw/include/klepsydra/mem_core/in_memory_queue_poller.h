@@ -21,12 +21,10 @@
 #define IN_MEMORY_QUEUE_POLLER_H
 
 #include <atomic>
+#include <functional>
 #include <future>
 #include <map>
-#include <string>
 #include <thread>
-
-#include <klepsydra/core/event_emitter.h>
 
 #include <klepsydra/mem_core/basic_event_data.h>
 
@@ -60,13 +58,11 @@ public:
      * @param eventName
      * @param sleepPeriodUS The time in microseconds to sleep/wait
      */
-    InMemoryQueuePoller(EventEmitter &eventEmitter,
-                        std::string eventName,
+    InMemoryQueuePoller(const std::string &eventName,
                         unsigned int sleepPeriodUS,
                         long timeoutMS = MEM_START_TIMEOUT_MILLISEC)
         : _running(false)
         , _started(false)
-        , _eventEmitter(eventEmitter)
         , _eventName(eventName)
         , _threadNotifier()
         , _sleepPeriodUS(sleepPeriodUS)
@@ -105,7 +101,6 @@ private:
     virtual void takeEventFromQueue() = 0;
 
 protected:
-    EventEmitter &_eventEmitter;
     std::string _eventName;
     std::thread _threadNotifier;
     unsigned int _sleepPeriodUS;

@@ -17,51 +17,49 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_yaml)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_yaml)
+project(${PROJ_NAME})
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
 
-FILE(GLOB_RECURSE ${PROJ_NAME}_HEADERS
-    "include/*.h"
-)
+file(GLOB_RECURSE ${PROJ_NAME}_HEADERS "include/*.h")
 
 # Create Library
-#---------------------------------------------------#
+# ---------------------------------------------------#
 
-ADD_LIBRARY(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+add_library(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS}
+                         ${${PROJ_NAME}_SRC})
 
 # Link libraries with Project
-#---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} PUBLIC kpsr_core yaml-cpp)
+# ---------------------------------------------------#
+target_link_libraries(${PROJ_NAME} PUBLIC kpsr_core yaml-cpp)
 
-TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  )
+target_include_directories(
+    ${PROJ_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                        $<INSTALL_INTERFACE:include>)
 
-if (KPSR_WITH_CODE_METRICS)
+if(KPSR_WITH_CODE_METRICS)
     add_cppcheck(${PROJ_NAME} UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR)
 endif()
 
+set_target_properties(
+    ${PROJ_NAME} PROPERTIES VERSION ${KLEPSYDRA_CORE_VERSION}
+                            SOVERSION ${KLEPSYDRA_CORE_VERSION_MAJOR})
+
 # Install
-#---------------------------------------------------#
-INSTALL(TARGETS ${PROJ_NAME}
+# ---------------------------------------------------#
+install(
+    TARGETS ${PROJ_NAME}
     EXPORT KlepsydraTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    COMPONENT libs
-)
-INSTALL(DIRECTORY "include/klepsydra"
+    COMPONENT libs)
+install(
+    DIRECTORY "include/klepsydra"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    COMPONENT dev
-)
+    COMPONENT dev)
 
 add_core_export_target(${PROJ_NAME})
 
-#PRINTBASICINFO(${PROJ_NAME})
-
+# PRINTBASICINFO(${PROJ_NAME})

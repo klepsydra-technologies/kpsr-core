@@ -20,6 +20,8 @@
 #ifndef DATA_MULTIPLEXER_EVENT_DATA_H
 #define DATA_MULTIPLEXER_EVENT_DATA_H
 
+#include <memory>
+
 namespace kpsr {
 namespace high_performance {
 template<class T>
@@ -34,20 +36,20 @@ template<class T>
  *
  * @details Internal wrapper class that is actually stored in the high_performance and eventloop.
  */
-struct EventData
+struct DataMultiplexerDataWrapper
 {
-    EventData()
-        : eventData()
+    DataMultiplexerDataWrapper()
+        : eventData(std::make_shared<T>())
     {}
 
-    EventData(T eventData)
+    DataMultiplexerDataWrapper(std::shared_ptr<T> eventData)
         : eventData(eventData)
     {}
 
     /**
      * @brief eventData
      */
-    T eventData;
+    std::shared_ptr<T> eventData;
 
     /**
      * @brief enqueuedTimeInNs

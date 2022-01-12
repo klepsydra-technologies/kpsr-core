@@ -159,7 +159,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolNoFailures)
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 4);
     ASSERT_EQ(SQTestEvent::constructorInvokations, 10);
     ASSERT_EQ(SQTestEvent::copyInvokations, 10);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 10);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 10);
 }
 
 TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking)
@@ -198,7 +198,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking)
     ASSERT_EQ(SQTestEvent::emptyConstructorInvokations, 6);
     ASSERT_EQ(SQTestEvent::constructorInvokations, 300);
     ASSERT_GE(SQTestEvent::copyInvokations, 300);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 300);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 300);
 }
 
 TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
@@ -239,9 +239,9 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
     ASSERT_EQ(SQTestEvent::constructorInvokations, 300);
     ASSERT_GE(SQTestEvent::copyInvokations, 4);
     int totalMessages =
-        provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed +
+        provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed +
         ((kpsr::mem::BasicPublisher<SQTestEvent> *) provider.getPublisher())
-            ->_publicationStats._totalDiscardedEvents;
+            ->_publicationStats.totalDiscardedEvents;
     ASSERT_EQ(totalMessages, 300);
 }
 
@@ -303,7 +303,7 @@ TEST(BasicEventEmitterTest, TransformForwaringTestNoPool)
     ASSERT_EQ(SQTestNewEvent::emptyConstructorInvokations, 10);
     ASSERT_EQ(SQTestNewEvent::constructorInvokations, 0);
     ASSERT_EQ(SQTestNewEvent::copyInvokations, 10);
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed,
               10);
 }
 
@@ -366,6 +366,6 @@ TEST(BasicEventEmitterTest, TransformForwaringTestWithPool)
     ASSERT_EQ(SQTestNewEvent::constructorInvokations, 0);
     ASSERT_EQ(SQTestNewEvent::copyInvokations, 10);
 
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed,
               10);
 }

@@ -53,7 +53,7 @@ TEST(CodegenPocoTests, HeaderPocoTest)
 
     ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
     ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, GpsPocoTest)
@@ -74,7 +74,7 @@ TEST(CodegenPocoTests, GpsPocoTest)
     ASSERT_EQ(event.altitude, eventListener.getLastReceivedEvent()->altitude);
     ASSERT_EQ(event.latitude, eventListener.getLastReceivedEvent()->latitude);
     ASSERT_EQ(event.longitude, eventListener.getLastReceivedEvent()->longitude);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, QuaternionPocoTest)
@@ -96,7 +96,7 @@ TEST(CodegenPocoTests, QuaternionPocoTest)
     ASSERT_EQ(event.y, eventListener.getLastReceivedEvent()->y);
     ASSERT_EQ(event.z, eventListener.getLastReceivedEvent()->z);
     ASSERT_EQ(event.w, eventListener.getLastReceivedEvent()->w);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, Vector3PocoTest)
@@ -117,7 +117,7 @@ TEST(CodegenPocoTests, Vector3PocoTest)
     ASSERT_EQ(event.x, eventListener.getLastReceivedEvent()->x);
     ASSERT_EQ(event.y, eventListener.getLastReceivedEvent()->y);
     ASSERT_EQ(event.z, eventListener.getLastReceivedEvent()->z);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, ImuPocoTest)
@@ -174,5 +174,5 @@ TEST(CodegenPocoTests, ImuPocoTest)
     ASSERT_EQ(event.linear_acceleration.z,
               eventListener.getLastReceivedEvent()->linear_acceleration.z);
 
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }

@@ -17,20 +17,26 @@
 #
 #****************************************************************************
 
-SET(PROJ_MAIN_NAME "core")
-PROJECT(${PROJ_MAIN_NAME})
+set(PROJ_MAIN_NAME "core")
+project(${PROJ_MAIN_NAME})
 
-######################################################################################
+# ##############################################################################
 # ADD SUB FOLDERS
-######################################################################################
-ADD_SUBDIRECTORY(modules)
-ADD_SUBDIRECTORY(tests)
-ADD_SUBDIRECTORY(examples)
+# ##############################################################################
+add_subdirectory(modules)
+if(KPSR_ENABLE_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+if(KPSR_ENABLE_TESTS)
+    add_subdirectory(tests)
+endif()
 
-LIST(APPEND COVERAGE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_SOURCE_DIR}/examples)
-SET(COVERAGE_EXCLUDES ${COVERAGE_EXCLUDES} PARENT_SCOPE)
+list(APPEND COVERAGE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tests
+     ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+set(COVERAGE_EXCLUDES
+    ${COVERAGE_EXCLUDES}
+    PARENT_SCOPE)
 add_core_export_target()
 add_dds_export_target()
 add_zmq_export_target()
 add_include_dirs()
-

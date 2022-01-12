@@ -24,7 +24,7 @@
 #include <iostream>
 #include <memory>
 
-#include <klepsydra/core/event_emitter.h>
+#include <klepsydra/core/safe_event_emitter.h>
 
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 #include <klepsydra/high_performance/eventloop_data_type.h>
@@ -48,9 +48,14 @@ public:
      * @brief EventLoopEventHandler
      * @param eventEmitter
      */
-    EventLoopEventHandler(EventEmitter &eventEmitter)
-        : _eventEmitter(eventEmitter)
-    {}
+    EventLoopEventHandler(
+        std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> externalEventEmitter)
+        : _externalEventEmitter(externalEventEmitter)
+    {
+        if (externalEventEmitter == nullptr) {
+            spdlog::error("External Event Emitter is null.");
+        }
+    }
 
     ~EventLoopEventHandler() = default;
 
@@ -72,7 +77,9 @@ public:
      */
     void on_event(EventloopDataWrapper &event, int64_t sequence, bool end_of_batch)
     {
-        _eventEmitter.emitEvent(event.eventName, event.enqueuedTimeInNs, event);
+        _externalEventEmitter->emitEvent(event.eventName + "_external",
+                                         event.enqueuedTimeInNs,
+                                         event);
         event.eventData.reset();
     }
 
@@ -104,7 +111,7 @@ public:
     void on_shutdown_exception(const std::exception &ex) {}
 
 private:
-    EventEmitter &_eventEmitter;
+    std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> _externalEventEmitter;
 };
 } // namespace high_performance
 } // namespace kpsr

@@ -220,7 +220,7 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolNoFailures)
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_EQ(ConcurrentSQTestEvent::copyInvokations, numPublish);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed,
               numPublish);
 }
 
@@ -245,7 +245,7 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresBlocking)
         for (int i = 0; i < numPublish; i++) {
             ConcurrentSQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
-            // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
         while (!(provider._internalQueue.size_approx() == 0)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -262,7 +262,7 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresBlocking)
     ASSERT_EQ(ConcurrentSQTestEvent::emptyConstructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_GE(ConcurrentSQTestEvent::copyInvokations, numPublish);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed,
               numPublish);
 }
 
@@ -287,6 +287,7 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
         for (int i = 0; i < numPublish; i++) {
             ConcurrentSQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         while (!(provider._internalQueue.size_approx() == 0)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -304,9 +305,9 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
     ASSERT_EQ(ConcurrentSQTestEvent::constructorInvokations, numPublish);
     ASSERT_GE(ConcurrentSQTestEvent::copyInvokations, queueSize);
     int totalMessages =
-        provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed +
+        provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed +
         ((kpsr::mem::ConcurrentQueuePublisher<ConcurrentSQTestEvent> *) provider.getPublisher())
-            ->_publicationStats._totalDiscardedEvents;
+            ->_publicationStats.totalDiscardedEvents;
     ASSERT_EQ(totalMessages, numPublish);
 }
 
@@ -369,7 +370,7 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestNoPool)
     ASSERT_EQ(ConcurrentSQTestNewEvent::emptyConstructorInvokations, numPublish);
     ASSERT_EQ(ConcurrentSQTestNewEvent::constructorInvokations, poolSize);
     ASSERT_EQ(ConcurrentSQTestNewEvent::copyInvokations, numPublish);
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed,
               numPublish);
 }
 
@@ -412,7 +413,7 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestWithPool)
         for (int i = 0; i < numPublish; i++) {
             ConcurrentSQTestEvent event1(i, "hello");
             provider.getPublisher()->publish(event1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
@@ -433,6 +434,6 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestWithPool)
     ASSERT_EQ(ConcurrentSQTestNewEvent::constructorInvokations, 0);
     ASSERT_EQ(ConcurrentSQTestNewEvent::copyInvokations, numPublish);
 
-    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed,
+    ASSERT_EQ(newProvider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed,
               numPublish);
 }

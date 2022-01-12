@@ -70,9 +70,9 @@ public:
     virtual void runOnce() final
     {
         if (_started) {
-            _serviceStats.startProcessMeassure();
+            _serviceStats.startProcessMeasure();
             execute();
-            _serviceStats.stopProcessMeassure();
+            _serviceStats.stopProcessMeasure();
         }
     }
 

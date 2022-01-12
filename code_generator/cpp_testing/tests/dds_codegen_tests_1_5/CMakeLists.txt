@@ -70,14 +70,11 @@ FILE(GLOB ${PROJ_NAME}_SRC
     "src/*.cpp"
 )
 
-# Link libraries with Project
-#---------------------------------------------------#
-LINK_DIRECTORIES( ${CMAKE_BINARY_DIR}/../../../bin/ )
-
 ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel_1_5 SHARED ${Connext_DATAMODEL})
 
 ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 
+# Link libraries with Project
 #---------------------------------------------------#
 TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel_1_5 atomic ${Connext_LIBRARIES})
 

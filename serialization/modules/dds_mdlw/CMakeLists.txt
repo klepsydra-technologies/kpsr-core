@@ -17,72 +17,67 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME})
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME})
+project(${PROJ_NAME})
 
-include (MacroConnext)
-find_package (Connext REQUIRED)
-SET (DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
+include(MacroConnext)
+find_package(Connext REQUIRED)
+set(DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
 
-add_definitions (
-  ${Connext_DEFINITIONS}
-  ${DEFINITIONS}
-)
+add_definitions(${Connext_DEFINITIONS} ${DEFINITIONS})
 
 file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 
 file(GLOB idls "./idl/*.idl")
-FOREACH(idl ${idls})
-        Connext_IDLGEN (${idl} ${CMAKE_CURRENT_SOURCE_DIR})
-        GET_FILENAME_COMPONENT(nfile ${idl} NAME)
-        Connext_GENDATAMODEL(${nfile} ${CMAKE_CURRENT_SOURCE_DIR})
-ENDFOREACH(idl)
+foreach(idl ${idls})
+    connext_idlgen(${idl} ${CMAKE_CURRENT_SOURCE_DIR})
+    get_filename_component(nfile ${idl} NAME)
+    connext_gendatamodel(${nfile} ${CMAKE_CURRENT_SOURCE_DIR})
+endforeach(idl)
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB_RECURSE ${PROJ_NAME}_HEADERS
-    "include/*.h"
-)
-FILE(GLOB ${PROJ_NAME}_GEN_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/gen/*.h*"
-)
+# ---------------------------------------------------#
+file(GLOB_RECURSE ${PROJ_NAME}_HEADERS "include/*.h")
+file(GLOB ${PROJ_NAME}_GEN_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/gen/*.h*")
 
 # Create Library
-#---------------------------------------------------#
-ADD_LIBRARY (kpsr_dds_${PROJ_MAIN_NAME}_datamodel SHARED ${Connext_DATAMODEL})
+# ---------------------------------------------------#
+add_library(kpsr_dds_${PROJ_MAIN_NAME}_datamodel SHARED ${Connext_DATAMODEL})
 
 # Link libraries with Project
-#---------------------------------------------------#
-TARGET_LINK_LIBRARIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES} kpsr_serialization)
-TARGET_INCLUDE_DIRECTORIES(kpsr_dds_${PROJ_MAIN_NAME}_datamodel
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gen>
-  ${Connext_INCLUDE_DIRS}
-  $<INSTALL_INTERFACE:include>
-  $<INSTALL_INTERFACE:include/klepsydra/gen_dds_${PROJ_MAIN_NAME}>
- )
+# ---------------------------------------------------#
+target_link_libraries(kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES}
+                      kpsr_serialization)
+target_include_directories(
+    kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gen>
+           ${Connext_INCLUDE_DIRS}
+           $<INSTALL_INTERFACE:include>
+           $<INSTALL_INTERFACE:include/klepsydra/gen_dds_${PROJ_MAIN_NAME}>)
 
 # Install
-#---------------------------------------------------#
-INSTALL(TARGETS kpsr_dds_${PROJ_MAIN_NAME}_datamodel
-  EXPORT KlepsydraTargets
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  COMPONENT libs
-)
-INSTALL(DIRECTORY "include/klepsydra"
+# ---------------------------------------------------#
+install(
+    TARGETS kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+    EXPORT KlepsydraTargets
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    COMPONENT libs)
+install(
+    DIRECTORY "include/klepsydra"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    COMPONENT dev
-)
-INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/gen/"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/klepsydra/gen_dds_${PROJ_MAIN_NAME}"
-    FILES_MATCHING PATTERN "*.h*"
-)
+    COMPONENT dev)
+install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/gen/"
+    DESTINATION
+        "${CMAKE_INSTALL_INCLUDEDIR}/klepsydra/gen_dds_${PROJ_MAIN_NAME}"
+    FILES_MATCHING
+    PATTERN "*.h*")
 
 add_dds_export_target(kpsr_dds_${PROJ_MAIN_NAME}_datamodel)
 
-add_include_dirs("${CMAKE_INSTALL_FULL_INCLUDEDIR}/klepsydra/gen_dds_${PROJ_MAIN_NAME}")
+add_include_dirs(
+    "${CMAKE_INSTALL_FULL_INCLUDEDIR}/klepsydra/gen_dds_${PROJ_MAIN_NAME}")
 
-#PRINTBASICINFO(${PROJ_NAME})
-
+# PRINTBASICINFO(${PROJ_NAME})

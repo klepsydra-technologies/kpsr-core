@@ -55,6 +55,7 @@ public:
     {}
 
     virtual ~Subscriber() {}
+
     /*!
      * @brief registerListener registers an std::function to be invoked everything an event is received.
      * @param name with which the listener is registered.
@@ -69,6 +70,23 @@ public:
      * @param listener function to be invoked for an event.
      */
     virtual void registerListenerOnce(const std::function<void(const T &)> listener) = 0;
+
+    /*!
+     * @brief registerSharedPtrListener registers an std::function to be invoked everything a shared pointer of an event is received.
+     * @param name with which the listener is registered.
+     * @param listener function to be invoked for an event.
+     */
+    virtual void registerSharedPtrListener(
+        const std::string &name,
+        const std::function<void(const std::shared_ptr<const T> &)> listener) = 0;
+
+    /*!
+     * @brief registerSharedPtrListenerOnce registers an std::function to be invoked when an event is received.
+     * Once invoked this listeners is removed from the list of listeners.
+     * @param listener function to be invoked for an event.
+     */
+    virtual void registerSharedPtrListenerOnce(
+        const std::function<void(const std::shared_ptr<const T> &)> listener) = 0;
 
     /*!
      * @brief removeListener removes the listener from the list of active listeners.

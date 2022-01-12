@@ -17,18 +17,21 @@
 #
 #****************************************************************************
 
-SET(PROJ_MAIN_NAME "state_machine")
-PROJECT(${PROJ_MAIN_NAME})
+set(PROJ_MAIN_NAME "state_machine")
+project(${PROJ_MAIN_NAME})
 
-######################################################################################
+# ##############################################################################
 # ADD SUB FOLDERS
-######################################################################################
-ADD_SUBDIRECTORY(modules)
-IF(KPSR_WITH_YAML)
-   ADD_SUBDIRECTORY(tests)
-ENDIF()
+# ##############################################################################
+add_subdirectory(modules)
+if(KPSR_WITH_YAML AND KPSR_ENABLE_TESTS)
+    add_subdirectory(tests)
+endif()
 
-LIST(APPEND COVERAGE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_SOURCE_DIR}/examples)
-SET(COVERAGE_EXCLUDES ${COVERAGE_EXCLUDES} PARENT_SCOPE)
+list(APPEND COVERAGE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tests
+     ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+set(COVERAGE_EXCLUDES
+    ${COVERAGE_EXCLUDES}
+    PARENT_SCOPE)
 add_core_export_target()
 add_include_dirs()

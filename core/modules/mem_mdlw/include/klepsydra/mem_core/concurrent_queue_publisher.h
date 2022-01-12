@@ -94,7 +94,7 @@ public:
                     discardedItems++;
                 }
             }
-            this->_publicationStats._totalDiscardedEvents += discardedItems;
+            this->_publicationStats.totalDiscardedEvents += discardedItems;
         } else {
             // Blocking call
             while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {

@@ -20,22 +20,23 @@
 #ifndef DATA_MULTIPLEXER_SUBSCRIBER_H
 #define DATA_MULTIPLEXER_SUBSCRIBER_H
 
-#include <chrono>
-#include <iostream>
-#include <map>
+#include <functional>
+#include <future>
 #include <memory>
-#include <mutex>
+
 #include <spdlog/spdlog.h>
 
-#include <klepsydra/core/subscriber.h>
+#include <klepsydra/core/event_emitter_subscriber.h>
 
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
-#include <klepsydra/high_performance/data_multiplexer_listener.h>
+#include <klepsydra/high_performance/data_multiplexer_event_handler.h>
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
 
 namespace kpsr {
 namespace high_performance {
+static const long MULTIPLEXER_START_TIMEOUT_MICROSEC = 100 * 1000;
 template<typename TEvent, std::size_t BufferSize>
+
 /**
  * @brief The DataMultiplexerSubscriber class
  *
@@ -52,110 +53,90 @@ template<typename TEvent, std::size_t BufferSize>
  * discarding any older ones.
  *
  */
-class DataMultiplexerSubscriber : public Subscriber<TEvent>
+class DataMultiplexerSubscriber : public EventEmitterSubscriber<TEvent>
 {
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+    using RingBuffer = disruptor4cpp::ring_buffer<DataMultiplexerDataWrapper<TEvent>,
                                                   BufferSize,
                                                   disruptor4cpp::blocking_wait_strategy,
                                                   disruptor4cpp::producer_type::single,
                                                   disruptor4cpp::sequence>;
+    using BatchProcessor = disruptor4cpp::batch_event_processor<RingBuffer>;
 
     /**
      * @brief DataMultiplexerSubscriber
      * @param container
      * @param name
      * @param ringBuffer
+     * @param cpuAffinityGeneratorFunction function that returns cpu id to use based on listener name
+     * @param timoutUS max timeout for listener to start
      */
-    DataMultiplexerSubscriber(Container *container, const std::string &name, RingBuffer &ringBuffer)
-        : Subscriber<TEvent>(container, name, "DATA_MULTIPLEXER")
+    DataMultiplexerSubscriber(Container *container,
+                              const std::string &dataMuxName,
+                              const std::string &subscriberName,
+                              RingBuffer &ringBuffer,
+                              const long timeoutUS = MULTIPLEXER_START_TIMEOUT_MICROSEC)
+        : EventEmitterSubscriber<TEvent>(container,
+                                         EventEmitterType::SAFE,
+                                         dataMuxName + subscriberName)
         , _ringBuffer(ringBuffer)
-    {}
-
-    /**
-     * @brief registerListener
-     * @param name
-     * @param listener
-     */
-    void registerListener(const std::string &name,
-                          const std::function<void(const TEvent &)> listener)
+        , _eventHandler(this->_name, this->_eventEmitter)
+        , _started(false)
+        , _batchProcessorTask([this] {
+            std::vector<disruptor4cpp::sequence *> sequences_to_add;
+            sequences_to_add.resize(1);
+            sequences_to_add[0] = &batchEventProcessor.get()->get_sequence();
+            this->_ringBuffer.add_gating_sequences(sequences_to_add);
+            this->batchEventProcessor->run();
+        })
+        , _batchProcessorThread()
+        , _batchProcessorThreadFuture(_batchProcessorTask.get_future())
+        , _timeoutUs(timeoutUS)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        listenerStats.insert(
-            std::make_pair(name,
-                           std::make_shared<kpsr::SubscriptionStats>(name,
-                                                                     this->_name,
-                                                                     "DATA_MULTIPLEXER")));
-        if (this->_container != nullptr) {
-            this->_container->attach(listenerStats[name].get());
-        }
-        subscriberMap.insert(
-            std::make_pair(name,
-                           std::make_shared<DataMultiplexerListener<TEvent, BufferSize>>(
-                               listener, _ringBuffer, listenerStats[name])));
-        subscriberMap[name]->start();
-    }
+        auto barrier = _ringBuffer.new_barrier();
+        batchEventProcessor = std::unique_ptr<BatchProcessor>(
+            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler, this->_name));
 
-    /**
-     * @brief registerListenerOnce not support at the moment
-     * @param listener
-     */
-    void registerListenerOnce(const std::function<void(const TEvent &)> listener)
-    {
-        // NOT SUPPORTED YET.
-    }
-
-    /**
-     * @brief removeListener
-     * @param name
-     */
-    void removeListener(const std::string &name)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        if (subscriberMap.find(name) != subscriberMap.end()) {
-            subscriberMap[name]->stop();
-            if (this->_container != nullptr) {
-                this->_container->detach(listenerStats[name].get());
+        _batchProcessorThread = std::thread(std::move(_batchProcessorTask));
+        _started = true;
+        spdlog::debug("{}. DataMultiplexerSubscriber with name {} has been started.",
+                      __PRETTY_FUNCTION__,
+                      this->_name);
+        long counterUs = 0;
+        while (!this->batchEventProcessor->is_running()) {
+            if (counterUs > _timeoutUs) {
+                throw std::runtime_error("Could not start the DataMultiplexerListener");
             }
-            subscriberMap.erase(name);
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            counterUs += 100;
         }
     }
 
-    /**
-     * @brief getSubscriptionStats getSubscriptionStats retrieves the performance information of the listener.
-     * @param name
-     * @return
-     */
-    std::shared_ptr<SubscriptionStats> getSubscriptionStats(const std::string &name)
+    virtual ~DataMultiplexerSubscriber()
     {
-        return listenerStats[name];
-    }
-
-    /**
-     * @brief subscriberMap
-     */
-    std::map<std::string, std::shared_ptr<DataMultiplexerListener<TEvent, BufferSize>>> subscriberMap;
-
-    void setContainer(Container *container)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        this->_container = container;
-        if (this->_container) {
-            for (auto &keyValue : subscriberMap) {
-                if (!keyValue.second->batchEventProcessor->is_running()) {
-                    this->_container->attach(getSubscriptionStats(keyValue.first).get());
-                } else {
-                    spdlog::info(
-                        "Cannot attach container to Subscriber listeners which are running.");
-                }
-            }
+        // TODO Move this to stop method and/or ensure all listeners are removed.
+        if (!_started) {
+            return;
+        }
+        while (!batchEventProcessor->is_running()) {
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
+        }
+        batchEventProcessor->halt();
+        if (_batchProcessorThread.joinable()) {
+            _batchProcessorThread.join();
         }
     }
+
+    std::unique_ptr<BatchProcessor> batchEventProcessor;
 
 private:
-    mutable std::mutex m_mutex;
     RingBuffer &_ringBuffer;
-    std::map<std::string, std::shared_ptr<SubscriptionStats>> listenerStats;
+    DataMultiplexerEventHandler<TEvent> _eventHandler;
+    std::atomic<bool> _started;
+    std::packaged_task<void()> _batchProcessorTask;
+    std::thread _batchProcessorThread;
+    std::future<void> _batchProcessorThreadFuture;
+    const long _timeoutUs;
 };
 } // namespace high_performance
 } // namespace kpsr

@@ -85,5 +85,5 @@ TEST(CodegenPocoTests, CompositionPocoTest)
 
     //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
     //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }

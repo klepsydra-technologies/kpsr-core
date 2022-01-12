@@ -201,8 +201,8 @@ private:
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
 `public const std::string `[`_name`](#structkpsr_1_1FunctionStats_1a4ac28563e324dcf0ffc9cf1df4d6ffd9) | _name
-`public long long unsigned int `[`_totalProcessed`](#structkpsr_1_1FunctionStats_1ab4b1b346957e5e3d21d6bb479818fa0c) | _totalProcessed
-`public long long unsigned int `[`_totalProcessingTimeInNanoSecs`](#structkpsr_1_1FunctionStats_1a1fbd309305458e9762173aada3e0165c) | _totalProcessingTimeInNanoSecs
+`public long long unsigned int `[`totalProcessed`](#structkpsr_1_1FunctionStats_1ab4b1b346957e5e3d21d6bb479818fa0c) | totalProcessed
+`public long long unsigned int `[`totalProcessingTimeInNanoSecs`](#structkpsr_1_1FunctionStats_1a1fbd309305458e9762173aada3e0165c) | totalProcessingTimeInNanoSecs
 `public inline  `[`FunctionStats`](#structkpsr_1_1FunctionStats_1ac77f3a3cbc427e543712ce9b928864c7)`(const std::string name)` | 
 `public inline long long unsigned int `[`getMillisecondsSinceCreation`](#structkpsr_1_1FunctionStats_1a6f6411ccd39c71d0b8e3e7bb17e8953e)`()` | getMillisecondsSinceCreation
 `public inline long long unsigned int `[`getMillisecondsSinceStart`](#structkpsr_1_1FunctionStats_1ab9dc8401820c7bd436f8417fb9b0ace6)`()` | getMillisecondsSinceStart
@@ -219,13 +219,13 @@ private:
 
 _name
 
-#### `public long long unsigned int `[`_totalProcessed`](#structkpsr_1_1FunctionStats_1ab4b1b346957e5e3d21d6bb479818fa0c) 
+#### `public long long unsigned int `[`totalProcessed`](#structkpsr_1_1FunctionStats_1ab4b1b346957e5e3d21d6bb479818fa0c) 
 
-_totalProcessed
+totalProcessed
 
-#### `public long long unsigned int `[`_totalProcessingTimeInNanoSecs`](#structkpsr_1_1FunctionStats_1a1fbd309305458e9762173aada3e0165c) 
+#### `public long long unsigned int `[`totalProcessingTimeInNanoSecs`](#structkpsr_1_1FunctionStats_1a1fbd309305458e9762173aada3e0165c) 
 
-_totalProcessingTimeInNanoSecs
+totalProcessingTimeInNanoSecs
 
 #### `public inline  `[`FunctionStats`](#structkpsr_1_1FunctionStats_1ac77f3a3cbc427e543712ce9b928864c7)`(const std::string name)` 
 
@@ -274,7 +274,7 @@ Statistics associated to the performance of the publisher. The messures include 
 --------------------------------|---------------------------------------------
 `public const std::string `[`_type`](#structkpsr_1_1PublicationStats_1ab5e593a1d0d7bcf36ef2590b7e927050) | _type
 `public std::atomic_ullong `[`_totalEventAllocations`](#structkpsr_1_1PublicationStats_1a6f9bbd062b07128ee1f8bc62ca66dc6b) | _totalEventAllocations
-`public std::atomic_ullong `[`_totalDiscardedEvents`](#structkpsr_1_1PublicationStats_1a1bafc7c2e170de44adf480cdb12f1861) | _totalDiscardedEvents
+`public std::atomic_ullong `[`totalDiscardedEvents`](#structkpsr_1_1PublicationStats_1a1bafc7c2e170de44adf480cdb12f1861) | totalDiscardedEvents
 `public inline  `[`PublicationStats`](#structkpsr_1_1PublicationStats_1a7b6a873cd5c632dda8fcb710fc10536c)`(const std::string name,const std::string type)` | [ServiceStats](api-kpsr-monitoring.md#structkpsr_1_1ServiceStats).
 
 ## Members
@@ -287,9 +287,9 @@ _type
 
 _totalEventAllocations
 
-#### `public std::atomic_ullong `[`_totalDiscardedEvents`](#structkpsr_1_1PublicationStats_1a1bafc7c2e170de44adf480cdb12f1861) 
+#### `public std::atomic_ullong `[`totalDiscardedEvents`](#structkpsr_1_1PublicationStats_1a1bafc7c2e170de44adf480cdb12f1861) 
 
-_totalDiscardedEvents
+totalDiscardedEvents
 
 #### `public inline  `[`PublicationStats`](#structkpsr_1_1PublicationStats_1a7b6a873cd5c632dda8fcb710fc10536c)`(const std::string name,const std::string type)` 
 
@@ -367,8 +367,8 @@ Statistics associated to the performance of the listeners. The messures include 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
 `public const std::string `[`_type`](#structkpsr_1_1SubscriptionStats_1abf708c0e8ed499747d582b1a42f40c0c) | _subscriberName
-`public std::atomic_ullong `[`_totalEnqueuedTimeInNs`](#structkpsr_1_1SubscriptionStats_1af4dc244f8078f49eafb0b84d63d87bb8) | _totalDiscardedEvents
-`public std::atomic_ullong `[`_totalDiscardedEvents`](#structkpsr_1_1SubscriptionStats_1a0b316503f0e39caa4daaf7441cc45380) | _totalDiscardedEvents
+`public std::atomic_ullong `[`totalEnqueuedTimeInNs`](#structkpsr_1_1SubscriptionStats_1af4dc244f8078f49eafb0b84d63d87bb8) | totalDiscardedEvents
+`public std::atomic_ullong `[`totalDiscardedEvents`](#structkpsr_1_1SubscriptionStats_1a0b316503f0e39caa4daaf7441cc45380) | totalDiscardedEvents
 `public inline  `[`SubscriptionStats`](#structkpsr_1_1SubscriptionStats_1a4fe95731379f2f1fa41c903464c5f839)`(const std::string listenerName,const std::string subscriberName,const std::string type)` | _subscriberName
 
 ## Members
@@ -377,13 +377,13 @@ Statistics associated to the performance of the listeners. The messures include 
 
 _subscriberName
 
-#### `public std::atomic_ullong `[`_totalEnqueuedTimeInNs`](#structkpsr_1_1SubscriptionStats_1af4dc244f8078f49eafb0b84d63d87bb8) 
+#### `public std::atomic_ullong `[`totalEnqueuedTimeInNs`](#structkpsr_1_1SubscriptionStats_1af4dc244f8078f49eafb0b84d63d87bb8) 
 
-_totalDiscardedEvents
+totalDiscardedEvents
 
-#### `public std::atomic_ullong `[`_totalDiscardedEvents`](#structkpsr_1_1SubscriptionStats_1a0b316503f0e39caa4daaf7441cc45380) 
+#### `public std::atomic_ullong `[`totalDiscardedEvents`](#structkpsr_1_1SubscriptionStats_1a0b316503f0e39caa4daaf7441cc45380) 
 
-_totalDiscardedEvents
+totalDiscardedEvents
 
 #### `public inline  `[`SubscriptionStats`](#structkpsr_1_1SubscriptionStats_1a4fe95731379f2f1fa41c903464c5f839)`(const std::string listenerName,const std::string subscriberName,const std::string type)` 
 

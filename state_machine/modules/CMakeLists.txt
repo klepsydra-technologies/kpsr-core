@@ -18,10 +18,10 @@
 #****************************************************************************
 
 # Add module code
-ADD_SUBDIRECTORY(${PROJ_MAIN_NAME})
-IF(KPSR_WITH_YAML)
-   ADD_SUBDIRECTORY(yaml_conf)
-ENDIF()
+add_subdirectory(${PROJ_MAIN_NAME})
+if(KPSR_WITH_YAML)
+    add_subdirectory(yaml_conf)
+endif()
 
 add_core_export_target()
 add_include_dirs()

@@ -45,19 +45,25 @@ public:
         : FunctionStats(serviceName)
         , _totalRunningTimeMs(0)
         , _running(false)
-        , _started(false)
     {}
+
+    /*!
+     * @brief start
+     */
+    void start() override
+    {
+        if (!_processingStarted) {
+            _totalRunningTimeMs = 0;
+            _processingStarted = true;
+            this->_processingStartedTimeMs = TimeUtils::getCurrentMillisecondsAsLlu();
+        }
+    }
 
     /*!
      * @brief startTimeWatch
      */
     void startTimeWatch()
     {
-        if (!_started) {
-            _totalRunningTimeMs = 0;
-            _started = true;
-            this->_processingStartedTimeMs = TimeUtils::getCurrentMillisecondsAsLlu();
-        }
         if (!_running) {
             _timetWatchMs = TimeUtils::getCurrentMillisecondsAsLlu();
         }
@@ -94,8 +100,6 @@ private:
     std::atomic_ullong _timetWatchMs;
 
     std::atomic_bool _running;
-
-    std::atomic_bool _started;
 };
 } // namespace kpsr
 

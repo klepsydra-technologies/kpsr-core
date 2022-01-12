@@ -19,6 +19,8 @@
 
 #include <klepsydra/core/container.h>
 
+#include <spdlog/spdlog.h>
+
 kpsr::Container::Container(Environment *env, const std::string &applicationName)
     : _env(env)
     , _applicationName(applicationName)
@@ -37,11 +39,43 @@ kpsr::Container::~Container()
 void kpsr::Container::start()
 {
     _running = true;
+
+    for (auto stats : _serviceStats) {
+        stats->start();
+    }
+
+    for (auto stats : _functionStats) {
+        stats->start();
+    }
+
+    for (auto stats : _publicationStats) {
+        stats->start();
+    }
+
+    for (auto stats : _subscriptionStats) {
+        stats->start();
+    }
 }
 
 void kpsr::Container::stop()
 {
     _running = false;
+
+    for (auto stats : _serviceStats) {
+        stats->stop();
+    }
+
+    for (auto stats : _functionStats) {
+        stats->stop();
+    }
+
+    for (auto stats : _publicationStats) {
+        stats->stop();
+    }
+
+    for (auto stats : _subscriptionStats) {
+        stats->stop();
+    }
 }
 
 void kpsr::Container::attach(Service *service)
@@ -52,6 +86,13 @@ void kpsr::Container::attach(Service *service)
     std::lock_guard<std::mutex> lock(_serviceMutex);
     _managedServices.push_back(service);
     _serviceStats.push_back(&service->_serviceStats);
+    if (_running) {
+        spdlog::info(
+            "Attaching service {} after container {} started. Statistics might not be accurate.",
+            service->_serviceStats.name,
+            _applicationName);
+        service->_serviceStats.start();
+    }
 }
 
 void kpsr::Container::detach(Service *service)
@@ -64,8 +105,7 @@ void kpsr::Container::detach(Service *service)
         auto itr = std::find_if(_managedServices.begin(),
                                 _managedServices.end(),
                                 [service](Service *item) {
-                                    return item->_serviceStats._name ==
-                                           service->_serviceStats._name;
+                                    return item->_serviceStats.name == service->_serviceStats.name;
                                 });
         if (itr != _managedServices.end()) {
             _managedServices.erase(itr);
@@ -75,7 +115,7 @@ void kpsr::Container::detach(Service *service)
         auto itr = std::find_if(_serviceStats.begin(),
                                 _serviceStats.end(),
                                 [service](ServiceStats *item) {
-                                    return item->_name == service->_serviceStats._name;
+                                    return item->name == service->_serviceStats.name;
                                 });
         if (itr != _serviceStats.end()) {
             _serviceStats.erase(itr);
@@ -90,6 +130,13 @@ void kpsr::Container::attach(FunctionStats *functionStats)
     }
     std::lock_guard<std::mutex> lock(_functionStatsMutex);
     _functionStats.push_back(functionStats);
+    if (_running) {
+        spdlog::info(
+            "Attaching function {} after container {} started. Statistics might not be accurate.",
+            functionStats->name,
+            _applicationName);
+        functionStats->start();
+    }
 }
 
 void kpsr::Container::detach(FunctionStats *functionStats)
@@ -101,7 +148,7 @@ void kpsr::Container::detach(FunctionStats *functionStats)
     auto itr = std::find_if(_functionStats.begin(),
                             _functionStats.end(),
                             [functionStats](FunctionStats *item) {
-                                return item->_name == functionStats->_name;
+                                return item->name == functionStats->name;
                             });
     if (itr != _functionStats.end()) {
         _functionStats.erase(itr);
@@ -115,6 +162,13 @@ void kpsr::Container::attach(ServiceStats *serviceStats)
     }
     std::lock_guard<std::mutex> lock(_serviceStatsMutex);
     _serviceStats.push_back(serviceStats);
+    if (_running) {
+        spdlog::info(
+            "Attaching service {} after container {} started. Statistics might not be accurate.",
+            serviceStats->name,
+            _applicationName);
+        serviceStats->start();
+    }
 }
 
 void kpsr::Container::attach(PublicationStats *publicationStats)
@@ -124,6 +178,13 @@ void kpsr::Container::attach(PublicationStats *publicationStats)
     }
     std::lock_guard<std::mutex> lock(_publishStatsMutex);
     _publicationStats.push_back(publicationStats);
+    if (_running) {
+        spdlog::info(
+            "Attaching publisher {} after container {} started. Statistics might not be accurate.",
+            publicationStats->name,
+            _applicationName);
+        publicationStats->start();
+    }
 }
 
 void kpsr::Container::attach(SubscriptionStats *subscriptionStats)
@@ -133,6 +194,13 @@ void kpsr::Container::attach(SubscriptionStats *subscriptionStats)
     }
     std::lock_guard<std::mutex> lock(_subscriptionStatsMutex);
     _subscriptionStats.push_back(subscriptionStats);
+    if (_running) {
+        spdlog::info(
+            "Attaching subscriber {} after container {} started. Statistics might not be accurate.",
+            subscriptionStats->name,
+            _applicationName);
+        subscriptionStats->start();
+    }
 }
 
 void kpsr::Container::detach(SubscriptionStats *subscriptionStats)
@@ -144,7 +212,7 @@ void kpsr::Container::detach(SubscriptionStats *subscriptionStats)
     auto itr = std::find_if(_subscriptionStats.begin(),
                             _subscriptionStats.end(),
                             [subscriptionStats](SubscriptionStats *item) {
-                                return item->_name == subscriptionStats->_name;
+                                return item->name == subscriptionStats->name;
                             });
     if (itr != _subscriptionStats.end()) {
         _subscriptionStats.erase(itr);

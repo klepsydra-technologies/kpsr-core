@@ -25,6 +25,7 @@
 #include <memory>
 #include <string>
 
+#include <klepsydra/core/event_emitter_factory.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
 
 #include <klepsydra/high_performance/eventloop_data_type.h>
@@ -54,40 +55,32 @@ public:
      * @param eventEmitter
      * @param eventName
      */
-    EventLoopSubscriber(Container *container,
-                        EventEmitter &eventEmitter,
-                        const std::string &eventName)
-        : EventEmitterSubscriber<T>(container, _internalEventEmitter, eventName)
-        , _externalEventEmitter(eventEmitter)
-        , _internalEventEmitter()
+    EventLoopSubscriber(
+        Container *container,
+        std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> &externalEventEmitter,
+        const std::string &eventName,
+        EventEmitterType eventEmitterType)
+        : EventEmitterSubscriber<T>(container, eventEmitterType, eventName)
+        , _externalEventEmitter(externalEventEmitter)
         , _eventName(eventName)
     {
         _eventLoopListener = [this](const EventloopDataWrapper &eventDataType) {
             std::shared_ptr<const T> reinterpreted = std::static_pointer_cast<const T>(
                 eventDataType.eventData);
-            this->_internalEventEmitter.emitEvent(this->_eventName,
-                                                  eventDataType.enqueuedTimeInNs,
-                                                  *reinterpreted.get());
+            this->_eventEmitter->emitEvent(this->_eventName,
+                                           eventDataType.enqueuedTimeInNs,
+                                           reinterpreted);
         };
-        _listenerId = _externalEventEmitter.on(eventName,
-                                               "event_loop_subscriber",
-                                               _eventLoopListener);
-        if (this->_container != nullptr) {
-            this->_container->attach(_externalEventEmitter._listenerStats[_listenerId].get());
-        }
+        _listenerId = _externalEventEmitter->on(this->_container,
+                                                eventName + "_external",
+                                                eventName + "_external",
+                                                _eventLoopListener);
     }
 
-    ~EventLoopSubscriber()
-    {
-        if (this->_container != nullptr) {
-            this->_container->detach(_externalEventEmitter._listenerStats[_listenerId].get());
-        }
-        _externalEventEmitter.remove_listener(_listenerId);
-    }
+    ~EventLoopSubscriber() { _externalEventEmitter->removeListener(this->_container, _listenerId); }
 
 private:
-    EventEmitter &_externalEventEmitter;
-    EventEmitter _internalEventEmitter;
+    std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> _externalEventEmitter;
     std::string _eventName;
     std::function<void(const EventloopDataWrapper &)> _eventLoopListener;
     int _listenerId;

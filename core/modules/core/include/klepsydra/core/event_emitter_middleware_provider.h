@@ -20,6 +20,7 @@
 #ifndef EVENT_EMITTER_MIDDLEWARE_PROVIDER_H
 #define EVENT_EMITTER_MIDDLEWARE_PROVIDER_H
 
+#include <klepsydra/core/event_emitter_factory.h>
 #include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
 
@@ -54,8 +55,10 @@ public:
                                    std::string eventName,
                                    int poolSize,
                                    std::function<void(T &)> initializerFunction,
-                                   std::function<void(const T &, T &)> eventCloner)
-        : _eventEmitter()
+                                   std::function<void(const T &, T &)> eventCloner,
+                                   EventEmitterType eventEmitterType = EventEmitterType::SAFE)
+        : _eventEmitter(
+              EventEmitterFactory::createEventEmitter<std::shared_ptr<const T>>(eventEmitterType))
         , _eventName(eventName)
         , _publisher(container, eventName, _eventEmitter, poolSize, initializerFunction, eventCloner)
         , _subscriber(container, _eventEmitter, eventName)
@@ -87,7 +90,7 @@ public:
     }
 
 private:
-    EventEmitter _eventEmitter;
+    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> _eventEmitter;
     std::string _eventName;
     EventEmitterPublisher<T> _publisher;
     EventEmitterSubscriber<T> _subscriber;

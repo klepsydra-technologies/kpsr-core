@@ -24,6 +24,8 @@
 
 #include <functional>
 
+#include <klepsydra/core/event_emitter_interface.h>
+
 #include "event_loop.h"
 #include "event_loop_publisher.h"
 #include "event_loop_subscriber.h"
@@ -76,19 +78,20 @@ public:
      * @brief EventLoopMiddlewareProvider
      * @param container
      */
-    EventLoopMiddlewareProvider(Container *container, const std::string &name = "kpsr_EL")
+    EventLoopMiddlewareProvider(Container *container,
+                                const std::string &name = "kpsr_EL",
+                                const long timeoutUS = EVENT_LOOP_START_TIMEOUT_MICROSEC,
+                                const std::vector<int> &cpuAffinity = {},
+                                EventEmitterType eventEmitterType = EventEmitterType::UNSAFE_MULTI)
         : _container(container)
         , _ringBuffer()
-        , _eventEmitter()
-        , _eventLoop(_eventEmitter, _ringBuffer, name)
+        , _externalEventEmitter(
+              EventEmitterFactory::createEventEmitter<EventloopDataWrapper>(eventEmitterType))
+        , _eventLoop(_externalEventEmitter, _ringBuffer, name, timeoutUS)
         , _scheduler(nullptr)
     {}
 
-    ~EventLoopMiddlewareProvider()
-    {
-        if (_scheduler)
-            delete _scheduler;
-    }
+    ~EventLoopMiddlewareProvider() {}
 
     template<class T>
     /**
@@ -130,7 +133,8 @@ public:
      * @param eventName
      * @return
      */
-    Subscriber<T> *getSubscriber(const std::string &eventName)
+    Subscriber<T> *getSubscriber(const std::string &eventName,
+                                 EventEmitterType eventEmitterType = EventEmitterType::UNSAFE_MULTI)
     {
         auto search = _subscriberMap.find(eventName);
         if (search != _subscriberMap.end()) {
@@ -140,7 +144,10 @@ public:
             return subscriber.get();
         } else {
             std::shared_ptr<EventLoopSubscriber<T>> subscriber =
-                std::make_shared<EventLoopSubscriber<T>>(_container, _eventEmitter, eventName);
+                std::make_shared<EventLoopSubscriber<T>>(_container,
+                                                         _externalEventEmitter,
+                                                         eventName,
+                                                         eventEmitterType);
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(subscriber);
             _subscriberMap[eventName] = internalPointer;
             return std::static_pointer_cast<Subscriber<T>>(subscriber).get();
@@ -154,18 +161,20 @@ public:
     Scheduler *getScheduler(const std::string &name = "")
     {
         std::string eventName = name.empty() ? "EVENTLOOP_SCHEDULER" : name;
-        if (_scheduler == nullptr) {
-            std::shared_ptr<EventLoopFunctionExecutorListener> subscriber(
-                new EventLoopFunctionExecutorListener(_container, _eventEmitter, eventName));
+        if (_scheduler.get() == nullptr) {
+            std::shared_ptr<EventLoopFunctionExecutorListener> subscriber =
+                std::make_shared<EventLoopFunctionExecutorListener>(_container,
+                                                                    _externalEventEmitter,
+                                                                    eventName);
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(subscriber);
             _subscriberMap[eventName] = internalPointer;
 
             Publisher<std::function<void()>> *publisher =
                 getPublisher<std::function<void()>>(eventName, 0, nullptr, nullptr);
 
-            _scheduler = new EventLoopScheduler(publisher);
+            _scheduler = std::unique_ptr<EventLoopScheduler>(new EventLoopScheduler(publisher));
         }
-        return _scheduler;
+        return _scheduler.get();
     }
 
     void start() { _eventLoop.start(); }
@@ -201,12 +210,12 @@ public:
 private:
     Container *_container;
     RingBuffer _ringBuffer;
-    EventEmitter _eventEmitter;
+    std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> _externalEventEmitter;
     EventLoop<BufferSize> _eventLoop;
 
     std::map<std::string, std::shared_ptr<void>> _publisherMap;
     std::map<std::string, std::shared_ptr<void>> _subscriberMap;
-    EventLoopScheduler *_scheduler;
+    std::unique_ptr<EventLoopScheduler> _scheduler;
 };
 } // namespace high_performance
 } // namespace kpsr

@@ -10,18 +10,18 @@ This group of classes relates exclusively to the assemblying of the application.
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`class `[`kpsr::EventEmitter`](#classkpsr_1_1EventEmitter) | The [EventEmitter](#classkpsr_1_1EventEmitter) class.
+`class `[`kpsr::SafeEventEmitter`](#classkpsr_1_1EventEmitter) | The [SafeEventEmitter](#classkpsr_1_1EventEmitter) class.
 `class `[`kpsr::EventEmitterSubscriber`](#classkpsr_1_1EventEmitterSubscriber) | The [EventEmitterSubscriber](#classkpsr_1_1EventEmitterSubscriber) class.
 `class `[`kpsr::FromMiddlewareChannel`](#classkpsr_1_1FromMiddlewareChannel) | The [FromMiddlewareChannel](#classkpsr_1_1FromMiddlewareChannel) class.
 `class `[`kpsr::ObjectPoolPublisher`](#classkpsr_1_1ObjectPoolPublisher) | The [ObjectPoolPublisher](#classkpsr_1_1ObjectPoolPublisher) class.
 `class `[`kpsr::PropertyFileEnvironment`](#classkpsr_1_1PropertyFileEnvironment) | The [PropertyFileEnvironment](#classkpsr_1_1PropertyFileEnvironment) class.
 `class `[`kpsr::ToMiddlewareChannel`](#classkpsr_1_1ToMiddlewareChannel) | The [ToMiddlewareChannel](#classkpsr_1_1ToMiddlewareChannel) class.
-`struct `[`kpsr::EventEmitter::ListenerBase`](#structkpsr_1_1EventEmitter_1_1ListenerBase) | 
-`struct `[`kpsr::EventEmitter::Listener`](#structkpsr_1_1EventEmitter_1_1Listener) | 
+`struct `[`kpsr::SafeEventEmitter::ListenerBase`](#structkpsr_1_1EventEmitter_1_1ListenerBase) | 
+`struct `[`kpsr::SafeEventEmitter::Listener`](#structkpsr_1_1EventEmitter_1_1Listener) | 
 
-# class `kpsr::EventEmitter` 
+# class `kpsr::SafeEventEmitter` 
 
-The [EventEmitter](#classkpsr_1_1EventEmitter) class.
+The [SafeEventEmitter](#classkpsr_1_1EventEmitter) class.
 
 Klepsydra Technologies 2019-2020.
 
@@ -34,8 +34,8 @@ An event emitter pattern implementation oriented to Klepsydra API.
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
 `public std::map< unsigned int, std::shared_ptr< `[`SubscriptionStats`](api-kpsr-monitoring.md#structkpsr_1_1SubscriptionStats)` > > `[`_listenerStats`](#classkpsr_1_1EventEmitter_1ad45be55b007e60948ea25b765d7d7914) | _listenerStats
-`public  `[`EventEmitter`](#classkpsr_1_1EventEmitter_1a4b592c9fbff30ab1650e9bd299a881d3)`()` | [EventEmitter](#classkpsr_1_1EventEmitter).
-`public  `[`~EventEmitter`](#classkpsr_1_1EventEmitter_1ac5d4165185099b8f8abdb2f765be68e1)`()` | 
+`public  `[`SafeEventEmitter`](#classkpsr_1_1EventEmitter_1a4b592c9fbff30ab1650e9bd299a881d3)`()` | [SafeEventEmitter](#classkpsr_1_1EventEmitter).
+`public  `[`~SafeEventEmitter`](#classkpsr_1_1EventEmitter_1ac5d4165185099b8f8abdb2f765be68e1)`()` | 
 `public template<>`  <br/>`unsigned int `[`add_listener`](#classkpsr_1_1EventEmitter_1a01e0517373a71c991ef1e132b72c3b1e)`(std::string event_id,std::string listener_name,bool isOnce,std::function< void(const Args &...)> cb)` | add_listener
 `public unsigned int `[`add_listener`](#classkpsr_1_1EventEmitter_1a32b21c1d9f922927095577a711b72325)`(std::string event_id,std::string listener_name,bool isOnce,std::function< void()> cb)` | add_listener
 `public template<>`  <br/>`unsigned int `[`on`](#classkpsr_1_1EventEmitter_1a13a9b8d8c7d5eff6407a11b64e550fb3)`(std::string event_id,std::string listener_name,std::function< void(const Args &...)> cb)` | on
@@ -53,11 +53,11 @@ _listenerStats
 
 A map that contains all the subscription stats associated to each listener in the event emitter.
 
-#### `public  `[`EventEmitter`](#classkpsr_1_1EventEmitter_1a4b592c9fbff30ab1650e9bd299a881d3)`()` 
+#### `public  `[`SafeEventEmitter`](#classkpsr_1_1EventEmitter_1a4b592c9fbff30ab1650e9bd299a881d3)`()` 
 
-[EventEmitter](#classkpsr_1_1EventEmitter).
+[SafeEventEmitter](#classkpsr_1_1EventEmitter).
 
-#### `public  `[`~EventEmitter`](#classkpsr_1_1EventEmitter_1ac5d4165185099b8f8abdb2f765be68e1)`()` 
+#### `public  `[`~SafeEventEmitter`](#classkpsr_1_1EventEmitter_1ac5d4165185099b8f8abdb2f765be68e1)`()` 
 
 #### `public template<>`  <br/>`unsigned int `[`add_listener`](#classkpsr_1_1EventEmitter_1a01e0517373a71c991ef1e132b72c3b1e)`(std::string event_id,std::string listener_name,bool isOnce,std::function< void(const Args &...)> cb)` 
 
@@ -174,7 +174,7 @@ Main implementation of the subscriber based on the event emitter class. It is ba
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public inline  `[`EventEmitterSubscriber`](#classkpsr_1_1EventEmitterSubscriber_1ac0d5f141b4dc9bd9e87326bcfa0323fc)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` | [EventEmitterSubscriber](#classkpsr_1_1EventEmitterSubscriber).
+`public inline  `[`EventEmitterSubscriber`](#classkpsr_1_1EventEmitterSubscriber_1ac0d5f141b4dc9bd9e87326bcfa0323fc)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` | [EventEmitterSubscriber](#classkpsr_1_1EventEmitterSubscriber).
 `public inline virtual void `[`registerListenerOnce`](#classkpsr_1_1EventEmitterSubscriber_1a11340ddadf4a47f103b5426e79141776)`(const std::function< void(const T &)> listener)` | registerListenerOnce
 `public inline virtual void `[`registerListener`](#classkpsr_1_1EventEmitterSubscriber_1a00d4388f2deb604cfaafd5a875f83d1a)`(const std::string name,const std::function< void(const T &)> listener)` | registerListener
 `public inline virtual void `[`removeListener`](#classkpsr_1_1EventEmitterSubscriber_1abed78456932b73df34df1f48a518c40f)`(const std::string name)` | removeListener
@@ -182,7 +182,7 @@ Main implementation of the subscriber based on the event emitter class. It is ba
 
 ## Members
 
-#### `public inline  `[`EventEmitterSubscriber`](#classkpsr_1_1EventEmitterSubscriber_1ac0d5f141b4dc9bd9e87326bcfa0323fc)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` 
+#### `public inline  `[`EventEmitterSubscriber`](#classkpsr_1_1EventEmitterSubscriber_1ac0d5f141b4dc9bd9e87326bcfa0323fc)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` 
 
 [EventEmitterSubscriber](#classkpsr_1_1EventEmitterSubscriber).
 
@@ -482,7 +482,7 @@ processAndPublish
 #### Parameters
 * `process`
 
-# struct `kpsr::EventEmitter::ListenerBase` 
+# struct `kpsr::SafeEventEmitter::ListenerBase` 
 
 ## Summary
 
@@ -506,11 +506,11 @@ processAndPublish
 
 #### `public inline virtual  `[`~ListenerBase`](#structkpsr_1_1EventEmitter_1_1ListenerBase_1a209fb463e3ccc305239a3eb03267bd6f)`()` 
 
-# struct `kpsr::EventEmitter::Listener` 
+# struct `kpsr::SafeEventEmitter::Listener` 
 
 ```
-struct kpsr::EventEmitter::Listener
-  : public kpsr::EventEmitter::ListenerBase
+struct kpsr::SafeEventEmitter::Listener
+  : public kpsr::SafeEventEmitter::ListenerBase
 ```  
 
 ## Summary

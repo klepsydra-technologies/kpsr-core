@@ -49,7 +49,7 @@ public:
 
     PoolTestObject()
     {
-        spdlog::info("new empty invocation!!!");
+        spdlog::debug("new empty invocation!!!");
         PoolTestObject::emptyConstructorInvokations++;
     }
 
@@ -198,12 +198,12 @@ TEST(SmartObjectPoolTest, performanceTest)
     }
 
     for (int i = 0; i < 200; i++) {
-        spdlog::info("Thread[{}]. noAllocations: {}"
-                     ". timeAcquiring: {}"
-                     ". totalTime: {}",
-                     i,
-                     threadPool[i]->noAllocations,
-                     threadPool[i]->timeAcquiring,
-                     threadPool[i]->totalTime);
+        spdlog::debug("Thread[{}]. noAllocations: {}"
+                      ". timeAcquiring: {}"
+                      ". totalTime: {}",
+                      i,
+                      threadPool[i]->noAllocations,
+                      threadPool[i]->timeAcquiring,
+                      threadPool[i]->totalTime);
     }
 }

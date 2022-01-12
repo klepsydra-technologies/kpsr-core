@@ -17,21 +17,20 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME disruptor4cpp_test)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME disruptor4cpp_test)
+project(${PROJ_NAME})
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
 
 # Create Library
-#---------------------------------------------------#
-ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+# ---------------------------------------------------#
+add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
 # Link libraries with Project
-#---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_high_performance gtest_main gmock_main)
+# ---------------------------------------------------#
+target_link_libraries(${PROJ_NAME} kpsr_high_performance gtest_main gmock_main)
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
+                                   --gtest_output=xml:gtestresults.xml)

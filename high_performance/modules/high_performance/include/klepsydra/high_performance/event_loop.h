@@ -36,7 +36,7 @@
 namespace kpsr {
 namespace high_performance {
 
-static const long EVENT_LOOP_START_TIMEOUT_MILLISEC = 100;
+static const long EVENT_LOOP_START_TIMEOUT_MICROSEC = 100 * 1000;
 static const char *EVENT_LOOP_START_MESSAGE = "About to run batchEventProcessor";
 
 template<std::size_t BufferSize>
@@ -70,14 +70,14 @@ public:
      * @param eventEmitter
      * @param ringBuffer
      */
-    EventLoop(kpsr::EventEmitter &eventEmitter,
+    EventLoop(std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> &externalEventEmitter,
               RingBuffer &ringBuffer,
               const std::string &name,
-              long timeoutMS = EVENT_LOOP_START_TIMEOUT_MILLISEC)
+              long timeoutUS = EVENT_LOOP_START_TIMEOUT_MICROSEC)
         : _name(name)
         , _threadName(std::to_string(BufferSize) + "_" + name)
         , _ringBuffer(ringBuffer)
-        , _eventHandler(eventEmitter)
+        , _eventHandler(externalEventEmitter)
         , _isStarted(false)
         , _eventLoopTask([this] {
             std::vector<disruptor4cpp::sequence *> sequences_to_add;
@@ -89,7 +89,7 @@ public:
         })
         , _batchProcessTask(_eventLoopTask)
         , _batchProcessorThreadFuture(_batchProcessTask.get_future())
-        , _timeoutUs(timeoutMS * 1000)
+        , _timeoutUs(timeoutUS)
     {
         auto barrier = _ringBuffer.new_barrier();
         batchEventProcessor = std::unique_ptr<BatchProcessor>(
@@ -139,6 +139,8 @@ public:
     bool isStarted() { return _isStarted.load(std::memory_order_acquire); }
 
     bool isRunning() const { return this->batchEventProcessor->is_running(); }
+
+    std::string getName() { return _name; }
 
 private:
     std::string _name;

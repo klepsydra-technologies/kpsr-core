@@ -38,7 +38,7 @@ void kpsr::high_performance::EventLoopScheduler::startScheduledService(int after
                                                                        bool repeat,
                                                                        Service *service)
 {
-    std::string name = service->_serviceStats._name;
+    std::string name = service->_serviceStats.name;
     std::function<void()> task = std::function<void()>(std::bind(&Service::runOnce, service));
     startScheduledTask(name, after, repeat, task);
 }

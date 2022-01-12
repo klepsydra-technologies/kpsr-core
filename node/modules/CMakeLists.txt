@@ -18,8 +18,10 @@
 #****************************************************************************
 
 # Add module code
-IF(KPSR_WITH_ROS)
-    install(DIRECTORY ros_mdlw DESTINATION ${CMAKE_INSTALL_PREFIX}/node
-            FILES_MATCHING PATTERN "*.js")
-ENDIF()
-
+if(KPSR_WITH_ROS)
+    install(
+        DIRECTORY ros_mdlw
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/node
+        FILES_MATCHING
+        PATTERN "*.js")
+endif()

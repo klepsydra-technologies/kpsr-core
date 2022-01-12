@@ -26,6 +26,7 @@
 #include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
 #include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/core/safe_event_emitter.h>
 
 #include "gtest/gtest.h"
 
@@ -39,19 +40,24 @@ public:
 
 TEST(EventTransformForwarder, BasicTest)
 {
-    kpsr::EventEmitter eventEmitter;
-    kpsr::EventEmitterSubscriber<RawMessage> rawSubcriber(nullptr, eventEmitter, "raw");
+    std::shared_ptr<kpsr::EventEmitterInterface<std::shared_ptr<const RawMessage>>> eventEmitter1 =
+        std::make_shared<kpsr::SafeEventEmitter<std::shared_ptr<const RawMessage>>>();
+    kpsr::EventEmitterSubscriber<RawMessage> rawSubcriber(nullptr, eventEmitter1, "raw");
     kpsr::EventEmitterPublisher<RawMessage> rawPublisher(nullptr,
                                                          "raw",
-                                                         eventEmitter,
+                                                         eventEmitter1,
                                                          0,
                                                          nullptr,
                                                          nullptr);
 
-    kpsr::EventEmitterSubscriber<std::string> processedSubcriber(nullptr, eventEmitter, "processed");
+    std::shared_ptr<kpsr::EventEmitterInterface<std::shared_ptr<const std::string>>> eventEmitter2 =
+        std::make_shared<kpsr::SafeEventEmitter<std::shared_ptr<const std::string>>>();
+    kpsr::EventEmitterSubscriber<std::string> processedSubcriber(nullptr,
+                                                                 eventEmitter2,
+                                                                 "processed");
     kpsr::EventEmitterPublisher<std::string> processedPublisher(nullptr,
                                                                 "processed",
-                                                                eventEmitter,
+                                                                eventEmitter2,
                                                                 0,
                                                                 nullptr,
                                                                 nullptr);

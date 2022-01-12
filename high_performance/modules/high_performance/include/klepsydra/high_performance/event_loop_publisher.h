@@ -97,6 +97,10 @@ public:
         try {
             int64_t seq = _ringBuffer.try_next();
             if (_ringBuffer[seq].eventData) {
+                spdlog::warn(
+                    "Unexpected non-nullptr pointer in ringbuffer with address: {}. For index: {}",
+                    _ringBuffer[seq].eventData.get(),
+                    seq);
                 _ringBuffer[seq].eventData.reset();
             }
             _ringBuffer[seq].eventData = std::static_pointer_cast<const void>(event);

@@ -73,13 +73,13 @@ void kpsr::mem::BasicScheduler::stopScheduledTask(const std::string &name)
 
 void kpsr::mem::BasicScheduler::startScheduledService(int after, bool repeat, Service *service)
 {
-    std::string name = service->_serviceStats._name;
+    std::string name = service->_serviceStats.name;
     std::function<void()> task = std::function<void()>(std::bind(&Service::runOnce, service));
     startScheduledTask(name, after, repeat, task);
 }
 
 void kpsr::mem::BasicScheduler::stopScheduledService(Service *service)
 {
-    std::string name = service->_serviceStats._name;
+    std::string name = service->_serviceStats.name;
     stopScheduledTask(name);
 }

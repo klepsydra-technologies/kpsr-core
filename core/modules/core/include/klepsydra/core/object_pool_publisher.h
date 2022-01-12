@@ -59,12 +59,73 @@ public:
                         std::function<void(T &)> initializerFunction,
                         std::function<void(const T &, T &)> eventCloner)
         : Publisher<T>(container, name, type)
-        , _initializerFunction(initializerFunction)
-        , _eventCloner(eventCloner)
     {
         _objectPool = poolSize == 0 ? nullptr
                                     : new SmartObjectPool<T>(name, poolSize, initializerFunction);
         this->_publicationStats._totalEventAllocations = poolSize;
+        if (initializerFunction) {
+            _initializerFunction = [this, initializerFunction](T &t) { initializerFunction(t); };
+        } else {
+            _initializerFunction = [](T &t) {};
+        }
+        if (eventCloner) {
+            _eventCloner = [this, eventCloner](const T &original, T &cloned) {
+                eventCloner(original, cloned);
+            };
+        } else {
+            _eventCloner = [](const T &original, T &cloned) { cloned = original; };
+        }
+
+        if (_objectPool) {
+            _eventCreatorWrapper = [this](const T &eventData) {
+                try {
+                    std::shared_ptr<T> newEvent = std::move(this->_objectPool->acquire());
+                    this->_eventCloner(eventData, *newEvent);
+                    return newEvent;
+                } catch (const std::out_of_range &ex) {
+                    spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}",
+                                 this->_publicationStats.name);
+                    std::shared_ptr<T> newEvent = std::make_shared<T>();
+                    this->_initializerFunction(*newEvent);
+                    this->_eventCloner(eventData, *newEvent);
+                    return newEvent;
+                }
+            };
+            _processEventCreatorWrapper = [this]() {
+                std::shared_ptr<T> newEvent;
+                try {
+                    newEvent = std::move(this->_objectPool->acquire());
+                } catch (const std::out_of_range &ex) {
+                    spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}",
+                                 this->_publicationStats.name);
+                    this->_publicationStats._totalEventAllocations++;
+                    newEvent = std::make_shared<T>();
+                }
+                this->_initializerFunction(*newEvent);
+                return newEvent;
+            };
+
+        } else {
+            if (eventCloner == nullptr) {
+                // default cloner, so initialization function is not necessary.
+                _eventCreatorWrapper = [](const T &eventData) {
+                    return std::make_shared<T>(eventData);
+                };
+            } else {
+                _eventCreatorWrapper = [this](const T &eventData) -> std::shared_ptr<T> {
+                    std::shared_ptr<T> newEvent = std::make_shared<T>();
+                    this->_initializerFunction(*newEvent);
+                    this->_eventCloner(eventData, *newEvent);
+                    return newEvent;
+                };
+            }
+            _processEventCreatorWrapper = [this]() {
+                this->_publicationStats._totalEventAllocations++;
+                std::shared_ptr<T> newEvent = std::make_shared<T>();
+                this->_initializerFunction(*newEvent);
+                return newEvent;
+            };
+        }
     }
 
     virtual ~ObjectPoolPublisher()
@@ -79,34 +140,8 @@ public:
      */
     void internalPublish(const T &eventData) override
     {
-        if (_objectPool != nullptr) {
-            try {
-                std::shared_ptr<T> newEvent = std::move(_objectPool->acquire());
-                if (_eventCloner == nullptr) {
-                    (*newEvent) = eventData;
-                } else {
-                    _eventCloner(eventData, (*newEvent));
-                }
-                internalPublish(newEvent);
-                return;
-            } catch (const std::out_of_range &ex) {
-                spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}",
-                             this->_publicationStats._name);
-            }
-        }
-        this->_publicationStats._totalEventAllocations++;
-        if (_eventCloner == nullptr) {
-            std::shared_ptr<T> newEvent = std::make_shared<T>(eventData);
-            internalPublish(newEvent);
-            newEvent.reset();
-        } else {
-            std::shared_ptr<T> newEvent = std::make_shared<T>();
-            if (_initializerFunction != nullptr) {
-                _initializerFunction(*newEvent);
-            }
-            _eventCloner(eventData, (*newEvent));
-            internalPublish(newEvent);
-        }
+        auto newEvent = _eventCreatorWrapper(eventData);
+        internalPublish(newEvent);
     }
 
     /*!
@@ -115,25 +150,7 @@ public:
      */
     void processAndPublish(std::function<void(T &)> process)
     {
-        if (_objectPool != nullptr) {
-            try {
-                std::shared_ptr<T> newEvent = std::move(_objectPool->acquire());
-                if (_initializerFunction != nullptr) {
-                    _initializerFunction(*newEvent);
-                }
-                process(*newEvent);
-                this->publish(newEvent);
-                return;
-            } catch (const std::out_of_range &ex) {
-                spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}",
-                             this->_publicationStats._name);
-            }
-        }
-        this->_publicationStats._totalEventAllocations++;
-        std::shared_ptr<T> newEvent = std::make_shared<T>();
-        if (_initializerFunction != nullptr) {
-            _initializerFunction(*newEvent);
-        }
+        auto newEvent = _processEventCreatorWrapper();
         process(*newEvent);
         this->publish(newEvent);
     }
@@ -148,6 +165,9 @@ private:
     std::function<void(T &)> _initializerFunction;
     SmartObjectPool<T> *_objectPool;
     std::function<void(const T &, T &)> _eventCloner;
+
+    std::function<std::shared_ptr<T>(const T &eventData)> _eventCreatorWrapper = nullptr;
+    std::function<std::shared_ptr<T>(void)> _processEventCreatorWrapper = nullptr;
 };
 } // namespace kpsr
 #endif

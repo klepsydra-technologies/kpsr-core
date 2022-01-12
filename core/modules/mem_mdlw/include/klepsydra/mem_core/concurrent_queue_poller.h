@@ -25,7 +25,7 @@
 #include <string>
 #include <thread>
 
-#include <klepsydra/core/event_emitter.h>
+#include <klepsydra/core/safe_event_emitter.h>
 
 #include <klepsydra/mem_core/basic_event_data.h>
 #include <klepsydra/mem_core/in_memory_queue_poller.h>
@@ -61,12 +61,14 @@ public:
      * @param sleepPeriodUS The time in microseconds to sleep/wait
      * @param token The producer token used by the publisher
      */
-    ConcurrentQueuePoller(moodycamel::ConcurrentQueue<EventData<const T>> &concurrentQueue,
-                          EventEmitter &eventEmitter,
-                          std::string eventName,
-                          unsigned int sleepPeriodUS,
-                          moodycamel::ProducerToken &token)
-        : InMemoryQueuePoller(eventEmitter, eventName, sleepPeriodUS)
+    ConcurrentQueuePoller(
+        moodycamel::ConcurrentQueue<EventData<const T>> &concurrentQueue,
+        std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> &eventEmitter,
+        std::string eventName,
+        unsigned int sleepPeriodUS,
+        moodycamel::ProducerToken &token)
+        : InMemoryQueuePoller(eventName, sleepPeriodUS)
+        , _eventEmitter(eventEmitter)
         , _internalQueue(concurrentQueue)
         , _token(token)
     {}
@@ -77,12 +79,13 @@ private:
         EventData<const T> event;
         bool ok = _internalQueue.try_dequeue_from_producer(_token, event);
         if (ok) {
-            _eventEmitter.emitEvent(_eventName, event.enqueuedTimeInNs, *event.eventData.get());
+            _eventEmitter->emitEvent(_eventName, event.enqueuedTimeInNs, event.eventData);
         } else {
             std::this_thread::sleep_for(std::chrono::microseconds(_sleepPeriodUS));
         }
     }
 
+    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> _eventEmitter;
     moodycamel::ConcurrentQueue<EventData<const T>> &_internalQueue;
     moodycamel::ProducerToken &_token;
 };

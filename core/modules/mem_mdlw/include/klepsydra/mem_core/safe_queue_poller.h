@@ -25,7 +25,7 @@
 #include <string>
 #include <thread>
 
-#include <klepsydra/core/event_emitter.h>
+#include <klepsydra/core/safe_event_emitter.h>
 
 #include <klepsydra/mem_core/basic_event_data.h>
 #include <klepsydra/mem_core/in_memory_queue_poller.h>
@@ -58,10 +58,11 @@ public:
      * @param sleepPeriodUS
      */
     SafeQueuePoller(SafeQueue<EventData<const T>> &safeQueue,
-                    EventEmitter &eventEmitter,
+                    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> &eventEmitter,
                     std::string eventName,
                     unsigned int sleepPeriodUS)
-        : InMemoryQueuePoller(eventEmitter, eventName, sleepPeriodUS)
+        : InMemoryQueuePoller(eventName, sleepPeriodUS)
+        , _eventEmitter(eventEmitter)
         , _internalQueue(safeQueue)
     {}
 
@@ -71,10 +72,11 @@ private:
         EventData<const T> event;
         bool ok = _internalQueue.timeout_move_pop(event, _sleepPeriodUS);
         if (ok) {
-            _eventEmitter.emitEvent(_eventName, event.enqueuedTimeInNs, *event.eventData.get());
+            _eventEmitter->emitEvent(_eventName, event.enqueuedTimeInNs, event.eventData);
         }
     }
 
+    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> _eventEmitter;
     SafeQueue<EventData<const T>> &_internalQueue;
 };
 } // namespace mem

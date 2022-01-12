@@ -51,5 +51,5 @@ TEST(CodegenPocoTests, InheritanceVector4PocoTest)
     ASSERT_EQ(event.b, eventListener.getLastReceivedEvent()->b);
     ASSERT_EQ(event.c, eventListener.getLastReceivedEvent()->c);
     ASSERT_EQ(event.d, eventListener.getLastReceivedEvent()->d);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }

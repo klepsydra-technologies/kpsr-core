@@ -17,30 +17,24 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_socket_${PROJ_MAIN_NAME}_example)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_socket_${PROJ_MAIN_NAME}_example)
+project(${PROJ_NAME})
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
 
 # Create Library
-#---------------------------------------------------#
-ADD_EXECUTABLE(${PROJ_NAME}_server ${${PROJ_NAME}_HEADERS} src/server.cpp)
-ADD_EXECUTABLE(${PROJ_NAME}_client ${${PROJ_NAME}_HEADERS} src/client.cpp)
+# ---------------------------------------------------#
+add_executable(${PROJ_NAME}_server ${${PROJ_NAME}_HEADERS} src/server.cpp)
+add_executable(${PROJ_NAME}_client ${${PROJ_NAME}_HEADERS} src/client.cpp)
 
 # Link libraries with Project
-#---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME}_server kpsr_socket_core)
-TARGET_LINK_LIBRARIES(${PROJ_NAME}_client kpsr_socket_core)
+# ---------------------------------------------------#
+target_link_libraries(${PROJ_NAME}_server kpsr_socket_core)
+target_link_libraries(${PROJ_NAME}_client kpsr_socket_core)
 
-TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}_server
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  )
-TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}_client
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  )
+target_include_directories(${PROJ_NAME}_server
+                           PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJ_NAME}_client
+                           PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

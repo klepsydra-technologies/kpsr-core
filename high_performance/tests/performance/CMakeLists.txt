@@ -18,5 +18,4 @@
 #****************************************************************************
 
 # Add module code
-ADD_SUBDIRECTORY(event_loop_test)		
-
+add_subdirectory(event_loop_test)

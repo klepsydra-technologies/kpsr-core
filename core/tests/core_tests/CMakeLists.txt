@@ -17,25 +17,22 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_tests)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_tests)
+project(${PROJ_NAME})
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
 
 # Create Library
-#---------------------------------------------------#
-ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+# ---------------------------------------------------#
+add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core gtest_main)
+target_link_libraries(${PROJ_NAME} kpsr_core gtest_main)
 
-TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common
-    )
+target_include_directories(
+    ${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+                         ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common)
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
+                                   --gtest_output=xml:gtestresults.xml)

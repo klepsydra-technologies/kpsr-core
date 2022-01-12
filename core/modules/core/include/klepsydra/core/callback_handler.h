@@ -139,7 +139,7 @@ protected:
         spdlog::info(
             "CallbackHandler::onReplyReceived. Reply not mapped. Callback name: {}. _publisher: {}",
             _name,
-            _publisher->_publicationStats._name);
+            _publisher->_publicationStats.name);
     }
 
 private:

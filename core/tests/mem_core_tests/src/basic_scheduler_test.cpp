@@ -126,6 +126,24 @@ TEST(BasicSchedulerTest, schedulerTestServiceNominal)
     ASSERT_EQ(candidate.count, 1);
 }
 
+TEST(BasicSchedulerTest, schedulerTestServiceNoStart)
+{
+    TestService candidate(nullptr);
+
+    int microSecondsToWait = 1000;
+
+    kpsr::mem::BasicScheduler scheduler;
+    auto startTime = std::chrono::system_clock::now();
+    scheduler.startScheduledService(microSecondsToWait, false, &candidate);
+
+    auto sleepFor = 10 * microSecondsToWait;
+    std::this_thread::sleep_for(std::chrono::microseconds(sleepFor));
+    scheduler.stopScheduledService(&candidate);
+
+    ASSERT_LE(candidate.executeTime, startTime);
+    ASSERT_EQ(candidate.count, 0);
+}
+
 TEST(BasicSchedulerTest, schedulerTestServiceRepeat)
 {
     TestService candidate(nullptr);

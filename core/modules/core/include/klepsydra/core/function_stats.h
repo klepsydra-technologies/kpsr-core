@@ -25,6 +25,8 @@
 
 #include <klepsydra/core/time_utils.h>
 
+#include <spdlog/spdlog.h>
+
 namespace kpsr {
 /*!
  * @brief FunctionStats class.
@@ -38,20 +40,20 @@ namespace kpsr {
  * @details Statistics associated to the performance of a customer function. It gathers three main messures: number of invocations, total invocation time, starting time.
  * The use of this class is very simple can be split into three parts: construct, attach to container and surround the code block to be messured. This can be seen in the following example:
 @code
-class MessuredClass {
+class MeasuredClass {
 public:
-   MessuredClass(Container * container)
-      : functionStats("messured_class")
+   MeasuredClass(Container * container)
+      : functionStats("measured_class")
    {
       if (container) {
          container->attach(&functionStats);
       }
    }
 
-   void meesuredFunction() {
-      functionStats.startProcessMeassure();
+   void measuredFunction() {
+      functionStats.startProcessMeasure();
       // DO STUFF
-      functionStats.stopProcessMeassure();
+      functionStats.stopProcessMeasure();
    }
 private:
    FunctionStats functionStats;
@@ -61,24 +63,26 @@ private:
 struct FunctionStats
 {
     explicit FunctionStats(const std::string &name)
-        : _name(name)
+        : name(name)
+        , _beforeTimeNs(0)
         , _processingStarted(false)
+        , _processingStartedTimeMs(0)
     {}
 
     /*!
-     * @brief _name
+     * @brief name
      */
-    const std::string _name;
+    const std::string name;
 
     /*!
-     * @brief _totalProcessed
+     * @brief totalProcessed
      */
-    long long unsigned int _totalProcessed = 0;
+    long long unsigned int totalProcessed = 0;
 
     /*!
-     * @brief _totalProcessingTimeInNanoSecs
+     * @brief totalProcessingTimeInNanoSecs
      */
-    long long unsigned int _totalProcessingTimeInNanoSecs = 0;
+    long long unsigned int totalProcessingTimeInNanoSecs = 0;
 
     /*!
      * @brief getMillisecondsSinceCreation
@@ -90,30 +94,46 @@ struct FunctionStats
     }
 
     /*!
-     * @brief getMillisecondsSinceStart
-     * @return
+     * \brief start
      */
-    long long unsigned int getMillisecondsSinceStart()
+    virtual void start()
     {
-        if (_processingStarted) {
-            return TimeUtils::getCurrentMillisecondsAsLlu() - _processingStartedTimeMs;
-        }
-        return 0;
-    }
-
-    void startProcessMeassure()
-    {
-        _beforeTimeNs = TimeUtils::getCurrentNanosecondsAsLlu();
         if (!_processingStarted) {
+            spdlog::debug("{}. {}", __PRETTY_FUNCTION__, name);
             _processingStartedTimeMs = TimeUtils::getCurrentMillisecondsAsLlu();
             _processingStarted = true;
         }
     }
 
-    void stopProcessMeassure()
+    /*!
+     * \brief stop
+     */
+    virtual void stop()
     {
-        _totalProcessingTimeInNanoSecs += TimeUtils::getCurrentNanosecondsAsLlu() - _beforeTimeNs;
-        _totalProcessed++;
+        if (_processingStarted) {
+            spdlog::debug("{}. {}", __PRETTY_FUNCTION__, name);
+            _processingStarted = false;
+        }
+    }
+
+    /*!
+     * @brief getMillisecondsSinceStart
+     * @return
+     */
+    long long unsigned int getMillisecondsSinceStart()
+    {
+        if (_processingStartedTimeMs != 0) {
+            return TimeUtils::getCurrentMillisecondsAsLlu() - _processingStartedTimeMs;
+        }
+        return 0;
+    }
+
+    void startProcessMeasure() { _beforeTimeNs = TimeUtils::getCurrentNanosecondsAsLlu(); }
+
+    void stopProcessMeasure()
+    {
+        totalProcessingTimeInNanoSecs += TimeUtils::getCurrentNanosecondsAsLlu() - _beforeTimeNs;
+        totalProcessed++;
     }
 
 protected:
