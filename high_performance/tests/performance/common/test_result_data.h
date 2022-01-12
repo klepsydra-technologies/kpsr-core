@@ -20,18 +20,26 @@
 #ifndef TEST_RESULT_DATA_H
 #define TEST_RESULT_DATA_H
 
+#include <math.h>
+#include <numeric>
+#include <vector>
+
 class TestResults
 {
 public:
-    long average;
-    long stddev;
+    float sum;
+    float average;
+    float stddev;
 
     TestResults(std::vector<long> totalTime)
     {
-        long sum = std::accumulate(totalTime.begin(), totalTime.end(), 0.0);
+        sum = std::accumulate(totalTime.begin(), totalTime.end(), 0.0);
         average = sum / totalTime.size();
 
-        long sq_sum = std::inner_product(totalTime.begin(), totalTime.end(), totalTime.begin(), 0.0);
+        float sq_sum = std::inner_product(totalTime.begin(),
+                                          totalTime.end(),
+                                          totalTime.begin(),
+                                          0.0);
         stddev = std::sqrt((sq_sum / totalTime.size()) - (average * average));
     }
 };

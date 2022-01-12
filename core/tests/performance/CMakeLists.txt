@@ -20,7 +20,7 @@
 # Add module code
 find_package(benchmark REQUIRED)
 
-ADD_SUBDIRECTORY(event_emitter_test)		
-ADD_SUBDIRECTORY(basic_mddlw_test)
-ADD_SUBDIRECTORY(concurrent_mdlw_test)
-ADD_SUBDIRECTORY(smart_pool)
+add_subdirectory(event_emitter_test)
+add_subdirectory(basic_mddlw_test)
+add_subdirectory(concurrent_mdlw_test)
+add_subdirectory(smart_pool)

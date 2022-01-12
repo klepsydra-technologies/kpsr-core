@@ -52,7 +52,7 @@ TEST(CodegenPocoTests, PrimiteTypesAllPocoTest)
 
     //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
     //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, PrimiteTypesArrayPocoTest)
@@ -72,7 +72,7 @@ TEST(CodegenPocoTests, PrimiteTypesArrayPocoTest)
 
     //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
     //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, PrimiteTypesVectorPocoTest)
@@ -92,7 +92,7 @@ TEST(CodegenPocoTests, PrimiteTypesVectorPocoTest)
 
     //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
     //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }
 
 TEST(CodegenPocoTests, PrimiteTypesVectorSharedPtrPocoTest)
@@ -109,5 +109,5 @@ TEST(CodegenPocoTests, PrimiteTypesVectorSharedPtrPocoTest)
 
     //    ASSERT_EQ(event.seq, eventListener.getLastReceivedEvent()->seq);
     //    ASSERT_EQ(event.frame_id, eventListener.getLastReceivedEvent()->frame_id);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }

@@ -29,7 +29,7 @@ This class is not really used by the client code, but it is documented due it it
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public inline  `[`EventLoop`](#classkpsr_1_1high__performance_1_1EventLoop_1a70e617bc76c4e0da57ba7c070459f979)`(`[`kpsr::EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,`[`RingBuffer`](api-undefined.md#classdisruptor4cpp_1_1ring__buffer)` & ringBuffer)` | [EventLoop](#classkpsr_1_1high__performance_1_1EventLoop).
+`public inline  `[`EventLoop`](#classkpsr_1_1high__performance_1_1EventLoop_1a70e617bc76c4e0da57ba7c070459f979)`(`[`kpsr::SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,`[`RingBuffer`](api-undefined.md#classdisruptor4cpp_1_1ring__buffer)` & ringBuffer)` | [EventLoop](#classkpsr_1_1high__performance_1_1EventLoop).
 `public inline void `[`start`](#classkpsr_1_1high__performance_1_1EventLoop_1a215e36a5dcda800896011150c1eceb0b)`()` | start start consumer thread
 `public inline void `[`stop`](#classkpsr_1_1high__performance_1_1EventLoop_1a312c6774e5e9faab007c690302826abc)`()` | stop stop consumer thread.
 `public inline bool `[`isStarted`](#classkpsr_1_1high__performance_1_1EventLoop_1a78f5201d3e86f5864793feb00f6964bc)`()` | 
@@ -38,7 +38,7 @@ This class is not really used by the client code, but it is documented due it it
 
 ## Members
 
-#### `public inline  `[`EventLoop`](#classkpsr_1_1high__performance_1_1EventLoop_1a70e617bc76c4e0da57ba7c070459f979)`(`[`kpsr::EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,`[`RingBuffer`](api-undefined.md#classdisruptor4cpp_1_1ring__buffer)` & ringBuffer)` 
+#### `public inline  `[`EventLoop`](#classkpsr_1_1high__performance_1_1EventLoop_1a70e617bc76c4e0da57ba7c070459f979)`(`[`kpsr::SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,`[`RingBuffer`](api-undefined.md#classdisruptor4cpp_1_1ring__buffer)` & ringBuffer)` 
 
 [EventLoop](#classkpsr_1_1high__performance_1_1EventLoop).
 
@@ -214,12 +214,12 @@ Although this function is not really used by the client code directly, it is doc
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public inline  `[`EventLoopSubscriber`](#classkpsr_1_1high__performance_1_1EventLoopSubscriber_1a40ef4aa6d3c7495e6ff7bcc16a9bea1e)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` | [EventLoopSubscriber](#classkpsr_1_1high__performance_1_1EventLoopSubscriber).
+`public inline  `[`EventLoopSubscriber`](#classkpsr_1_1high__performance_1_1EventLoopSubscriber_1a40ef4aa6d3c7495e6ff7bcc16a9bea1e)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` | [EventLoopSubscriber](#classkpsr_1_1high__performance_1_1EventLoopSubscriber).
 `public inline  `[`~EventLoopSubscriber`](#classkpsr_1_1high__performance_1_1EventLoopSubscriber_1a2374e8266070c997e1bcaeddbaca9e70)`()` | 
 
 ## Members
 
-#### `public inline  `[`EventLoopSubscriber`](#classkpsr_1_1high__performance_1_1EventLoopSubscriber_1a40ef4aa6d3c7495e6ff7bcc16a9bea1e)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` 
+#### `public inline  `[`EventLoopSubscriber`](#classkpsr_1_1high__performance_1_1EventLoopSubscriber_1a40ef4aa6d3c7495e6ff7bcc16a9bea1e)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName)` 
 
 [EventLoopSubscriber](#classkpsr_1_1high__performance_1_1EventLoopSubscriber).
 

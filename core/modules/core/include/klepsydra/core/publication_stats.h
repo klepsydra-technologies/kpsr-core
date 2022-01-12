@@ -46,7 +46,7 @@ struct PublicationStats : public FunctionStats
         : FunctionStats(name)
         , _type(type)
         , _totalEventAllocations(0)
-        , _totalDiscardedEvents(0)
+        , totalDiscardedEvents(0)
     {}
 
     /*!
@@ -60,9 +60,9 @@ struct PublicationStats : public FunctionStats
     std::atomic_ullong _totalEventAllocations;
 
     /*!
-     * \brief _totalDiscardedEvents
+     * \brief totalDiscardedEvents
      */
-    std::atomic_ullong _totalDiscardedEvents;
+    std::atomic_ullong totalDiscardedEvents;
 };
 } // namespace kpsr
 

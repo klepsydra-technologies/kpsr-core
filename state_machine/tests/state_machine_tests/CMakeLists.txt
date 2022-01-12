@@ -17,29 +17,29 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_tests)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_tests)
+project(${PROJ_NAME})
 
 # Include directories with headers
-#---------------------------------------------------#
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include )
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/yaml_conf/include )
+# ---------------------------------------------------#
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/${PROJ_MAIN_NAME}/include)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/modules/yaml_conf/include)
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
-
-# Link libraries with Project
-#---------------------------------------------------#
-LINK_DIRECTORIES()
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
 
 # Create Library
-#---------------------------------------------------#
-ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+# ---------------------------------------------------#
+add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_state_machine yaml-cpp kpsr_state_machine_yaml gtest_main)
+# Link libraries with Project
+# ---------------------------------------------------#
+target_link_libraries(${PROJ_NAME} kpsr_state_machine yaml-cpp
+                      kpsr_state_machine_yaml gtest_main)
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
+                                   --gtest_output=xml:gtestresults.xml)

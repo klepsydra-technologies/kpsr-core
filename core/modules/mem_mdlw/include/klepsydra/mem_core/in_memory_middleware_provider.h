@@ -20,6 +20,7 @@
 #ifndef IN_MEMORY_MIDDLEWARE_PROVIDER_H
 #define IN_MEMORY_MIDDLEWARE_PROVIDER_H
 
+#include <klepsydra/core/event_emitter_factory.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
 #include <klepsydra/core/event_transform_forwarder.h>
 
@@ -51,8 +52,11 @@ public:
      * @param eventName
      * @param poolSize
      */
-    InMemoryMiddlewareProvider(Container *container, std::string eventName)
-        : _eventEmitter()
+    InMemoryMiddlewareProvider(Container *container,
+                               std::string eventName,
+                               EventEmitterType eventEmitterType = EventEmitterType::SAFE)
+        : _eventEmitter(
+              EventEmitterFactory::createEventEmitter<std::shared_ptr<const T>>(eventEmitterType))
         , _eventName(eventName)
         , _publisher(nullptr)
         , _poller(nullptr)
@@ -109,7 +113,7 @@ public:
     /**
      * @brief _eventEmitter
      */
-    EventEmitter _eventEmitter;
+    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> _eventEmitter;
     /**
      * @brief _eventName
      */

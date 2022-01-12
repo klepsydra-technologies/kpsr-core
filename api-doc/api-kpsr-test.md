@@ -284,11 +284,11 @@ This publisher implementation is intended for testing purposes. It is synchronou
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public inline  `[`EventEmitterPublisher`](#classkpsr_1_1EventEmitterPublisher_1a5fe73e3d56e0df83f03b6918f457044a)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,std::string eventName,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,int poolSize,std::function< void(T &)> initializerFunction,std::function< void(const T &, T &)> eventCloner)` | [EventEmitterPublisher](#classkpsr_1_1EventEmitterPublisher).
+`public inline  `[`EventEmitterPublisher`](#classkpsr_1_1EventEmitterPublisher_1a5fe73e3d56e0df83f03b6918f457044a)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,std::string eventName,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,int poolSize,std::function< void(T &)> initializerFunction,std::function< void(const T &, T &)> eventCloner)` | [EventEmitterPublisher](#classkpsr_1_1EventEmitterPublisher).
 
 ## Members
 
-#### `public inline  `[`EventEmitterPublisher`](#classkpsr_1_1EventEmitterPublisher_1a5fe73e3d56e0df83f03b6918f457044a)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,std::string eventName,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,int poolSize,std::function< void(T &)> initializerFunction,std::function< void(const T &, T &)> eventCloner)` 
+#### `public inline  `[`EventEmitterPublisher`](#classkpsr_1_1EventEmitterPublisher_1a5fe73e3d56e0df83f03b6918f457044a)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,std::string eventName,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,int poolSize,std::function< void(T &)> initializerFunction,std::function< void(const T &, T &)> eventCloner)` 
 
 [EventEmitterPublisher](#classkpsr_1_1EventEmitterPublisher).
 

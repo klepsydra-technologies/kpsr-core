@@ -20,7 +20,7 @@
 #ifndef EVENT_EMITTER_PUBLISHER_H
 #define EVENT_EMITTER_PUBLISHER_H
 
-#include <klepsydra/core/event_emitter.h>
+#include <klepsydra/core/event_emitter_interface.h>
 #include <klepsydra/core/object_pool_publisher.h>
 
 /**
@@ -52,12 +52,13 @@ public:
      * @param initializerFunction
      * @param eventCloner
      */
-    EventEmitterPublisher(Container *container,
-                          std::string eventName,
-                          EventEmitter &eventEmitter,
-                          int poolSize,
-                          std::function<void(T &)> initializerFunction,
-                          std::function<void(const T &, T &)> eventCloner)
+    EventEmitterPublisher(
+        Container *container,
+        std::string eventName,
+        std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> &eventEmitter,
+        int poolSize,
+        std::function<void(T &)> initializerFunction,
+        std::function<void(const T &, T &)> eventCloner)
         : ObjectPoolPublisher<T>(container,
                                  eventName,
                                  "EVENT_EMITTER",
@@ -74,11 +75,11 @@ public:
      */
     void internalPublish(std::shared_ptr<const T> event) override
     {
-        _eventEmitter.emitEvent(_eventName, 0, *event.get());
+        _eventEmitter->emitEvent(_eventName, 0, event);
     }
 
 private:
-    EventEmitter &_eventEmitter;
+    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const T>>> _eventEmitter;
     std::string _eventName;
 };
 } // namespace kpsr

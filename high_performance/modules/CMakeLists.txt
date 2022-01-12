@@ -18,7 +18,7 @@
 #****************************************************************************
 
 # Add module code
-ADD_SUBDIRECTORY(${PROJ_MAIN_NAME})
+add_subdirectory(${PROJ_MAIN_NAME})
 
 add_core_export_target()
 add_include_dirs()

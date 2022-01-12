@@ -1,0 +1,6 @@
+coverage
+Jinja2
+lcov-cobertura
+nose
+PyYAML
+

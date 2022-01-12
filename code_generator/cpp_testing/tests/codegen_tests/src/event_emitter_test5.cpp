@@ -90,5 +90,5 @@ TEST(CodegenPocoTests, CompositionRelatedPocoTest)
     ASSERT_EQ(event.seq, lastEventPtr->seq);
     ASSERT_EQ(event.quat.x, lastEventPtr->quat.x);
     ASSERT_EQ(event.gpsData.altitude, lastEventPtr->gpsData.altitude);
-    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->_totalProcessed, 1);
+    ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 1);
 }

@@ -17,27 +17,23 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_zmq_${PROJ_MAIN_NAME}_tests)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_zmq_${PROJ_MAIN_NAME}_tests)
+project(${PROJ_NAME})
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
-FILE(GLOB ${PROJ_NAME}_HEADERS
-    "include/*.h"
-)
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
+file(GLOB ${PROJ_NAME}_HEADERS "include/*.h")
 
 # Link libraries with Project
-#---------------------------------------------------#
-ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+# ---------------------------------------------------#
+add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
-#---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_zmq_core kpsr_high_performance kpsr_core gtest_main)
-TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  )
+# ---------------------------------------------------#
+target_link_libraries(${PROJ_NAME} kpsr_zmq_core kpsr_high_performance
+                      kpsr_core gtest_main)
+target_include_directories(${PROJ_NAME}
+                           PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
+                                   --gtest_output=xml:gtestresults.xml)

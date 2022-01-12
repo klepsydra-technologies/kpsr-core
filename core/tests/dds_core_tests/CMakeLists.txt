@@ -17,35 +17,39 @@
 #
 #****************************************************************************
 
-SET(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME}_tests)
-PROJECT(${PROJ_NAME})
+set(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME}_tests)
+project(${PROJ_NAME})
 
-include (MacroConnext)
-find_package (Connext REQUIRED)
-SET (DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
+include(MacroConnext)
+find_package(Connext REQUIRED)
+set(DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
 
-add_definitions (
-  ${Connext_DEFINITIONS}
-  ${DEFINITIONS}
-)
+add_definitions(${Connext_DEFINITIONS} ${DEFINITIONS})
 
 # Source
-#---------------------------------------------------#
-FILE(GLOB ${PROJ_NAME}_SRC
-    "src/*.cpp"
-)
+# ---------------------------------------------------#
+file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
 
 # Link libraries with Project
-#---------------------------------------------------#
-ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
+# ---------------------------------------------------#
+add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
-#---------------------------------------------------#
-TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_core_yaml yaml-cpp gtest_main kpsr_dds_${PROJ_MAIN_NAME}
-  kpsr_dds_core kpsr_dds_serialization_datamodel kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES} kpsr_serialization)
-TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common
-  )
+# ---------------------------------------------------#
+target_link_libraries(
+    ${PROJ_NAME}
+    kpsr_core
+    kpsr_core_yaml
+    yaml-cpp
+    gtest_main
+    kpsr_dds_${PROJ_MAIN_NAME}
+    kpsr_dds_core
+    kpsr_dds_serialization_datamodel
+    kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+    ${Connext_LIBRARIES}
+    kpsr_serialization)
+target_include_directories(
+    ${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+                         ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common)
 
-add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)
+add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
+                                   --gtest_output=xml:gtestresults.xml)

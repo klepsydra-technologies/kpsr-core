@@ -24,7 +24,7 @@
 #include <iostream>
 #include <memory>
 
-#include <klepsydra/core/subscription_stats.h>
+#include <klepsydra/core/event_emitter_interface.h>
 
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
 #include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
@@ -46,7 +46,8 @@ template<typename TEvent>
  * faster listeners will process all messages, while slower listener will only process the laster messages while
  * discarding any older ones.
  */
-class DataMultiplexerEventHandler : public disruptor4cpp::event_handler<EventData<TEvent>>
+class DataMultiplexerEventHandler
+    : public disruptor4cpp::event_handler<DataMultiplexerDataWrapper<TEvent>>
 {
 public:
     /**
@@ -54,10 +55,11 @@ public:
      * @param listener
      * @param listenerStat
      */
-    DataMultiplexerEventHandler(const std::function<void(TEvent)> &listener,
-                                std::shared_ptr<SubscriptionStats> listenerStat)
-        : _listener(listener)
-        , _listenerStat(listenerStat)
+    DataMultiplexerEventHandler(
+        const std::string &name,
+        std::shared_ptr<EventEmitterInterface<std::shared_ptr<const TEvent>>> &eventEmitter)
+        : _name(name)
+        , _eventEmitter(eventEmitter)
     {}
 
     ~DataMultiplexerEventHandler() = default;
@@ -78,16 +80,19 @@ public:
      * @param sequence
      * @param end_of_batch
      */
-    void on_event(EventData<TEvent> &event, int64_t sequence, bool end_of_batch)
+    void on_event(DataMultiplexerDataWrapper<TEvent> &event, int64_t sequence, bool end_of_batch)
     {
-        _listenerStat->_totalEnqueuedTimeInNs += TimeUtils::getCurrentNanosecondsAsLlu() -
-                                                 event.enqueuedTimeInNs;
+        spdlog::debug("{}. Subscriber name: {}. sequence: {}, end_of_batch: {}",
+                      __PRETTY_FUNCTION__,
+                      _name,
+                      sequence,
+                      end_of_batch);
         if (end_of_batch) {
-            _listenerStat->startProcessMeassure();
-            _listener(event.eventData);
-            _listenerStat->stopProcessMeassure();
+            _eventEmitter->emitEvent(_name,
+                                     event.enqueuedTimeInNs,
+                                     static_cast<std::shared_ptr<const TEvent>>(event.eventData));
         } else {
-            _listenerStat->_totalDiscardedEvents++;
+            _eventEmitter->discardEvent(_name);
         }
     }
 
@@ -103,7 +108,10 @@ public:
      * @param sequence
      * @param event
      */
-    void on_event_exception(const std::exception &ex, int64_t sequence, EventData<TEvent> *event) {}
+    void on_event_exception(const std::exception &ex,
+                            int64_t sequence,
+                            DataMultiplexerDataWrapper<TEvent> *event)
+    {}
 
     /**
      * @brief on_start_exception
@@ -118,8 +126,8 @@ public:
     void on_shutdown_exception(const std::exception &ex) {}
 
 private:
-    std::function<void(TEvent)> _listener;
-    std::shared_ptr<SubscriptionStats> _listenerStat;
+    const std::string _name;
+    std::shared_ptr<EventEmitterInterface<std::shared_ptr<const TEvent>>> _eventEmitter;
 };
 } // namespace high_performance
 } // namespace kpsr

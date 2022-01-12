@@ -136,7 +136,7 @@ public:
         totalExecutionTime += after - before;
         totalForwardingTime = provider.getSubscriber()
                                   ->getSubscriptionStats("forwarderListener")
-                                  ->_totalProcessingTimeInNanoSecs;
+                                  ->totalProcessingTimeInNanoSecs;
     }
 };
 

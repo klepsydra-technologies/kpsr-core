@@ -76,7 +76,7 @@ private:
     {
         spdlog::info(
             "Service::SystemEventDataListener::onMessageReceived. Service name: {}, event: {}",
-            this->_serviceStats._name,
+            this->_serviceStats.name,
             event);
         if (event == SystemEventData::Start) {
             startup();

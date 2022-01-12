@@ -166,11 +166,11 @@ This class, which extends from the [event_emitter_subscriber.h](#event__emitter_
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public inline  `[`ConcurrentQueuePoller`](#classkpsr_1_1mem_1_1ConcurrentQueuePoller_1ac83bb44a6d590cce4c03dd66bd888695)`(moodycamel::ConcurrentQueue< `[`EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & concurrentQueue,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS,moodycamel::ProducerToken & token)` | [ConcurrentQueuePoller](#classkpsr_1_1mem_1_1ConcurrentQueuePoller).
+`public inline  `[`ConcurrentQueuePoller`](#classkpsr_1_1mem_1_1ConcurrentQueuePoller_1ac83bb44a6d590cce4c03dd66bd888695)`(moodycamel::ConcurrentQueue< `[`EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & concurrentQueue,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS,moodycamel::ProducerToken & token)` | [ConcurrentQueuePoller](#classkpsr_1_1mem_1_1ConcurrentQueuePoller).
 
 ## Members
 
-#### `public inline  `[`ConcurrentQueuePoller`](#classkpsr_1_1mem_1_1ConcurrentQueuePoller_1ac83bb44a6d590cce4c03dd66bd888695)`(moodycamel::ConcurrentQueue< `[`EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & concurrentQueue,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS,moodycamel::ProducerToken & token)` 
+#### `public inline  `[`ConcurrentQueuePoller`](#classkpsr_1_1mem_1_1ConcurrentQueuePoller_1ac83bb44a6d590cce4c03dd66bd888695)`(moodycamel::ConcurrentQueue< `[`EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & concurrentQueue,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS,moodycamel::ProducerToken & token)` 
 
 [ConcurrentQueuePoller](#classkpsr_1_1mem_1_1ConcurrentQueuePoller).
 
@@ -241,7 +241,7 @@ This class is an abstract class that provides the API for the wizard that create
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public `[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1aedc008d2958d183cf32a7312aadfb278) | _eventEmitter
+`public `[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1aedc008d2958d183cf32a7312aadfb278) | _eventEmitter
 `public std::string `[`_eventName`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1abb53466b864118de277e0c57f1f1c253) | _eventName
 `public inline  `[`InMemoryMiddlewareProvider`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1a61de11267377a04607cb8ed04f93ec64)`(`[`Container`](api-kpsr-monitoring.md#classkpsr_1_1Container)` * container,std::string eventName)` | [InMemoryMiddlewareProvider](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider).
 `public inline virtual void `[`start`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1a2a5cedc727a72151c420f9f878f1a40b)`()` | start
@@ -256,7 +256,7 @@ This class is an abstract class that provides the API for the wizard that create
 
 ## Members
 
-#### `public `[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1aedc008d2958d183cf32a7312aadfb278) 
+#### `public `[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider_1aedc008d2958d183cf32a7312aadfb278) 
 
 _eventEmitter
 
@@ -331,11 +331,11 @@ This class, provides the API to a class which extends from the [event_emitter_su
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
 `public std::atomic< bool > `[`_running`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1afaf3606fe38bce7e5659c5e2260dc830) | _running
-`public inline  `[`InMemoryQueuePoller`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6510ec9105023b5eaea6400beef03676)`(`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` | [InMemoryQueuePoller](#classkpsr_1_1mem_1_1InMemoryQueuePoller).
+`public inline  `[`InMemoryQueuePoller`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6510ec9105023b5eaea6400beef03676)`(`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` | [InMemoryQueuePoller](#classkpsr_1_1mem_1_1InMemoryQueuePoller).
 `public void `[`start`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6a3642bf61f3ebe08e356f07ec7deae9)`()` | start
 `public void `[`stop`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1ae602aefce06ef43e60c9b329a7c11b90)`()` | stop
 `public  `[`~InMemoryQueuePoller`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6aac1c7004f29eb68164a8e1425a0285)`()` | 
-`protected `[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a60228eee37f761399d6508be95bec0ab) | 
+`protected `[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a60228eee37f761399d6508be95bec0ab) | 
 `protected std::string `[`_eventName`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a53939321923a6004dd7a04ea51e27a87) | 
 `protected std::thread `[`_threadNotifier`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a8181e976a68bc64cf298445aed290008) | 
 `protected unsigned int `[`_sleepPeriodUS`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a1b85b3d4def4cdc8208ec80e21bab5dc) | 
@@ -346,7 +346,7 @@ This class, provides the API to a class which extends from the [event_emitter_su
 
 _running
 
-#### `public inline  `[`InMemoryQueuePoller`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6510ec9105023b5eaea6400beef03676)`(`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` 
+#### `public inline  `[`InMemoryQueuePoller`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6510ec9105023b5eaea6400beef03676)`(`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` 
 
 [InMemoryQueuePoller](#classkpsr_1_1mem_1_1InMemoryQueuePoller).
 
@@ -367,7 +367,7 @@ stop
 
 #### `public  `[`~InMemoryQueuePoller`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a6aac1c7004f29eb68164a8e1425a0285)`()` 
 
-#### `protected `[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a60228eee37f761399d6508be95bec0ab) 
+#### `protected `[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & `[`_eventEmitter`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a60228eee37f761399d6508be95bec0ab) 
 
 #### `protected std::string `[`_eventName`](#classkpsr_1_1mem_1_1InMemoryQueuePoller_1a53939321923a6004dd7a04ea51e27a87) 
 
@@ -641,11 +641,11 @@ This class, which extends from the [event_emitter_subscriber.h](#event__emitter_
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-`public inline  `[`SafeQueuePoller`](#classkpsr_1_1mem_1_1SafeQueuePoller_1a319b1b9858f5f5b621aa7a2bb14da2b5)`(`[`SafeQueue](api-kpsr-mem-composition.md#classkpsr_1_1mem_1_1SafeQueue)< [EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & safeQueue,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` | [SafeQueuePoller](#classkpsr_1_1mem_1_1SafeQueuePoller).
+`public inline  `[`SafeQueuePoller`](#classkpsr_1_1mem_1_1SafeQueuePoller_1a319b1b9858f5f5b621aa7a2bb14da2b5)`(`[`SafeQueue](api-kpsr-mem-composition.md#classkpsr_1_1mem_1_1SafeQueue)< [EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & safeQueue,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` | [SafeQueuePoller](#classkpsr_1_1mem_1_1SafeQueuePoller).
 
 ## Members
 
-#### `public inline  `[`SafeQueuePoller`](#classkpsr_1_1mem_1_1SafeQueuePoller_1a319b1b9858f5f5b621aa7a2bb14da2b5)`(`[`SafeQueue](api-kpsr-mem-composition.md#classkpsr_1_1mem_1_1SafeQueue)< [EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & safeQueue,`[`EventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` 
+#### `public inline  `[`SafeQueuePoller`](#classkpsr_1_1mem_1_1SafeQueuePoller_1a319b1b9858f5f5b621aa7a2bb14da2b5)`(`[`SafeQueue](api-kpsr-mem-composition.md#classkpsr_1_1mem_1_1SafeQueue)< [EventData`](api-kpsr-mem-composition.md#structkpsr_1_1mem_1_1EventData)`< const T >> & safeQueue,`[`SafeEventEmitter`](api-kpsr-composition.md#classkpsr_1_1EventEmitter)` & eventEmitter,std::string eventName,unsigned int sleepPeriodUS)` 
 
 [SafeQueuePoller](#classkpsr_1_1mem_1_1SafeQueuePoller).
 

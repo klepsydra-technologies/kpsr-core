@@ -54,6 +54,7 @@ private:
         void operator()(T *ptr)
         {
             if (auto pool_ptr = pool_.lock()) {
+                spdlog::trace("{}. {}.", __PRETTY_FUNCTION__, (*pool_ptr)->_name);
                 (*pool_ptr)->add(std::unique_ptr<T, D>{ptr});
             } else
                 D{}(ptr);
@@ -77,6 +78,7 @@ public:
                     int size,
                     std::function<void(T &)> initializerFunction = nullptr)
         : this_ptr_(std::make_shared<SmartObjectPool<T, D> *>(this))
+        , _name(name)
     {
         std::function<void(std::unique_ptr<T, D> &)> poolInitializer =
             [&](std::unique_ptr<T, D> &data) {
@@ -86,7 +88,7 @@ public:
 
         pool_ = new LockFreeStack<std::unique_ptr<T, D>>(size, poolInitializer);
 
-        spdlog::debug("{}. Init function for smartpool {} and size {}",
+        spdlog::trace("{}. Init function for smartpool {} and size {}",
                       __PRETTY_FUNCTION__,
                       name,
                       size);
@@ -113,9 +115,11 @@ public:
      */
     ptr_type acquire()
     {
+        spdlog::trace("{}. {}.", __PRETTY_FUNCTION__, _name);
         std::unique_ptr<T, D> element;
         if (!pool_->pop(element)) {
             objectPoolFails++;
+            spdlog::error("Cannot acquire object from an empty pool {}.", _name);
             throw std::out_of_range("Cannot acquire object from an empty pool.");
         }
 
@@ -143,6 +147,7 @@ public:
 private:
     std::shared_ptr<SmartObjectPool<T, D> *> this_ptr_;
     LockFreeStack<std::unique_ptr<T, D>> *pool_;
+    const std::string _name;
 };
 } // namespace kpsr
 #endif // SMART_OBJECT_POOL_H

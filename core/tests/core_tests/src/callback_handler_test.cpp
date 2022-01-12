@@ -29,6 +29,7 @@
 #include <klepsydra/core/callback_handler.h>
 #include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
+#include <klepsydra/core/safe_event_emitter.h>
 
 #include "gtest/gtest.h"
 
@@ -48,19 +49,22 @@ public:
 
 TEST(CallbackHandler, BasicTest)
 {
-    kpsr::EventEmitter eventEmitter;
-    kpsr::EventEmitterSubscriber<TestRequest> requestSubcriber(nullptr, eventEmitter, "request");
+    std::shared_ptr<kpsr::EventEmitterInterface<std::shared_ptr<const TestRequest>>> eventEmitter1 =
+        std::make_shared<kpsr::SafeEventEmitter<std::shared_ptr<const TestRequest>>>();
+    kpsr::EventEmitterSubscriber<TestRequest> requestSubcriber(nullptr, eventEmitter1, "request");
     kpsr::EventEmitterPublisher<TestRequest> requestPublisher(nullptr,
                                                               "request",
-                                                              eventEmitter,
+                                                              eventEmitter1,
                                                               0,
                                                               nullptr,
                                                               nullptr);
 
-    kpsr::EventEmitterSubscriber<TestReply> replySubcriber(nullptr, eventEmitter, "reply");
+    std::shared_ptr<kpsr::EventEmitterInterface<std::shared_ptr<const TestReply>>> eventEmitter2 =
+        std::make_shared<kpsr::SafeEventEmitter<std::shared_ptr<const TestReply>>>();
+    kpsr::EventEmitterSubscriber<TestReply> replySubcriber(nullptr, eventEmitter2, "reply");
     kpsr::EventEmitterPublisher<TestReply> replyPublisher(nullptr,
                                                           "reply",
-                                                          eventEmitter,
+                                                          eventEmitter2,
                                                           0,
                                                           nullptr,
                                                           nullptr);

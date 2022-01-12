@@ -71,6 +71,9 @@ The cmake has the following options:
 * -DKPSR_WITH_ZMQ=true for building the ZeroMQ binding.
 * -DKPSR_TEST_PERFORMANCE=true for building the performance tests
 * -DKPSR_WITH_SOCKET for building SOCKET binding
+* -DKPSR_ENABLE_EXAMPLES=true for building examples files (default false)
+* -DKPSR_ENABLE_TESTS=true for building unit tests (default true)
+
 
 Example
 

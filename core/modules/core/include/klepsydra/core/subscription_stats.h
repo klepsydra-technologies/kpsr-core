@@ -39,18 +39,18 @@ struct SubscriptionStats : public FunctionStats
 {
     /*!
      * @brief _subscriberName
-     * @param listenerName name of the listener
      * @param subscriberName name of the subscriber containing the listener
+     * @param listenerName  name of the listener
      * @param type type of the subscriber for information purpuses (examples are: EVENT_EMITTER, EVENT_LOOP, DISRUPTOR, ROS, ZMQ, DDS)
      * 
      */
-    SubscriptionStats(const std::string &listenerName,
-                      const std::string &subscriberName,
+    SubscriptionStats(const std::string &subscriberName,
+                      const std::string &listenerName,
                       const std::string &type)
         : FunctionStats(listenerName + "_" + subscriberName)
         , _type(type)
-        , _totalEnqueuedTimeInNs(0)
-        , _totalDiscardedEvents(0)
+        , totalEnqueuedTimeInNs(0)
+        , totalDiscardedEvents(0)
     {}
 
     /*!
@@ -59,14 +59,14 @@ struct SubscriptionStats : public FunctionStats
     const std::string _type;
 
     /*!
-     * @brief _totalDiscardedEvents
+     * @brief totalEnqueuedTimeInNs
      */
-    std::atomic_ullong _totalEnqueuedTimeInNs;
+    std::atomic_ullong totalEnqueuedTimeInNs;
 
     /*!
-     * @brief _totalDiscardedEvents
+     * @brief totalDiscardedEvents
      */
-    std::atomic_ullong _totalDiscardedEvents;
+    std::atomic_ullong totalDiscardedEvents;
 };
 } // namespace kpsr
 

@@ -48,7 +48,7 @@ template<typename TEvent, std::size_t BufferSize>
 class DataMultiplexerPublisher : public Publisher<TEvent>
 {
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+    using RingBuffer = disruptor4cpp::ring_buffer<DataMultiplexerDataWrapper<TEvent>,
                                                   BufferSize,
                                                   disruptor4cpp::blocking_wait_strategy,
                                                   disruptor4cpp::producer_type::single,
@@ -79,15 +79,17 @@ public:
         try {
             int64_t seq = _ringBuffer.try_next();
             if (_eventCloner == nullptr) {
-                _ringBuffer[seq].eventData = event;
+                _ringBuffer[seq].eventData = std::make_shared<TEvent>(event);
             } else {
-                _eventCloner(event, _ringBuffer[seq].eventData);
+                _eventCloner(event, *_ringBuffer[seq].eventData);
             }
             _ringBuffer[seq].enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
             _ringBuffer.publish(seq);
         } catch (disruptor4cpp::insufficient_capacity_exception &ice) {
-            spdlog::info("DataMultiplexerPublisher::internalPublish. no more capacity.");
-            this->_publicationStats._totalDiscardedEvents++;
+            spdlog::info(
+                "DataMultiplexerPublisher::internalPublish. no more capacity. Publisher name: {}",
+                this->_publicationStats.name);
+            this->_publicationStats.totalDiscardedEvents++;
         }
     }
 
@@ -95,7 +97,25 @@ public:
      * @brief internalPublish
      * @param event
      */
-    void internalPublish(std::shared_ptr<const TEvent> event) { internalPublish(*event.get()); }
+    void internalPublish(std::shared_ptr<const TEvent> event)
+    {
+        try {
+            int64_t seq = _ringBuffer.try_next();
+            if (_eventCloner == nullptr) {
+                *_ringBuffer[seq].eventData = *event;
+            } else {
+                _eventCloner(*event, *_ringBuffer[seq].eventData);
+            }
+            _ringBuffer[seq].enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
+            _ringBuffer.publish(seq);
+        } catch (disruptor4cpp::insufficient_capacity_exception &ice) {
+            spdlog::info("DataMultiplexerPublisher::internalPublishSharedPtr. no more capacity. "
+                         "Publisher name: {}, current discared: {}",
+                         this->_publicationStats.name,
+                         this->_publicationStats.totalDiscardedEvents);
+            this->_publicationStats.totalDiscardedEvents++;
+        }
+    }
 
     /**
      * @brief processAndPublish
@@ -105,12 +125,14 @@ public:
     {
         try {
             int64_t seq = _ringBuffer.try_next();
-            process(_ringBuffer[seq].eventData);
+            process(*_ringBuffer[seq].eventData);
             _ringBuffer[seq].enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
             _ringBuffer.publish(seq);
         } catch (disruptor4cpp::insufficient_capacity_exception &ice) {
-            spdlog::info("DataMultiplexerPublisher::internalPublish. no more capacity.");
-            this->_publicationStats._totalDiscardedEvents++;
+            spdlog::info(
+                "DataMultiplexerPublisher::processAndPublish. no more capacity. Publisher name: {}",
+                this->_publicationStats.name);
+            this->_publicationStats.totalDiscardedEvents++;
         }
     }
 

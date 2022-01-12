@@ -63,71 +63,34 @@ template<typename TEvent, std::size_t BufferSize>
 class DataMultiplexerMiddlewareProvider
 {
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+    using RingBuffer = disruptor4cpp::ring_buffer<DataMultiplexerDataWrapper<TEvent>,
                                                   BufferSize,
                                                   disruptor4cpp::blocking_wait_strategy,
                                                   disruptor4cpp::producer_type::single,
                                                   disruptor4cpp::sequence>;
-
     /**
-     * @brief DataMultiplexerMiddlewareProvider basic constructor without any performance tuning params
-     * @param container
-     * @param name
-     */
-    DataMultiplexerMiddlewareProvider(Container *container, const std::string &name)
-        : _modelEvent(nullptr)
-        , _ringBuffer()
-        , _publisher(container, name, nullptr, _ringBuffer)
-        , _subscriber(container, name, _ringBuffer)
-    {}
-
-    /**
-     * @brief DataMultiplexerMiddlewareProvider
-     * @param container
-     * @param name
-     * @param eventInitializer function to initialize the events allocated in the ring buffer
-     */
-    DataMultiplexerMiddlewareProvider(Container *container,
-                                      const std::string &name,
-                                      std::function<void(TEvent &)> eventInitializer)
-        : _modelEvent(nullptr)
-        , _ringBuffer(
-              [&eventInitializer](EventData<TEvent> &event) { eventInitializer(event.eventData); })
-        , _publisher(container, name, nullptr, _ringBuffer)
-        , _subscriber(container, name, _ringBuffer)
-    {}
-
-    /**
-     * @brief DataMultiplexerMiddlewareProvider
-     * @param container
-     * @param name
-     * @param event used as event to clone the events allocated in the ring buffer.
-     */
-    DataMultiplexerMiddlewareProvider(Container *container,
-                                      const std::string &name,
-                                      const TEvent &event)
-        : _modelEvent(new EventData<TEvent>(event))
-        , _ringBuffer(_modelEvent)
-        , _publisher(container, name, nullptr, _ringBuffer)
-        , _subscriber(container, name, _ringBuffer)
-    {}
-
-    /**
-     * @brief DataMultiplexerMiddlewareProvider
+     * @brief DataMultiplexerMiddlewareProvider basic constructor
      * @param container
      * @param name
      * @param eventInitializer function to initialize the events allocated in the ring buffer
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
-     */
-    DataMultiplexerMiddlewareProvider(Container *container,
-                                      const std::string &name,
-                                      std::function<void(TEvent &)> eventInitializer,
-                                      std::function<void(const TEvent &, TEvent &)> eventCloner)
-        : _modelEvent(nullptr)
-        , _ringBuffer(
-              [&eventInitializer](EventData<TEvent> &event) { eventInitializer(event.eventData); })
+     * @param cpuAffinityGeneratorFunction function that returns cpu id to use based on listener name
+     * @param timoutUS max timeout for listener to start
+    */
+    DataMultiplexerMiddlewareProvider(
+        Container *container,
+        const std::string &name,
+        std::function<void(TEvent &)> eventInitializer = nullptr,
+        std::function<void(const TEvent &, TEvent &)> eventCloner = nullptr)
+        : _name(name)
+        , _container(container)
+        , _modelEvent(nullptr)
+        , _ringBuffer([&eventInitializer](DataMultiplexerDataWrapper<TEvent> &event) {
+            if (eventInitializer) {
+                eventInitializer(*event.eventData);
+            }
+        })
         , _publisher(container, name, eventCloner, _ringBuffer)
-        , _subscriber(container, name, _ringBuffer)
     {}
 
     /**
@@ -136,23 +99,22 @@ public:
      * @param name
      * @param event used as event to clone the events allocated in the ring buffer.
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
+     * @param cpuAffinityGeneratorFunction function that returns cpu id to use based on listener name
+     * @param timoutUS max timeout for listener to start
      */
-    DataMultiplexerMiddlewareProvider(Container *container,
-                                      const std::string &name,
-                                      const TEvent &event,
-                                      std::function<void(const TEvent &, TEvent &)> eventCloner)
-        : _modelEvent(new EventData<TEvent>(event))
-        , _ringBuffer(_modelEvent)
+    DataMultiplexerMiddlewareProvider(
+        Container *container,
+        const std::string &name,
+        const TEvent &event,
+        std::function<void(const TEvent &, TEvent &)> eventCloner = nullptr)
+        : _name(name)
+        , _container(container)
+        , _modelEvent(new DataMultiplexerDataWrapper<TEvent>(std::make_shared<TEvent>(event)))
+        , _ringBuffer(_modelEvent.get())
         , _publisher(container, name, eventCloner, _ringBuffer)
-        , _subscriber(container, name, _ringBuffer)
     {}
 
-    ~DataMultiplexerMiddlewareProvider()
-    {
-        if (_modelEvent) {
-            delete _modelEvent;
-        }
-    }
+    ~DataMultiplexerMiddlewareProvider() {}
 
     /**
      * @brief getPublisher
@@ -164,7 +126,20 @@ public:
      * @brief getSubscriber
      * @return
      */
-    Subscriber<TEvent> *getSubscriber() { return &_subscriber; }
+    Subscriber<TEvent> *getSubscriber(const std::string &subscriberName)
+    {
+        auto subscriberIterator = _subscriberMap.find(subscriberName);
+        if (subscriberIterator != _subscriberMap.end()) {
+            return subscriberIterator->second.get();
+        }
+
+        std::shared_ptr<DataMultiplexerSubscriber<TEvent, BufferSize>> subscriber =
+            std::make_shared<DataMultiplexerSubscriber<TEvent, BufferSize>>(
+                _container, _name, subscriberName, _ringBuffer, MULTIPLEXER_START_TIMEOUT_MICROSEC);
+
+        _subscriberMap[subscriberName] = subscriber;
+        return subscriber.get();
+    }
 
     template<typename SourceEvent>
     std::shared_ptr<EventTransformForwarder<SourceEvent, TEvent>>
@@ -181,18 +156,28 @@ public:
     void setContainer(Container *container)
     {
         if (container) {
-            container->attach(&_publisher._publicationStats);
-            _subscriber.setContainer(container);
+            _container = container;
+            _container->attach(&_publisher._publicationStats);
+            for (auto subscriberNamePairs : _subscriberMap) {
+                if (subscriberNamePairs.second->batchEventProcessor->is_running()) {
+                    spdlog::info(
+                        "Cannot attach container to Subscriber listeners which are running.");
+                }
+                subscriberNamePairs.second->_container = container;
+            }
         }
     }
 
 private:
-    EventData<TEvent> *_modelEvent;
+    std::string _name;
+    Container *_container;
+    std::unique_ptr<DataMultiplexerDataWrapper<TEvent>> _modelEvent;
 
     RingBuffer _ringBuffer;
 
     DataMultiplexerPublisher<TEvent, BufferSize> _publisher;
-    DataMultiplexerSubscriber<TEvent, BufferSize> _subscriber;
+    std::map<std::string, std::shared_ptr<DataMultiplexerSubscriber<TEvent, BufferSize>>>
+        _subscriberMap;
 };
 } // namespace high_performance
 } // namespace kpsr

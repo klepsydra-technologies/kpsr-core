@@ -60,6 +60,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <klepsydra/high_performance/disruptor4cpp/exceptions/timeout_exception.h>
 #include <klepsydra/high_performance/disruptor4cpp/sequence.h>
 
+#include <spdlog/spdlog.h>
+
 namespace disruptor4cpp {
 template<typename TRingBuffer>
 class batch_event_processor
@@ -67,24 +69,28 @@ class batch_event_processor
 public:
     batch_event_processor(TRingBuffer &ring_buffer,
                           typename TRingBuffer::sequence_barrier_type &sequence_barrier,
-                          event_handler<typename TRingBuffer::event_type> &evt_handler)
+                          event_handler<typename TRingBuffer::event_type> &evt_handler,
+                          std::string name = "")
         : sequence_()
         , ring_buffer_(ring_buffer)
         , sequence_barrier_(sequence_barrier)
         , event_handler_(evt_handler)
         , running_(false)
+        , name_(name)
     {}
 
     batch_event_processor(
         TRingBuffer &ring_buffer,
         std::unique_ptr<typename TRingBuffer::sequence_barrier_type> sequence_barrier_ptr,
-        event_handler<typename TRingBuffer::event_type> &evt_handler)
+        event_handler<typename TRingBuffer::event_type> &evt_handler,
+        std::string name = "")
         : sequence_()
         , ring_buffer_(ring_buffer)
         , sequence_barrier_(*sequence_barrier_ptr)
         , event_handler_(evt_handler)
         , sequence_barrier_ptr_(std::move(sequence_barrier_ptr))
         , running_(false)
+        , name_(name)
     {}
 
     typename TRingBuffer::sequence_type &get_sequence() { return sequence_; }
@@ -121,11 +127,20 @@ public:
                     }
                     sequence_.set(available_sequence);
                 } catch (timeout_exception &timeout_ex) {
+                    spdlog::info("kpsr::high_perf::batch_event_processor. timeout_exception on {}.",
+                                 name_);
                     notify_timeout(sequence_.get());
                 } catch (alert_exception &alert_ex) {
-                    if (!running_.load(std::memory_order_acquire))
+                    if (!running_.load(std::memory_order_acquire)) {
+                        spdlog::debug("kpsr::high_perf::batch_event_processor. alert_ex {} on {}.",
+                                      alert_ex.what(),
+                                      name_);
                         break;
+                    }
                 } catch (std::exception &ex) {
+                    spdlog::info("kpsr::high_perf::batch_event_processor. exception {} on {}.",
+                                 ex.what(),
+                                 name_);
                     event_handler_.on_event_exception(ex, next_sequence, event);
                     sequence_.set(next_sequence);
                     next_sequence++;
@@ -174,6 +189,7 @@ private:
     event_handler<typename TRingBuffer::event_type> &event_handler_;
     std::unique_ptr<typename TRingBuffer::sequence_barrier_type> sequence_barrier_ptr_;
     std::atomic<bool> running_;
+    std::string name_;
 };
 } // namespace disruptor4cpp
 

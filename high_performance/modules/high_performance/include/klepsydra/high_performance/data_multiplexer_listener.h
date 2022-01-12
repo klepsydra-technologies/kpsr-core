@@ -32,7 +32,7 @@
 namespace kpsr {
 namespace high_performance {
 
-static const long MULTIPLEXER_START_TIMEOUT_MILLISEC = 100;
+static const long MULTIPLEXER_START_TIMEOUT_MICROSEC = 100 * 1000;
 
 template<typename TEvent, std::size_t BufferSize>
 /**
@@ -49,7 +49,7 @@ template<typename TEvent, std::size_t BufferSize>
 class DataMultiplexerListener
 {
 public:
-    using RingBuffer = disruptor4cpp::ring_buffer<EventData<TEvent>,
+    using RingBuffer = disruptor4cpp::ring_buffer<DataMultiplexerDataWrapper<TEvent>,
                                                   BufferSize,
                                                   disruptor4cpp::blocking_wait_strategy,
                                                   disruptor4cpp::producer_type::single,
@@ -59,10 +59,10 @@ public:
     DataMultiplexerListener(const std::function<void(TEvent)> &listener,
                             RingBuffer &ringBuffer,
                             const std::shared_ptr<SubscriptionStats> &listenerStat,
-                            long timeoutMS = MULTIPLEXER_START_TIMEOUT_MILLISEC)
+                            long timeoutMS = MULTIPLEXER_START_TIMEOUT_MICROSEC / 1000)
         : _ringBuffer(ringBuffer)
         , _eventHandler(listener, listenerStat)
-        , _name(listenerStat->_name)
+        , _name(listenerStat->name)
         , _started(false)
         , _batchProcessorTask([this] {
             std::vector<disruptor4cpp::sequence *> sequences_to_add;
@@ -77,7 +77,7 @@ public:
     {
         auto barrier = _ringBuffer.new_barrier();
         batchEventProcessor = std::unique_ptr<BatchProcessor>(
-            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler));
+            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler, listenerStat->name));
     }
 
     void start()

@@ -18,7 +18,6 @@
 #****************************************************************************
 
 # Add module code
-IF(KPSR_WITH_SOCKET)
-   ADD_SUBDIRECTORY(socket_mdlw)
-ENDIF()
-
+if(KPSR_WITH_SOCKET)
+    add_subdirectory(socket_mdlw)
+endif()

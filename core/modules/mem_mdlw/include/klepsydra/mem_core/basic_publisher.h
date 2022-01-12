@@ -85,7 +85,7 @@ public:
         if (_discardItemsWhenFull) {
             // Non-blocking call
             uint discardedItems = _internalQueue.force_move_push(safeQueueEvent);
-            this->_publicationStats._totalDiscardedEvents += discardedItems;
+            this->_publicationStats.totalDiscardedEvents += discardedItems;
         } else {
             // Blocking call
             _internalQueue.move_push(safeQueueEvent);

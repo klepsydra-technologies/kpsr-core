@@ -63,9 +63,9 @@ public:
      */
     void publish(const T &event)
     {
-        _publicationStats.startProcessMeassure();
+        _publicationStats.startProcessMeasure();
         internalPublish(event);
-        _publicationStats.stopProcessMeassure();
+        _publicationStats.stopProcessMeasure();
     }
 
     /*!
@@ -74,9 +74,9 @@ public:
      */
     void publish(std::shared_ptr<const T> event)
     {
-        _publicationStats.startProcessMeassure();
+        _publicationStats.startProcessMeasure();
         internalPublish(event);
-        _publicationStats.stopProcessMeassure();
+        _publicationStats.stopProcessMeasure();
     }
 
     /*!
