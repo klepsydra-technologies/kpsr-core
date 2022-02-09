@@ -2,8 +2,7 @@
   <img width="25%" height="25%"src="./images/klepsydra_logo.jpg">
 </p>
 
-
-[![Ubuntu builds](https://github.com/klepsydra-technologies/kpsr-core/actions/workflows/ubuntubuilds.yml/badge.svg?branch=master)](https://github.com/klepsydra-technologies/kpsr-core/actions/workflows/ubuntubuilds.yml) [![ROS](https://github.com/klepsydra-technologies/kpsr-core/actions/workflows/ros.yml/badge.svg?branch=master)](https://github.com/klepsydra-technologies/kpsr-core/actions/workflows/ros.yml) [![codecov](https://codecov.io/gh/klepsydra-technologies/kpsr-core/branch/master/graph/badge.svg?token=ZP2NHPkCrU)](https://codecov.io/gh/klepsydra-technologies/kpsr-core)
+[![Build](https://github.com/klepsydra-technologies/kpsr-core/actions/workflows/push.yml/badge.svg)](https://github.com/klepsydra-technologies/kpsr-core/actions/workflows/push.yml) [![codecov](https://codecov.io/gh/klepsydra-technologies/kpsr-core/branch/master/graph/badge.svg?token=ZP2NHPkCrU)](https://codecov.io/gh/klepsydra-technologies/kpsr-core)
 
 # Installation Instructions
 
@@ -37,7 +36,7 @@ sudo apt-get install python3-pip
 
 ### Yaml-cpp
 
-If this software package is not available in the system (it is shipped with some software, e.g. ROS), dowload it and install it from <https://github.com/jbeder/yaml-cpp>. **Please make sure it is installed in a __share library mode__**.
+If this software package is not available in the system (it is shipped with some software, e.g. ROS), dowload it and install it from <https://github.com/jbeder/yaml-cpp>. **Please make sure it is installed in a share library mode**.
 
 ## Installation
 
