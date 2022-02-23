@@ -35,8 +35,8 @@ ADD_EXECUTABLE(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC} )
 TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core kpsr_core_yaml gtest_main)
 TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common
+  #${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common
   )
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

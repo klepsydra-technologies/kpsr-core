@@ -34,8 +34,8 @@ TARGET_LINK_LIBRARIES(${PROJ_NAME} kpsr_core gtest_main)
 
 TARGET_INCLUDE_DIRECTORIES(${PROJ_NAME}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common
+    #${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common
     )
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure --gtest_output=xml:gtestresults.xml)

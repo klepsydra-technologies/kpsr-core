@@ -39,7 +39,7 @@ ENDIF()
 #Install binaries
 IF(DEFINED THIRDPARTIES_PATH)
 ELSE()
-  SET(THIRDPARTIES_PATH ${CMAKE_SOURCE_DIR}/thirdparties )
+  SET(THIRDPARTIES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparties )
 ENDIF()
 message(STATUS "Thirdparties install path: " ${THIRDPARTIES_PATH})
 
@@ -50,7 +50,7 @@ ENDIF()
 message(STATUS "Google test path: " ${GTEST_PATH})
 if(DEFINED KPSR_BUILD_PATH)
 else()
-    SET(KPSR_BUILD_PATH ${CMAKE_SOURCE_DIR}/kpsr-build)
+    SET(KPSR_BUILD_PATH ${CMAKE_CURRENT_SOURCE_DIR}/kpsr-build)
 endif()
 message(STATUS "kpsr-build path: " ${KPSR_BUILD_PATH})
 
