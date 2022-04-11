@@ -127,6 +127,36 @@ BENCHMARK_DEFINE_F(SmartPoolFixture, VectorMultiThreadOperate)(benchmark::State 
     }
 }
 
+static void BM_SmartPoolCreateAndAcquireVector(benchmark::State &state)
+{
+    // Perform setup here
+    const int poolSize = 1;
+    const int vectorSize(state.range(0));
+
+    for (auto _ : state) {
+        // This code gets timed
+        kpsr::SmartObjectPool<std::vector<float>> smartPool("SmartPoolBenchmark",
+                                                            poolSize,
+                                                            [&](std::vector<float> &vec) {
+                                                                vec.resize(vectorSize);
+                                                            });
+        std::shared_ptr<std::vector<float>> event = std::move(smartPool.acquire());
+        benchmark::DoNotOptimize((*event)[0] += 1);
+    }
+}
+
+static void BM_SharedObjectCreateAndResizeVector(benchmark::State &state)
+{
+    // Perform setup here
+    const int vectorSize(state.range(0));
+    for (auto _ : state) {
+        // This code gets timed
+        std::shared_ptr<std::vector<float>> event = std::make_shared<std::vector<float>>();
+        event->resize(vectorSize);
+        benchmark::DoNotOptimize((*event)[0] += 1);
+    }
+}
+
 // Register the function as a benchmark
 BENCHMARK(BM_SmartPoolAcquireInt);
 BENCHMARK(BM_SharedObjectCreateInt);
@@ -151,6 +181,9 @@ BENCHMARK_REGISTER_F(SmartPoolFixture, VectorMultiThreadOperate)
     ->UseRealTime()
     ->Ranges({{128, 1 << 10}, {256, 1024}});
 BENCHMARK(BM_SharedObjectCreateVectorOperate)->Threads(10)->UseRealTime()->DenseRange(256, 1024, 256);
+
+BENCHMARK(BM_SmartPoolCreateAndAcquireVector)->RangeMultiplier(4)->Range(64, 1 << 24);
+BENCHMARK(BM_SharedObjectCreateAndResizeVector)->RangeMultiplier(4)->Range(64, 1 << 24);
 
 // Run the benchmark
 BENCHMARK_MAIN();
