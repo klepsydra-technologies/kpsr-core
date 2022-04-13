@@ -13,7 +13,7 @@ jobs:
     name: Vanilla Debug
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.3.0
       options: --user root
       credentials:
         username: AWS
@@ -30,6 +30,7 @@ jobs:
           make -j$(nproc)
 
       - name: Unit tests
+        timeout-minutes: 10
         run: cd build && make test ARGS="--gtest_shuffle"
 
       - name: Upload logs on failure
@@ -64,7 +65,7 @@ jobs:
     name: ${{ matrix.name }} Release
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.3.0
       options: --user root
       credentials:
         username: AWS
@@ -81,6 +82,7 @@ jobs:
           make -j$(nproc)
 
       - name: Unit tests
+        timeout-minutes: 10
         run: cd build && make test ARGS="--gtest_shuffle"
 
       - name: Upload logs on failure
@@ -104,12 +106,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rosrelease: ["kinetic", "melodic", "noetic"]
+        rosrelease: ["melodic", "noetic"]
     name: ROS ${{ matrix.rosrelease }}
     env:
       ROS_DISTRO: ${{ matrix.rosrelease }}
     container:
-      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/ros:${{ matrix.rosrelease }}-1.0.0"
+      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/ros:${{ matrix.rosrelease }}-1.1.1"
       options: --user root
       credentials:
         username: AWS
@@ -126,7 +128,8 @@ jobs:
           cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=false -DCMAKE_BUILD_TYPE=Release ../
           make -j$(nproc)
 
-      - name: Test
+      - name: Unit tests
+        timeout-minutes: 10
         run: |
           cd ${GITHUB_WORKSPACE}/build
           make test ARGS="--gtest_shuffle"
@@ -154,6 +157,7 @@ jobs:
           make -j$(nproc)
 
       - name: Test ROS
+        timeout-minutes: 15
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash
           cd ${GITHUB_WORKSPACE}/kpsr-ros/src/build
