@@ -23,7 +23,7 @@ jobs:
         username: AWS
         password: ${{ secrets.ECR_PASSWORD }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -39,7 +39,7 @@ jobs:
           sudo rm -rf ${GITHUB_WORKSPACE}/build
 
   codecoverage:
-    name: Code coverage      
+    name: Code coverage
     runs-on: ubuntu-latest
     container:
       image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.0.0
@@ -49,7 +49,7 @@ jobs:
         password: ${{ secrets.ECR_PASSWORD }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -58,12 +58,17 @@ jobs:
           mkdir build && cd build 
           cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
           make -j$(nproc)
+
+      - name: Coverage
+        timeout-minutes: 5
+        run: |
+          cd build
           make -j$(nproc) coverage
 
       - uses: codecov/codecov-action@v2
         with:
           files: build/coverage.xml
-      
+
       - name: Workspace cleanup
         if: always()
         run: |
