@@ -22,7 +22,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 SET(PROJ_MAIN_NAME "klepsydra")
-PROJECT(${PROJ_MAIN_NAME})
+PROJECT("kpsr-core")
 
 set(KLEPSYDRA_MAJOR_VERSION 4)
 set(KLEPSYDRA_MINOR_VERSION 0)
@@ -227,8 +227,7 @@ else()
 ENDIF()
 
 
-set(DEF_INSTALL_CMAKE_DIR lib/cmake/klepsydra)
-set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
+set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/klepsydra)
 
 # Make relative paths absolute (needed later on)
 foreach(p LIB BIN INCLUDE CMAKE)
@@ -276,3 +275,21 @@ install(EXPORT KlepsydraTargets
   FILE KlepsydraTargets.cmake
   DESTINATION "${INSTALL_CMAKE_DIR}"
   COMPONENT dev)
+
+# PACKAGING
+if(NOT DEFINED KPSR_VERSION_MAJOR)
+  set(KPSR_VERSION_MAJOR ${KLEPSYDRA_MAJOR_VERSION})
+endif()
+
+if(NOT DEFINED KPSR_VERSION_MINOR)
+  set(KPSR_VERSION_MINOR ${KLEPSYDRA_MAJOR_VERSION})
+endif()
+
+if(NOT DEFINED KPSR_VERSION_PATCH)
+  set(KPSR_VERSION_PATCH ${KLEPSYDRA_PATCH_VERSION})
+endif()
+
+set(KPSR_PACKAGE_DESCRIPTION "Klepsydra SDK Core Libraries")
+set(KPSR_PACKAGE_DESCRIPTION_SUMMARY "Klepsydra SDK Core Libraries")
+
+include(KlepsydraPackaging)
