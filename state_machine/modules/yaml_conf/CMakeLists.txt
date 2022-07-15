@@ -56,9 +56,11 @@ endif()
 INSTALL(TARGETS ${PROJ_NAME}
     EXPORT KlepsydraTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    COMPONENT libs
 )
 INSTALL(DIRECTORY "include/klepsydra"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    COMPONENT dev
 )
 
 add_core_export_target(${PROJ_NAME})

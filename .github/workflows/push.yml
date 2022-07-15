@@ -13,7 +13,7 @@ jobs:
     name: Vanilla Debug
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.3.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.4.0
       options: --user root
       credentials:
         username: AWS
@@ -65,7 +65,7 @@ jobs:
     name: ${{ matrix.name }} Release
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.3.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.4.0
       options: --user root
       credentials:
         username: AWS
@@ -76,14 +76,35 @@ jobs:
           submodules: recursive
 
       - name: Build
-        run: |
-          mkdir build && cd build 
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=${{ matrix.dds }} -DKPSR_WITH_ZMQ=${{ matrix.zmq }} -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../
+        run: >
+          mkdir build && cd build &&
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=${{ matrix.dds }} -DKPSR_WITH_ZMQ=${{ matrix.zmq }} 
+          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true 
+          -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../ &&
           make -j$(nproc)
 
-      - name: Unit tests
-        timeout-minutes: 10
-        run: cd build && make test ARGS="--gtest_shuffle"
+      - name: Create deb packages
+        run: |
+          cpack -G DEB
+          ls -la | grep deb
+        working-directory: build
+
+      - name: Store deb packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: deb-packages-${{ matrix.name }}
+          path: build/*.deb
+
+      - name: Create tarballs
+        run: |
+          sudo cpack -G TGZ
+        working-directory: build
+
+      - name: Store tarballs
+        uses: actions/upload-artifact@v2
+        with:
+          name: tgz-packages-${{ matrix.name }}
+          path: build/*.tar.gz
 
       - name: Upload logs on failure
         if: failure()
