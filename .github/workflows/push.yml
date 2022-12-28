@@ -13,7 +13,7 @@ jobs:
     name: Vanilla Debug
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.4.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:base-1.4.2
       options: --user root
       credentials:
         username: AWS
@@ -35,7 +35,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: builddebug-logs
           path: |
@@ -65,7 +65,7 @@ jobs:
     name: ${{ matrix.name }} Release
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/general:kpe-build-1.4.0
+      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:base-1.4.2
       options: --user root
       credentials:
         username: AWS
@@ -90,7 +90,7 @@ jobs:
         working-directory: build
 
       - name: Store deb packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: deb-packages-${{ matrix.name }}
           path: build/*.deb
@@ -101,14 +101,14 @@ jobs:
         working-directory: build
 
       - name: Store tarballs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tgz-packages-${{ matrix.name }}
           path: build/*.tar.gz
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: builddebug-logs
           path: |
@@ -127,12 +127,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rosrelease: ["melodic", "noetic"]
+        rosrelease: ["noetic"]
     name: ROS ${{ matrix.rosrelease }}
     env:
       ROS_DISTRO: ${{ matrix.rosrelease }}
     container:
-      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/ros:${{ matrix.rosrelease }}-1.1.1"
+      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:${{ matrix.rosrelease }}-1.2.2"
       options: --user root
       credentials:
         username: AWS
@@ -188,7 +188,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ros-${{ matrix.rosrelease }}
           path: |
