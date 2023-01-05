@@ -201,6 +201,77 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlocking)
     ASSERT_EQ(provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed, 300);
 }
 
+TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlockingAllocations)
+{
+    SQTestEvent::emptyConstructorInvokations = 0;
+    SQTestEvent::constructorInvokations = 0;
+    SQTestEvent::copyInvokations = 0;
+
+    int poolSize = 3;
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, poolSize, nullptr, nullptr, false);
+
+    provider.start();
+    kpsr::mem::TestCacheListener<SQTestEvent> eventListener(1);
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    std::thread t2([&provider, poolSize] {
+        for (int i = 0; i < poolSize + 1; i++) {
+            SQTestEvent event1(i, "hello");
+            provider.getPublisher()->publish(event1);
+        }
+        while (!provider._internalQueue.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    });
+
+    t2.join();
+    provider.stop();
+
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
+    ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
+
+    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+}
+
+TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresProcessAllocations)
+{
+    SQTestEvent::emptyConstructorInvokations = 0;
+    SQTestEvent::constructorInvokations = 0;
+    SQTestEvent::copyInvokations = 0;
+
+    int poolSize = 3;
+    kpsr::mem::BasicMiddlewareProvider<SQTestEvent>
+        provider(nullptr, "event", 4, poolSize, nullptr, nullptr, false);
+
+    provider.start();
+    kpsr::mem::TestCacheListener<SQTestEvent> eventListener(1);
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    std::thread t2([&provider, poolSize] {
+        for (int i = 0; i < poolSize + 1; i++) {
+            provider.getPublisher()->processAndPublish([i](SQTestEvent &event) {
+                event._id = i;
+                event._message = "Processed message " + std::to_string(i);
+            });
+        }
+        while (!provider._internalQueue.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    });
+
+    t2.join();
+    provider.stop();
+
+    auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
+    ASSERT_NE("hello", eventListener.getLastReceivedEvent()->_message);
+    ASSERT_EQ(poolSize, eventListener.getLastReceivedEvent()->_id);
+
+    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+}
+
 TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
 {
     SQTestEvent::emptyConstructorInvokations = 0;

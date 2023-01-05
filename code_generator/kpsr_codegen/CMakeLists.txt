@@ -63,7 +63,7 @@ if (Python_FOUND)
     )
 
     install(CODE
-      "execute_process(COMMAND ${PYTHON} -m pip install --user --ignore-installed ${OUTPUT_FILE})"
+      "execute_process(COMMAND ${PYTHON} -m pip install --ignore-installed ${OUTPUT_FILE})"
     )
     add_nosetests()
 
