@@ -289,3 +289,164 @@ TEST(EventEmitterTest, ListenerOnce)
     ASSERT_NO_THROW(id = emitter.once("", nullptr));
     ASSERT_ANY_THROW(emitter.emitEvent("", 0, event));
 }
+
+TEST(EventEmitterTest, TestProcessPublishPool)
+{
+    int poolSize = 1;
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr,
+                                                               "event",
+                                                               poolSize,
+                                                               nullptr,
+                                                               nullptr);
+
+    EETestEvent::constructorInvokations = 0;
+    EETestEvent::copyInvokations = 0;
+    kpsr::mem::TestCacheListener<EETestEvent> eventListener(
+        0); // add sleep to make cacheListener slow.
+
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    for (int i = 0; i < 100; i++) {
+        provider.getPublisher()->processAndPublish([i](EETestEvent &event) {
+            event._id = i;
+            event._message = "Processed message " + std::to_string(i);
+        });
+    }
+    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_id, 99);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
+              "Processed message " + std::to_string(99));
+    provider.getSubscriber()->removeListener("cacheListener");
+}
+
+TEST(EventEmitterTest, TestProcessPublishNoPool)
+{
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(nullptr, "event", 0, nullptr, nullptr);
+
+    EETestEvent::constructorInvokations = 0;
+    EETestEvent::copyInvokations = 0;
+    kpsr::mem::TestCacheListener<EETestEvent> eventListener(
+        0); // add sleep to make cacheListener slow.
+
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    EETestEvent event(1, "hola");
+
+    int iterations = 100;
+    for (int i = 0; i < iterations; i++) {
+        provider.getPublisher()->processAndPublish([i](EETestEvent &event) {
+            event._id = i;
+            event._message = "Processed message " + std::to_string(i);
+        });
+    }
+    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, 0);
+    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, iterations);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_id, iterations - 1);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
+              "Processed message " + std::to_string(iterations - 1));
+    provider.getSubscriber()->removeListener("cacheListener");
+}
+
+TEST(EventEmitterTest, EventClonerPool)
+{
+    int poolSize = 1;
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(
+        nullptr, "event", poolSize, nullptr, [](const EETestEvent &original, EETestEvent &cloned) {
+            cloned._id = original._id;
+            cloned._message = original._message + ":Cloned";
+        });
+
+    EETestEvent::constructorInvokations = 0;
+    EETestEvent::copyInvokations = 0;
+    kpsr::mem::TestCacheListener<EETestEvent> eventListener(
+        0); // add sleep to make cacheListener slow.
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    EETestEvent eventOriginal(10, "Hello");
+    provider.getPublisher()->publish(eventOriginal);
+    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_message, eventOriginal._message + ":Cloned");
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+}
+
+TEST(EventEmitterTest, EventClonerNoPool)
+{
+    int poolSize = 0;
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(
+        nullptr, "event", poolSize, nullptr, [](const EETestEvent &original, EETestEvent &cloned) {
+            cloned._id = original._id;
+            cloned._message = original._message + ":Cloned";
+        });
+
+    EETestEvent::constructorInvokations = 0;
+    EETestEvent::copyInvokations = 0;
+    kpsr::mem::TestCacheListener<EETestEvent> eventListener(
+        0); // add sleep to make cacheListener slow.
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    EETestEvent eventOriginal(10, "Hello");
+    provider.getPublisher()->publish(eventOriginal);
+    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_message, eventOriginal._message + ":Cloned");
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+}
+
+TEST(EventEmitterTest, InitializerPool)
+{
+    int poolSize = 1;
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(
+        nullptr,
+        "event",
+        poolSize,
+        [](EETestEvent &event) {
+            event._id = 99;
+            event._message = "Initialized:";
+        },
+        [](const EETestEvent &original, EETestEvent &cloned) {
+            cloned._id = original._id;
+            cloned._message = cloned._message + original._message + ":Cloned";
+        });
+
+    EETestEvent::constructorInvokations = 0;
+    EETestEvent::copyInvokations = 0;
+    kpsr::mem::TestCacheListener<EETestEvent> eventListener(
+        0); // add sleep to make cacheListener slow.
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    EETestEvent eventOriginal(10, "Hello");
+    provider.getPublisher()->publish(eventOriginal);
+    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
+              "Initialized:" + eventOriginal._message + ":Cloned");
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+}
+
+TEST(EventEmitterTest, InitializerNoPool)
+{
+    int poolSize = 0;
+    kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(
+        nullptr,
+        "event",
+        poolSize,
+        [](EETestEvent &event) {
+            event._id = 99;
+            event._message = "Initialized:";
+        },
+        [](const EETestEvent &original, EETestEvent &cloned) {
+            cloned._id = original._id;
+            cloned._message = cloned._message + original._message + ":Cloned";
+        });
+
+    EETestEvent::constructorInvokations = 0;
+    EETestEvent::copyInvokations = 0;
+    kpsr::mem::TestCacheListener<EETestEvent> eventListener(
+        0); // add sleep to make cacheListener slow.
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+
+    EETestEvent eventOriginal(10, "Hello");
+    provider.getPublisher()->publish(eventOriginal);
+    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
+              "Initialized:" + eventOriginal._message + ":Cloned");
+    provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
+}

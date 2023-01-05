@@ -86,6 +86,7 @@ public:
                     spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}",
                                  this->_publicationStats.name);
                     std::shared_ptr<T> newEvent = std::make_shared<T>();
+                    this->_publicationStats._totalEventAllocations++;
                     this->_initializerFunction(*newEvent);
                     this->_eventCloner(eventData, *newEvent);
                     return newEvent;
@@ -98,8 +99,8 @@ public:
                 } catch (const std::out_of_range &ex) {
                     spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}",
                                  this->_publicationStats.name);
-                    this->_publicationStats._totalEventAllocations++;
                     newEvent = std::make_shared<T>();
+                    this->_publicationStats._totalEventAllocations++;
                 }
                 this->_initializerFunction(*newEvent);
                 return newEvent;
@@ -108,12 +109,14 @@ public:
         } else {
             if (eventCloner == nullptr) {
                 // default cloner, so initialization function is not necessary.
-                _eventCreatorWrapper = [](const T &eventData) {
+                _eventCreatorWrapper = [this](const T &eventData) {
+                    this->_publicationStats._totalEventAllocations++;
                     return std::make_shared<T>(eventData);
                 };
             } else {
                 _eventCreatorWrapper = [this](const T &eventData) -> std::shared_ptr<T> {
                     std::shared_ptr<T> newEvent = std::make_shared<T>();
+                    this->_publicationStats._totalEventAllocations++;
                     this->_initializerFunction(*newEvent);
                     this->_eventCloner(eventData, *newEvent);
                     return newEvent;
