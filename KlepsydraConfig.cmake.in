@@ -3,12 +3,15 @@
 #  KLEPSYDRA_INCLUDE_DIRS - include directories for Klepsydra
 #  KLEPSYDRA_LIBRARIES    - libraries to link against
 #  KLEPSYDRA_EXECUTABLE   - the bar executable
+set(KLEPSYDRA_VERSION @KLEPSYDRA_CORE_VERSION@)
+
 
 # Compute paths
 @PACKAGE_INIT@
 set(KLEPSYDRA_INCLUDE_DIRS "@EXPORT_INCLUDE_DIRS@")
 
 # Our library dependencies (contains definitions for IMPORTED targets)
+@KPSR_CHECK_DEPS@
 if(NOT TARGET klepsydra AND NOT Klepsydra_BINARY_DIR)
   include("${CMAKE_CURRENT_LIST_DIR}/KlepsydraTargets.cmake")
 endif()
@@ -20,9 +23,7 @@ set(KLEPSYDRA_CORE_LIBRARIES "@CORE_EXPORT_TARGETS@")
 set(KLEPSYDRA_DDS_LIBRARIES "@DDS_EXPORT_TARGETS@")
 set(KLEPSYDRA_ZMQ_LIBRARIES "@ZMQ_EXPORT_TARGETS@")
 set(KLEPSYDRA_CODE_GENERATOR "@INSTALL_CMAKE_DIR@/KpsrCodeGen.cmake")
+set(KLEPSYDRA_CORE_VERSION "@KLEPSYDRA_CORE_VERSION@")
+set(KLEPSYDRA_CORE_VERSION_MAJOR "@KLEPSYDRA_CORE_VERSION_MAJOR@")
 
-IF (KLEPSYDRA_ZMQ_LIBRARIES)
-  find_dependency(cppzmq 4.3 QUIET)
-ENDIF()
-
-@KPSR_YAML_DEP@
+check_required_components(Klepsydra)
