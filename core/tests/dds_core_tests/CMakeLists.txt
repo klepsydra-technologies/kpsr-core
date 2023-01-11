@@ -21,10 +21,7 @@ set(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME}_tests)
 project(${PROJ_NAME})
 
 include(MacroConnext)
-find_package(Connext REQUIRED)
-set(DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
-
-add_definitions(${Connext_DEFINITIONS} ${DEFINITIONS})
+find_package(RTIConnextDDS REQUIRED)
 
 # Source
 # ---------------------------------------------------#
@@ -36,17 +33,8 @@ add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
 # ---------------------------------------------------#
 target_link_libraries(
-    ${PROJ_NAME}
-    kpsr_core
-    kpsr_core_yaml
-    yaml-cpp
-    gtest_main
-    kpsr_dds_${PROJ_MAIN_NAME}
-    kpsr_dds_core
-    kpsr_dds_serialization_datamodel
-    kpsr_dds_${PROJ_MAIN_NAME}_datamodel
-    ${Connext_LIBRARIES}
-    kpsr_serialization)
+    ${PROJ_NAME} kpsr_core gtest_main kpsr_dds_${PROJ_MAIN_NAME}
+    kpsr_dds_serialization_datamodel)
 target_include_directories(
     ${PROJ_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
                          ${CMAKE_SOURCE_DIR}/${PROJ_MAIN_NAME}/tests/common)

@@ -20,16 +20,11 @@
 set(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME})
 project(${PROJ_NAME})
 
-include(MacroConnext)
-find_package(Connext REQUIRED)
-set(DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
-
-add_definitions(${Connext_DEFINITIONS} ${DEFINITIONS})
-
 file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 
 file(GLOB idls "./idl/*.idl")
+
 foreach(idl ${idls})
     connext_idlgen(${idl} ${CMAKE_CURRENT_SOURCE_DIR})
     get_filename_component(nfile ${idl} NAME)
@@ -47,13 +42,12 @@ add_library(kpsr_dds_${PROJ_MAIN_NAME}_datamodel SHARED ${Connext_DATAMODEL})
 
 # Link libraries with Project
 # ---------------------------------------------------#
-target_link_libraries(kpsr_dds_${PROJ_MAIN_NAME}_datamodel ${Connext_LIBRARIES}
-                      kpsr_serialization)
+target_link_libraries(kpsr_dds_${PROJ_MAIN_NAME}_datamodel
+                      PUBLIC RTIConnextDDS::cpp2_api kpsr_serialization)
 target_include_directories(
     kpsr_dds_${PROJ_MAIN_NAME}_datamodel
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gen>
-           ${Connext_INCLUDE_DIRS}
            $<INSTALL_INTERFACE:include>
            $<INSTALL_INTERFACE:include/klepsydra/gen_dds_${PROJ_MAIN_NAME}>)
 
@@ -72,6 +66,7 @@ install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/gen/"
     DESTINATION
         "${CMAKE_INSTALL_INCLUDEDIR}/klepsydra/gen_dds_${PROJ_MAIN_NAME}"
+    COMPONENT dev
     FILES_MATCHING
     PATTERN "*.h*")
 

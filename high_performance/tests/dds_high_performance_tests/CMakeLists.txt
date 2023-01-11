@@ -21,10 +21,8 @@ set(PROJ_NAME kpsr_dds_${PROJ_MAIN_NAME}_tests)
 project(${PROJ_NAME})
 
 include(MacroConnext)
-find_package(Connext REQUIRED)
-set(DEFINITIONS ${DEFINITIONS} " -DDDS_IMPLEMENTATION_${DDS_IMPLEMENTATION}")
+find_package(RTIConnextDDS REQUIRED)
 
-add_definitions(${Connext_DEFINITIONS} ${DEFINITIONS})
 # Source
 # ---------------------------------------------------#
 file(GLOB ${PROJ_NAME}_SRC "src/*.cpp")
@@ -35,13 +33,8 @@ add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
 # ---------------------------------------------------#
 target_link_libraries(
-    ${PROJ_NAME}
-    kpsr_core
-    atomic
-    gtest_main
-    kpsr_dds_serialization_datamodel
-    kpsr_high_performance
-    kpsr_dds_core)
+    ${PROJ_NAME} kpsr_core gtest_main kpsr_dds_serialization_datamodel
+    kpsr_high_performance kpsr_dds_core)
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
                                    --gtest_output=xml:gtestresults.xml)

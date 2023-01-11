@@ -70,7 +70,9 @@ set(EXECUTABLE_OUTPUT_PATH
 include(GNUInstallDirs)
 
 # Build type
-set(BUILD_SHARED_LIBS "ON" FORCE)
+set(BUILD_SHARED_LIBS
+    ON
+    CACHE BOOL "Build shared libraries" FORCE)
 
 include(CheckCXXCompilerFlag)
 include(CheckIncludeFileCXX)
@@ -137,6 +139,8 @@ if(KPSR_WITH_ZMQ)
 endif()
 
 if(KPSR_WITH_DDS)
+    include(MacroConnext)
+    find_package(RTIConnextDDS REQUIRED)
     set(KPSR_WITH_YAML True)
 endif()
 
@@ -279,10 +283,26 @@ export(TARGETS ${CORE_EXPORT_TARGETS} ${DDS_EXPORT_TARGETS}
 export(PACKAGE klepsydra)
 
 # Create the KlepsydraConfig.cmake and KlepsydraConfigVersion files
-include(CMakePackageConfigHelpers)
 if(KPSR_WITH_YAML)
     set(KPSR_YAML_DEP "find_dependency(yaml-cpp 0.5)")
 endif()
+if(KPSR_WITH_DDS)
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+    set(KPSR_DDS_DEP "find_dependency(RTIConnextDDS MODULE)")
+endif()
+
+if(KPSR_WITH_ZMQ)
+    set(KPSR_ZMQ_DEP "find_dependency(cppzmq 4.3 QUIET)")
+endif()
+
+set(KPSR_CHECK_DEPS
+    "include(CMakeFindDependencyMacro)
+${KPSR_YAML_DEP}
+${KPSR_DDS_DEP}
+${KPSR_ZMQ_DEP}
+")
+
+include(CMakePackageConfigHelpers)
 configure_package_config_file(
     "KlepsydraConfig.cmake.in" "KlepsydraConfig.cmake"
     INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}"
