@@ -23,7 +23,7 @@ This group of classes contains the API for serializing events to and from DDS.
 
 The [Mapper<E, kpsr_dds_serialization::LongData>](#classkpsr_1_1Mapper_3_01E_00_01kpsr__dds__serialization_1_1LongData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -58,7 +58,7 @@ toMiddleware
 
 The [Mapper<bool, kpsr_dds_serialization::BoolData>](#classkpsr_1_1Mapper_3_01bool_00_01kpsr__dds__serialization_1_1BoolData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -93,7 +93,7 @@ toMiddleware
 
 The [Mapper<unsigned char, kpsr_dds_serialization::OctetData>](#classkpsr_1_1Mapper_3_01unsigned_01char_00_01kpsr__dds__serialization_1_1OctetData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -128,7 +128,7 @@ toMiddleware
 
 The [Mapper<int, kpsr_dds_serialization::LongData>](#classkpsr_1_1Mapper_3_01int_00_01kpsr__dds__serialization_1_1LongData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -163,7 +163,7 @@ toMiddleware
 
 The [Mapper<long, kpsr_dds_serialization::LongLongData>](#classkpsr_1_1Mapper_3_01long_00_01kpsr__dds__serialization_1_1LongLongData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -198,7 +198,7 @@ toMiddleware
 
 The [Mapper<float, kpsr_dds_serialization::FloatData>](#classkpsr_1_1Mapper_3_01float_00_01kpsr__dds__serialization_1_1FloatData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -233,7 +233,7 @@ toMiddleware
 
 The [Mapper<double, kpsr_dds_serialization::DoubleData>](#classkpsr_1_1Mapper_3_01double_00_01kpsr__dds__serialization_1_1DoubleData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -268,7 +268,7 @@ toMiddleware
 
 The [Mapper<std::string, kpsr_dds_serialization::StringData>](#classkpsr_1_1Mapper_3_01std_1_1string_00_01kpsr__dds__serialization_1_1StringData_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

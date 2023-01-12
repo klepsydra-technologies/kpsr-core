@@ -21,7 +21,7 @@ class kpsr::mem::MemEnv
 
 The [MemEnv](#classkpsr_1_1mem_1_1MemEnv) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 

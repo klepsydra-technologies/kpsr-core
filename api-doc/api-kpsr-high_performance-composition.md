@@ -18,7 +18,7 @@ This group of classes contains the API for assemblying the application using the
 
 The [DataMultiplexerMiddlewareProvider](#classkpsr_1_1high__performance_1_1DataMultiplexerMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -142,7 +142,7 @@ class kpsr::high_performance::DataMultiplexerPublisher
 
 The [DataMultiplexerPublisher](#classkpsr_1_1high__performance_1_1DataMultiplexerPublisher) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -189,7 +189,7 @@ class kpsr::high_performance::DataMultiplexerSubscriber
 
 The [DataMultiplexerSubscriber](#classkpsr_1_1high__performance_1_1DataMultiplexerSubscriber) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 

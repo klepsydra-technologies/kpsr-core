@@ -30,7 +30,7 @@ class kpsr::mem::BasicMiddlewareProvider
 
 The [BasicMiddlewareProvider](#classkpsr_1_1mem_1_1BasicMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -72,7 +72,7 @@ class kpsr::mem::BasicPublisher
 
 The [BasicPublisher](#classkpsr_1_1mem_1_1BasicPublisher) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -114,7 +114,7 @@ class kpsr::mem::ConcurrentMiddlewareProvider
 
 The [ConcurrentMiddlewareProvider](#classkpsr_1_1mem_1_1ConcurrentMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -156,7 +156,7 @@ class kpsr::mem::ConcurrentQueuePoller
 
 The [ConcurrentQueuePoller](#classkpsr_1_1mem_1_1ConcurrentQueuePoller) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -194,7 +194,7 @@ class kpsr::mem::ConcurrentQueuePublisher
 
 The ConcurrentPublisher class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -231,7 +231,7 @@ Publishing class that puts events in the safequeue. It has additional configurat
 
 The [InMemoryMiddlewareProvider](#classkpsr_1_1mem_1_1InMemoryMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -320,7 +320,7 @@ getProcessForwarder creates a listener forwarder to transform or process an even
 
 The [InMemoryQueuePoller](#classkpsr_1_1mem_1_1InMemoryQueuePoller) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -379,7 +379,7 @@ stop
 
 The [SafeQueue](#classkpsr_1_1mem_1_1SafeQueue) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -631,7 +631,7 @@ class kpsr::mem::SafeQueuePoller
 
 The [SafeQueuePoller](#classkpsr_1_1mem_1_1SafeQueuePoller) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -662,7 +662,7 @@ This class, which extends from the [event_emitter_subscriber.h](#event__emitter_
 
 The [EventData](#structkpsr_1_1mem_1_1EventData) struct.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

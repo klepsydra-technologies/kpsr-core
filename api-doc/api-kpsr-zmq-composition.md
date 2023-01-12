@@ -19,7 +19,7 @@ This group of classes relates exclusively to the assemblying of the application 
 
 The [FromZmqChannel](#classkpsr_1_1zmq__mdlw_1_1FromZmqChannel) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -72,7 +72,7 @@ stop
 
 The [FromZmqMiddlewareProvider](#classkpsr_1_1zmq__mdlw_1_1FromZmqMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -151,7 +151,7 @@ a [FromZmqChannel](api-kpsr-zmq-composition.md#classkpsr_1_1zmq__mdlw_1_1FromZmq
 
 The [ToZMQMiddlewareProvider](#classkpsr_1_1zmq__mdlw_1_1ToZMQMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -238,7 +238,7 @@ class kpsr::zmq_mdlw::ZMQEnv
 
 The [ZMQEnv](#classkpsr_1_1zmq__mdlw_1_1ZMQEnv) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

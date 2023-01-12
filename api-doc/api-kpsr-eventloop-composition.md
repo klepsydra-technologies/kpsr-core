@@ -19,7 +19,7 @@ This group of classes relates exclusively to the assemblying of the application 
 
 The [EventLoop](#classkpsr_1_1high__performance_1_1EventLoop) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -65,7 +65,7 @@ stop stop consumer thread.
 
 The [EventLoopMiddlewareProvider](#classkpsr_1_1high__performance_1_1EventLoopMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -154,7 +154,7 @@ class kpsr::high_performance::EventLoopPublisher
 
 The [EventLoopPublisher](#classkpsr_1_1high__performance_1_1EventLoopPublisher) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -204,7 +204,7 @@ class kpsr::high_performance::EventLoopSubscriber
 
 The [EventLoopSubscriber](#classkpsr_1_1high__performance_1_1EventLoopSubscriber) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 

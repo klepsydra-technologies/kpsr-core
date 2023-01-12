@@ -1,21 +1,18 @@
-/****************************************************************************
-*
-*                           Klepsydra Core Modules
-*              Copyright (C) 2019-2020  Klepsydra Technologies GmbH
-*                            All Rights Reserved.
-*
-*  This file is subject to the terms and conditions defined in
-*  file 'LICENSE.md', which is part of this source code package.
-*
-*  NOTICE:  All information contained herein is, and remains the property of Klepsydra
-*  Technologies GmbH and its suppliers, if any. The intellectual and technical concepts
-*  contained herein are proprietary to Klepsydra Technologies GmbH and its suppliers and
-*  may be covered by Swiss and Foreign Patents, patents in process, and are protected by
-*  trade secret or copyright law. Dissemination of this information or reproduction of
-*  this material is strictly forbidden unless prior written permission is obtained from
-*  Klepsydra Technologies GmbH.
-*
-****************************************************************************/
+/*
+ * Copyright 2023 Klepsydra Technologies AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef DDS_ENVIRONMENT_DATA_H
 #define DDS_ENVIRONMENT_DATA_H
@@ -27,7 +24,7 @@ namespace dds_mdlw {
 /**
  * @brief The DDSEnvironmentData struct
  *
- * @copyright Klepsydra Technologies 2019-2020.
+ * @copyright 2023 Klepsydra Technologies AG
  *
  * @version   2.1.0
  *

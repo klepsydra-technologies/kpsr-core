@@ -23,7 +23,7 @@ class kpsr::dds_mdlw::DDSEnv
 
 The [DDSEnv](#classkpsr_1_1dds__mdlw_1_1DDSEnv) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -174,7 +174,7 @@ updateConfiguration
 
 The [FromDDSMiddlewareProvider](#classkpsr_1_1dds__mdlw_1_1FromDDSMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -240,7 +240,7 @@ registerToTopic
 
 The [ToDDSMiddlewareProvider](#classkpsr_1_1dds__mdlw_1_1ToDDSMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

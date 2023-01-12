@@ -17,7 +17,7 @@ This group of classes contains the API for serializing events using Cereal to an
 
 The [Mapper<T, Base>](#classkpsr_1_1Mapper_3_01T_00_01Base_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -52,7 +52,7 @@ toMiddleware
 
 The [Mapper<T, std::string>](#classkpsr_1_1Mapper_3_01T_00_01std_1_1string_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

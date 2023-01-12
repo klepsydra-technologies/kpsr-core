@@ -20,7 +20,7 @@ This group of classes are meant to be used in the unit testing of the applicatio
 
 The [CacheListener](#classkpsr_1_1mem_1_1CacheListener) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -97,7 +97,7 @@ class kpsr::mem::MultiThreadCacheListener
 
 The [MultiThreadCacheListener](#classkpsr_1_1mem_1_1MultiThreadCacheListener) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -165,7 +165,7 @@ class kpsr::mem::TestCacheListener
 
 The [TestCacheListener](#classkpsr_1_1mem_1_1TestCacheListener) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -212,7 +212,7 @@ onEventReceived
 
 The [EventEmitterMiddlewareProvider](#classkpsr_1_1EventEmitterMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -274,7 +274,7 @@ class kpsr::EventEmitterPublisher
 
 The [EventEmitterPublisher](#classkpsr_1_1EventEmitterPublisher) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
