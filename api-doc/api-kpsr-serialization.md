@@ -17,7 +17,7 @@ This group of classes contains the API for serializing events to and from middle
 
 The [Mapper](#classkpsr_1_1Mapper) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -54,7 +54,7 @@ toMiddleware This method converts a Klepsydra realm [POCO](https://en.wikipedia.
 
 The [Mapper](api-kpsr-serialization.md#classkpsr_1_1Mapper)<T, std::vector<unsigned char> > class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

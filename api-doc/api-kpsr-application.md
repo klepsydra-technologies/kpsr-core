@@ -36,7 +36,7 @@ Idle            |
 
 The SystemEventData struct.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -46,7 +46,7 @@ System Event Data enum. These are events that drive the running status of a slav
 
 The [CallbackHandler](#classkpsr_1_1CallbackHandler) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -133,7 +133,7 @@ class kpsr::MultiThreadCallbackHandler
 
 The [MultiThreadCallbackHandler](#classkpsr_1_1MultiThreadCallbackHandler) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -215,7 +215,7 @@ requestAndReply
 
 The [Environment](#classkpsr_1_1Environment) interface.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -319,7 +319,7 @@ This method is used to invoke persistence of the properties. I might be used in 
 
 The [EventForwarder](#classkpsr_1_1EventForwarder) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -352,7 +352,7 @@ onMessageReceived
 
 The [EventTransformForwarder](#classkpsr_1_1EventTransformForwarder) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -397,7 +397,7 @@ class kpsr::ManagedService
 
 The [ManagedService](#classkpsr_1_1ManagedService) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -428,7 +428,7 @@ Slave services in the other hand only start running when commanded by a system s
 
 The [Publisher](#classkpsr_1_1Publisher) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -486,7 +486,7 @@ processAndPublish
 
 The [Service](#classkpsr_1_1Service) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -576,7 +576,7 @@ This method is intented to be used from the container. It provides metadata rela
 
 The [SmartObjectPool](#classkpsr_1_1SmartObjectPool) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -631,7 +631,7 @@ size
 
 The [Subscriber](#classkpsr_1_1Subscriber) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -703,7 +703,7 @@ getSubscriptionStats retrieves the performance information of the listener.
 
 The [Sensor](#structkpsr_1_1Sensor) struct.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

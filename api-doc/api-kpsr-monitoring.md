@@ -21,7 +21,7 @@ This group of classes is intended to monitor the performance of the application 
 
 The [Container](#classkpsr_1_1Container) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -155,7 +155,7 @@ detach
 
 The [TimeUtils](#classkpsr_1_1TimeUtils) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -170,7 +170,7 @@ Klepsydra Technologies 2019-2020.
 
 [FunctionStats](#structkpsr_1_1FunctionStats) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -262,7 +262,7 @@ struct kpsr::PublicationStats
 
 [PublicationStats](#structkpsr_1_1PublicationStats) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -309,7 +309,7 @@ struct kpsr::ServiceStats
 
 [ServiceStats](#structkpsr_1_1ServiceStats) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -356,7 +356,7 @@ struct kpsr::SubscriptionStats
 
 [SubscriptionStats](#structkpsr_1_1SubscriptionStats) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

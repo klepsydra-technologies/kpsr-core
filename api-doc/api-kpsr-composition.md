@@ -23,7 +23,7 @@ This group of classes relates exclusively to the assemblying of the application.
 
 The [SafeEventEmitter](#classkpsr_1_1EventEmitter) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -164,7 +164,7 @@ class kpsr::EventEmitterSubscriber
 
 The [EventEmitterSubscriber](#classkpsr_1_1EventEmitterSubscriber) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -227,7 +227,7 @@ getSubscriptionStats retrieves the performance information of the listener.
 
 The [FromMiddlewareChannel](#classkpsr_1_1FromMiddlewareChannel) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -265,7 +265,7 @@ class kpsr::ObjectPoolPublisher
 
 The [ObjectPoolPublisher](#classkpsr_1_1ObjectPoolPublisher) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -313,7 +313,7 @@ class kpsr::PropertyFileEnvironment
 
 The [PropertyFileEnvironment](#classkpsr_1_1PropertyFileEnvironment) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 
@@ -451,7 +451,7 @@ class kpsr::ToMiddlewareChannel
 
 The [ToMiddlewareChannel](#classkpsr_1_1ToMiddlewareChannel) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.1.0
 

@@ -19,7 +19,7 @@ This group of classes relates exclusively to the assemblying of the application 
 
 The [FromRosMiddlewareProvider](#classkpsr_1_1ros__mdlw_1_1FromRosMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -82,7 +82,7 @@ class kpsr::ros_mdlw::PersistentRosEnv
 
 The [PersistentRosEnv](#classkpsr_1_1ros__mdlw_1_1PersistentRosEnv) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -213,7 +213,7 @@ class kpsr::ros_mdlw::RosEnv
 
 The [RosEnv](#classkpsr_1_1ros__mdlw_1_1RosEnv) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -323,7 +323,7 @@ persist empty implementation
 
 The [ToRosMiddlewareProvider](#classkpsr_1_1ros__mdlw_1_1ToRosMiddlewareProvider) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 

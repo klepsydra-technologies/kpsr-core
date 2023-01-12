@@ -21,7 +21,7 @@ This group of classes contains the API for serializing events to and from ROS.
 
 The [Mapper<E, std_msgs::Int32>](#classkpsr_1_1Mapper_3_01E_00_01std__msgs_1_1Int32_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -60,7 +60,7 @@ toMiddleware
 
 The [Mapper<bool, std_msgs::Bool>](#classkpsr_1_1Mapper_3_01bool_00_01std__msgs_1_1Bool_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -95,7 +95,7 @@ toMiddleware
 
 The [Mapper<int, std_msgs::Int32>](#classkpsr_1_1Mapper_3_01int_00_01std__msgs_1_1Int32_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -130,7 +130,7 @@ toMiddleware
 
 The [Mapper<long, std_msgs::Int64>](#classkpsr_1_1Mapper_3_01long_00_01std__msgs_1_1Int64_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -165,7 +165,7 @@ toMiddleware
 
 The [Mapper<float, std_msgs::Float32>](#classkpsr_1_1Mapper_3_01float_00_01std__msgs_1_1Float32_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
@@ -200,7 +200,7 @@ toMiddleware
 
 The [Mapper<std::string, std_msgs::String>](#classkpsr_1_1Mapper_3_01std_1_1string_00_01std__msgs_1_1String_01_4) class.
 
-Klepsydra Technologies 2019-2020.
+2023 Klepsydra Technologies AG
 
 2.0.1
 
