@@ -79,7 +79,7 @@ public:
                                 const std::string &name = "kpsr_EL",
                                 const long timeoutUS = EVENT_LOOP_START_TIMEOUT_MICROSEC,
                                 const std::vector<int> &cpuAffinity = {},
-                                EventEmitterType eventEmitterType = EventEmitterType::UNSAFE_MULTI)
+                                EventEmitterType eventEmitterType = EventEmitterType::SAFE)
         : _container(container)
         , _ringBuffer()
         , _externalEventEmitter(
@@ -131,7 +131,7 @@ public:
      * @return
      */
     Subscriber<T> *getSubscriber(const std::string &eventName,
-                                 EventEmitterType eventEmitterType = EventEmitterType::UNSAFE_MULTI)
+                                 EventEmitterType eventEmitterType = EventEmitterType::SAFE)
     {
         auto search = _subscriberMap.find(eventName);
         if (search != _subscriberMap.end()) {
