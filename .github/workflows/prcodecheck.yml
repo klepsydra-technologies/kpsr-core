@@ -31,11 +31,7 @@ jobs:
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:base-1.4.2
-      options: --user root
-      credentials:
-        username: AWS
-        password: ${{ secrets.ECR_PASSWORD }}
+      image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
       - uses: actions/checkout@v3
         with:
@@ -47,21 +43,11 @@ jobs:
           cmake ../
           make formatcheck
 
-      - name: Workspace cleanup
-        if: always()
-        run: |
-          sudo rm -rf ${GITHUB_WORKSPACE}/build
-
   codecoverage:
     name: Code coverage
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:base-1.4.2
-      options: --user root
-      credentials:
-        username: AWS
-        password: ${{ secrets.ECR_PASSWORD }}
-
+      image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
       - uses: actions/checkout@v3
         with:
@@ -82,8 +68,3 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           files: build/coverage.xml
-
-      - name: Workspace cleanup
-        if: always()
-        run: |
-          sudo rm -rf ${GITHUB_WORKSPACE}/build
