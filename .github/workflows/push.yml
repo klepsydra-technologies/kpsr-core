@@ -27,11 +27,7 @@ jobs:
     name: Vanilla Debug
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:base-1.4.2
-      options: --user root
-      credentials:
-        username: AWS
-        password: ${{ secrets.ECR_PASSWORD }}
+      image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
       - uses: actions/checkout@v3
         with:
@@ -60,11 +56,6 @@ jobs:
             build/Testing/Temporary
             build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
-      - name: Workspace cleanup
-        if: always()
-        run: |
-          sudo rm -rf ${GITHUB_WORKSPACE}/build
-
   buildrelease:
     needs: builddebug
     strategy:
@@ -81,11 +72,7 @@ jobs:
     name: ${{ matrix.name }} Release
     runs-on: ubuntu-latest
     container:
-      image: 337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:base-1.4.2
-      options: --user root
-      credentials:
-        username: AWS
-        password: ${{ secrets.ECR_PASSWORD }}
+      image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
       - uses: actions/checkout@v3
         with:
@@ -135,11 +122,6 @@ jobs:
             build/Testing/Temporary
             build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
-      - name: Workspace cleanup
-        if: always()
-        run: |
-          sudo rm -rf ${GITHUB_WORKSPACE}/build
-
   ros:
     needs: builddebug
     runs-on: ubuntu-latest
@@ -150,11 +132,7 @@ jobs:
     env:
       ROS_DISTRO: ${{ matrix.rosrelease }}
     container:
-      image: "337955887028.dkr.ecr.eu-central-1.amazonaws.com/amd64:${{ matrix.rosrelease }}-1.2.2"
-      options: --user root
-      credentials:
-        username: AWS
-        password: ${{ secrets.ECR_PASSWORD }}
+      image: "ghcr.io/klepsydra-technologies/kpsr${{ matrix.rosrelease }}:1.0.0"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -216,8 +194,3 @@ jobs:
             build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
             ${GITHUB_WORKSPACE}/kpsr-ros/src/build/Testing/Temporary
             ${GITHUB_WORKSPACE}/kpsr-ros/src/build/test_results
-
-      - name: Workspace cleanup
-        if: always()
-        run: |
-          sudo rm -rf ${GITHUB_WORKSPACE}/build
