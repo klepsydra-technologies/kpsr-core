@@ -25,20 +25,6 @@
 * Cereal (<https://github.com/klepsydra-technologies/cereal>)
 * Spdlog (<https://github.com/klepsydra-technologies/spdlog>)
 
-<!---
-FIXME Can we discard the (unrelated) source code and compile just with distro packages?
-      Remove from .gitmodules?
-
-```bash
-sudo apt-get install googletest googletest-tools google-mock
-sudo apt-get install libconcurrentqueue-dev
-sudo apt-get install libcereal-dev
-sudo apt-get install libspdlog-dev
-```
-
-FIXME Valid versions? Resp. 1.10.0.20201025-1.1, 1.0.2+ds-3, 1.3.0+dfsg-1, 1:1.8.1+ds-2.1
--->
-
 ## System requirements
 
 ```bash
@@ -51,11 +37,6 @@ sudo apt-get install python3-pip
 ### Yaml-cpp
 
 If this software package is not available in the system (it is shipped with some software, e.g. ROS), dowload it and install it from <https://github.com/jbeder/yaml-cpp>. **Please make sure it is installed in a share library mode**.
-Klepsydra [SDK tutorial](https://github.com/klepsydra-technologies/kpsr-tutorial/blob/main/README.md) will require yaml support.
-
-```bash
-sudo apt-get install libyaml-cpp-dev
-```
 
 ## Installation
 
@@ -133,13 +114,8 @@ FIXME Internet-wide link? e.g. https://github.com/klepsydra-technologies/kpsr-co
 Requires [moxygen](<https://github.com/sourcey/moxygen>) and cmake `-DKPSR_WITH_DOXYGEN=true` option.
 
 ```bash
-sudo apt-get install npm
-npm install moxygen -g
-export PATH=$PATH:$(npm bin -g)
 make doc
 ```
-
-(remove `-g` for a local installation.)
 
 # License
 
