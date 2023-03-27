@@ -22,13 +22,11 @@ setup(
     package_data={
         'kpsr_codegen': ['conf/*.yaml', 'templates/*.*'],
     },
+    package_dir={"kpsr_codegen":"kpsr_codegen"},
     include_package_data=True,
     python_requires='>=3.6',
     install_requires=[
         'setuptools',
-        'nose',
-        'coverage',
-        'lcov_cobertura',
         'Jinja2',
         'PyYaml'
     ],

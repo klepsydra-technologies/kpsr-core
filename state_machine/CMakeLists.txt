@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 set(PROJ_MAIN_NAME "state_machine")
 project(${PROJ_MAIN_NAME})
 

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # Main header: Project name & Configuration
 # ------------------------------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.12)
