@@ -14,10 +14,29 @@
 
 # Klespsydra event code generator
 
-macro(KpsrEventGenerator inputDir outputDir includePath disableRos disableZmq disableDds)
-   MESSAGE("python3 -m kpsr_codegen -i ${inputDir} -o ${outputDir} -p ${includePath} -r ${disableRos} -z ${disableZmq} -d ${disableDds}")
-   execute_process (
-      COMMAND bash -c "python3 -m kpsr_codegen -i ${inputDir} -o ${outputDir} -p ${includePath} -r ${disableRos} -z ${disableZmq} -d ${disableDds}"
-      OUTPUT_VARIABLE outVar
-   )
+macro(
+    KpsrEventGenerator
+    inputDir
+    outputDir
+    includePath
+    disableRos
+    disableZmq
+    disableDds)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    message(
+        STATUS
+            "Running code generator: \n${Python3_EXECUTABLE} -m kpsr_codegen -i ${inputDir} -o ${outputDir} -p ${includePath} -r ${disableRos} -z ${disableZmq} -d ${disableDds}\n"
+    )
+    execute_process(
+        COMMAND
+            ${Python3_EXECUTABLE} -m kpsr_codegen -i ${inputDir} -o ${outputDir}
+            -p ${includePath} -r ${disableRos} -z ${disableZmq} -d ${disableDds}
+        RESULT_VARIABLE resVar
+        OUTPUT_VARIABLE outVar)
+    if(resVar)
+        message(
+            FATAL_ERROR
+                "Could not generate message files with code generator. Got output \n${outVar}"
+        )
+    endif()
 endmacro()

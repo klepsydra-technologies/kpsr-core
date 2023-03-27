@@ -19,11 +19,13 @@ set -e
 
 rm -rf build_cpptesting
 mkdir build_cpptesting
-@PYTHON@ -m pip install --editable @CMAKE_CURRENT_SOURCE_DIR@/../
+@PYTHON@ -m venv build_cpptesting
+. build_cpptesting/bin/activate
+python -m pip install --editable @CMAKE_CURRENT_SOURCE_DIR@/../
 cd build_cpptesting
 # export PYTHONPATH=${PYTHONPATH}:"@CMAKE_CURRENT_SOURCE_DIR@/../build/lib"
-echo 'cmake -DKPSR_WITH_DDS=@KPSR_WITH_DDS@  -DKPSR_WITH_ZMQ=@KPSR_WITH_ZMQ@ -DTHIRDPARTIES_PATH=@THIRDPARTIES_PATH@ -DCMAKE_PREFIX_PATH="@CMAKE_PREFIX_PATH@" @CPP_TESTING_DIR@'
+echo 'cmake -DKPSR_WITH_DDS=@KPSR_WITH_DDS@  -DKPSR_WITH_ZMQ=@KPSR_WITH_ZMQ@ -DTHIRDPARTIES_PATH=@THIRDPARTIES_PATH@ -DCMAKE_PREFIX_PATH="@CMAKE_TEST_PREFIX_PATH@" @CPP_TESTING_DIR@'
 cmake -DKPSR_WITH_DDS=@KPSR_WITH_DDS@ -DKPSR_WITH__ZMQ=@KPSR_WITH_ZMQ@ -DTHIRDPARTIES_PATH=@THIRDPARTIES_PATH@ -DCMAKE_PREFIX_PATH="@CMAKE_TEST_PREFIX_PATH@" @CPP_TESTING_DIR@
 cmake --build . -- "-j$(nproc)"
 make test
-
+deactivate

@@ -25,17 +25,14 @@ function(add_nosetests)
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../coveragerc.in ${CMAKE_CURRENT_BINARY_DIR}/.coveragerc @ONLY)
         add_test(
             NAME kpsr_code_gen_tests
-            COMMAND ${Python_EXECUTABLE} -m coverage run $ENV{HOME}/.local/bin/nosetests -w ${CMAKE_CURRENT_SOURCE_DIR}/..
+            COMMAND pytest --cov=kpsr_codegen --cov-report xml:${CMAKE_BINARY_DIR}/pycov.xml --cov-append
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
         )
-        add_test(
-            NAME kpsr_code_gen_coverage
-            COMMAND ${Python_EXECUTABLE} -m coverage xml
-        )
-        set_tests_properties(kpsr_code_gen_coverage PROPERTIES DEPENDS kpsr_code_gen_cpptests)
     else()
         add_test(
             NAME kpsr_code_gen_tests
-            COMMAND ${Python_EXECUTABLE} -m nose -w ${CMAKE_CURRENT_SOURCE_DIR}/..
+            COMMAND pytest
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
         )
     endif()
     set_tests_properties(kpsr_code_gen_tests PROPERTIES DEPENDS kpsr_code_gen_cpptests)
@@ -47,10 +44,17 @@ if (Python_FOUND)
     set(OUTPUT_FILE ${CMAKE_BINARY_DIR}/${OUTPUT_WHEEL_FILE_NAME})
       
     file(GLOB_RECURSE ${PROJ_NAME}_PYTHON_SRCS "*.py")
+    set(_python_deps "build")
+    if (KPSR_WITH_CODE_METRICS)
+      list(APPEND _python_deps pytest-cov==4.0.0)
+    else()
+      list(APPEND _python_deps pytest==7.0)
+    endif()
     add_custom_command(
       OUTPUT ${OUTPUT_FILE}
-      COMMAND ${PYTHON} -m pip install -r requirements.txt --user
-      COMMAND ${PYTHON} setup.py bdist_wheel -d ${CMAKE_BINARY_DIR}
+      COMMAND ${PYTHON} -m pip install ${_python_deps}
+      COMMENT "${PYTHON} -m build --outdir ${CMAKE_BINARY_DIR}  ${CMAKE_CURRENT_LIST_DIR}/.."
+      COMMAND ${PYTHON}  -m build --outdir ${CMAKE_BINARY_DIR}  ${CMAKE_CURRENT_LIST_DIR}/..
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
       DEPENDS ${${PROJ_NAME}_PYTHON_SRCS}
     )
@@ -65,6 +69,11 @@ if (Python_FOUND)
 
     set(CMAKE_TEST_PREFIX_PATH ${CMAKE_PREFIX_PATH})
     LIST(APPEND CMAKE_TEST_PREFIX_PATH ${CMAKE_BINARY_DIR})
+    if (spdlog_FOUND)
+      LIST(APPEND CMAKE_TEST_PREFIX_PATH ${spdlog_DIR})
+    else()
+      LIST(APPEND CMAKE_TEST_PREFIX_PATH ${CMAKE_BINARY_DIR}/thirdparties/spdlog)
+    endif()
     set(CPP_TESTING_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/../cpp_testing")
     set(CPP_TESTING_BASH_IN "${CMAKE_CURRENT_SOURCE_DIR}/../cpp_testing_build.sh.in")
     set(CPP_TESTING_BASH    "${CMAKE_CURRENT_BINARY_DIR}/cpp_testing_build.sh")

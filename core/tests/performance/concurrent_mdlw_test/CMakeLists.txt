@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 set(PROJ_NAME kpsr_mem_concurrent_${PROJ_MAIN_NAME}_perf)
 project(${PROJ_NAME})
 

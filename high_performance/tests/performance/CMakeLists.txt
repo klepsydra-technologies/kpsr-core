@@ -12,6 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # Add module code
 add_subdirectory(event_loop_test)

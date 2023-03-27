@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # Prevent overriding the parent project's compiler/linker settings on Windows
 set(gtest_force_shared_crt
     ON

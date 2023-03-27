@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 set(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_yaml)
 project(${PROJ_NAME})
 

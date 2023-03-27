@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # Add module code
 add_subdirectory(${PROJ_MAIN_NAME})
 if(KPSR_WITH_YAML)
