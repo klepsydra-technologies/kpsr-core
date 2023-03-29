@@ -105,10 +105,6 @@ catkin_make install
 
 The last built documentation is available in the [Klepsydra SDK API doc](./api-doc/)
 
-<!---
-FIXME Internet-wide link? e.g. https://github.com/klepsydra-technologies/kpsr-core/tree/main/api-doc
--->
-
 ### Documentation generation
 
 Requires [moxygen](<https://github.com/sourcey/moxygen>) and cmake `-DKPSR_WITH_DOXYGEN=true` option.
