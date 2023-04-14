@@ -82,7 +82,7 @@ protected:
 
 TEST_F(ZMQEnvTest, EnvironmentTests)
 {
-    std::string basename("testfile1.yaml");
+    std::string basename("testfile1.json");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
     kpsr::zmq_mdlw::ZMQEnv envTest(filename, "test", topic, 100, publisher, subscriber);
@@ -90,7 +90,7 @@ TEST_F(ZMQEnvTest, EnvironmentTests)
     envTest.getPropertyString("filename", nameInFile);
     ASSERT_EQ(nameInFile, basename);
 
-    std::string basename2("testfile2.yaml");
+    std::string basename2("testfile2.json");
     std::string filename2 = folderName + "/" + basename2;
     envTest.loadFile(filename2, "file2");
 
@@ -105,27 +105,28 @@ TEST_F(ZMQEnvTest, UpdateConfigurationTests)
     subscriber2.connect(clientUrl);
     subscriber2.setsockopt(ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 
-    std::string basename("testfile1.yaml");
+    std::string basename("testfile1.json");
     std::string folderName(TEST_DATA);
     std::string filename = folderName + "/" + basename;
     kpsr::zmq_mdlw::ZMQEnv envTest(filename, "test", topic, 1000, publisher, subscriber, "file1");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-    kpsr::YamlEnvironment yamlEnvPub;
+    kpsr::ConfigurationEnvironment confEnvPub;
 
-    yamlEnvPub.updateConfiguration(
-        "greeting: \"hello\"\ntest: 123\niteration: -1\nkpsr_zmq_env_key: "
-        "\"test\"\nkpsr_zmq_env_topic_name: \"env_data\"\nkpsr_zmq_env_poll_period: 1000",
+    confEnvPub.updateConfiguration(
+        R"({"StringProperties": {"greeting": "hello", "kpsr_zmq_env_key": "test", "kpsr_zmq_env_topic_name": "env_data"},)"
+        R"( "IntProperties": {"test": 123, "iteration": -1, "kpsr_zmq_env_poll_period": 1000}})",
         kpsr::DEFAULT_ROOT);
-    kpsr::zmq_mdlw::ZMQEnv zmqEnvTest(&yamlEnvPub, publisher, subscriber2, kpsr::DEFAULT_ROOT);
+
+    kpsr::zmq_mdlw::ZMQEnv zmqEnvTest(&confEnvPub, publisher, subscriber2, kpsr::DEFAULT_ROOT);
     std::string default_greeting;
     zmqEnvTest.getPropertyString("greeting", default_greeting);
     // Check that default values have been loaded correctly to zmqEnvTest
     ASSERT_EQ("hello", default_greeting);
 
     // Test that loading new file will trigger an update across all environments
-    std::string basename2("testfile2.yaml");
+    std::string basename2("testfile2.json");
     std::string filename2 = folderName + "/" + basename2;
     envTest.loadFile(filename2, "file2");
     std::string nameFile;
@@ -137,5 +138,6 @@ TEST_F(ZMQEnvTest, UpdateConfigurationTests)
     zmqEnvTest.getPropertyString("filename", nameInFile, "file1");
     ASSERT_EQ(nameInFile, basename);
     std::string greeting;
-    ASSERT_ANY_THROW(zmqEnvTest.getPropertyString("greeting", greeting));
+    zmqEnvTest.getPropertyString("greeting", greeting);
+    ASSERT_TRUE(greeting.empty());
 }

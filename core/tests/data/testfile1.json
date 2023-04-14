@@ -1,0 +1,8 @@
+{
+    "StringProperties": {
+        "filename": "testfile1.json"
+    },
+    "IntProperties": {
+        "numfile": 1
+    }
+}

@@ -128,15 +128,8 @@ endif()
 
 add_definitions(-fno-strict-overflow)
 if(KPSR_WITH_ZMQ)
-    set(KPSR_WITH_YAML True)
     add_definitions(-Wno-deprecated-declarations)
     add_definitions(-Wno-comment)
-endif()
-
-if(KPSR_WITH_DDS)
-    include(MacroConnext)
-    find_package(RTIConnextDDS REQUIRED)
-    set(KPSR_WITH_YAML True)
 endif()
 
 if(KPSR_WITH_YAML)
@@ -266,11 +259,9 @@ endforeach()
 
 list(APPEND EXPORT_INCLUDE_DIRS ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 message("CORE_EXPORT_TARGETS: " ${CORE_EXPORT_TARGETS})
-message("DDS_EXPORT_TARGETS: " ${DDS_EXPORT_TARGETS})
 message("ZMQ_EXPORT_TARGETS: " ${ZMQ_EXPORT_TARGETS})
 message("EXPORT_INCLUDE_DIRS: " ${EXPORT_INCLUDE_DIRS})
-export(TARGETS ${CORE_EXPORT_TARGETS} ${DDS_EXPORT_TARGETS}
-               ${ZMQ_EXPORT_TARGETS}
+export(TARGETS ${CORE_EXPORT_TARGETS} ${ZMQ_EXPORT_TARGETS}
        FILE "${PROJECT_BINARY_DIR}/KlepsydraTargets.cmake")
 
 # Export the package for use from the build-tree (this registers the build-tree
@@ -281,10 +272,6 @@ export(PACKAGE klepsydra)
 if(KPSR_WITH_YAML)
     set(KPSR_YAML_DEP "find_dependency(yaml-cpp 0.5)")
 endif()
-if(KPSR_WITH_DDS)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-    set(KPSR_DDS_DEP "find_dependency(RTIConnextDDS MODULE)")
-endif()
 
 if(KPSR_WITH_ZMQ)
     set(KPSR_ZMQ_DEP "find_dependency(cppzmq 4.3 QUIET)")
@@ -293,7 +280,6 @@ endif()
 set(KPSR_CHECK_DEPS
     "include(CMakeFindDependencyMacro)
 ${KPSR_YAML_DEP}
-${KPSR_DDS_DEP}
 ${KPSR_ZMQ_DEP}
 ")
 

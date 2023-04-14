@@ -1,0 +1,12 @@
+{
+    "StringProperties": {
+        "testPropString": "dummyValue"
+    },
+    "FloatProperties": {
+        "testPropFloat": 3.1449999809265138,
+        "testPropFloatTwo": 3.145353078842163
+    },
+    "IntProperties": {
+        "testPropInt": 12
+    }
+}

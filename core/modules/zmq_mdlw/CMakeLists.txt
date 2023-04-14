@@ -32,7 +32,7 @@ add_library(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS}
 
 # Link libraries with Project
 # ---------------------------------------------------#
-target_link_libraries(${PROJ_NAME} PUBLIC kpsr_core kpsr_core_yaml cppzmq
+target_link_libraries(${PROJ_NAME} PUBLIC kpsr_core cppzmq
                                           ${CMAKE_THREAD_LIBS_INIT})
 
 target_include_directories(

@@ -1,9 +1,0 @@
-module kpsr_dds_serialization {
-
-    struct FloatData {
-        long id;
-        float data;
-    };
-    #pragma keylist FloatData id
-};
-

@@ -1,9 +1,0 @@
-module kpsr_dds_serialization {
-
-    struct DoubleData {
-        long id;
-        double data;
-    };
-    #pragma keylist DoubleData id
-};
-

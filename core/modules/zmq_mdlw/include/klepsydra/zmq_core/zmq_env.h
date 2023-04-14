@@ -23,7 +23,7 @@
 
 #include <klepsydra/serialization/json_cereal_mapper.h>
 
-#include <klepsydra/core/yaml_environment.h>
+#include <klepsydra/core/configuration_environment.h>
 
 #include <klepsydra/zmq_core/zmq_environment_data.h>
 
@@ -78,13 +78,13 @@ class ZMQEnv : public Environment
 public:
     /**
      * @brief ZMQEnv
-     * @param yamlFileName file name to persist to. If empty, no persistent service.
+     * @param jsonFileName file name to persist to. If empty, no persistent service.
      * @param zmqKey key to identify environment changes messages.
      * @param topicName ZMQ topic where environment data is provided
      * @param zmqPublisher ZMQ specific object
      * @param zmqSubscriber ZMQ specific object
      */
-    ZMQEnv(const std::string yamlFileName,
+    ZMQEnv(const std::string jsonFileName,
            std::string zmqKey,
            std::string topicName,
            int pollPeriod,
@@ -94,11 +94,11 @@ public:
 
     /**
      * @brief ZMQEnv
-     * @param yamlEnvironment
+     * @param configurationEnvironment
      * @param zmqPublisher
      * @param zmqSubscriber
      */
-    ZMQEnv(YamlEnvironment *yamlEnvironment,
+    ZMQEnv(ConfigurationEnvironment *configurationEnvironment,
            zmq::socket_t &zmqPublisher,
            zmq::socket_t &zmqSubscriber,
            const std::string &rootNode = kpsr::DEFAULT_ROOT);
@@ -196,7 +196,7 @@ public:
 private:
     void publishConfiguration();
 
-    YamlEnvironment *_decorableEnv;
+    ConfigurationEnvironment *_decorableEnv;
 
     zmq::socket_t &_zmqPublisher;
     std::string _topicName;

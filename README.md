@@ -14,7 +14,6 @@
 * Python 3.6 or above
 * ROS Indigo or above (optional)
 * ZMQ 3 or above (optional)
-* DDS (optional)
 * Doxygen (optional)
 * Moxygen (<https://github.com/sourcey/moxygen>) (optional)
 
@@ -63,12 +62,10 @@ This will install the klespydra core in default locations:
 
 The cmake has the following options:
 
-* -DKPSR_WITH_YAML=true: required when used within **ROS** or when in conjunction with -DKPSR_WITH_DDS or -DKPSR_WITH_ZMQ
 * -DCMAKE_INSTALL_PREFIX for specifying the Klepsydra installation location (`/usr/local` by default)
 * -DKPSR_WITH_DOXYGEN to allow generation of documentation
 * -DGTEST_PATH for the google test path (default is ./thirdparties/googletest)
 * -DTHIRDPARTIES_PATH for the ConcurrentQueue and Cereal path (default is ./thirdparties)
-* -DKPSR_WITH_DDS=true for building the DDS binding
 * -DKPSR_WITH_ZMQ=true for building the ZeroMQ binding
 * -DKPSR_TEST_PERFORMANCE=true for building the performance tests
 * -DKPSR_WITH_SOCKET for building SOCKET binding

@@ -114,7 +114,7 @@ public:
      * @param nodeName
      *
      * This method is used to load additional configuration data from another file. It might be used in cases where
-     * additional data may be loaded later, like in kpsr::YamlEnvironment
+     * additional data may be loaded later, like in kpsr::ConfigurationEnvironment
      *
      * Currently unsupported for ROS
      */

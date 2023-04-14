@@ -1,9 +1,0 @@
-module kpsr_dds_serialization {
-
-    struct BoolData {
-        long id;
-        boolean data;
-    };
-    #pragma keylist BoolData id
-};
-

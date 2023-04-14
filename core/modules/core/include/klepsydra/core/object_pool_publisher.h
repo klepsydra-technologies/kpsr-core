@@ -34,7 +34,7 @@ template<class T>
  *
  * @ingroup kpsr-composition
  *
- * @details Abstract publisher based for most of the concrete implementations (ROS, DDS, ZMQ and event loop.).
+ * @details Abstract publisher based for most of the concrete implementations (ROS, ZMQ, and event loop.).
  * It has an object pool that pre allocates objects before copying for publication.
  */
 class ObjectPoolPublisher : public Publisher<T>
