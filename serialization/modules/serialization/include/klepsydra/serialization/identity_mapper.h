@@ -30,7 +30,7 @@ template<class KpsrClass>
  *
  * @ingroup kpsr-serialization
  *
- * @details Main interface to transform from and to a middleware into the Klepsydra realm. Implementations of this class are only needed for non-memory middlewares like ROS and DDS.
+ * @details Main interface to transform from and to a middleware into the Klepsydra realm. Implementations of this class are only needed for non-memory middlewares like ROS.
 */
 class Mapper<KpsrClass, KpsrClass>
 {

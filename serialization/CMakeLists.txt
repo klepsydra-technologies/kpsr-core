@@ -29,5 +29,4 @@ set(COVERAGE_EXCLUDES
     ${COVERAGE_EXCLUDES}
     PARENT_SCOPE)
 add_core_export_target()
-add_dds_export_target()
 add_include_dirs()

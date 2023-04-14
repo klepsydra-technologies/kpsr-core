@@ -20,7 +20,7 @@
 
 #include <klepsydra/zmq_core/zmq_env.h>
 
-kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string yamlFileName,
+kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string jsonFileName,
                                std::string zmqKey,
                                std::string topicName,
                                int pollPeriod,
@@ -28,7 +28,7 @@ kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(const std::string yamlFileName,
                                zmq::socket_t &zmqSubscriber,
                                const std::string &rootNode)
     : _zmqSubscriber(zmqSubscriber)
-    , _decorableEnv(new YamlEnvironment(yamlFileName, rootNode))
+    , _decorableEnv(new ConfigurationEnvironment(jsonFileName, rootNode))
     , _zmqPublisher(zmqPublisher)
     , _topicName(topicName)
     , _zmqKey(zmqKey)
@@ -52,12 +52,12 @@ kpsr::zmq_mdlw::ZMQEnv::~ZMQEnv()
     }
 }
 
-kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(YamlEnvironment *yamlEnvironment,
+kpsr::zmq_mdlw::ZMQEnv::ZMQEnv(ConfigurationEnvironment *configurationEnvironment,
                                zmq::socket_t &zmqPublisher,
                                zmq::socket_t &zmqSubscriber,
                                const std::string &rootNode)
     : _zmqSubscriber(zmqSubscriber)
-    , _decorableEnv(yamlEnvironment)
+    , _decorableEnv(configurationEnvironment)
     , _zmqPublisher(zmqPublisher)
     , _timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(
                      std::chrono::system_clock::now().time_since_epoch())

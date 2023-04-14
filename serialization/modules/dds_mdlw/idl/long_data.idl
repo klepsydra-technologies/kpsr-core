@@ -1,9 +1,0 @@
-module kpsr_dds_serialization {
-
-    struct LongData {
-        long id;
-        long data;
-    };
-    #pragma keylist LongData id
-};
-

@@ -31,7 +31,7 @@ template<class KpsrClass, class MddlwClass>
  *
  * @ingroup kpsr-composition
  *
- * @details Internal facility abstract class for reading data from middleware. Concrete implementations are available for ZMQ, ROS and DDS.
+ * @details Internal facility abstract class for reading data from middleware. Concrete implementations are available for ZMQ and ROS.
 */
 class FromMiddlewareChannel
 {

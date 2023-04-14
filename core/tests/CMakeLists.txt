@@ -37,15 +37,9 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/common/config.h.in"
 
 add_subdirectory(${PROJ_MAIN_NAME}_tests)
 add_subdirectory(mem_${PROJ_MAIN_NAME}_tests)
-if(KPSR_WITH_YAML)
-    add_subdirectory(yaml_${PROJ_MAIN_NAME}_tests)
-endif()
 
 if(KPSR_WITH_ZMQ)
     add_subdirectory(zmq_${PROJ_MAIN_NAME}_tests)
-endif()
-if(KPSR_WITH_DDS)
-    add_subdirectory(dds_${PROJ_MAIN_NAME}_tests)
 endif()
 if(KPSR_TEST_PERFORMANCE)
     add_subdirectory(performance)

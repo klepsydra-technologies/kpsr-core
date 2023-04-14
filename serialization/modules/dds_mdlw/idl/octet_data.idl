@@ -1,9 +1,0 @@
-module kpsr_dds_serialization {
-
-    struct OctetData {
-        long id;
-        octet data;
-    };
-    #pragma keylist OctetData id
-};
-

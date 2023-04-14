@@ -1,0 +1,12 @@
+{
+    "IntProperties": {
+        "testPropInt": 12
+    },
+    "FloatProperties": {
+        "testPropFloat": 3.1449999809265138,
+        "testPropFloatTwo": 3.145353078842163
+    },
+    "BoolProperties": {
+        "testPropBool": false
+    }
+}

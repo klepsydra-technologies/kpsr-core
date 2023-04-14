@@ -1,0 +1,11 @@
+{
+    "StringProperties": {
+        "testPropString": "dummyValue"
+    },
+    "IntProperties": {
+        "testPropInt": 12
+    },
+    "BoolProperties": {
+        "testPropBool": false
+    }
+}

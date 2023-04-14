@@ -14,10 +14,6 @@
 
 # Add module code
 add_subdirectory(${PROJ_MAIN_NAME})
-if(KPSR_WITH_DDS)
-    add_subdirectory(dds_mdlw)
-endif()
 
 add_core_export_target()
-add_dds_export_target()
 add_include_dirs()
