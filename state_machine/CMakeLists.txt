@@ -19,7 +19,7 @@ project(${PROJ_MAIN_NAME})
 # ADD SUB FOLDERS
 # ##############################################################################
 add_subdirectory(modules)
-if(KPSR_WITH_YAML AND KPSR_ENABLE_TESTS)
+if(KPSR_ENABLE_TESTS)
     add_subdirectory(tests)
 endif()
 

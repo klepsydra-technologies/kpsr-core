@@ -12,18 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <yaml-cpp/yaml.h>
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
-#include <klepsydra/state_machine/yaml_config_loader.h>
-#include <klepsydra/state_machine/yaml_to_state_machine.h>
+#include <klepsydra/state_machine/json_config_loader.h>
+#include <klepsydra/state_machine/json_to_state_machine.h>
 
 namespace kpsr {
 namespace fsm {
-
-ConfigStateMachine YamlConfigLoader::loadConfig(const std::string &specPath)
+ConfigStateMachine JsonConfigLoader::loadConfig(const std::string &specPath)
 {
-    YAML::Node stateMachine = YAML::LoadFile(specPath);
-    return stateMachine.as<ConfigStateMachine>();
+    ConfigStateMachine stateMachine;
+
+    {
+        std::ifstream input_file(specPath);
+        cereal::JSONInputArchive iArchive(input_file);
+        iArchive(stateMachine);
+    }
+
+    return stateMachine;
 }
 } // namespace fsm
 } // namespace kpsr

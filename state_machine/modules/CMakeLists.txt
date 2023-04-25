@@ -14,9 +14,7 @@
 
 # Add module code
 add_subdirectory(${PROJ_MAIN_NAME})
-if(KPSR_WITH_YAML)
-    add_subdirectory(yaml_conf)
-endif()
+add_subdirectory(json_conf)
 
 add_core_export_target()
 add_include_dirs()

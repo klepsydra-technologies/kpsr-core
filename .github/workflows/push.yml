@@ -37,8 +37,8 @@ jobs:
       - name: Build
         run: |
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          mkdir build && cd build 
-          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          mkdir build && cd build
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
           make -j$(nproc)
 
       - name: Unit tests
@@ -83,8 +83,8 @@ jobs:
         run: >
           git config --global --add safe.directory ${GITHUB_WORKSPACE} &&
           mkdir build && cd build &&
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=${{ matrix.dds }} -DKPSR_WITH_ZMQ=${{ matrix.zmq }} 
-          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true 
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=${{ matrix.dds }} -DKPSR_WITH_ZMQ=${{ matrix.zmq }}
+          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true
           -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../ &&
           make -j$(nproc)
 
@@ -144,7 +144,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/build
           cd ${GITHUB_WORKSPACE}/build
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=true -DKPSR_WITH_CODE_METRICS=false -DCMAKE_BUILD_TYPE=Release ../
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=false -DCMAKE_BUILD_TYPE=Release ../
           make -j$(nproc)
 
       - name: Unit tests
@@ -164,7 +164,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/kpsr-ros/src/build
           cd ${GITHUB_WORKSPACE}/kpsr-ros/src
           catkin_init_workspace
-          ln -s ${GITHUB_WORKSPACE}/core/modules/ros_mdlw/kpsr_ros_core . 
+          ln -s ${GITHUB_WORKSPACE}/core/modules/ros_mdlw/kpsr_ros_core .
           ln -s ${GITHUB_WORKSPACE}/serialization/modules/ros_mdlw/kpsr_ros_serialization .
           ln -s ${GITHUB_WORKSPACE}/code_generator/cpp_testing/tests/kpsr_ros_codegen .
 

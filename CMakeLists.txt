@@ -132,10 +132,6 @@ if(KPSR_WITH_ZMQ)
     add_definitions(-Wno-comment)
 endif()
 
-if(KPSR_WITH_YAML)
-    find_package(yaml-cpp 0.5 REQUIRED)
-endif()
-
 if(KPSR_WITH_CODE_METRICS)
     if(CMAKE_BUILD_TYPE MATCHES Debug AND CMAKE_COMPILER_IS_GNUCXX)
         include(CodeCoverage)
@@ -181,9 +177,7 @@ add_subdirectory(thirdparties)
 add_subdirectory(serialization)
 add_subdirectory(core)
 add_subdirectory(high_performance)
-if(KPSR_WITH_YAML)
-    add_subdirectory(state_machine)
-endif()
+add_subdirectory(state_machine)
 if(KPSR_RUNTIME)
 
 else()
@@ -269,17 +263,12 @@ export(TARGETS ${CORE_EXPORT_TARGETS} ${ZMQ_EXPORT_TARGETS}
 export(PACKAGE klepsydra)
 
 # Create the KlepsydraConfig.cmake and KlepsydraConfigVersion files
-if(KPSR_WITH_YAML)
-    set(KPSR_YAML_DEP "find_dependency(yaml-cpp 0.5)")
-endif()
-
 if(KPSR_WITH_ZMQ)
     set(KPSR_ZMQ_DEP "find_dependency(cppzmq 4.3 QUIET)")
 endif()
 
 set(KPSR_CHECK_DEPS
     "include(CMakeFindDependencyMacro)
-${KPSR_YAML_DEP}
 ${KPSR_ZMQ_DEP}
 ")
 

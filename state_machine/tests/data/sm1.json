@@ -1,0 +1,36 @@
+{
+    "id": "sm1",
+    "states": [
+        {
+            "id": "st1",
+            "transitions": [
+                {
+                    "destination": "st2",
+                    "event": "event1"
+                },
+                {
+                    "destination": "st3",
+                    "event": "event2"
+                }
+            ]
+        },
+        {
+            "id": "st2",
+            "transitions": [
+                {
+                    "destination": "st1",
+                    "event": "event3"
+                }
+            ]
+        },
+        {
+            "id": "st3",
+            "transitions": [
+                {
+                    "destination": "st2",
+                    "event": "event1"
+                }
+            ]
+        }
+    ]
+}
