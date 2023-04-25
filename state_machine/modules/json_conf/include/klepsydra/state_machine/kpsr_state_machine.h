@@ -16,13 +16,11 @@
 
 #pragma once
 
-#include <klepsydra/state_machine/sm_factory_impl.h>
 #include <klepsydra/state_machine/state_machine_listener.h>
-#include <klepsydra/state_machine/yaml_config_loader.h>
 
 namespace kpsr {
 namespace fsm {
-class FromYaml
+class FromJson
 {
 public:
     static std::shared_ptr<StateMachine> createStateMachine(const std::string &specPath);

@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_yaml)
+set(PROJ_NAME kpsr_${PROJ_MAIN_NAME}_json)
 project(${PROJ_NAME})
-
-find_package(yaml-cpp 0.5 REQUIRED)
 
 # Source
 # ---------------------------------------------------#
@@ -30,7 +28,7 @@ add_library(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS}
 
 # Link libraries with Project
 # ---------------------------------------------------#
-target_link_libraries(${PROJ_NAME} kpsr_state_machine kpsr_core yaml-cpp)
+target_link_libraries(${PROJ_NAME} kpsr_state_machine kpsr_core)
 target_include_directories(
     ${PROJ_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                         $<INSTALL_INTERFACE:include>)
@@ -50,9 +48,11 @@ install(
     EXPORT KlepsydraTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT libs)
+
+set(INSTALL_HEADERS "include/klepsydra/state_machine/json_config_loader.h" "include/klepsydra/state_machine/kpsr_state_machine.h")
 install(
-    DIRECTORY "include/klepsydra"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    FILES ${INSTALL_HEADERS}
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/klepsydra/state_machine/"
     COMPONENT dev)
 
 add_core_export_target(${PROJ_NAME})

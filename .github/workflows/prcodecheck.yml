@@ -55,8 +55,8 @@ jobs:
 
       - name: Build
         run: |
-          mkdir build && cd build 
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_YAML=false -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          mkdir build && cd build
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
           make -j$(nproc)
 
       - name: Coverage

@@ -33,10 +33,6 @@ sudo apt-get install cmake
 sudo apt-get install python3-pip
 ```
 
-### Yaml-cpp
-
-If this software package is not available in the system (it is shipped with some software, e.g. ROS), dowload it and install it from <https://github.com/jbeder/yaml-cpp>. **Please make sure it is installed in a share library mode**.
-
 ## Installation
 
 Given `$KLEPSYDRA_HOME`, for example `$HOME/klepsydra`:

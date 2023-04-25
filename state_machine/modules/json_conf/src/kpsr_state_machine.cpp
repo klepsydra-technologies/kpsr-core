@@ -12,22 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <klepsydra/state_machine/json_config_loader.h>
 #include <klepsydra/state_machine/kpsr_state_machine.h>
+#include <klepsydra/state_machine/sm_factory_impl.h>
 
 namespace kpsr {
 namespace fsm {
-std::shared_ptr<StateMachine> FromYaml::createStateMachine(const std::string &specPath)
+std::shared_ptr<StateMachine> FromJson::createStateMachine(const std::string &specPath)
 {
-    YamlConfigLoader cnfLoader;
+    JsonConfigLoader cnfLoader;
     ConfigStateMachine cnfSm = cnfLoader.loadConfig(specPath);
     SMFactoryImpl smFactory;
     return smFactory.createStateMachine(cnfSm);
 }
 
-std::shared_ptr<StateMachineListener> FromYaml::createStateMachineListener(
+std::shared_ptr<StateMachineListener> FromJson::createStateMachineListener(
     const std::string &specPath)
 {
-    YamlConfigLoader cnfLoader;
+    JsonConfigLoader cnfLoader;
     ConfigStateMachine cnfSm = cnfLoader.loadConfig(specPath);
     return std::make_shared<StateMachineListener>(cnfSm.id);
 }

@@ -23,12 +23,13 @@
 
 #include "gtest/gtest.h"
 
+#include <klepsydra/state_machine/json_config_loader.h>
 #include <klepsydra/state_machine/kpsr_state_machine.h>
 
 TEST(StateMachine, test1)
 {
-    kpsr::fsm::YamlConfigLoader cnfLoader;
-    kpsr::fsm::ConfigStateMachine cnfSm = cnfLoader.loadConfig(TEST_DATA "/sm1.yaml");
+    kpsr::fsm::JsonConfigLoader cnfLoader;
+    kpsr::fsm::ConfigStateMachine cnfSm = cnfLoader.loadConfig(TEST_DATA "/sm1.json");
     ASSERT_EQ(cnfSm.states.size(), 3);
     ASSERT_EQ(cnfSm.states[0].id, "st1");
     ASSERT_EQ(cnfSm.states[1].id, "st2");
@@ -58,7 +59,7 @@ TEST(StateMachine, test2)
         }
     };
     auto smObserver = std::make_shared<Observer>();
-    auto sm = kpsr::fsm::FromYaml::createStateMachine(TEST_DATA "/sm1.yaml");
+    auto sm = kpsr::fsm::FromJson::createStateMachine(TEST_DATA "/sm1.json");
     sm->registerObserver(std::bind(&Observer::updateCurrentState,
                                    smObserver,
                                    std::placeholders::_1,
@@ -92,7 +93,7 @@ TEST(StateMachine, test3)
         }
     };
     auto smObserver = std::make_shared<Observer>();
-    auto sm = kpsr::fsm::FromYaml::createStateMachine(TEST_DATA "/sm1.yaml");
+    auto sm = kpsr::fsm::FromJson::createStateMachine(TEST_DATA "/sm1.json");
     sm->registerObserver(std::bind(&Observer::updateCurrentState,
                                    smObserver,
                                    std::placeholders::_1,
@@ -132,7 +133,7 @@ TEST(StateMachine, test4)
             smListener->addAction("st1", std::bind(&ServiceMock::act1, this, std::placeholders::_1));
             smListener->addAction("st2", std::bind(&ServiceMock::act2, this, std::placeholders::_1));
 
-            sm = kpsr::fsm::FromYaml::createStateMachine(specPath);
+            sm = kpsr::fsm::FromJson::createStateMachine(specPath);
             sm->registerObserver(smListener->getObserverFunc());
             sm->registerObserver(std::bind(&ServiceMock::updateCurrentState,
                                            this,
@@ -159,7 +160,7 @@ TEST(StateMachine, test4)
         }
     };
 
-    auto svc = std::make_shared<ServiceMock>(TEST_DATA "/sm1.yaml");
+    auto svc = std::make_shared<ServiceMock>(TEST_DATA "/sm1.json");
 
     svc->pushEvent("event2");
     svc->pushEvent("event1");
@@ -198,7 +199,7 @@ TEST(StateMachine, test5)
                                         std::bind(&ServiceMock::act1, this, std::placeholders::_1));
             smListener->addAction("st2", std::bind(&ServiceMock::act2, this, std::placeholders::_1));
 
-            sm = kpsr::fsm::FromYaml::createStateMachine(specPath);
+            sm = kpsr::fsm::FromJson::createStateMachine(specPath);
             sm->registerObserver(smListener->getObserverFunc());
             sm->registerObserver(std::bind(&ServiceMock::updateCurrentState,
                                            this,
@@ -225,7 +226,7 @@ TEST(StateMachine, test5)
         }
     };
 
-    auto svc = std::make_shared<ServiceMock>(TEST_DATA "/sm1.yaml");
+    auto svc = std::make_shared<ServiceMock>(TEST_DATA "/sm1.json");
 
     svc->pushEvent("event2");
     svc->pushEvent("event1");
@@ -273,7 +274,7 @@ TEST(StateMachine, test6)
                                                     this,
                                                     std::placeholders::_1));
 
-            sm = kpsr::fsm::FromYaml::createStateMachine(specPath);
+            sm = kpsr::fsm::FromJson::createStateMachine(specPath);
             sm->registerObserver(smListener->getObserverFunc());
             sm->registerObserver(std::bind(&ServiceMock::updateCurrentState,
                                            this,
@@ -295,7 +296,7 @@ TEST(StateMachine, test6)
         }
     };
 
-    auto svc = std::make_shared<ServiceMock>(TEST_DATA "/sm1.yaml");
+    auto svc = std::make_shared<ServiceMock>(TEST_DATA "/sm1.json");
 
     ASSERT_EQ(svc->currentState, "sm1:st1");
 

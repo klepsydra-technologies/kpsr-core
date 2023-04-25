@@ -20,7 +20,7 @@
 
 namespace kpsr {
 namespace fsm {
-class YamlConfigLoader : public ConfigLoader
+class JsonConfigLoader : public ConfigLoader
 {
 public:
     virtual ConfigStateMachine loadConfig(const std::string &specPath);
