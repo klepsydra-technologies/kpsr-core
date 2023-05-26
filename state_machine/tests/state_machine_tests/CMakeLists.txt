@@ -33,7 +33,8 @@ add_executable(${PROJ_NAME} ${${PROJ_NAME}_HEADERS} ${${PROJ_NAME}_SRC})
 
 # Link libraries with Project
 # ---------------------------------------------------#
-target_link_libraries(${PROJ_NAME} kpsr_state_machine kpsr_state_machine_json gtest_main)
+target_link_libraries(${PROJ_NAME} kpsr_state_machine kpsr_state_machine_json
+                      gtest_main)
 
 add_test(NAME ${PROJ_NAME} COMMAND ${PROJ_NAME} --output-on-failure
                                    --gtest_output=xml:gtestresults.xml)

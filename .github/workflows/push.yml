@@ -54,7 +54,6 @@ jobs:
             build/CMakeFiles/CMakeOutput.log
             build/CMakeFiles/CMakeError.log
             build/Testing/Temporary
-            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   buildrelease:
     needs: builddebug
@@ -120,7 +119,6 @@ jobs:
             build/CMakeFiles/CMakeOutput.log
             build/CMakeFiles/CMakeError.log
             build/Testing/Temporary
-            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
 
   ros:
     needs: builddebug
@@ -166,7 +164,6 @@ jobs:
           catkin_init_workspace
           ln -s ${GITHUB_WORKSPACE}/core/modules/ros_mdlw/kpsr_ros_core .
           ln -s ${GITHUB_WORKSPACE}/serialization/modules/ros_mdlw/kpsr_ros_serialization .
-          ln -s ${GITHUB_WORKSPACE}/code_generator/cpp_testing/tests/kpsr_ros_codegen .
 
       - name: Build ROS
         run: |
@@ -191,6 +188,10 @@ jobs:
           name: ros-${{ matrix.rosrelease }}
           path: |
             build/Testing/Temporary
-            build/code_generator/kpsr_codegen/build_cpptesting/Testing/Temporary
             ${GITHUB_WORKSPACE}/kpsr-ros/src/build/Testing/Temporary
             ${GITHUB_WORKSPACE}/kpsr-ros/src/build/test_results
+
+      - name: Workspace cleanup
+        if: always()
+        run: |
+          sudo rm -rf ${GITHUB_WORKSPACE}/build

@@ -178,11 +178,6 @@ add_subdirectory(serialization)
 add_subdirectory(core)
 add_subdirectory(high_performance)
 add_subdirectory(state_machine)
-if(KPSR_RUNTIME)
-
-else()
-    add_subdirectory(code_generator)
-endif()
 if(KPSR_WITH_NODE)
     add_subdirectory(node)
 endif()
@@ -282,10 +277,9 @@ configure_file(KlepsydraConfigVersion.cmake.in
 
 # Install the KlepsydraConfig.cmake and KlepsydraConfigVersion.cmake
 install(
-    FILES "${PROJECT_BINARY_DIR}/KlepsydraConfig.cmake"
-          "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake"
-          "${CMAKE_SOURCE_DIR}/code_generator/cmake/KpsrCodeGen.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}"
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/KlepsydraConfig.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/KlepsydraConfigVersion.cmake
+    DESTINATION ${INSTALL_CMAKE_DIR}
     COMPONENT dev)
 
 # Install the export set for use with the install-tree

@@ -3,7 +3,6 @@ build/**
 **/thirdparties/include
 build_ros/**
 **/build_ros
-**/kpsr_codegen.egg-info
 Config.cmake
 *.user
 **/**/config.h
@@ -16,8 +15,5 @@ gen
 venv
 **/build
 **/cpp_testing/CMakeLists.txt.user
-**/cpp_testing/tests/kpsr_ros_codegen/include/**/*.h
-**/cpp_testing/tests/kpsr_ros_codegen/msg/*.msg
 **/gen
 dist
-kpsr_codegen.egg-info
