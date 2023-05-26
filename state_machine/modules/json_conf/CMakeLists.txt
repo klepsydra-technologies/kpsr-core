@@ -49,7 +49,8 @@ install(
     DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT libs)
 
-set(INSTALL_HEADERS "include/klepsydra/state_machine/json_config_loader.h" "include/klepsydra/state_machine/kpsr_state_machine.h")
+set(INSTALL_HEADERS "include/klepsydra/state_machine/json_config_loader.h"
+                    "include/klepsydra/state_machine/kpsr_state_machine.h")
 install(
     FILES ${INSTALL_HEADERS}
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/klepsydra/state_machine/"
