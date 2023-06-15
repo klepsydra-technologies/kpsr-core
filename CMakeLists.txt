@@ -272,8 +272,10 @@ configure_package_config_file(
     "KlepsydraConfig.cmake.in" "KlepsydraConfig.cmake"
     INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}"
     PATH_VARS CMAKE_INSTALL_LIBDIR)
-configure_file(KlepsydraConfigVersion.cmake.in
-               "${PROJECT_BINARY_DIR}/KlepsydraConfigVersion.cmake" @ONLY)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/KlepsydraConfigVersion.cmake
+    VERSION ${KLEPSYDRA_CORE_VERSION}
+    COMPATIBILITY SameMajorVersion)
 
 # Install the KlepsydraConfig.cmake and KlepsydraConfigVersion.cmake
 install(
