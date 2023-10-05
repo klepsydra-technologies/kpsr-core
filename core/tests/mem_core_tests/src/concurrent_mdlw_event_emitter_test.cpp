@@ -202,7 +202,6 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolNoFailures)
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
     });
 
@@ -302,7 +301,7 @@ TEST(ConcurrentEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
     int totalMessages =
         provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed +
         ((kpsr::mem::ConcurrentQueuePublisher<ConcurrentSQTestEvent> *) provider.getPublisher())
-            ->_publicationStats.totalDiscardedEvents;
+            ->publicationStats.totalDiscardedEvents;
     ASSERT_EQ(totalMessages, numPublish);
 }
 
@@ -347,7 +346,6 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestNoPool)
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
         newProvider.stop();
     });
@@ -410,7 +408,6 @@ TEST(ConcurrentEventEmitterTest, TransformForwaringTestWithPool)
             provider.getPublisher()->publish(event1);
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         provider.stop();
         newProvider.stop();
     });

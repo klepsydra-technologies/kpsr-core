@@ -19,8 +19,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <klepsydra/core/publisher.h>
 #include <klepsydra/core/smart_object_pool.h>
+#include <klepsydra/sdk/publisher.h>
 
 namespace kpsr {
 template<class T>
@@ -34,7 +34,7 @@ template<class T>
  *
  * @ingroup kpsr-composition
  *
- * @details Abstract publisher based for most of the concrete implementations (ROS, ZMQ, and event loop.).
+ * @details Abstract publisher based for most of the concrete implementations (ZMQ and event loop.).
  * It has an object pool that pre allocates objects before copying for publication.
  */
 class ObjectPoolPublisher : public Publisher<T>
@@ -44,7 +44,7 @@ public:
      * \brief ObjectPoolPublisher
      * \param container Container to attach in case of monitoring.
      * \param name name of the publisher
-     * \param type valid values are EVENT_EMITTER, ROS, etc.
+     * \param type valid values are EVENT_EMITTER, etc.
      * \param poolSize size of the pool to create.
      * \param initializerFunction init function to execute after creation.
      * \param eventCloner optional function to use instead of the copy.
@@ -54,12 +54,16 @@ public:
                         const std::string type,
                         int poolSize,
                         std::function<void(T &)> initializerFunction,
-                        std::function<void(const T &, T &)> eventCloner)
+                        std::function<void(const T &, T &)> eventCloner,
+                        std::function<void(T &)> finalizerFunction = nullptr)
         : Publisher<T>(container, name, type)
     {
         _objectPool = poolSize == 0 ? nullptr
-                                    : new SmartObjectPool<T>(name, poolSize, initializerFunction);
-        this->_publicationStats._totalEventAllocations = poolSize;
+                                    : new SmartObjectPool<T>(name,
+                                                             poolSize,
+                                                             initializerFunction,
+                                                             finalizerFunction);
+        this->publicationStats._totalEventAllocations = poolSize;
         if (initializerFunction) {
             _initializerFunction = [this, initializerFunction](T &t) { initializerFunction(t); };
         } else {
@@ -81,9 +85,9 @@ public:
                     return newEvent;
                 } catch (const std::out_of_range &ex) {
                     spdlog::info("ObjectPoolPublisher::internalPublish. Object Pool failure. {}",
-                                 this->_publicationStats.name);
+                                 this->publicationStats.name);
                     std::shared_ptr<T> newEvent = std::make_shared<T>();
-                    this->_publicationStats._totalEventAllocations++;
+                    this->publicationStats._totalEventAllocations++;
                     this->_initializerFunction(*newEvent);
                     this->_eventCloner(eventData, *newEvent);
                     return newEvent;
@@ -95,9 +99,9 @@ public:
                     newEvent = std::move(this->_objectPool->acquire());
                 } catch (const std::out_of_range &ex) {
                     spdlog::info("ObjectPoolPublisher::processAndPublish. Object Pool failure. {}",
-                                 this->_publicationStats.name);
+                                 this->name);
+                    this->publicationStats._totalEventAllocations++;
                     newEvent = std::make_shared<T>();
-                    this->_publicationStats._totalEventAllocations++;
                 }
                 this->_initializerFunction(*newEvent);
                 return newEvent;
@@ -107,20 +111,20 @@ public:
             if (eventCloner == nullptr) {
                 // default cloner, so initialization function is not necessary.
                 _eventCreatorWrapper = [this](const T &eventData) {
-                    this->_publicationStats._totalEventAllocations++;
+                    this->publicationStats._totalEventAllocations++;
                     return std::make_shared<T>(eventData);
                 };
             } else {
                 _eventCreatorWrapper = [this](const T &eventData) -> std::shared_ptr<T> {
                     std::shared_ptr<T> newEvent = std::make_shared<T>();
-                    this->_publicationStats._totalEventAllocations++;
+                    this->publicationStats._totalEventAllocations++;
                     this->_initializerFunction(*newEvent);
                     this->_eventCloner(eventData, *newEvent);
                     return newEvent;
                 };
             }
             _processEventCreatorWrapper = [this]() {
-                this->_publicationStats._totalEventAllocations++;
+                this->publicationStats._totalEventAllocations++;
                 std::shared_ptr<T> newEvent = std::make_shared<T>();
                 this->_initializerFunction(*newEvent);
                 return newEvent;
@@ -128,12 +132,8 @@ public:
         }
     }
 
-    virtual ~ObjectPoolPublisher()
-    {
-        if (_objectPool) {
-            delete _objectPool;
-        }
-    }
+    virtual ~ObjectPoolPublisher() { delete _objectPool; }
+
     /*!
      * @brief internalPublish
      * @param eventData

@@ -70,7 +70,34 @@ public:
         , _internalQueue(safeQueue)
         , _discardItemsWhenFull(discardItemsWhenFull)
         , _token(token)
-    {}
+    {
+        if (discardItemsWhenFull) {
+            _internalQueuePush = [&](EventData<const T> &safeQueueEvent) {
+                // Non-blocking call
+                uint discardedItems = 0;
+                while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
+                    EventData<const T> dummyEvent;
+                    bool removed = _internalQueue.try_dequeue_from_producer(_token, dummyEvent);
+                    if (removed) {
+                        discardedItems++;
+                    }
+                }
+                this->publicationStats.totalDiscardedEvents += discardedItems;
+            };
+        } else {
+            _internalQueuePush = [&](EventData<const T> &safeQueueEvent) {
+                // Blocking call
+                while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
+                    std::this_thread::sleep_for(std::chrono::microseconds(10));
+                }
+            };
+        }
+        if (container) {
+            _updateTime = TimeUtils::getCurrentNanosecondsAsLlu;
+        } else {
+            _updateTime = []() { return 0llu; };
+        }
+    }
 
     /**
      * @brief internalPublish publish by a safe queue push into queue.
@@ -79,31 +106,17 @@ public:
     void internalPublish(std::shared_ptr<const T> eventData) override
     {
         EventData<const T> safeQueueEvent;
-        safeQueueEvent.enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
+        safeQueueEvent.enqueuedTimeInNs = _updateTime();
         safeQueueEvent.eventData = eventData;
-        if (_discardItemsWhenFull) {
-            // Non-blocking call
-            uint discardedItems = 0;
-            while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
-                EventData<const T> dummyEvent;
-                bool removed = _internalQueue.try_dequeue_from_producer(_token, dummyEvent);
-                if (removed) {
-                    discardedItems++;
-                }
-            }
-            this->_publicationStats.totalDiscardedEvents += discardedItems;
-        } else {
-            // Blocking call
-            while (!_internalQueue.try_enqueue(_token, safeQueueEvent)) {
-                std::this_thread::sleep_for(std::chrono::microseconds(10));
-            }
-        }
+        _internalQueuePush(safeQueueEvent);
     }
 
 private:
     moodycamel::ConcurrentQueue<EventData<const T>> &_internalQueue;
     bool _discardItemsWhenFull;
     moodycamel::ProducerToken &_token;
+    std::function<void(EventData<const T> &)> _internalQueuePush;
+    std::function<long long unsigned int(void)> _updateTime;
 };
 } // namespace mem
 } // namespace kpsr

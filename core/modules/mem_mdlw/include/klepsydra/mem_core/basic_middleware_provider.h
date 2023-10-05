@@ -18,7 +18,7 @@
 #define BASIC_MIDDLEWARE_PROVIDER_H
 
 #include <klepsydra/core/event_emitter_subscriber.h>
-#include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 
 #include <klepsydra/mem_core/basic_publisher.h>
 #include <klepsydra/mem_core/in_memory_middleware_provider.h>
@@ -65,15 +65,17 @@ public:
         : InMemoryMiddlewareProvider<T>(container, eventName)
         , _internalQueue(queueSize)
     {
-        this->_publisher = new BasicPublisher<T>(container,
-                                                 eventName,
-                                                 poolSize,
-                                                 initializerFunction,
-                                                 eventCloner,
-                                                 _internalQueue,
-                                                 discardItemsWhenFull);
+        this->_publisher = std::unique_ptr<BasicPublisher<T>>(
+            new BasicPublisher<T>(container,
+                                  eventName,
+                                  poolSize,
+                                  initializerFunction,
+                                  eventCloner,
+                                  _internalQueue,
+                                  discardItemsWhenFull));
         // By default, we use a sleep/wait period of 1000 microseconds for the poller.
-        this->_poller = new SafeQueuePoller<T>(_internalQueue, this->_eventEmitter, eventName, 1000);
+        this->_poller = std::unique_ptr<SafeQueuePoller<T>>(
+            new SafeQueuePoller<T>(_internalQueue, this->_eventEmitter, eventName, 1000));
     }
 
     SafeQueue<EventData<const T>> _internalQueue;

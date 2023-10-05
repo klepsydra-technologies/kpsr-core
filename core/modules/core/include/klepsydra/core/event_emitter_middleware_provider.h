@@ -21,7 +21,7 @@
 #include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
 
-#include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 
 namespace kpsr {
 template<class T>

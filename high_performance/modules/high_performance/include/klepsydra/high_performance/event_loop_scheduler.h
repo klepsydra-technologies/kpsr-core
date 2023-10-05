@@ -17,8 +17,8 @@
 #ifndef EVENT_LOOP_SCHEDULER_H
 #define EVENT_LOOP_SCHEDULER_H
 
-#include <klepsydra/core/publisher.h>
 #include <klepsydra/mem_core/basic_scheduler.h>
+#include <klepsydra/sdk/publisher.h>
 
 #include <atomic>
 #include <chrono>
@@ -46,8 +46,10 @@ public:
     void startScheduledTask(const std::string &name,
                             int after,
                             bool repeat,
-                            std::function<void()> function) override;
-    void startScheduledService(int after, bool repeat, Service *service) override;
+                            std::function<void()> task) override;
+    void startScheduledService(int after,
+                               bool repeat,
+                               Service *service) override;
     void stopScheduledTask(const std::string &name) override;
     void stopScheduledService(Service *service) override;
 

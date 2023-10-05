@@ -19,15 +19,16 @@
 
 #include <zmq.hpp>
 
-#include <thread>
+#include <future>
 
 #include <klepsydra/serialization/json_cereal_mapper.h>
 
-#include <klepsydra/core/configuration_environment.h>
-
+#include <klepsydra/sdk/environment.h>
 #include <klepsydra/zmq_core/zmq_environment_data.h>
 
 namespace kpsr {
+
+class ConfigurationEnvironment;
 namespace zmq_mdlw {
 class ZMQEnv;
 /**
@@ -78,13 +79,13 @@ class ZMQEnv : public Environment
 public:
     /**
      * @brief ZMQEnv
-     * @param jsonFileName file name to persist to. If empty, no persistent service.
+     * @param configurationFileName file name to persist to. If empty, no persistent service.
      * @param zmqKey key to identify environment changes messages.
      * @param topicName ZMQ topic where environment data is provided
      * @param zmqPublisher ZMQ specific object
      * @param zmqSubscriber ZMQ specific object
      */
-    ZMQEnv(const std::string jsonFileName,
+    ZMQEnv(const std::string &configurationFileName,
            std::string zmqKey,
            std::string topicName,
            int pollPeriod,
@@ -110,8 +111,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string &key,
+    bool getPropertyString(const std::string &key,
                            std::string &value,
+                           const std::string &defaultValue = "",
                            const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -119,8 +121,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string &key,
+    bool getPropertyInt(const std::string &key,
                         int &value,
+                        const int defaultValue = 0,
                         const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -128,8 +131,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string &key,
+    bool getPropertyFloat(const std::string &key,
                           float &value,
+                          const float defaultValue = 0.0f,
                           const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -137,8 +141,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string &key,
+    bool getPropertyBool(const std::string &key,
                          bool &value,
+                         const bool defaultValue = false,
                          const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -177,19 +182,13 @@ public:
                          const bool &value,
                          const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
-    void loadFile(const std::string &fileName, const std::string &nodeName) override;
+    bool loadFile(const std::string &fileName, const std::string &nodeName) override;
 
     /**
      * @brief updateConfiguration
      * @param configurationData
      */
-    void updateConfiguration(const std::string &configurationData);
-
-    /**
-     * @brief updateConfiguration
-     * @param configurationData
-     */
-    void updateConfiguration(const std::string &configurationData, const std::string &rootNode);
+    bool updateConfiguration(const std::string &configurationData);
 
     zmq::socket_t &_zmqSubscriber;
 

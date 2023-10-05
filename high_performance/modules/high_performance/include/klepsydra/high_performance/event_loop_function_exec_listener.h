@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 
-#include <klepsydra/core/container.h>
+#include <klepsydra/core/core_container.h>
 #include <klepsydra/core/safe_event_emitter.h>
 
 #include <klepsydra/high_performance/eventloop_data_type.h>

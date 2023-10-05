@@ -22,7 +22,9 @@
 
 #include <klepsydra/core/event_emitter_factory.h>
 #include <klepsydra/core/event_emitter_interface.h>
-#include <klepsydra/core/subscriber.h>
+#include <klepsydra/sdk/subscriber.h>
+
+#include <spdlog/spdlog.h>
 
 namespace kpsr {
 template<class T>
@@ -69,7 +71,7 @@ public:
               EventEmitterFactory::createEventEmitter<std::shared_ptr<const T>>(eventEmitterType))
     {}
 
-    ~EventEmitterSubscriber() { _eventEmitter->removeAllListeners(this->_container); }
+    ~EventEmitterSubscriber() { _eventEmitter->removeAllListeners(this->container); }
 
     /*!
      * @brief registerListenerOnce
@@ -84,7 +86,7 @@ public:
 
         std::function<void(const std::shared_ptr<const T> &)> internalListener =
             [listener](const std::shared_ptr<const T> &event) { listener(*event.get()); };
-        _eventEmitter->once(this->_name, internalListener);
+        _eventEmitter->once(this->name, internalListener);
     }
 
     /*!
@@ -101,9 +103,9 @@ public:
 
         std::function<void(const std::shared_ptr<const T> &)> internalListener =
             [listener](const std::shared_ptr<const T> &event) { listener(*event.get()); };
-        unsigned int listenerId = _eventEmitter->on(this->_container,
+        unsigned int listenerId = _eventEmitter->on(this->container,
                                                     name,
-                                                    this->_name,
+                                                    this->name,
                                                     internalListener);
         _listenersMap[name] = listenerId;
         spdlog::trace("{}. ListenerId {} for name: {}", __PRETTY_FUNCTION__, listenerId, name);
@@ -123,7 +125,7 @@ public:
                 "kpsr::EventEmitterSubscriber::registerSharedPtrListener: No callbak provided.");
         }
 
-        unsigned int listenerId = _eventEmitter->on(this->_container, name, this->_name, listener);
+        unsigned int listenerId = _eventEmitter->on(this->container, name, this->name, listener);
         _listenersMap[name] = listenerId;
     }
 
@@ -139,7 +141,7 @@ public:
                                         "registerSharedPtdListenerOnce: No callbak provided.");
         }
 
-        _eventEmitter->once(this->_name, listener);
+        _eventEmitter->once(this->name, listener);
     }
 
     /*!
@@ -148,10 +150,14 @@ public:
      */
     void removeListener(const std::string &name)
     {
-        if (_listenersMap.find(name) != _listenersMap.end()) {
-            unsigned int listenerId = _listenersMap[name];
-            _eventEmitter->removeListener(this->_container, listenerId);
-            _listenersMap.erase(name);
+        auto listenerIterator = _listenersMap.find(name);
+        if (listenerIterator != _listenersMap.end()) {
+            spdlog::debug("{}. Listener {} found, deleting...", __PRETTY_FUNCTION__, name);
+            unsigned int listenerId = listenerIterator->second;
+            _eventEmitter->removeListener(this->container, listenerId);
+            _listenersMap.erase(listenerIterator);
+        } else {
+            spdlog::debug("{}. Listener {} not found.", __PRETTY_FUNCTION__, name);
         }
     }
 

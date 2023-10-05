@@ -16,11 +16,8 @@
 
 #include <klepsydra/core/cache_listener.h>
 #include <klepsydra/core/event_emitter_middleware_provider.h>
-#include <klepsydra/core/publisher.h>
-#include <klepsydra/core/service.h>
-#include <klepsydra/core/subscriber.h>
-
-#include <klepsydra/mem_core/basic_middleware_provider.h>
+#include <klepsydra/sdk/publisher.h>
+#include <klepsydra/sdk/service.h>
 
 #include <klepsydra/zmq_core/from_zmq_middleware_provider.h>
 #include <klepsydra/zmq_core/to_zmq_middleware_provider.h>
@@ -85,8 +82,8 @@ TEST_F(ZmqCVTest, ZmqTestIntJson)
 
     //  Process 100 updates
     kpsr::zmq_mdlw::FromZmqMiddlewareProvider _fromZmqMiddlewareProvider;
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> *_jsonFromZMQProvider =
-        _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<int>(subscriber, 100);
+    auto _jsonFromZMQProvider = _fromZmqMiddlewareProvider
+                                    .getJsonFromMiddlewareChannel<int>(subscriber, 100);
     _jsonFromZMQProvider->start();
     kpsr::EventEmitterMiddlewareProvider<int> imageDataProvider(nullptr, topic, 0, nullptr, nullptr);
 
@@ -96,7 +93,7 @@ TEST_F(ZmqCVTest, ZmqTestIntJson)
                                                         cacheListener.cacheListenerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    for (unsigned int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i) {
         int matToSend = i + 1;
         toZMQPublisher->publish(matToSend);
 

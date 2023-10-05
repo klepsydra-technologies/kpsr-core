@@ -23,13 +23,17 @@ file(GLOB_RECURSE ${PROJ_NAME}_HEADERS "include/*.h")
 
 # Create Library
 # ---------------------------------------------------#
-
 add_library(${PROJ_NAME} ${${PROJ_MAIN_NAME}_LIB_TYPE} ${${PROJ_NAME}_HEADERS}
                          ${${PROJ_NAME}_SRC})
 
 # Link libraries with Project
 # ---------------------------------------------------#
-target_link_libraries(${PROJ_NAME} PUBLIC atomic kpsr_serialization)
+target_link_libraries(${PROJ_NAME} PUBLIC ${SYSTEM_LIBS} atomic
+                                          kpsr_serialization kpsr-sdk)
+target_link_libraries(${PROJ_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+if(KPSR_COMPILE_SPDLOG)
+    target_link_libraries(${PROJ_NAME} PUBLIC spdlog::spdlog)
+endif()
 
 target_include_directories(
     ${PROJ_NAME}
@@ -41,6 +45,9 @@ target_include_directories(
 set_target_properties(
     ${PROJ_NAME} PROPERTIES VERSION ${KLEPSYDRA_CORE_VERSION}
                             SOVERSION ${KLEPSYDRA_CORE_VERSION_MAJOR})
+
+target_link_options(${PROJ_NAME} PUBLIC
+                    $<$<NOT:$<CONFIG:MINIMAL_BUILD>>:-export-dynamic>)
 
 if(KPSR_WITH_CODE_METRICS)
     add_cppcheck(${PROJ_NAME} UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR)

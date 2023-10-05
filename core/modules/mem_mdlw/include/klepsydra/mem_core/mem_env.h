@@ -17,7 +17,7 @@
 #ifndef MEM_ENV_H
 #define MEM_ENV_H
 
-#include <klepsydra/core/environment.h>
+#include <klepsydra/sdk/environment.h>
 
 #include <map>
 #include <mutex>
@@ -44,8 +44,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyString(const std::string &key,
+    bool getPropertyString(const std::string &key,
                            std::string &value,
+                           const std::string &defaultValue = "",
                            const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -53,8 +54,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyInt(const std::string &key,
+    bool getPropertyInt(const std::string &key,
                         int &value,
+                        const int defaultValue = 0,
                         const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -62,8 +64,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyFloat(const std::string &key,
+    bool getPropertyFloat(const std::string &key,
                           float &value,
+                          const float defaultValue = 0.0f,
                           const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -71,8 +74,9 @@ public:
      * @param key
      * @param value
      */
-    void getPropertyBool(const std::string &key,
+    bool getPropertyBool(const std::string &key,
                          bool &value,
+                         const bool defaultValue = false,
                          const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -111,7 +115,7 @@ public:
                          const bool &value,
                          const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
-    void loadFile(const std::string &fileName, const std::string &nodeName){};
+    bool loadFile(const std::string &fileName, const std::string &nodeName);
 
 private:
     std::map<std::string, std::string> stringDataMap;

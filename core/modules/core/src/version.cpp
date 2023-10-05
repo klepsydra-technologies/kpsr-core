@@ -14,7 +14,7 @@
 
 #include <klepsydra/core/version.h>
 
-const std::string KLEPSYDRA_CORE_VERSION_MAJOR = "8";
+const std::string KLEPSYDRA_CORE_VERSION_MAJOR = "11";
 const std::string KLEPSYDRA_CORE_VERSION_MINOR = "0";
 const std::string KLEPSYDRA_CORE_VERSION_PATCH = "0";
-const std::string KLEPSYDRA_CORE_VERSION = "8.0.0";
+const std::string KLEPSYDRA_CORE_VERSION = "11.0.0";

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <klepsydra/mem_core/in_memory_queue_poller.h>
+#include <spdlog/spdlog.h>
 
 namespace kpsr {
 namespace mem {
@@ -73,5 +74,4 @@ bool InMemoryQueuePoller::isRunning()
     return _running.load(std::memory_order_acquire);
 }
 } // namespace mem
-
 } // namespace kpsr

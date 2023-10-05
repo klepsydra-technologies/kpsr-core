@@ -70,7 +70,7 @@ kpsr::socket_mdlw::ServerSocket::ServerSocket(const std::string &socketPath)
     }
 }
 
-std::shared_ptr<kpsr::socket_mdlw::DataSocket> kpsr::socket_mdlw::ServerSocket::accept(int timeout_us)
+std::shared_ptr<kpsr::socket_mdlw::DataSocket> kpsr::socket_mdlw::ServerSocket::accept(int timeout)
 {
     if (getSocketId() == invalidSocketId) {
         throw std::logic_error(
@@ -82,8 +82,8 @@ std::shared_ptr<kpsr::socket_mdlw::DataSocket> kpsr::socket_mdlw::ServerSocket::
     struct timeval tv;
     fd_set readfds;
 
-    tv.tv_sec = 0;
-    tv.tv_usec = timeout_us;
+    tv.tv_sec = timeout;
+    tv.tv_usec = 0;
 
     FD_ZERO(&readfds);
     FD_SET(getSocketId(), &readfds);

@@ -54,13 +54,13 @@ public:
 
     /**
      * @brief accept
-     * @param timeout_us
+     * @param timeout
      * @return
      *
      * @details An accepts waits for a connection and returns a
      * socket object that can be used by the client for communication
      */
-    std::shared_ptr<DataSocket> accept(int timeout_us = 1000000);
+    std::shared_ptr<DataSocket> accept(int timeout = 1);
 };
 
 } // namespace socket_mdlw

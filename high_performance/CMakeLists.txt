@@ -23,10 +23,5 @@ if(KPSR_ENABLE_TESTS)
     add_subdirectory(tests)
 endif()
 
-list(APPEND COVERAGE_EXCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tests
-     ${CMAKE_CURRENT_SOURCE_DIR}/examples)
-set(COVERAGE_EXCLUDES
-    ${COVERAGE_EXCLUDES}
-    PARENT_SCOPE)
 add_core_export_target()
 add_include_dirs()

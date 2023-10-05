@@ -17,8 +17,9 @@
 #include <sstream>
 #include <stdio.h>
 
-#include <klepsydra/core/environment.h>
-#include <klepsydra/core/service.h>
+#include <klepsydra/core/core_container.h>
+#include <klepsydra/sdk/environment.h>
+#include <klepsydra/sdk/service.h>
 
 #include <klepsydra/mem_core/basic_scheduler.h>
 
@@ -38,8 +39,8 @@ void long_task()
 class TestService : public kpsr::Service
 {
 public:
-    explicit TestService(kpsr::Environment *environment)
-        : Service(environment, "testService")
+    explicit TestService(kpsr::Container *container, kpsr::Environment *environment)
+        : Service(container, environment, "testService")
         , count(0)
         , executeTime(std::chrono::system_clock::now())
     {}
@@ -62,13 +63,12 @@ protected:
 TEST(BasicSchedulerTest, schedulerTestNominal)
 {
     count = 0;
-    auto ptr = std::function<void()>(task);
     int microSecondsToWait = 20000;
 
     kpsr::mem::BasicScheduler scheduler;
     std::string taskName = "test";
     auto startTime = std::chrono::system_clock::now();
-    scheduler.startScheduledTask(taskName, microSecondsToWait, false, ptr);
+    scheduler.startScheduledTask(taskName, microSecondsToWait, false, task);
 
     auto sleepFor = 10 * microSecondsToWait;
     std::this_thread::sleep_for(std::chrono::microseconds(sleepFor));
@@ -83,13 +83,12 @@ TEST(BasicSchedulerTest, schedulerTestNominal)
 TEST(BasicSchedulerTest, schedulerTestRepeat)
 {
     count = 0;
-    auto ptr = std::function<void()>(task);
     int microSecondsToWait = 20000;
 
     kpsr::mem::BasicScheduler scheduler;
     std::string taskName = "test";
     auto startTime = std::chrono::system_clock::now();
-    scheduler.startScheduledTask(taskName, microSecondsToWait, true, ptr);
+    scheduler.startScheduledTask(taskName, microSecondsToWait, true, task);
 
     auto sleepFor = 10 * microSecondsToWait;
     std::this_thread::sleep_for(std::chrono::microseconds(sleepFor));
@@ -102,7 +101,29 @@ TEST(BasicSchedulerTest, schedulerTestRepeat)
 
 TEST(BasicSchedulerTest, schedulerTestServiceNominal)
 {
-    TestService candidate(nullptr);
+    TestService candidate(nullptr, nullptr);
+
+    int microSecondsToWait = 1000;
+
+    kpsr::mem::BasicScheduler scheduler;
+    candidate.startup();
+    auto startTime = std::chrono::system_clock::now();
+    scheduler.startScheduledService(microSecondsToWait, false, &candidate);
+
+    auto sleepFor = 10 * microSecondsToWait;
+    std::this_thread::sleep_for(std::chrono::microseconds(sleepFor));
+    scheduler.stopScheduledService(&candidate);
+    std::chrono::duration<long int, std::nano> diff = candidate.executeTime - startTime;
+    candidate.shutdown();
+    ASSERT_LT(microSecondsToWait, diff.count() / 1000);
+    ASSERT_GT(sleepFor, diff.count() / 1000);
+    ASSERT_EQ(candidate.count, 1);
+}
+
+TEST(BasicSchedulerTest, schedulerTestServiceWithContainerNominal)
+{
+    kpsr::CoreContainer testContainer(nullptr, "testContainer");
+    TestService candidate(&testContainer, nullptr);
 
     int microSecondsToWait = 1000;
 
@@ -123,7 +144,7 @@ TEST(BasicSchedulerTest, schedulerTestServiceNominal)
 
 TEST(BasicSchedulerTest, schedulerTestServiceNoStart)
 {
-    TestService candidate(nullptr);
+    TestService candidate(nullptr, nullptr);
 
     int microSecondsToWait = 1000;
 
@@ -141,7 +162,7 @@ TEST(BasicSchedulerTest, schedulerTestServiceNoStart)
 
 TEST(BasicSchedulerTest, schedulerTestServiceRepeat)
 {
-    TestService candidate(nullptr);
+    TestService candidate(nullptr, nullptr);
 
     int microSecondsToWait = 1000;
 
@@ -157,4 +178,22 @@ TEST(BasicSchedulerTest, schedulerTestServiceRepeat)
     candidate.shutdown();
     ASSERT_LT(sleepFor, diff.count() / 1000);
     ASSERT_GT(candidate.count, 0);
+}
+
+TEST(BasicSchedulerTest, schedulerTestServiceRepeatNoStart)
+{
+    TestService candidate(nullptr, nullptr);
+
+    int microSecondsToWait = 1000;
+
+    kpsr::mem::BasicScheduler scheduler;
+    auto startTime = std::chrono::system_clock::now();
+    scheduler.startScheduledService(microSecondsToWait, true, &candidate);
+
+    auto sleepFor = 10 * microSecondsToWait;
+    std::this_thread::sleep_for(std::chrono::microseconds(sleepFor));
+    scheduler.stopScheduledService(&candidate);
+
+    ASSERT_LT(candidate.executeTime, startTime);
+    ASSERT_EQ(candidate.count, 0);
 }

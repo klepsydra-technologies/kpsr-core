@@ -94,7 +94,6 @@ private:
     std::atomic<bool> _started;
     bool isStarted();
     void pollingLoop();
-
     virtual void takeEventFromQueue() = 0;
 
 protected:

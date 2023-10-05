@@ -44,9 +44,9 @@ template<typename TEvent, std::size_t BufferSize>
  * @ingroup kpsr-high_performance-composition
  *
  * @details This class is not actually used by the client code, but it is documented due to its close relation to the
- * provider. This class has the same API as most subscribers, but it is not based in the event emmitter as the most
+ * provider. This class has the same API as most subscribers, but it is not based in the event emitter as the most
  * of them. Very important to notice is that in the high_performance, only the last event is invoked. This means that
- * faster listeners will process all messages, while slower listener will only process the laster messages while
+ * faster listeners will process all messages, while slower listener will only process the later messages while
  * discarding any older ones.
  *
  */
@@ -77,7 +77,7 @@ public:
                                          EventEmitterType::SAFE,
                                          dataMuxName + subscriberName)
         , _ringBuffer(ringBuffer)
-        , _eventHandler(this->_name, this->_eventEmitter)
+        , _eventHandler(this->name, this->_eventEmitter)
         , _started(false)
         , _batchProcessorTask([this] {
             std::vector<disruptor4cpp::sequence *> sequences_to_add;
@@ -92,13 +92,13 @@ public:
     {
         auto barrier = _ringBuffer.new_barrier();
         batchEventProcessor = std::unique_ptr<BatchProcessor>(
-            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler, this->_name));
+            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler, this->name));
 
         _batchProcessorThread = std::thread(std::move(_batchProcessorTask));
         _started = true;
         spdlog::debug("{}. DataMultiplexerSubscriber with name {} has been started.",
                       __PRETTY_FUNCTION__,
-                      this->_name);
+                      this->name);
         long counterUs = 0;
         while (!this->batchEventProcessor->is_running()) {
             if (counterUs > _timeoutUs) {

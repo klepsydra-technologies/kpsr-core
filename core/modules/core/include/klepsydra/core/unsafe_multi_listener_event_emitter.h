@@ -17,7 +17,12 @@
 #ifndef FIXED_LISTENERS_EVENT_EMITTER_H
 #define FIXED_LISTENERS_EVENT_EMITTER_H
 
+#include <unordered_map>
+
+#include <spdlog/spdlog.h>
+
 #include <klepsydra/core/event_emitter_interface.h>
+#include <klepsydra/sdk/time_utils.h>
 
 namespace kpsr {
 /**
@@ -38,7 +43,11 @@ public:
     /**
      * @brief SafeEventEmitter
      */
-    UnsafeMultiListenerEventEmitter() {}
+    UnsafeMultiListenerEventEmitter()
+        : _listenersNameMap()
+        , _subscriberNameMap()
+        , _listenerStats()
+    {}
 
     ~UnsafeMultiListenerEventEmitter() {}
 
@@ -54,7 +63,7 @@ public:
                     const std::string &subscriberName,
                     std::function<void(const Event &event)> callback) override
     {
-        spdlog::debug("{} listenerName: {}, subscriberName: {}.",
+        spdlog::trace("{} listenerName: {}, subscriberName: {}.",
                       __PRETTY_FUNCTION__,
                       listenerName,
                       subscriberName);
@@ -71,7 +80,7 @@ public:
             if (container) {
                 auto listenerStat = std::make_shared<SubscriptionStats>(subscriberName,
                                                                         listenerName,
-                                                                        "EVENT_EMITTER");
+                                                                        EVENT_EMITTER_NAME);
                 _listenerStats[listenerId] = listenerStat;
                 container->attach(listenerStat.get());
                 auto wrappedCallback = [listenerStat,
@@ -118,7 +127,6 @@ public:
      */
     void removeListener(Container *container, unsigned int listenerId) override
     {
-        spdlog::debug("{} listenerId: {}", __PRETTY_FUNCTION__, listenerId);
         if (_listeners.size() > listenerId) {
             _listeners[listenerId] = nullptr;
             std::string listenerName;
@@ -182,7 +190,9 @@ public:
                    long long unsigned int enqueuedTimeNs,
                    const Event &event) override
     {
-        for (auto &it : _subscriberNameMap[subscriberName]) {
+        spdlog::trace("{} subscriberName: {}.", __PRETTY_FUNCTION__, subscriberName);
+        auto &listenerVector = _subscriberNameMap[subscriberName];
+        for (auto &it : listenerVector) {
             _listeners[it](event, enqueuedTimeNs);
         }
     }
@@ -224,15 +234,17 @@ public:
     }
 
 private:
-    std::map<const std::string, unsigned int> _listenersNameMap;
-    std::map<const std::string, std::vector<unsigned int>> _subscriberNameMap;
-    std::map<unsigned int, std::shared_ptr<SubscriptionStats>> _listenerStats;
+    // TODO use hash maps here. simplify internal structure similar to safe event emitter
+    std::unordered_map<std::string, unsigned int> _listenersNameMap;
+    std::unordered_map<std::string, std::vector<unsigned int>> _subscriberNameMap;
+    std::unordered_map<unsigned int, std::shared_ptr<SubscriptionStats>> _listenerStats;
     std::vector<std::function<void(const Event &event, long long unsigned int enqueuedTimeNs)>>
         _listeners;
 
     UnsafeMultiListenerEventEmitter(const UnsafeMultiListenerEventEmitter &) = delete;
     const UnsafeMultiListenerEventEmitter &operator=(const UnsafeMultiListenerEventEmitter &) =
         delete;
+    const std::string EVENT_EMITTER_NAME{"UNSAFE_MULTI_EVENT_EMITTER"};
 };
 } // namespace kpsr
 

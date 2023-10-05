@@ -102,7 +102,8 @@ public:
     Publisher<T> *getPublisher(std::string eventName,
                                int poolSize,
                                std::function<void(T &)> initializerFunction,
-                               std::function<void(const T &, T &)> eventCloner)
+                               std::function<void(const T &, T &)> eventCloner,
+                               bool enableUnsafeMode = false)
     {
         auto search = _publisherMap.find(eventName);
         if (search != _publisherMap.end()) {
@@ -114,10 +115,12 @@ public:
             std::shared_ptr<EventLoopPublisher<T, BufferSize>> publisher =
                 std::make_shared<EventLoopPublisher<T, BufferSize>>(_container,
                                                                     _ringBuffer,
+                                                                    _eventLoop.getName(),
                                                                     eventName,
                                                                     poolSize,
                                                                     initializerFunction,
-                                                                    eventCloner);
+                                                                    eventCloner,
+                                                                    enableUnsafeMode);
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
             _publisherMap[eventName] = internalPointer;
             return std::static_pointer_cast<Publisher<T>>(publisher).get();
@@ -193,8 +196,12 @@ public:
                         schedulerSubscriber->setContainer(container);
                         Publisher<std::function<void()>> *schedulerPublisher =
                             getPublisher<std::function<void()>>(keyValue.first, 0, nullptr, nullptr);
-                        _container->attach(&schedulerPublisher->_publicationStats);
+                        _container->attach(&schedulerPublisher->publicationStats);
                     }
+                } else {
+                    //TODO: detach all statistics
+                    spdlog::warn("Cannot attach statistics to null container. A reference to a "
+                                 "previous container may remain in use.");
                 }
             } else if ((_subscriberMap.size() > 0) || (_publisherMap.size() > 0)) {
                 spdlog::info("Container cannot be attached to already existing subscribers or "

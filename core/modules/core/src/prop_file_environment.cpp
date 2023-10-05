@@ -22,32 +22,40 @@ kpsr::PropertyFileEnvironment::PropertyFileEnvironment(std::istream &propertyFil
     : _configFile(propertyFileContent)
 {}
 
-void kpsr::PropertyFileEnvironment::getPropertyString(const std::string &key,
+bool kpsr::PropertyFileEnvironment::getPropertyString(const std::string &key,
                                                       std::string &value,
+                                                      std::string const &defaultValue,
                                                       std::string const &rootNode)
 {
-    value = _configFile.getValueOfKey<std::string>(key);
+    value = _configFile.getValueOfKey<std::string>(key, defaultValue);
+    return true;
 }
 
-void kpsr::PropertyFileEnvironment::getPropertyInt(const std::string &key,
+bool kpsr::PropertyFileEnvironment::getPropertyInt(const std::string &key,
                                                    int &value,
+                                                   const int defaultValue,
                                                    std::string const &rootNode)
 {
-    value = _configFile.getValueOfKey<int>(key);
+    value = _configFile.getValueOfKey<int>(key, defaultValue);
+    return true;
 }
 
-void kpsr::PropertyFileEnvironment::getPropertyFloat(const std::string &key,
+bool kpsr::PropertyFileEnvironment::getPropertyFloat(const std::string &key,
                                                      float &value,
+                                                     const float defaultValue,
                                                      std::string const &rootNode)
 {
-    value = _configFile.getValueOfKey<float>(key);
+    value = _configFile.getValueOfKey<float>(key, defaultValue);
+    return true;
 }
 
-void kpsr::PropertyFileEnvironment::getPropertyBool(const std::string &key,
+bool kpsr::PropertyFileEnvironment::getPropertyBool(const std::string &key,
                                                     bool &value,
+                                                    const bool defaultValue,
                                                     std::string const &rootNode)
 {
-    value = _configFile.getValueOfKey<bool>(key);
+    value = _configFile.getValueOfKey<bool>(key, defaultValue);
+    return true;
 }
 
 void kpsr::PropertyFileEnvironment::setPropertyString(const std::string &key,
@@ -83,8 +91,9 @@ void kpsr::PropertyFileEnvironment::persist()
     // Unsupported
 }
 
-void kpsr::PropertyFileEnvironment::loadFile(const std::string &fileName,
+bool kpsr::PropertyFileEnvironment::loadFile(const std::string &fileName,
                                              const std::string &nodeName)
 {
+    return false;
     // Unsupported
 }

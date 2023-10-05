@@ -18,7 +18,7 @@
 #define PROP_FILE_ENVIRONMENT_H
 
 #include <klepsydra/core/config_file.h>
-#include <klepsydra/core/environment.h>
+#include <klepsydra/sdk/environment.h>
 
 namespace kpsr {
 /**
@@ -51,8 +51,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyString(const std::string &key,
+    virtual bool getPropertyString(const std::string &key,
                                    std::string &value,
+                                   const std::string &defaultValue = "",
                                    const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -60,8 +61,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyInt(const std::string &key,
+    virtual bool getPropertyInt(const std::string &key,
                                 int &value,
+                                const int defaultValue = 0,
                                 const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -69,8 +71,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyFloat(const std::string &key,
+    virtual bool getPropertyFloat(const std::string &key,
                                   float &value,
+                                  const float defaultValue = 0.0f,
                                   const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -78,8 +81,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyBool(const std::string &key,
+    virtual bool getPropertyBool(const std::string &key,
                                  bool &value,
+                                 const bool defaultValue = false,
                                  const std::string &rootNode = kpsr::DEFAULT_ROOT);
 
     /**
@@ -135,7 +139,7 @@ public:
      */
     std::string exportEnvironment();
 
-    virtual void loadFile(const std::string &fileName, const std::string &nodeName);
+    virtual bool loadFile(const std::string &fileName, const std::string &nodeName);
 
 protected:
     ConfigFile _configFile;

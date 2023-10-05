@@ -16,9 +16,22 @@
 SET(PROJ_MAIN_NAME "thirdparties")
 PROJECT(${PROJ_MAIN_NAME})
 
+IF(NOT MINIMAL_BUILD)
 file(COPY googletest DESTINATION ${THIRDPARTIES_PATH})
+ENDIF()
+
 file(COPY cereal/include DESTINATION ${THIRDPARTIES_PATH})
+
+if (KPSR_COMPILE_SPDLOG)
+  if(NOT spdlog_FOUND)
+    set(SPDLOG_INSTALL On CACHE BOOL "Install spdlog" FORCE)
+    set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "libs")
+    add_subdirectory(spdlog)
+    export(TARGETS spdlog FILE ${PROJECT_BINARY_DIR}/spdlog/spdlogConfigTargets.cmake)
+  endif()
+else()
 file(COPY spdlog/include DESTINATION ${THIRDPARTIES_PATH})
+endif()
 
 file(GLOB CONCURRENTQUEUE_HEADERS
   "concurrentqueue/*.h"
@@ -29,6 +42,5 @@ file(COPY ${CONCURRENTQUEUE_HEADERS} DESTINATION ${THIRDPARTIES_PATH}/include)
 #---------------------------------------------------#
 INSTALL(DIRECTORY "${THIRDPARTIES_PATH}/include"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/kpsr_3parties"
+  COMPONENT dev
 )
-
-add_include_dirs("${CMAKE_INSTALL_FULL_INCLUDEDIR}/kpsr_3parties/include")

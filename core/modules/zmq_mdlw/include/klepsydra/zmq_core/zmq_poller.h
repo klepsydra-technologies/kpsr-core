@@ -27,7 +27,7 @@
 namespace kpsr {
 namespace zmq_mdlw {
 
-static const long ZMQ_START_TIMEOUT_MILLISEC = 100;
+static const long ZMQ_START_TIMEOUT_MICROSEC = 100 * 1000;
 
 template<class T>
 /**
@@ -50,15 +50,14 @@ public:
      */
     ZMQPoller(zmq::socket_t &subscriber,
               long pollPeriod,
-              long timeoutMS = ZMQ_START_TIMEOUT_MILLISEC)
+              long timeoutUS = ZMQ_START_TIMEOUT_MICROSEC)
         : _subscriber(subscriber)
         , _pollPeriod(pollPeriod)
-        , _threadNotifier()
         , _running(false)
         , _started(false)
         , _poller(std::bind(&ZMQPoller::pollingLoop, this))
         , _threadNotifierFuture(_poller.get_future())
-        , _timeoutUs(timeoutMS * 1000)
+        , _timeoutUs(timeoutUS)
     {}
 
     /**
@@ -71,6 +70,7 @@ public:
         }
         this->_started.store(true, std::memory_order_release);
         _threadNotifier = std::thread(std::move(_poller));
+        spdlog::debug("Started the poller");
         long counterUs = 0;
         while (!isRunning()) {
             if (counterUs > _timeoutUs) {
@@ -166,7 +166,6 @@ protected:
     long _pollPeriod;
     std::thread _threadNotifier;
     std::atomic<bool> _running;
-
     std::atomic<bool> _started;
     std::packaged_task<void()> _poller;
     std::future<void> _threadNotifierFuture;

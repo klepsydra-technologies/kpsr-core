@@ -147,6 +147,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolNoFailures)
     provider.stop();
 
     auto lastReceivedEvent = eventListener.getLastReceivedEvent();
+    ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ(9, eventListener.getLastReceivedEvent()->_id);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
@@ -227,7 +228,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresBlockingAllocations)
     ASSERT_NE(lastReceivedEvent.get(), nullptr);
     ASSERT_EQ("hello", eventListener.getLastReceivedEvent()->_message);
 
-    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_GT(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
 }
 
 TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresProcessAllocations)
@@ -264,7 +265,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresProcessAllocations)
     ASSERT_NE("hello", eventListener.getLastReceivedEvent()->_message);
     ASSERT_EQ(poolSize, eventListener.getLastReceivedEvent()->_id);
 
-    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_GT(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
 }
 
 TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
@@ -307,7 +308,7 @@ TEST(BasicEventEmitterTest, WithObjectPoolWithFailuresNonBlocking)
     int totalMessages =
         provider.getSubscriber()->getSubscriptionStats("cacheListener")->totalProcessed +
         ((kpsr::mem::BasicPublisher<SQTestEvent> *) provider.getPublisher())
-            ->_publicationStats.totalDiscardedEvents;
+            ->publicationStats.totalDiscardedEvents;
     ASSERT_EQ(totalMessages, 300);
 }
 

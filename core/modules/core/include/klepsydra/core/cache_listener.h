@@ -23,7 +23,7 @@
 #include <mutex>
 #include <thread>
 
-#include <klepsydra/core/time_utils.h>
+#include <klepsydra/sdk/time_utils.h>
 
 namespace kpsr {
 namespace mem {

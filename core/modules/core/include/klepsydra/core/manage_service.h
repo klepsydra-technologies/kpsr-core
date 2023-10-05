@@ -22,12 +22,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include <klepsydra/core/environment.h>
-#include <klepsydra/core/service.h>
-#include <klepsydra/core/subscriber.h>
 #include <klepsydra/core/system_event.h>
-
-#include <klepsydra/core/service_stats.h>
+#include <klepsydra/sdk/environment.h>
+#include <klepsydra/sdk/service.h>
+#include <klepsydra/sdk/service_stats.h>
+#include <klepsydra/sdk/subscriber.h>
 
 namespace kpsr {
 /*!
@@ -57,7 +56,7 @@ public:
     ManagedService(Environment *environment,
                    Subscriber<SystemEventData> *systemStatusEventSubscriber,
                    std::string serviceName)
-        : Service(environment, serviceName, false)
+        : Service(nullptr, environment, serviceName, false)
     {
         if (systemStatusEventSubscriber != nullptr) {
             std::function<void(SystemEventData)> systemListener =
@@ -73,7 +72,7 @@ private:
     {
         spdlog::info(
             "Service::SystemEventDataListener::onMessageReceived. Service name: {}, event: {}",
-            this->_serviceStats.name,
+            this->serviceStats.name,
             event);
         if (event == SystemEventData::Start) {
             startup();

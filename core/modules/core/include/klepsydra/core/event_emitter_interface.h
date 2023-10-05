@@ -20,8 +20,8 @@
 #include <functional>
 #include <memory>
 
-#include <klepsydra/core/container.h>
-#include <klepsydra/core/subscription_stats.h>
+#include <klepsydra/sdk/container.h>
+#include <klepsydra/sdk/subscription_stats.h>
 
 namespace kpsr {
 /**

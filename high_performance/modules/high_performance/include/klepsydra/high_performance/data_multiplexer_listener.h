@@ -21,7 +21,7 @@
 #include <future>
 #include <memory>
 
-#include <klepsydra/core/subscription_stats.h>
+#include <klepsydra/sdk/subscription_stats.h>
 
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
 #include <klepsydra/high_performance/data_multiplexer_event_handler.h>
@@ -56,7 +56,7 @@ public:
     DataMultiplexerListener(const std::function<void(TEvent)> &listener,
                             RingBuffer &ringBuffer,
                             const std::shared_ptr<SubscriptionStats> &listenerStat,
-                            long timeoutMS = MULTIPLEXER_START_TIMEOUT_MICROSEC / 1000)
+                            const long timeoutUS = MULTIPLEXER_START_TIMEOUT_MICROSEC)
         : _ringBuffer(ringBuffer)
         , _eventHandler(listener, listenerStat)
         , _name(listenerStat->name)
@@ -70,7 +70,7 @@ public:
         })
         , _batchProcessorThread()
         , _batchProcessorThreadFuture(_batchProcessorTask.get_future())
-        , _timeoutUs(timeoutMS * 1000)
+        , _timeoutUs(timeoutUS)
     {
         auto barrier = _ringBuffer.new_barrier();
         batchEventProcessor = std::unique_ptr<BatchProcessor>(
@@ -98,6 +98,9 @@ public:
     {
         if (!_started) {
             return;
+        }
+        while (!batchEventProcessor->is_running()) {
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
         }
         batchEventProcessor->halt();
         if (_batchProcessorThread.joinable()) {

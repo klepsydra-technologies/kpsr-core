@@ -124,8 +124,10 @@ public:
                     }
                     sequence_.set(available_sequence);
                 } catch (timeout_exception &timeout_ex) {
-                    spdlog::info("kpsr::high_perf::batch_event_processor. timeout_exception on {}.",
-                                 name_);
+                    spdlog::info(
+                        "kpsr::high_perf::batch_event_processor. timeout_exception {} on {}.",
+                        timeout_ex.what(),
+                        name_);
                     notify_timeout(sequence_.get());
                 } catch (alert_exception &alert_ex) {
                     if (!running_.load(std::memory_order_acquire)) {
@@ -144,6 +146,7 @@ public:
                 }
             }
         } catch (...) {
+            spdlog::debug("kpsr::high_perf::batch_event_processor. notify_shutdown on {}.", name_);
             notify_shutdown();
             running_.store(false, std::memory_order_release);
             throw;

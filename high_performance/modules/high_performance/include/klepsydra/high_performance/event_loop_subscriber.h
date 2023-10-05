@@ -68,13 +68,13 @@ public:
                                            eventDataType.enqueuedTimeInNs,
                                            reinterpreted);
         };
-        _listenerId = _externalEventEmitter->on(this->_container,
+        _listenerId = _externalEventEmitter->on(this->container,
                                                 eventName + "_external",
                                                 eventName + "_external",
                                                 _eventLoopListener);
     }
 
-    ~EventLoopSubscriber() { _externalEventEmitter->removeListener(this->_container, _listenerId); }
+    ~EventLoopSubscriber() { _externalEventEmitter->removeListener(this->container, _listenerId); }
 
 private:
     std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> _externalEventEmitter;

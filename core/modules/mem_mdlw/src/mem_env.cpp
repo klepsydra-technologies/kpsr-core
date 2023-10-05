@@ -14,36 +14,68 @@
 
 #include <klepsydra/mem_core/mem_env.h>
 
-void kpsr::mem::MemEnv::getPropertyString(const std::string &key,
+bool kpsr::mem::MemEnv::getPropertyString(const std::string &key,
                                           std::string &value,
+                                          std::string const &defaultValue,
                                           std::string const &rootNode)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    value = stringDataMap[key];
+    auto it = stringDataMap.find(key);
+    if (it == stringDataMap.end()) {
+        value = defaultValue;
+        return false;
+    } else {
+        value = it->second;
+        return true;
+    }
 }
 
-void kpsr::mem::MemEnv::getPropertyInt(const std::string &key,
+bool kpsr::mem::MemEnv::getPropertyInt(const std::string &key,
                                        int &value,
+                                       const int defaultValue,
                                        std::string const &rootNode)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    value = intDataMap[key];
+    auto it = intDataMap.find(key);
+    if (it == intDataMap.end()) {
+        value = defaultValue;
+        return false;
+    } else {
+        value = it->second;
+        return true;
+    }
 }
 
-void kpsr::mem::MemEnv::getPropertyFloat(const std::string &key,
+bool kpsr::mem::MemEnv::getPropertyFloat(const std::string &key,
                                          float &value,
+                                         float const defaultValue,
                                          std::string const &rootNode)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    value = floatDataMap[key];
+    auto it = floatDataMap.find(key);
+    if (it == floatDataMap.end()) {
+        value = defaultValue;
+        return false;
+    } else {
+        value = it->second;
+        return true;
+    }
 }
 
-void kpsr::mem::MemEnv::getPropertyBool(const std::string &key,
+bool kpsr::mem::MemEnv::getPropertyBool(const std::string &key,
                                         bool &value,
+                                        bool const defaultValue,
                                         std::string const &rootNode)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    value = boolDataMap[key];
+    auto it = boolDataMap.find(key);
+    if (it == boolDataMap.end()) {
+        value = defaultValue;
+        return false;
+    } else {
+        value = it->second;
+        return true;
+    }
 }
 
 void kpsr::mem::MemEnv::setPropertyString(const std::string &key,
@@ -76,4 +108,9 @@ void kpsr::mem::MemEnv::setPropertyBool(const std::string &key,
 {
     std::lock_guard<std::mutex> lock(mutex);
     boolDataMap[key] = value;
+}
+
+bool kpsr::mem::MemEnv::loadFile(const std::string &fileName, const std::string &nodeName)
+{
+    return false;
 }

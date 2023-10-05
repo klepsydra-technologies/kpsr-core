@@ -54,8 +54,8 @@ public:
      * @brief FromZmqChannel
      * @param zmqPoller injected object that establish the type of deserialization
      */
-    FromZmqChannel(ZMQPoller<U> *zmqPoller)
-        : _zmqPoller(zmqPoller)
+    explicit FromZmqChannel(std::unique_ptr<ZMQPoller<U>> zmqPoller)
+        : _zmqPoller(std::move(zmqPoller))
     {}
 
     template<class T>
@@ -99,7 +99,7 @@ public:
     void stop() { _zmqPoller->stop(); }
 
 private:
-    ZMQPoller<U> *_zmqPoller;
+    std::unique_ptr<ZMQPoller<U>> _zmqPoller;
 
     std::map<std::string, std::shared_ptr<void>> _subscriberMap;
 };
@@ -114,7 +114,7 @@ private:
  * @ingroup kpsr-zmq-composition
  *
  * @details This class is a wizard to create from zmq channel objects. It simplifies all the wiring for deserialization
- * and instatiation of objects. The following examples ilustrates this:
+ * and instantiation of objects. The following examples illustrates this:
 @code
     //  Example of ZMQ socket creation
     zmq::context_t context (1);
@@ -135,7 +135,7 @@ private:
     kpsr::mem::SafeQueueMiddlewareProvider<WeatherData> _safeQueueProvider(nullptr, "weatherData", 4, 6, nullptr, nullptr, true);
     _safeQueueProvider.start();
 
-    // Register the topic. Now the aubscriber in the above created pub/sub pair will start receiving events.
+    // Register the topic. Now the subscriber in the above created pub/sub pair will start receiving events.
     _jsomFromZMQProvider->registerToTopic(topic, _safeQueueProvider.getPublisher());
 @endcode
  *
@@ -146,42 +146,48 @@ public:
     template<class U>
     /**
      * @brief getBinaryFromMiddlewareChannel
-     * @param subscriber ZMQ listeing socket
+     * @param subscriber ZMQ listening socket
      * @param pollPeriod in milliseconds
      * @return a FromZmqChannel with binary deserialization
      */
-    FromZmqChannel<Base> *getBinaryFromMiddlewareChannel(zmq::socket_t &subscriber, long pollPeriod)
+    std::unique_ptr<FromZmqChannel<Base>> getBinaryFromMiddlewareChannel(zmq::socket_t &subscriber,
+                                                                         long pollPeriod)
     {
-        BinaryZMQPoller *binaryZMQPoller = new BinaryZMQPoller(subscriber, pollPeriod);
-        return new FromZmqChannel<Base>(binaryZMQPoller);
+        std::unique_ptr<BinaryZMQPoller> binaryZMQPoller{
+            new BinaryZMQPoller(subscriber, pollPeriod)};
+        return std::unique_ptr<FromZmqChannel<Base>>(
+            new FromZmqChannel<Base>(std::move(binaryZMQPoller)));
     }
 
     template<class U>
     /**
      * @brief getJsonFromMiddlewareChannel
-     * @param subscriber ZMQ listeing socket
+     * @param subscriber ZMQ listening socket
      * @param pollPeriod in milliseconds
      * @return a FromZmqChannel with json deserialization
      */
-    FromZmqChannel<std::string> *getJsonFromMiddlewareChannel(zmq::socket_t &subscriber,
-                                                              long pollPeriod)
-    {
-        JsonZMQPoller *jsonZMQPoller = new JsonZMQPoller(subscriber, pollPeriod);
-        return new FromZmqChannel<std::string>(jsonZMQPoller);
-    }
-
-    template<class U>
-    /**
-     * @brief getJsonFromMiddlewareChannel
-     * @param subscriber ZMQ listeing socket
-     * @param pollPeriod in milliseconds
-     * @return a FromZmqChannel with json deserialization
-     */
-    FromZmqChannel<std::vector<unsigned char>> *getVoidCasterFromMiddlewareChannel(
+    std::unique_ptr<FromZmqChannel<std::string>> getJsonFromMiddlewareChannel(
         zmq::socket_t &subscriber, long pollPeriod)
     {
-        VoidCasterZMQPoller *voidCasterZMQPoller = new VoidCasterZMQPoller(subscriber, pollPeriod);
-        return new FromZmqChannel<std::vector<unsigned char>>(voidCasterZMQPoller);
+        std::unique_ptr<JsonZMQPoller> jsonZMQPoller{new JsonZMQPoller(subscriber, pollPeriod)};
+        return std::unique_ptr<FromZmqChannel<std::string>>(
+            new FromZmqChannel<std::string>(std::move(jsonZMQPoller)));
+    }
+
+    template<class U>
+    /**
+     * @brief getJsonFromMiddlewareChannel
+     * @param subscriber ZMQ listening socket
+     * @param pollPeriod in milliseconds
+     * @return a FromZmqChannel with json deserialization
+     */
+    std::unique_ptr<FromZmqChannel<std::vector<unsigned char>>> getVoidCasterFromMiddlewareChannel(
+        zmq::socket_t &subscriber, long pollPeriod)
+    {
+        std::unique_ptr<VoidCasterZMQPoller> voidCasterZMQPoller{
+            new VoidCasterZMQPoller(subscriber, pollPeriod)};
+        return std::unique_ptr<FromZmqChannel<std::vector<unsigned char>>>(
+            new FromZmqChannel<std::vector<unsigned char>>(std::move(voidCasterZMQPoller)));
     }
 };
 

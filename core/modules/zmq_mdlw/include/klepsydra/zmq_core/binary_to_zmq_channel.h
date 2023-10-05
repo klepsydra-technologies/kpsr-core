@@ -17,6 +17,7 @@
 #ifndef BINARY_TO_ZMQ_CHANNEL_H
 #define BINARY_TO_ZMQ_CHANNEL_H
 
+#include <utility>
 #include <zmq.hpp>
 
 #include <memory>
@@ -49,16 +50,18 @@ public:
      * @param topic to include in the multi-part message
      */
     BinaryToZMQChannel(Container *container,
-                       std::string topic,
+                       const std::string &topic,
                        int poolSize,
                        std::function<void(Base &)> initializerFunction,
-                       zmq::socket_t &publisher)
+                       zmq::socket_t &publisher,
+                       std::function<void(Base &)> finalizerFunction)
         : ObjectPoolPublisher<Base>(container,
                                     topic,
                                     "ZMQ_BINARY",
                                     std::max(1, poolSize),
-                                    initializerFunction,
-                                    nullptr)
+                                    std::move(initializerFunction),
+                                    nullptr,
+                                    std::move(finalizerFunction))
         , _publisher(publisher)
         , _topic(topic)
     {}
@@ -66,7 +69,7 @@ public:
 protected:
     void internalPublish(std::shared_ptr<const Base> event) override
     {
-        std::stringbuf *buffer = (std::stringbuf *) (*event);
+        auto buffer = dynamic_cast<std::stringbuf *>(*event);
         _publisher.send(zmq::const_buffer(_topic.c_str(), _topic.size()), zmq::send_flags::sndmore);
         zmq::message_t message(buffer->str().data(), buffer->str().size());
         _publisher.send(message);
