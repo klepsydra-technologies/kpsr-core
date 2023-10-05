@@ -26,47 +26,73 @@
 #include <spdlog/spdlog.h>
 
 #include <klepsydra/core/smart_object_pool.h>
-#include <klepsydra/core/time_utils.h>
+#include <klepsydra/sdk/time_utils.h>
 
 class PoolTestObject
 {
 public:
-    static std::atomic_int constructorInvokations;
-    static std::atomic_int emptyConstructorInvokations;
-    static std::atomic_int copyInvokations;
+    static std::atomic_int constructorInvocations;
+    static std::atomic_int emptyConstructorInvocations;
+    static std::atomic_int copyInvocations;
 
     PoolTestObject(int id, const std::string &message)
         : _id(id)
         , _message(message)
     {
-        PoolTestObject::constructorInvokations++;
+        PoolTestObject::constructorInvocations++;
     }
 
     PoolTestObject()
     {
         spdlog::debug("new empty invocation!!!");
-        PoolTestObject::emptyConstructorInvokations++;
+        PoolTestObject::emptyConstructorInvocations++;
     }
 
     PoolTestObject(const PoolTestObject &that)
         : _id(that._id)
         , _message(that._message)
     {
-        PoolTestObject::copyInvokations++;
+        PoolTestObject::copyInvocations++;
     }
 
     int _id;
     std::string _message;
 };
 
-std::atomic_int PoolTestObject::constructorInvokations(0);
-std::atomic_int PoolTestObject::emptyConstructorInvokations(0);
-std::atomic_int PoolTestObject::copyInvokations(0);
+class ClassWithFinalizer
+{
+public:
+    static std::atomic_int finalizerInvocations;
+    float *value = nullptr;
+
+    void init(size_t size)
+    {
+        if (value) {
+            delete value;
+        }
+        value = new float[size];
+    }
+
+    void clear()
+    {
+        if (value) {
+            delete value;
+            value = nullptr;
+        }
+        ClassWithFinalizer::finalizerInvocations++;
+    }
+};
+
+std::atomic_int PoolTestObject::constructorInvocations(0);
+std::atomic_int PoolTestObject::emptyConstructorInvocations(0);
+std::atomic_int PoolTestObject::copyInvocations(0);
+
+std::atomic_int ClassWithFinalizer::finalizerInvocations(0);
 
 TEST(SmartObjectPoolTest, nominalCase)
 {
     kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4);
-    ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
+    ASSERT_EQ(PoolTestObject::emptyConstructorInvocations, 4);
 
     auto object1 = objectPool.acquire();
     auto object2 = objectPool.acquire();
@@ -81,12 +107,12 @@ TEST(SmartObjectPoolTest, nominalCase)
 
 TEST(SmartObjectPoolTest, nominalCaseWithFailures)
 {
-    PoolTestObject::constructorInvokations = 0;
-    PoolTestObject::emptyConstructorInvokations = 0;
-    PoolTestObject::copyInvokations = 0;
+    PoolTestObject::constructorInvocations = 0;
+    PoolTestObject::emptyConstructorInvocations = 0;
+    PoolTestObject::copyInvocations = 0;
 
     kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4);
-    ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
+    ASSERT_EQ(PoolTestObject::emptyConstructorInvocations, 4);
 
     auto object1 = objectPool.acquire();
     auto object2 = objectPool.acquire();
@@ -101,9 +127,9 @@ TEST(SmartObjectPoolTest, nominalCaseWithFailures)
 
 TEST(SmartObjectPoolTest, initializerFunction)
 {
-    PoolTestObject::constructorInvokations = 0;
-    PoolTestObject::emptyConstructorInvokations = 0;
-    PoolTestObject::copyInvokations = 0;
+    PoolTestObject::constructorInvocations = 0;
+    PoolTestObject::emptyConstructorInvocations = 0;
+    PoolTestObject::copyInvocations = 0;
 
     std::function<void(PoolTestObject &)> initializer = [](PoolTestObject &object) {
         spdlog::info("in initializer");
@@ -112,7 +138,7 @@ TEST(SmartObjectPoolTest, initializerFunction)
     };
 
     kpsr::SmartObjectPool<PoolTestObject> objectPool("SmartObjectPoolTest", 4, initializer);
-    ASSERT_EQ(PoolTestObject::emptyConstructorInvokations, 4);
+    ASSERT_EQ(PoolTestObject::emptyConstructorInvocations, 4);
 
     auto object1 = objectPool.acquire();
     ASSERT_EQ(object1->_id, 0);
@@ -201,4 +227,57 @@ TEST(SmartObjectPoolTest, performanceTest)
                       threadPool[i]->timeAcquiring,
                       threadPool[i]->totalTime);
     }
+}
+
+TEST(SmartObjectPoolTest, objectAddress)
+{
+    using Object = std::vector<long>;
+
+    kpsr::SmartObjectPool<Object> objectPool("SmartObjectPoolTest", 4);
+
+    Object *firstObject;
+
+    {
+        auto object = objectPool.acquire();
+        firstObject = object.get();
+    }
+
+    for (int i = 0; i < 10; i++) {
+        auto object = objectPool.acquire();
+        auto thisObject = object.get();
+        ASSERT_EQ(thisObject, firstObject);
+        auto object2 = objectPool.acquire();
+        auto secondObject = object2.get();
+        ASSERT_NE(thisObject, secondObject);
+    }
+}
+
+TEST(SmartObjectPoolTest, finalizerTest)
+{
+    ASSERT_EQ(ClassWithFinalizer::finalizerInvocations, 0);
+
+    {
+        kpsr::SmartObjectPool<ClassWithFinalizer> objectPool("ClassWithFinalizer",
+                                                             4,
+                                                             nullptr,
+                                                             [](ClassWithFinalizer &object) {
+                                                                 object.clear();
+                                                             });
+    }
+
+    ASSERT_EQ(ClassWithFinalizer::finalizerInvocations, 4);
+    {
+        kpsr::SmartObjectPool<ClassWithFinalizer> objectPool("ClassWithFinalizer",
+                                                             4,
+                                                             nullptr,
+                                                             [](ClassWithFinalizer &object) {
+                                                                 object.clear();
+                                                             });
+        auto object1 = objectPool.acquire();
+        auto object2 = objectPool.acquire();
+        auto object3 = objectPool.acquire();
+        auto object4 = objectPool.acquire();
+    }
+
+    ASSERT_EQ(ClassWithFinalizer::finalizerInvocations, 8);
 }

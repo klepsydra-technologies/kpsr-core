@@ -68,7 +68,25 @@ public:
                                  eventCloner)
         , _internalQueue(safeQueue)
         , _discardItemsWhenFull(discardItemsWhenFull)
-    {}
+    {
+        if (discardItemsWhenFull) {
+            _internalQueuePush = [&](EventData<const T> &safeQueueEvent) {
+                // Non-blocking call
+                uint discardedItems = _internalQueue.force_move_push(safeQueueEvent);
+                this->publicationStats.totalDiscardedEvents += discardedItems;
+            };
+        } else {
+            _internalQueuePush = [&](EventData<const T> &safeQueueEvent) {
+                // Blocking call
+                _internalQueue.move_push(safeQueueEvent);
+            };
+        }
+        if (container) {
+            _updateTime = TimeUtils::getCurrentNanosecondsAsLlu;
+        } else {
+            _updateTime = []() { return 0llu; };
+        }
+    }
 
     /**
      * @brief internalPublish publish by a safe queue push into queue.
@@ -77,21 +95,16 @@ public:
     void internalPublish(std::shared_ptr<const T> eventData) override
     {
         EventData<const T> safeQueueEvent;
-        safeQueueEvent.enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
+        safeQueueEvent.enqueuedTimeInNs = _updateTime();
         safeQueueEvent.eventData = eventData;
-        if (_discardItemsWhenFull) {
-            // Non-blocking call
-            uint discardedItems = _internalQueue.force_move_push(safeQueueEvent);
-            this->_publicationStats.totalDiscardedEvents += discardedItems;
-        } else {
-            // Blocking call
-            _internalQueue.move_push(safeQueueEvent);
-        }
+        _internalQueuePush(safeQueueEvent);
     }
 
 private:
     SafeQueue<EventData<const T>> &_internalQueue;
     bool _discardItemsWhenFull;
+    std::function<void(EventData<const T> &)> _internalQueuePush;
+    std::function<long long unsigned int(void)> _updateTime;
 };
 } // namespace mem
 } // namespace kpsr

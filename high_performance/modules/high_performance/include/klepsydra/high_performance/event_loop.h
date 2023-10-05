@@ -47,7 +47,7 @@ template<std::size_t BufferSize>
  * @ingroup kpsr-eventloop-composition
  *
  * @details This class is not really used by the client code, but it is documented due it its importance in the
- * event loop implementation in Klepsydra. This class basically combines the event emmiter with the high_performance pattern
+ * event loop implementation in Klepsydra. This class basically combines the event emitter with the high_performance pattern
  * into an event loop with similar behaviour as other event loops implementations.
  * It is as single consumer and multiple publisher ring buffer wrapper with an event emitter API.
  *
@@ -70,19 +70,21 @@ public:
     EventLoop(std::shared_ptr<EventEmitterInterface<EventloopDataWrapper>> &externalEventEmitter,
               RingBuffer &ringBuffer,
               const std::string &name,
-              long timeoutUS = EVENT_LOOP_START_TIMEOUT_MICROSEC)
+              const long timeoutUS = EVENT_LOOP_START_TIMEOUT_MICROSEC)
         : _name(name)
         , _threadName(std::to_string(BufferSize) + "_" + name)
         , _ringBuffer(ringBuffer)
         , _eventHandler(externalEventEmitter)
         , _isStarted(false)
         , _eventLoopTask([this] {
+            spdlog::trace("kpsr::high_perf::EventLoop::_eventLoopTask begin");
             std::vector<disruptor4cpp::sequence *> sequences_to_add;
             sequences_to_add.resize(1);
             sequences_to_add[0] = &batchEventProcessor->get_sequence();
             this->_ringBuffer.add_gating_sequences(sequences_to_add);
             spdlog::debug(EVENT_LOOP_START_MESSAGE);
             this->batchEventProcessor->run();
+            spdlog::trace("kpsr::high_perf::EventLoop::_eventLoopTask end.");
         })
         , _batchProcessTask(_eventLoopTask)
         , _batchProcessorThreadFuture(_batchProcessTask.get_future())
@@ -90,7 +92,7 @@ public:
     {
         auto barrier = _ringBuffer.new_barrier();
         batchEventProcessor = std::unique_ptr<BatchProcessor>(
-            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler));
+            new BatchProcessor(_ringBuffer, std::move(barrier), _eventHandler, name));
     }
 
     /**
@@ -101,8 +103,11 @@ public:
         if (isStarted()) {
             return;
         }
-        _isStarted.store(true, std::memory_order_release);
         batchProcessorThread = std::thread(std::move(_batchProcessTask));
+        spdlog::debug(
+            "kpsr::high_perf::EventLoop::start. Starting the event loop here with threadname {}",
+            _threadName);
+        _isStarted.store(true, std::memory_order_release);
         long counterUs = 0;
         while (!this->batchEventProcessor->is_running()) {
             if (counterUs > _timeoutUs) {
@@ -110,6 +115,7 @@ public:
             }
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             counterUs += 100;
+            spdlog::trace("kpsr::high_perf::EventLoop::start. Waiting... {}", counterUs);
         }
     }
 
@@ -123,7 +129,7 @@ public:
         }
         _isStarted.store(false, std::memory_order_release);
         this->batchEventProcessor->halt();
-        spdlog::info("Halting the batchEventProcessor");
+        spdlog::debug("kpsr::high_perf::EventLoop::stop. Halting the batchEventProcessor");
         if (this->batchProcessorThread.joinable()) {
             this->batchProcessorThread.join();
         }
@@ -145,12 +151,12 @@ private:
     RingBuffer &_ringBuffer;
     EventLoopEventHandler _eventHandler;
     std::unique_ptr<BatchProcessor> batchEventProcessor;
-    std::thread batchProcessorThread;
     std::atomic_bool _isStarted;
     std::function<void()> _eventLoopTask;
     std::packaged_task<void()> _batchProcessTask;
+    std::thread batchProcessorThread;
     std::future<void> _batchProcessorThreadFuture;
-    long _timeoutUs;
+    const long _timeoutUs;
 };
 } // namespace high_performance
 } // namespace kpsr

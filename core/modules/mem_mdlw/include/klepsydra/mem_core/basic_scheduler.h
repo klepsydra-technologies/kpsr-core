@@ -17,11 +17,13 @@
 #ifndef BASIC_SCHEDULER_H
 #define BASIC_SCHEDULER_H
 
+#include <atomic>
+#include <future>
 #include <map>
 #include <memory>
 #include <thread>
 
-#include <klepsydra/core/scheduler.h>
+#include <klepsydra/sdk/scheduler.h>
 
 namespace kpsr {
 namespace mem {
@@ -53,8 +55,9 @@ public:
      * @param repeat Repeat service function
      * @param service Service to execute
      */
-
-    void startScheduledService(int after, bool repeat, Service *service) override;
+    void startScheduledService(int after,
+                               bool repeat,
+                               Service *service) override;
     /**
      * @brief Stop Task
      * @param name Name of task
@@ -68,7 +71,7 @@ public:
 
 private:
     /**
-     * @brief Internel Thread class
+     * @brief Internal Thread class
      */
     class ScheduledThread
     {
@@ -76,11 +79,15 @@ private:
         /**
          * @brief ScheduledThread
          *
+         * @param name Name for thread
          * @param after Start after this many uS
          * @param repeat Repeat task
          * @param task Task
          */
-        ScheduledThread(int after, bool repeat, std::function<void()> task);
+        ScheduledThread(const std::string &name,
+                        int after,
+                        bool repeat,
+                        std::function<void()> task);
 
         /**
          * @brief
@@ -93,9 +100,10 @@ private:
         void stop();
 
     private:
+        std::string _name;
         int _after;
         bool _repeat;
-        bool _isRunning;
+        std::atomic_bool _isRunning;
         std::thread _thread;
         std::function<void()> _task;
     };

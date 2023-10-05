@@ -32,7 +32,6 @@ target_link_libraries(${PROJ_NAME} kpsr_state_machine kpsr_core)
 target_include_directories(
     ${PROJ_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                         $<INSTALL_INTERFACE:include>)
-
 set_target_properties(
     ${PROJ_NAME} PROPERTIES VERSION ${KLEPSYDRA_CORE_VERSION}
                             SOVERSION ${KLEPSYDRA_CORE_VERSION_MAJOR})

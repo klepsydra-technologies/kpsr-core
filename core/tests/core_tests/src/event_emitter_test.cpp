@@ -26,6 +26,7 @@
 #include <spdlog/spdlog.h>
 
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/core_container.h>
 #include <klepsydra/core/event_emitter_middleware_provider.h>
 
 class EETestEvent
@@ -164,7 +165,7 @@ TEST(EventEmitterTest, TwoEventEmitterTopics)
 
 TEST(EventEmitterTest, ContainerTest)
 {
-    kpsr::Container testContainer(nullptr, "testContainer");
+    kpsr::CoreContainer testContainer(nullptr, "testContainer");
     kpsr::EventEmitterMiddlewareProvider<EETestEvent> provider(&testContainer,
                                                                "event",
                                                                0,
@@ -307,7 +308,7 @@ TEST(EventEmitterTest, TestProcessPublishPool)
             event._message = "Processed message " + std::to_string(i);
         });
     }
-    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_id, 99);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
               "Processed message " + std::to_string(99));
@@ -334,8 +335,8 @@ TEST(EventEmitterTest, TestProcessPublishNoPool)
             event._message = "Processed message " + std::to_string(i);
         });
     }
-    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, 0);
-    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, iterations);
+    ASSERT_GT(provider.getPublisher()->publicationStats._totalEventAllocations, 0);
+    ASSERT_EQ(provider.getPublisher()->publicationStats._totalEventAllocations, iterations);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_id, iterations - 1);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
               "Processed message " + std::to_string(iterations - 1));
@@ -359,7 +360,7 @@ TEST(EventEmitterTest, EventClonerPool)
 
     EETestEvent eventOriginal(10, "Hello");
     provider.getPublisher()->publish(eventOriginal);
-    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_message, eventOriginal._message + ":Cloned");
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 }
@@ -381,7 +382,7 @@ TEST(EventEmitterTest, EventClonerNoPool)
 
     EETestEvent eventOriginal(10, "Hello");
     provider.getPublisher()->publish(eventOriginal);
-    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_GT(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_message, eventOriginal._message + ":Cloned");
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
 }
@@ -410,7 +411,7 @@ TEST(EventEmitterTest, InitializerPool)
 
     EETestEvent eventOriginal(10, "Hello");
     provider.getPublisher()->publish(eventOriginal);
-    ASSERT_EQ(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_EQ(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
               "Initialized:" + eventOriginal._message + ":Cloned");
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);
@@ -440,7 +441,7 @@ TEST(EventEmitterTest, InitializerNoPool)
 
     EETestEvent eventOriginal(10, "Hello");
     provider.getPublisher()->publish(eventOriginal);
-    ASSERT_GT(provider.getPublisher()->_publicationStats._totalEventAllocations, poolSize);
+    ASSERT_GT(provider.getPublisher()->publicationStats._totalEventAllocations, poolSize);
     ASSERT_EQ(eventListener.getLastReceivedEvent()->_message,
               "Initialized:" + eventOriginal._message + ":Cloned");
     provider.getSubscriber()->registerListener("cacheListener", eventListener.cacheListenerFunction);

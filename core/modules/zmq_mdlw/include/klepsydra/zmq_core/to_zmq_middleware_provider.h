@@ -87,19 +87,24 @@ public:
                 internalPointer);
             return publisher.get();
         } else {
-            std::function<void(Base &)> _initializerFunction = [](Base &event) {
+            std::function<void(Base &)> initializerFunction = [](Base &event) {
                 if (!event) {
                     event = new std::stringbuf;
                 }
                 event->pubseekpos(0);
             };
-            BinaryToZMQChannel *toZmqChannel = new BinaryToZMQChannel(_container,
-                                                                      topic,
-                                                                      poolSize,
-                                                                      _initializerFunction,
-                                                                      _zmqPublisher);
-            std::shared_ptr<Publisher<T>> publisher(
-                new ToMiddlewareChannel<T, Base>(_container, topic + "_zmq", toZmqChannel));
+            std::function<void(Base &)> finalizerFunction = [](Base &event) { delete event; };
+            std::unique_ptr<BinaryToZMQChannel> toZmqChannel{
+                new BinaryToZMQChannel(_container,
+                                       topic,
+                                       poolSize,
+                                       initializerFunction,
+                                       _zmqPublisher,
+                                       finalizerFunction)};
+            std::shared_ptr<Publisher<T>> publisher{
+                std::make_shared<ToMiddlewareChannel<T, Base>>(_container,
+                                                               topic + "_zmq",
+                                                               std::move(toZmqChannel))};
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
             _binaryPublisherMap[topic] = internalPointer;
             return publisher.get();
@@ -122,13 +127,12 @@ public:
                 internalPointer);
             return publisher.get();
         } else {
-            JsonToZMQChannel *toZmqChannel = new JsonToZMQChannel(_container,
-                                                                  topic,
-                                                                  poolSize,
-                                                                  nullptr,
-                                                                  _zmqPublisher);
-            std::shared_ptr<Publisher<T>> publisher(
-                new ToMiddlewareChannel<T, std::string>(_container, topic + "_zmq", toZmqChannel));
+            std::unique_ptr<JsonToZMQChannel> toZmqChannel{
+                new JsonToZMQChannel(_container, topic, poolSize, nullptr, _zmqPublisher)};
+            std::shared_ptr<Publisher<T>> publisher{
+                std::make_shared<ToMiddlewareChannel<T, std::string>>(_container,
+                                                                      topic + "_zmq",
+                                                                      std::move(toZmqChannel))};
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
             _jsonPublisherMap[topic] = internalPointer;
             return publisher.get();
@@ -151,15 +155,11 @@ public:
                 internalPointer);
             return publisher.get();
         } else {
-            VoidCasterToZMQChannel *toZmqChannel = new VoidCasterToZMQChannel(_container,
-                                                                              topic,
-                                                                              poolSize,
-                                                                              nullptr,
-                                                                              _zmqPublisher);
-            std::shared_ptr<Publisher<T>> publisher(
-                new ToMiddlewareChannel<T, std::vector<unsigned char>>(_container,
-                                                                       topic + "_zmq",
-                                                                       toZmqChannel));
+            std::unique_ptr<VoidCasterToZMQChannel> toZmqChannel{
+                new VoidCasterToZMQChannel(_container, topic, poolSize, nullptr, _zmqPublisher)};
+            std::shared_ptr<Publisher<T>> publisher{
+                std::make_shared<ToMiddlewareChannel<T, std::vector<unsigned char>>>(
+                    _container, topic + "_zmq", std::move(toZmqChannel))};
             std::shared_ptr<void> internalPointer = std::static_pointer_cast<void>(publisher);
             _voidCasterPublisherMap[topic] = internalPointer;
             return publisher.get();

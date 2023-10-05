@@ -29,7 +29,23 @@ jobs:
     container:
       image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
-      - uses: actions/checkout@v3
+      - name: Clone kpsr-sdk
+        uses: actions/checkout@v4
+        with:
+          repository: klepsydra-technologies/kpsr-sdk
+          ref: main
+          submodules: recursive
+          path: kpsr-sdk
+
+      - name: Build and install SDK
+        run: |
+          mkdir build && cd build/
+          cmake ..
+          make -j$(nproc)
+          make install
+        working-directory: kpsr-sdk
+
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -38,7 +54,8 @@ jobs:
         run: |
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           mkdir build && cd build
-          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          cmake -DKPSR_WITH_DOXYGEN=true -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true \
+                -DKPSR_WITH_CODE_METRICS=true -DCMAKE_BUILD_TYPE=Debug ../
           make -j$(nproc)
 
       - name: Unit tests
@@ -62,18 +79,32 @@ jobs:
         include:
           - name: Vanilla
             zmq: "false"
-            dds: "false"
 
           - name: ZMQ
             zmq: "true"
-            dds: "false"
 
     name: ${{ matrix.name }} Release
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
-      - uses: actions/checkout@v3
+      - name: Clone kpsr-sdk
+        uses: actions/checkout@v4
+        with:
+          repository: klepsydra-technologies/kpsr-sdk
+          ref: main
+          submodules: recursive
+          path: kpsr-sdk
+
+      - name: Build and install SDK
+        run: |
+          mkdir build && cd build/
+          cmake ..
+          make -j$(nproc)
+          make install
+        working-directory: kpsr-sdk
+
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -82,9 +113,8 @@ jobs:
         run: >
           git config --global --add safe.directory ${GITHUB_WORKSPACE} &&
           mkdir build && cd build &&
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=${{ matrix.dds }} -DKPSR_WITH_ZMQ=${{ matrix.zmq }}
-          -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true
-          -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Release ../ &&
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_ZMQ=${{ matrix.zmq }} -DKPSR_TEST_PERFORMANCE=false \
+                -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_BUILD_TYPE=Release ../ &&
           make -j$(nproc)
 
       - name: Create deb packages
@@ -119,79 +149,3 @@ jobs:
             build/CMakeFiles/CMakeOutput.log
             build/CMakeFiles/CMakeError.log
             build/Testing/Temporary
-
-  ros:
-    needs: builddebug
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rosrelease: ["noetic"]
-    name: ROS ${{ matrix.rosrelease }}
-    env:
-      ROS_DISTRO: ${{ matrix.rosrelease }}
-    container:
-      image: "ghcr.io/klepsydra-technologies/kpsr${{ matrix.rosrelease }}:1.0.0"
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      - name: Build
-        run: |
-          mkdir -p ${GITHUB_WORKSPACE}/build
-          cd ${GITHUB_WORKSPACE}/build
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=false -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=false -DCMAKE_BUILD_TYPE=Release ../
-          make -j$(nproc)
-
-      - name: Unit tests
-        timeout-minutes: 10
-        run: |
-          cd ${GITHUB_WORKSPACE}/build
-          make test ARGS="--gtest_shuffle"
-
-      - name: Install
-        run: |
-          cd ${GITHUB_WORKSPACE}/build
-          sudo make install
-
-      - name: Create ROS environment
-        run: |
-          source /opt/ros/$ROS_DISTRO/setup.bash
-          mkdir -p ${GITHUB_WORKSPACE}/kpsr-ros/src/build
-          cd ${GITHUB_WORKSPACE}/kpsr-ros/src
-          catkin_init_workspace
-          ln -s ${GITHUB_WORKSPACE}/core/modules/ros_mdlw/kpsr_ros_core .
-          ln -s ${GITHUB_WORKSPACE}/serialization/modules/ros_mdlw/kpsr_ros_serialization .
-
-      - name: Build ROS
-        run: |
-          source /opt/ros/$ROS_DISTRO/setup.bash
-          cd ${GITHUB_WORKSPACE}/kpsr-ros/src/build
-          cmake ../ -DCMAKE_INSTALL_PREFIX=../install -DCATKIN_DEVEL_PREFIX=../devel
-          make -j$(nproc)
-
-      - name: Test ROS
-        timeout-minutes: 15
-        run: |
-          source /opt/ros/$ROS_DISTRO/setup.bash
-          cd ${GITHUB_WORKSPACE}/kpsr-ros/src/build
-          make tests
-          roscore &
-          make test
-
-      - name: Upload logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ros-${{ matrix.rosrelease }}
-          path: |
-            build/Testing/Temporary
-            ${GITHUB_WORKSPACE}/kpsr-ros/src/build/Testing/Temporary
-            ${GITHUB_WORKSPACE}/kpsr-ros/src/build/test_results
-
-      - name: Workspace cleanup
-        if: always()
-        run: |
-          sudo rm -rf ${GITHUB_WORKSPACE}/build

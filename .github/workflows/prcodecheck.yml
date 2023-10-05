@@ -16,10 +16,14 @@ name: Code style check
 
 on:
   pull_request:
-  workflow_dispatch:
+    types:
+      - opened
+      - ready_for_review
+      - reopened
   push:
     branches:
       - main
+  workflow_dispatch:
 
 defaults:
   run:
@@ -33,7 +37,23 @@ jobs:
     container:
       image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
-      - uses: actions/checkout@v3
+      - name: Clone kpsr-sdk
+        uses: actions/checkout@v4
+        with:
+          repository: klepsydra-technologies/kpsr-sdk
+          ref: main
+          submodules: recursive
+          path: kpsr-sdk
+
+      - name: Build and install SDK
+        run: |
+          mkdir build && cd build/
+          cmake ..
+          make -j$(nproc)
+          make install
+        working-directory: kpsr-sdk
+
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -49,14 +69,31 @@ jobs:
     container:
       image: ghcr.io/klepsydra-technologies/kpsrbase:1.0.0
     steps:
-      - uses: actions/checkout@v3
+      - name: Clone kpsr-sdk
+        uses: actions/checkout@v4
+        with:
+          repository: klepsydra-technologies/kpsr-sdk
+          ref: main
+          submodules: recursive
+          path: kpsr-sdk
+
+      - name: Build and install SDK
+        run: |
+          mkdir build && cd build/
+          cmake ..
+          make -j$(nproc)
+          make install
+        working-directory: kpsr-sdk
+
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: Build
         run: |
           mkdir build && cd build
-          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_DDS=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true -DKPSR_WITH_CODE_METRICS=true -DCMAKE_PREFIX_PATH=/opt/klepsydra/thirdparties -DCMAKE_BUILD_TYPE=Debug ../
+          cmake -DKPSR_WITH_DOXYGEN=false -DKPSR_WITH_ZMQ=true -DKPSR_TEST_PERFORMANCE=false -DKPSR_WITH_SOCKET=true \
+                -DKPSR_WITH_CODE_METRICS=true -DCMAKE_BUILD_TYPE=Debug ../
           make -j$(nproc)
 
       - name: Coverage

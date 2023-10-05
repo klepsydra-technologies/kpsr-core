@@ -1,8 +1,6 @@
 build/**
 **/build
 **/thirdparties/include
-build_ros/**
-**/build_ros
 Config.cmake
 *.user
 **/**/config.h
@@ -13,7 +11,6 @@ gen
 .idea
 **/gen_test*
 venv
-**/build
 **/cpp_testing/CMakeLists.txt.user
 **/gen
 dist

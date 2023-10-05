@@ -25,8 +25,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <klepsydra/core/publisher.h>
-#include <klepsydra/core/subscriber.h>
+#include <klepsydra/sdk/publisher.h>
+#include <klepsydra/sdk/subscriber.h>
 
 namespace kpsr {
 
@@ -136,7 +136,7 @@ protected:
         spdlog::info(
             "CallbackHandler::onReplyReceived. Reply not mapped. Callback name: {}. _publisher: {}",
             _name,
-            _publisher->_publicationStats.name);
+            _publisher->name);
     }
 
 private:

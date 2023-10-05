@@ -63,7 +63,7 @@ TEST(ConfigurationEnvironment, NominalTest)
     ASSERT_NO_THROW(environment.setPropertyString(stringPropertyName, stringPropertyValue));
 
     std::string checkStringPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyString(stringPropertyName, checkStringPropertyValue));
+    ASSERT_TRUE(environment.getPropertyString(stringPropertyName, checkStringPropertyValue));
     ASSERT_EQ(checkStringPropertyValue, stringPropertyValue);
 
     std::string intPropertyName = "testPropInt";
@@ -72,7 +72,7 @@ TEST(ConfigurationEnvironment, NominalTest)
     ASSERT_NO_THROW(environment.setPropertyInt(intPropertyName, intPropertyValue));
 
     int checkIntPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
     ASSERT_EQ(checkIntPropertyValue, intPropertyValue);
 
     std::string floatPropertyName = "testPropFloat";
@@ -81,7 +81,7 @@ TEST(ConfigurationEnvironment, NominalTest)
     ASSERT_NO_THROW(environment.setPropertyFloat(floatPropertyName, floatPropertyValue));
 
     float checkFloatPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
     ASSERT_EQ(checkFloatPropertyValue, floatPropertyValue);
 
     std::string floatPropertyNameTwo = "testPropFloatTwo";
@@ -90,7 +90,7 @@ TEST(ConfigurationEnvironment, NominalTest)
     ASSERT_NO_THROW(environment.setPropertyFloat(floatPropertyNameTwo, floatPropertyValueTwo));
 
     float checkFloatPropertyValueTwo;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
     ASSERT_EQ(checkFloatPropertyValueTwo, floatPropertyValueTwo);
 
     std::string boolPropertyName = "testPropBool";
@@ -99,8 +99,60 @@ TEST(ConfigurationEnvironment, NominalTest)
     ASSERT_NO_THROW(environment.setPropertyBool(boolPropertyName, boolPropertyValue));
 
     bool checkBoolPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyBool(boolPropertyName, checkBoolPropertyValue));
+    ASSERT_TRUE(environment.getPropertyBool(boolPropertyName, checkBoolPropertyValue));
     ASSERT_EQ(checkBoolPropertyValue, boolPropertyValue);
+
+    std::string serializedEnvironment;
+    ASSERT_NO_THROW(serializedEnvironment = environment.exportEnvironment());
+    spdlog::info(serializedEnvironment);
+
+    kpsr::ConfigurationEnvironment newEnvironment;
+    ASSERT_FALSE(newEnvironment.updateConfiguration("dummy text which is not json object"));
+    ASSERT_TRUE(newEnvironment.updateConfiguration(serializedEnvironment));
+}
+
+TEST(ConfigurationEnvironment, NominalMissingWithDefaultsTest)
+{
+    kpsr::ConfigurationEnvironment environment;
+
+    std::string stringPropertyName = "testPropString";
+    std::string stringPropertyValue = "dummyValue";
+
+    std::string checkStringPropertyValue;
+    ASSERT_FALSE(environment.getPropertyString(stringPropertyName, checkStringPropertyValue));
+    ASSERT_EQ(checkStringPropertyValue, "");
+    ASSERT_FALSE(environment.getPropertyString(stringPropertyName,
+                                               checkStringPropertyValue,
+                                               stringPropertyValue));
+    ASSERT_EQ(checkStringPropertyValue, stringPropertyValue);
+
+    std::string intPropertyName = "testPropInt";
+    int intPropertyValue = 12;
+
+    int checkIntPropertyValue = -1;
+    ASSERT_FALSE(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
+    ASSERT_EQ(checkIntPropertyValue, 0);
+    ASSERT_FALSE(
+        environment.getPropertyInt(intPropertyName, checkIntPropertyValue, intPropertyValue));
+    ASSERT_EQ(checkIntPropertyValue, intPropertyValue);
+
+    std::string floatPropertyName = "testPropFloat";
+    float floatPropertyValue = 3.145f;
+
+    float checkFloatPropertyValue = -21412.1f;
+    ASSERT_FALSE(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
+    ASSERT_EQ(checkFloatPropertyValue, 0.0f);
+    ASSERT_FALSE(environment.getPropertyFloat(floatPropertyName,
+                                              checkFloatPropertyValue,
+                                              floatPropertyValue));
+    ASSERT_EQ(checkFloatPropertyValue, floatPropertyValue);
+
+    std::string boolPropertyName = "testPropBool";
+    bool boolPropertyValue = true;
+
+    bool checkBoolPropertyValue(true);
+    ASSERT_FALSE(environment.getPropertyBool(boolPropertyName, checkBoolPropertyValue));
+    ASSERT_NE(checkBoolPropertyValue, boolPropertyValue);
 
     std::string serializedEnvironment;
     ASSERT_NO_THROW(serializedEnvironment = environment.exportEnvironment());
@@ -118,7 +170,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestInt)
     ASSERT_TRUE(programLogStream.str().empty());
 
     int checkIntPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
     ASSERT_EQ(checkIntPropertyValue, intPropertyValue);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -129,7 +181,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestInt)
     ASSERT_TRUE(programLogStream.str().empty());
 
     int checkIntPropertyValue2;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName2, checkIntPropertyValue2));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName2, checkIntPropertyValue2));
     ASSERT_EQ(checkIntPropertyValue2, intPropertyValue2);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -140,7 +192,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestInt)
     ASSERT_TRUE(programLogStream.str().empty());
 
     int checkIntPropertyValue3;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3));
     ASSERT_EQ(checkIntPropertyValue3, intPropertyValue3);
     ASSERT_TRUE(programLogStream.str().empty());
     std::string serializedEnvironment;
@@ -149,9 +201,9 @@ TEST_F(ConfigEnvironmentLogger, NominalTestInt)
     default_logger->info("Serialized environment: {}", serializedEnvironment);
 
     kpsr::ConfigurationEnvironment newEnvironment;
-    ASSERT_NO_THROW(newEnvironment.updateConfiguration(serializedEnvironment));
+    ASSERT_TRUE(newEnvironment.updateConfiguration(serializedEnvironment));
     int checkIntPropertyValue3New;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3New));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3New));
     ASSERT_EQ(checkIntPropertyValue3New, intPropertyValue3);
 }
 
@@ -166,7 +218,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     float checkFloatPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
     ASSERT_EQ(checkFloatPropertyValue, floatPropertyValue);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -177,7 +229,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     float checkFloatPropertyValue2;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName2, checkFloatPropertyValue2));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName2, checkFloatPropertyValue2));
     ASSERT_EQ(checkFloatPropertyValue2, floatPropertyValue2);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -188,7 +240,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     float checkFloatPropertyValue3;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3));
     ASSERT_EQ(checkFloatPropertyValue3, floatPropertyValue3);
     ASSERT_TRUE(programLogStream.str().empty());
     std::string serializedEnvironment;
@@ -197,9 +249,9 @@ TEST_F(ConfigEnvironmentLogger, NominalTestFloat)
     default_logger->info("Serialized environment: {}", serializedEnvironment);
 
     kpsr::ConfigurationEnvironment newEnvironment;
-    ASSERT_NO_THROW(newEnvironment.updateConfiguration(serializedEnvironment));
+    ASSERT_TRUE(newEnvironment.updateConfiguration(serializedEnvironment));
     float checkFloatPropertyValue3New;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3New));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3New));
     ASSERT_EQ(checkFloatPropertyValue3New, floatPropertyValue3);
 }
 
@@ -214,7 +266,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestString)
     ASSERT_TRUE(programLogStream.str().empty());
 
     std::string checkStringPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyString(stringPropertyName, checkStringPropertyValue));
+    ASSERT_TRUE(environment.getPropertyString(stringPropertyName, checkStringPropertyValue));
     ASSERT_EQ(checkStringPropertyValue, stringPropertyValue);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -225,7 +277,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestString)
     ASSERT_TRUE(programLogStream.str().empty());
 
     std::string checkStringPropertyValue2;
-    ASSERT_NO_THROW(environment.getPropertyString(stringPropertyName2, checkStringPropertyValue2));
+    ASSERT_TRUE(environment.getPropertyString(stringPropertyName2, checkStringPropertyValue2));
     ASSERT_EQ(checkStringPropertyValue2, stringPropertyValue2);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -236,7 +288,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestString)
     ASSERT_TRUE(programLogStream.str().empty());
 
     std::string checkStringPropertyValue3;
-    ASSERT_NO_THROW(environment.getPropertyString(stringPropertyName3, checkStringPropertyValue3));
+    ASSERT_TRUE(environment.getPropertyString(stringPropertyName3, checkStringPropertyValue3));
     ASSERT_EQ(checkStringPropertyValue3, stringPropertyValue3);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -246,10 +298,9 @@ TEST_F(ConfigEnvironmentLogger, NominalTestString)
     default_logger->info("Serialized environment: {}", serializedEnvironment);
 
     kpsr::ConfigurationEnvironment newEnvironment;
-    ASSERT_NO_THROW(newEnvironment.updateConfiguration(serializedEnvironment));
+    ASSERT_TRUE(newEnvironment.updateConfiguration(serializedEnvironment));
     std::string checkStringPropertyValue3New;
-    ASSERT_NO_THROW(
-        environment.getPropertyString(stringPropertyName3, checkStringPropertyValue3New));
+    ASSERT_TRUE(environment.getPropertyString(stringPropertyName3, checkStringPropertyValue3New));
     ASSERT_EQ(checkStringPropertyValue3New, stringPropertyValue3);
 }
 
@@ -264,7 +315,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestBool)
     ASSERT_TRUE(programLogStream.str().empty());
 
     bool checkBoolPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyBool(boolPropertyName, checkBoolPropertyValue));
+    ASSERT_TRUE(environment.getPropertyBool(boolPropertyName, checkBoolPropertyValue));
     ASSERT_EQ(checkBoolPropertyValue, boolPropertyValue);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -275,7 +326,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestBool)
     ASSERT_TRUE(programLogStream.str().empty());
 
     bool checkBoolPropertyValue2;
-    ASSERT_NO_THROW(environment.getPropertyBool(boolPropertyName2, checkBoolPropertyValue2));
+    ASSERT_TRUE(environment.getPropertyBool(boolPropertyName2, checkBoolPropertyValue2));
     ASSERT_EQ(checkBoolPropertyValue2, boolPropertyValue2);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -286,7 +337,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestBool)
     ASSERT_TRUE(programLogStream.str().empty());
 
     bool checkBoolPropertyValue3;
-    ASSERT_NO_THROW(environment.getPropertyBool(boolPropertyName3, checkBoolPropertyValue3));
+    ASSERT_TRUE(environment.getPropertyBool(boolPropertyName3, checkBoolPropertyValue3));
     ASSERT_EQ(checkBoolPropertyValue3, boolPropertyValue3);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -298,7 +349,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestBool)
     kpsr::ConfigurationEnvironment newEnvironment;
     ASSERT_NO_THROW(newEnvironment.updateConfiguration(serializedEnvironment));
     bool checkBoolPropertyValue3New;
-    ASSERT_NO_THROW(environment.getPropertyBool(boolPropertyName3, checkBoolPropertyValue3New));
+    ASSERT_TRUE(environment.getPropertyBool(boolPropertyName3, checkBoolPropertyValue3New));
     ASSERT_EQ(checkBoolPropertyValue3New, boolPropertyValue3);
 }
 
@@ -313,7 +364,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     int checkIntPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
     ASSERT_EQ(checkIntPropertyValue, intPropertyValue);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -324,7 +375,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     int checkIntPropertyValue2;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName2, checkIntPropertyValue2));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName2, checkIntPropertyValue2));
     ASSERT_EQ(checkIntPropertyValue2, intPropertyValue2);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -335,7 +386,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     int checkIntPropertyValue3;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3));
     ASSERT_EQ(checkIntPropertyValue3, intPropertyValue3);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -346,7 +397,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     float checkFloatPropertyValue;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
     ASSERT_EQ(checkFloatPropertyValue, floatPropertyValue);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -357,7 +408,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     float checkFloatPropertyValue2;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName2, checkFloatPropertyValue2));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName2, checkFloatPropertyValue2));
     ASSERT_EQ(checkFloatPropertyValue2, floatPropertyValue2);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -368,7 +419,7 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     ASSERT_TRUE(programLogStream.str().empty());
 
     float checkFloatPropertyValue3;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3));
     ASSERT_EQ(checkFloatPropertyValue3, floatPropertyValue3);
     ASSERT_TRUE(programLogStream.str().empty());
 
@@ -380,11 +431,11 @@ TEST_F(ConfigEnvironmentLogger, NominalTestIntFloat)
     kpsr::ConfigurationEnvironment newEnvironment;
     ASSERT_NO_THROW(newEnvironment.updateConfiguration(serializedEnvironment));
     int checkIntPropertyValue3New;
-    ASSERT_NO_THROW(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3New));
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName3, checkIntPropertyValue3New));
     ASSERT_EQ(checkIntPropertyValue3New, intPropertyValue3);
 
     float checkFloatPropertyValue3New;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3New));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName3, checkFloatPropertyValue3New));
     ASSERT_EQ(checkFloatPropertyValue3New, floatPropertyValue3);
 }
 
@@ -393,18 +444,31 @@ TEST_F(ConfigEnvironmentLogger, LoadFileTest)
     std::string folderName(TEST_DATA);
     std::string testFile = folderName + "/config_env_test.json";
 
+    {
+        kpsr::ConfigurationEnvironment badEnvironment;
+        ASSERT_FALSE(badEnvironment.loadFile("/tmp/dummyNonExistentfile.txt", ""));
+    }
+    {
+        kpsr::ConfigurationEnvironment badEnvironment;
+        std::string badJsonFile = folderName + "/config_env_bad_json.json";
+        ASSERT_FALSE(badEnvironment.loadFile(badJsonFile, ""));
+    }
+
     kpsr::ConfigurationEnvironment environment;
-    ASSERT_NO_THROW(environment.loadFile(testFile, ""));
+    ASSERT_TRUE(environment.loadFile(testFile, ""));
+
+    // load again should fail since property already exists:
+    ASSERT_FALSE(environment.loadFile(testFile, ""));
 
     std::string checkValue;
-    ASSERT_NO_THROW(environment.getPropertyString("dummy", checkValue));
+    ASSERT_FALSE(environment.getPropertyString("dummy", checkValue));
     ASSERT_FALSE(programLogStream.str().empty());
 
     std::string floatPropertyNameTwo = "testPropFloatTwo";
     float floatPropertyValueTwo = 3.145353f;
 
     float checkFloatPropertyValueTwo;
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
     ASSERT_EQ(checkFloatPropertyValueTwo, floatPropertyValueTwo);
 }
 
@@ -414,14 +478,14 @@ TEST_F(ConfigEnvironmentLogger, LoadFileMissingStringTest)
     std::string testFile = folderName + "/config_env_missing_string.json";
 
     kpsr::ConfigurationEnvironment environment;
-    ASSERT_NO_THROW(environment.loadFile(testFile, ""));
+    ASSERT_TRUE(environment.loadFile(testFile, ""));
 
     ASSERT_NE(programLogStream.str().size(), 0);
 
     std::string floatPropertyNameTwo = "testPropFloatTwo";
     float floatPropertyValueTwo = 3.145353f;
     float checkFloatPropertyValueTwo(0);
-    ASSERT_NO_THROW(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
     ASSERT_EQ(checkFloatPropertyValueTwo, floatPropertyValueTwo);
 }
 
@@ -431,7 +495,7 @@ TEST_F(ConfigEnvironmentLogger, LoadFileMissingFloatTest)
     std::string testFile = folderName + "/config_env_missing_float.json";
 
     kpsr::ConfigurationEnvironment environment;
-    ASSERT_NO_THROW(environment.loadFile(testFile, ""));
+    ASSERT_TRUE(environment.loadFile(testFile, ""));
     ASSERT_NE(programLogStream.str().size(), 0);
 }
 
@@ -441,7 +505,7 @@ TEST_F(ConfigEnvironmentLogger, LoadFileMissingIntTest)
     std::string testFile = folderName + "/config_env_missing_int.json";
 
     kpsr::ConfigurationEnvironment environment;
-    ASSERT_NO_THROW(environment.loadFile(testFile, ""));
+    ASSERT_TRUE(environment.loadFile(testFile, ""));
     ASSERT_NE(programLogStream.str().size(), 0);
 }
 
@@ -451,7 +515,7 @@ TEST_F(ConfigEnvironmentLogger, LoadFileMissingBoolTest)
     std::string testFile = folderName + "/config_env_missing_bool.json";
 
     kpsr::ConfigurationEnvironment environment;
-    ASSERT_NO_THROW(environment.loadFile(testFile, ""));
+    ASSERT_TRUE(environment.loadFile(testFile, ""));
 
     ASSERT_NE(programLogStream.str().size(), 0);
 }

@@ -15,10 +15,11 @@
 #include <gtest/gtest.h>
 
 #include <klepsydra/core/cache_listener.h>
+#include <klepsydra/core/configuration_environment.h>
 #include <klepsydra/core/event_emitter_middleware_provider.h>
-#include <klepsydra/core/publisher.h>
-#include <klepsydra/core/service.h>
-#include <klepsydra/core/subscriber.h>
+#include <klepsydra/sdk/publisher.h>
+#include <klepsydra/sdk/service.h>
+#include <klepsydra/sdk/subscriber.h>
 
 #include <klepsydra/mem_core/basic_middleware_provider.h>
 
@@ -87,15 +88,15 @@ TEST_F(ZMQEnvTest, EnvironmentTests)
     std::string filename = folderName + "/" + basename;
     kpsr::zmq_mdlw::ZMQEnv envTest(filename, "test", topic, 100, publisher, subscriber);
     std::string nameInFile;
-    envTest.getPropertyString("filename", nameInFile);
+    ASSERT_TRUE(envTest.getPropertyString("filename", nameInFile));
     ASSERT_EQ(nameInFile, basename);
 
     std::string basename2("testfile2.json");
     std::string filename2 = folderName + "/" + basename2;
-    envTest.loadFile(filename2, "file2");
+    ASSERT_TRUE(envTest.loadFile(filename2, "file2"));
 
     std::string nameFile2;
-    envTest.getPropertyString("filename", nameFile2, "file2");
+    ASSERT_TRUE(envTest.getPropertyString("filename", nameFile2, "", "file2"));
     ASSERT_EQ(nameFile2, basename2);
 }
 
@@ -116,28 +117,89 @@ TEST_F(ZMQEnvTest, UpdateConfigurationTests)
 
     confEnvPub.updateConfiguration(
         R"({"StringProperties": {"greeting": "hello", "kpsr_zmq_env_key": "test", "kpsr_zmq_env_topic_name": "env_data"},)"
-        R"( "IntProperties": {"test": 123, "iteration": -1, "kpsr_zmq_env_poll_period": 1000}})",
-        kpsr::DEFAULT_ROOT);
+        R"( "IntProperties": {"test": 123, "iteration": -1, "kpsr_zmq_env_poll_period": 1000}})");
 
     kpsr::zmq_mdlw::ZMQEnv zmqEnvTest(&confEnvPub, publisher, subscriber2, kpsr::DEFAULT_ROOT);
     std::string default_greeting;
-    zmqEnvTest.getPropertyString("greeting", default_greeting);
+    ASSERT_TRUE(zmqEnvTest.getPropertyString("greeting", default_greeting));
     // Check that default values have been loaded correctly to zmqEnvTest
     ASSERT_EQ("hello", default_greeting);
 
     // Test that loading new file will trigger an update across all environments
     std::string basename2("testfile2.json");
     std::string filename2 = folderName + "/" + basename2;
-    envTest.loadFile(filename2, "file2");
+    ASSERT_TRUE(envTest.loadFile(filename2, "file2"));
     std::string nameFile;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    zmqEnvTest.getPropertyString("filename", nameFile, "file2");
+    ASSERT_TRUE(zmqEnvTest.getPropertyString("filename", nameFile, "", "file2"));
     ASSERT_EQ(nameFile, basename2);
 
     std::string nameInFile;
-    zmqEnvTest.getPropertyString("filename", nameInFile, "file1");
+    ASSERT_TRUE(zmqEnvTest.getPropertyString("filename", nameInFile, "", "file1"));
     ASSERT_EQ(nameInFile, basename);
     std::string greeting;
-    zmqEnvTest.getPropertyString("greeting", greeting);
+    ASSERT_FALSE(zmqEnvTest.getPropertyString("greeting", greeting));
     ASSERT_TRUE(greeting.empty());
+}
+
+TEST_F(ZMQEnvTest, NominalTest)
+{
+    kpsr::zmq_mdlw::ZMQEnv environment("", "test", topic, 100, publisher, subscriber);
+    // kpsr::ConfigurationEnvironment environment;
+
+    std::string stringPropertyName = "testPropString";
+    std::string stringPropertyValue = "dummyValue";
+
+    ASSERT_NO_THROW(environment.setPropertyString(stringPropertyName, stringPropertyValue));
+
+    std::string checkStringPropertyValue;
+    ASSERT_TRUE(environment.getPropertyString(stringPropertyName, checkStringPropertyValue));
+    ASSERT_EQ(checkStringPropertyValue, stringPropertyValue);
+
+    std::string intPropertyName = "testPropInt";
+    int intPropertyValue = 12;
+
+    ASSERT_NO_THROW(environment.setPropertyInt(intPropertyName, intPropertyValue));
+
+    int checkIntPropertyValue;
+    ASSERT_TRUE(environment.getPropertyInt(intPropertyName, checkIntPropertyValue));
+    ASSERT_EQ(checkIntPropertyValue, intPropertyValue);
+
+    std::string floatPropertyName = "testPropFloat";
+    float floatPropertyValue = 3.145f;
+
+    ASSERT_NO_THROW(environment.setPropertyFloat(floatPropertyName, floatPropertyValue));
+
+    float checkFloatPropertyValue;
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyName, checkFloatPropertyValue));
+    ASSERT_EQ(checkFloatPropertyValue, floatPropertyValue);
+
+    std::string floatPropertyNameTwo = "testPropFloatTwo";
+    float floatPropertyValueTwo = 3.145353f;
+
+    ASSERT_NO_THROW(environment.setPropertyFloat(floatPropertyNameTwo, floatPropertyValueTwo));
+
+    float checkFloatPropertyValueTwo;
+    ASSERT_TRUE(environment.getPropertyFloat(floatPropertyNameTwo, checkFloatPropertyValueTwo));
+    ASSERT_EQ(checkFloatPropertyValueTwo, floatPropertyValueTwo);
+
+    std::string boolPropertyName = "testPropBool";
+    bool boolPropertyValue = false;
+
+    ASSERT_NO_THROW(environment.setPropertyBool(boolPropertyName, boolPropertyValue));
+
+    bool checkBoolPropertyValue;
+    ASSERT_TRUE(environment.getPropertyBool(boolPropertyName, checkBoolPropertyValue));
+    ASSERT_EQ(checkBoolPropertyValue, boolPropertyValue);
+
+    std::string folderName(TEST_DATA);
+    std::string testFile = folderName + "/config_env_test.json";
+
+    // test file contains same keys as above. loading should fail unless root node is different
+    ASSERT_FALSE(environment.loadFile(testFile, ""));
+    ASSERT_TRUE(environment.loadFile(testFile, "file"));
+    kpsr::ConfigurationEnvironment newEnvironment(testFile, "json");
+    auto serializedData = newEnvironment.exportEnvironment();
+    ASSERT_TRUE(environment.updateConfiguration(serializedData));
+    ASSERT_FALSE(environment.updateConfiguration("random text that is not json"));
 }

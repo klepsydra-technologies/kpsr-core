@@ -18,7 +18,7 @@
 #define CONFIGURATION_PROPERTIES_ENVIRONMENT_H
 
 #include <klepsydra/core/configuration_properties.h>
-#include <klepsydra/core/environment.h>
+#include <klepsydra/sdk/environment.h>
 
 #include <memory>
 
@@ -50,8 +50,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyString(const std::string &key,
+    virtual bool getPropertyString(const std::string &key,
                                    std::string &value,
+                                   std::string const &defaultValue = "",
                                    const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -59,8 +60,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyInt(const std::string &key,
+    virtual bool getPropertyInt(const std::string &key,
                                 int &value,
+                                const int defaultValue = 0,
                                 const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -68,8 +70,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyFloat(const std::string &key,
+    virtual bool getPropertyFloat(const std::string &key,
                                   float &value,
+                                  const float defaultValue = 0.0f,
                                   const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -77,8 +80,9 @@ public:
      * @param key
      * @param value
      */
-    virtual void getPropertyBool(const std::string &key,
+    virtual bool getPropertyBool(const std::string &key,
                                  bool &value,
+                                 const bool defaultValue = false,
                                  const std::string &rootNode = kpsr::DEFAULT_ROOT) override;
 
     /**
@@ -125,16 +129,25 @@ public:
      * This method is used to load additional configuration data from another file. It might be used in cases where
      * additional data may be loaded later.
      */
-    virtual void loadFile(const std::string &fileName, const std::string &nodeName) override;
+    virtual bool loadFile(const std::string &fileName, const std::string &nodeName) override;
 
-    void updateConfiguration(const std::string &jsonContent);
-
-    void updateConfiguration(const std::string &jsonContent, const std::string &rootNode);
+    bool updateConfiguration(const std::string &jsonContent);
 
     std::string exportEnvironment();
 
 private:
-    void printGetError(bool result, const std::string &key) const;
+    template<class T>
+    void printGetError(bool result, const std::string &key, T &value, T const &defaultValue) const
+    {
+        if (!result) {
+            spdlog::warn("Environment does not have the property {}. Value not loaded."
+                         " Loading default value {} instead",
+                         key,
+                         defaultValue);
+            value = defaultValue;
+        }
+    }
+
     void printSetError(bool result, const std::string &key) const;
 
     template<class Archive>
@@ -162,7 +175,7 @@ private:
         }
     }
 
-    void copyFrom(const ConfigurationEnvironment &otherEnvironment, const std::string &rootNode);
+    bool copyFrom(const ConfigurationEnvironment &otherEnvironment, const std::string &rootNode);
 
     ConfigurationProperties<std::string> _stringProperties;
     ConfigurationProperties<float> _floatProperties;

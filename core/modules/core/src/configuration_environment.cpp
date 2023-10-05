@@ -38,13 +38,6 @@ ConfigurationEnvironment::ConfigurationEnvironment(const std::string &configFile
 
 ConfigurationEnvironment::~ConfigurationEnvironment() {}
 
-void ConfigurationEnvironment::printGetError(bool result, const std::string &key) const
-{
-    if (!result) {
-        spdlog::warn("Environment does not have the property {}. Value not loaded", key);
-    }
-}
-
 void ConfigurationEnvironment::printSetError(bool result, const std::string &key) const
 {
     if (!result) {
@@ -52,40 +45,48 @@ void ConfigurationEnvironment::printSetError(bool result, const std::string &key
     }
 }
 
-void ConfigurationEnvironment::getPropertyString(const std::string &key,
+bool ConfigurationEnvironment::getPropertyString(const std::string &key,
                                                  std::string &value,
+                                                 std::string const &defaultValue,
                                                  std::string const &rootNode)
 {
     auto fullKey = getFullKey(key, rootNode);
     auto getResult = _stringProperties.getProperty(fullKey, value);
-    printGetError(getResult, fullKey);
+    printGetError(getResult, fullKey, value, defaultValue);
+    return getResult;
 }
 
-void ConfigurationEnvironment::getPropertyInt(const std::string &key,
+bool ConfigurationEnvironment::getPropertyInt(const std::string &key,
                                               int &value,
+                                              const int defaultValue,
                                               std::string const &rootNode)
 {
     auto fullKey = getFullKey(key, rootNode);
     auto getResult = _intProperties.getProperty(fullKey, value);
-    printGetError(getResult, fullKey);
+    printGetError(getResult, fullKey, value, defaultValue);
+    return getResult;
 }
 
-void ConfigurationEnvironment::getPropertyFloat(const std::string &key,
+bool ConfigurationEnvironment::getPropertyFloat(const std::string &key,
                                                 float &value,
+                                                const float defaultValue,
                                                 std::string const &rootNode)
 {
     auto fullKey = getFullKey(key, rootNode);
     auto getResult = _floatProperties.getProperty(fullKey, value);
-    printGetError(getResult, fullKey);
+    printGetError(getResult, fullKey, value, defaultValue);
+    return getResult;
 }
 
-void ConfigurationEnvironment::getPropertyBool(const std::string &key,
+bool ConfigurationEnvironment::getPropertyBool(const std::string &key,
                                                bool &value,
+                                               const bool defaultValue,
                                                std::string const &rootNode)
 {
     auto fullKey = getFullKey(key, rootNode);
     auto getResult = _boolProperties.getProperty(fullKey, value);
-    printGetError(getResult, fullKey);
+    printGetError(getResult, fullKey, value, defaultValue);
+    return getResult;
 }
 
 void ConfigurationEnvironment::setPropertyString(const std::string &key,
@@ -124,58 +125,56 @@ void ConfigurationEnvironment::setPropertyBool(const std::string &key,
     printSetError(getResult, fullKey);
 }
 
-void ConfigurationEnvironment::loadFile(const std::string &fileName, const std::string &nodeName)
+bool ConfigurationEnvironment::loadFile(const std::string &fileName, const std::string &nodeName)
 {
     std::ifstream inputFileStream(fileName, std::ios::binary);
     ConfigurationEnvironment newProperties;
-    {
+    try {
         ::cereal::JSONInputArchive iarchive(inputFileStream);
         newProperties.serialize(iarchive);
+    } catch (::cereal::Exception &ex) {
+        spdlog::error("{} Error loading Environment from file {}", ex.what(), fileName);
+        return false;
     }
-    copyFrom(newProperties, nodeName);
-    return;
+
+    return copyFrom(newProperties, nodeName);
 }
 
-void ConfigurationEnvironment::copyFrom(const ConfigurationEnvironment &otherEnvironment,
+bool ConfigurationEnvironment::copyFrom(const ConfigurationEnvironment &otherEnvironment,
                                         const std::string &rootNode)
 {
-    _stringProperties.copyFrom(otherEnvironment._stringProperties, rootNode);
-    _boolProperties.copyFrom(otherEnvironment._boolProperties, rootNode);
-    _intProperties.copyFrom(otherEnvironment._intProperties, rootNode);
-    _floatProperties.copyFrom(otherEnvironment._floatProperties, rootNode);
+    bool copyResult = true;
+    copyResult = copyResult &&
+                 _stringProperties.copyFrom(otherEnvironment._stringProperties, rootNode);
+    copyResult = copyResult && _boolProperties.copyFrom(otherEnvironment._boolProperties, rootNode);
+    copyResult = copyResult && _intProperties.copyFrom(otherEnvironment._intProperties, rootNode);
+    copyResult = copyResult &&
+                 _floatProperties.copyFrom(otherEnvironment._floatProperties, rootNode);
+    return copyResult;
 }
 
-void ConfigurationEnvironment::updateConfiguration(const std::string &jsonContent)
+bool ConfigurationEnvironment::updateConfiguration(const std::string &jsonContent)
 {
     std::stringstream ss;
     ss << jsonContent;
-    {
+    try {
         ::cereal::JSONInputArchive iarchive(ss);
         serialize(iarchive);
+    } catch (::cereal::Exception &ex) {
+        spdlog::error("{} Error loading Environment from json string", ex.what());
+        return false;
     }
-    return;
-}
-
-void ConfigurationEnvironment::updateConfiguration(const std::string &jsonContent,
-                                                   const std::string &rootNode)
-{
-    std::stringstream ss;
-    ss << jsonContent;
-    ConfigurationEnvironment newProperties;
-    {
-        ::cereal::JSONInputArchive iarchive(ss);
-        newProperties.serialize(iarchive);
-    }
-    copyFrom(newProperties, rootNode);
-    return;
+    return true;
 }
 
 std::string ConfigurationEnvironment::exportEnvironment()
 {
     std::stringstream ss;
-    {
+    try {
         ::cereal::JSONOutputArchive oarchive(ss);
         serialize(oarchive);
+    } catch (::cereal::Exception &ex) {
+        spdlog::error("{} Error exporting Environment to json string", ex.what());
     }
     return ss.str();
 }

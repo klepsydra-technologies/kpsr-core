@@ -14,6 +14,7 @@
 
 #include "gtest/gtest.h"
 
+#include <klepsydra/core/core_container.h>
 #include <klepsydra/core/unsafe_single_listener_event_emitter.h>
 
 TEST(UnsafeSingleListenerEventEmitterTest, BasicTests)
@@ -69,7 +70,7 @@ TEST(UnsafeSingleListenerEventEmitterTest, BasicTestsContainer)
 {
     kpsr::UnsafeSingleListenerEventEmitter<std::string> eventEmitter;
 
-    kpsr::Container container(nullptr, "eventEmitterTests");
+    kpsr::CoreContainer container(nullptr, "eventEmitterTests");
     std::string eventCopy;
     unsigned int listenerId = eventEmitter.on(&container,
                                               "listener",
@@ -139,7 +140,7 @@ TEST(UnsafeSingleListenerEventEmitter, RemoveListeners)
     {
         kpsr::UnsafeSingleListenerEventEmitter<std::string> eventEmitter;
 
-        kpsr::Container container(nullptr, "eventEmitterTests");
+        kpsr::CoreContainer container(nullptr, "eventEmitterTests");
         std::string eventCopy;
         unsigned int listenerId = eventEmitter.on(&container,
                                                   "listener",

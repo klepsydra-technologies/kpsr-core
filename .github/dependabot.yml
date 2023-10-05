@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "klepsydra-technologies/cicd_core"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    reviewers:
+      - "klepsydra-technologies/cpp_devs"
+    allow:
+      - dependency-name: "kpsr-build"
+    schedule:
+      interval: "weekly"

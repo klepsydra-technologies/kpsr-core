@@ -19,7 +19,7 @@
 
 #include <functional>
 
-#include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 
 #include <klepsydra/high_performance/data_multiplexer_event_data.h>
 #include <klepsydra/high_performance/data_multiplexer_publisher.h>
@@ -65,6 +65,7 @@ public:
                                                   disruptor4cpp::blocking_wait_strategy,
                                                   disruptor4cpp::producer_type::single,
                                                   disruptor4cpp::sequence>;
+
     /**
      * @brief DataMultiplexerMiddlewareProvider basic constructor
      * @param container
@@ -73,7 +74,7 @@ public:
      * @param eventCloner cloner function used to add new events in the ring buffer when publishing.
      * @param cpuAffinityGeneratorFunction function that returns cpu id to use based on listener name
      * @param timoutUS max timeout for listener to start
-    */
+     */
     DataMultiplexerMiddlewareProvider(
         Container *container,
         const std::string &name,
@@ -152,16 +153,14 @@ public:
 
     void setContainer(Container *container)
     {
-        if (container) {
-            _container = container;
-            _container->attach(&_publisher._publicationStats);
-            for (auto subscriberNamePairs : _subscriberMap) {
-                if (subscriberNamePairs.second->batchEventProcessor->is_running()) {
-                    spdlog::info(
-                        "Cannot attach container to Subscriber listeners which are running.");
-                }
-                subscriberNamePairs.second->_container = container;
+        _container = container;
+        _publisher.setContainer(_container);
+        for (auto subscriberNamePairs : _subscriberMap) {
+            if (subscriberNamePairs.second->batchEventProcessor->is_running()) {
+                spdlog::info(
+                    "Cannot attach container to Subscriber listeners which are running.");
             }
+            subscriberNamePairs.second->setContainer(_container);
         }
     }
 

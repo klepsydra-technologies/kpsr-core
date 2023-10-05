@@ -100,7 +100,7 @@ public:
             propertyValue = it->second.value;
             return true;
         } else {
-            spdlog::error("Property {} not found.", propertyName);
+            spdlog::warn("Property {} not found.", propertyName);
             return false;
         }
     }
@@ -116,15 +116,18 @@ public:
         return true;
     }
 
-    void copyFrom(const ConfigurationProperties<T> &other, const std::string &prefix = "")
+    bool copyFrom(const ConfigurationProperties<T> &other, const std::string &prefix = "")
     {
+        bool copyResult = true;
         for (auto &keyValPair : other._properties) {
             auto newKey = getFullKey(keyValPair.first, prefix);
             auto insertionResult = _properties.insert(std::make_pair(newKey, keyValPair.second));
             if (!insertionResult.second) {
                 spdlog::error("Could not copy entry with key: {}", keyValPair.first);
+                copyResult = false;
             }
         }
+        return copyResult;
     }
 
     template<class Archive>

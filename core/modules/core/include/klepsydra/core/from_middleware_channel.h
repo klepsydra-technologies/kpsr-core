@@ -17,7 +17,7 @@
 #ifndef FROM_MIDDLEWARE_CHANNEL_H
 #define FROM_MIDDLEWARE_CHANNEL_H
 
-#include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 #include <klepsydra/serialization/mapper.h>
 
 namespace kpsr {
@@ -31,7 +31,7 @@ template<class KpsrClass, class MddlwClass>
  *
  * @ingroup kpsr-composition
  *
- * @details Internal facility abstract class for reading data from middleware. Concrete implementations are available for ZMQ and ROS.
+ * @details Internal facility abstract class for reading data from middleware. Concrete implementations are available for ZMQ.
 */
 class FromMiddlewareChannel
 {

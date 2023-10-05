@@ -19,7 +19,7 @@
 
 #include <klepsydra/core/event_emitter_factory.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
-#include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 
 #include <klepsydra/mem_core/in_memory_queue_poller.h>
 
@@ -60,11 +60,7 @@ public:
         , _subscriber(container, _eventEmitter, eventName)
     {}
 
-    virtual ~InMemoryMiddlewareProvider()
-    {
-        delete _publisher;
-        delete _poller;
-    }
+    virtual ~InMemoryMiddlewareProvider() {}
 
     /**
      * @brief start
@@ -86,7 +82,7 @@ public:
      * @brief getPublisher
      * @return
      */
-    Publisher<T> *getPublisher() { return _publisher; }
+    Publisher<T> *getPublisher() { return _publisher.get(); }
 
     /**
      * @brief getSubscriber
@@ -117,8 +113,8 @@ public:
     std::string _eventName;
 
 protected:
-    Publisher<T> *_publisher;
-    InMemoryQueuePoller *_poller;
+    std::unique_ptr<Publisher<T>> _publisher;
+    std::unique_ptr<InMemoryQueuePoller> _poller;
     EventEmitterSubscriber<T> _subscriber;
 };
 } // namespace mem

@@ -18,7 +18,7 @@
 #define CONCURRENT_MIDDLEWARE_PROVIDER_H
 
 #include <klepsydra/core/event_emitter_subscriber.h>
-#include <klepsydra/core/event_transform_forwarder.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 
 #include <concurrentqueue.h>
 #include <klepsydra/mem_core/concurrent_queue_poller.h>
@@ -69,19 +69,21 @@ public:
         , _internalQueue(queueSize, 1, 1)
         , _token(_internalQueue)
     {
-        this->_publisher = new ConcurrentQueuePublisher<T>(container,
-                                                           eventName,
-                                                           poolSize,
-                                                           initializerFunction,
-                                                           eventCloner,
-                                                           _internalQueue,
-                                                           discardItemsWhenFull,
-                                                           _token);
-        this->_poller = new ConcurrentQueuePoller<T>(_internalQueue,
-                                                     this->_eventEmitter,
-                                                     eventName,
-                                                     sleepPeriodUS,
-                                                     _token);
+        this->_publisher = std::unique_ptr<ConcurrentQueuePublisher<T>>(
+            new ConcurrentQueuePublisher<T>(container,
+                                            eventName,
+                                            poolSize,
+                                            initializerFunction,
+                                            eventCloner,
+                                            _internalQueue,
+                                            discardItemsWhenFull,
+                                            _token));
+        this->_poller = std::unique_ptr<ConcurrentQueuePoller<T>>(
+            new ConcurrentQueuePoller<T>(_internalQueue,
+                                         this->_eventEmitter,
+                                         eventName,
+                                         sleepPeriodUS,
+                                         _token));
     }
 
     /**

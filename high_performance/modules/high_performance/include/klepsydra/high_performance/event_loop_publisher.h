@@ -69,12 +69,14 @@ public:
      */
     EventLoopPublisher(Container *container,
                        RingBuffer &ringBuffer,
+                       std::string eventLoopName,
                        std::string eventName,
                        int poolSize,
                        std::function<void(T &)> initializerFunction,
-                       std::function<void(const T &, T &)> eventCloner)
+                       std::function<void(const T &, T &)> eventCloner,
+                       bool enableUnsafeMode)
         : ObjectPoolPublisher<T>(container,
-                                 eventName,
+                                 eventLoopName + "_" + eventName,
                                  "EVENT_LOOP",
                                  poolSize,
                                  initializerFunction,
@@ -83,7 +85,29 @@ public:
         , _ringBuffer(ringBuffer)
         , _eventName(eventName)
         , _poolSize(poolSize)
-    {}
+    {
+        if (container) {
+            _updateTime = TimeUtils::getCurrentNanosecondsAsLlu;
+        } else {
+            _updateTime = []() { return 0llu; };
+        }
+        if (enableUnsafeMode) {
+            _prePublishingStep = [this](int64_t seq) {
+                this->_ringBuffer[seq].enqueuedTimeInNs = this->_updateTime();
+            };
+        } else {
+            _prePublishingStep = [this](int64_t seq) {
+                if (this->_ringBuffer[seq].eventData) {
+                    spdlog::warn("Unexpected non-nullptr pointer in ringbuffer with address: {}. "
+                                 "For index: {}",
+                                 this->_ringBuffer[seq].eventData.get(),
+                                 seq);
+                    this->_ringBuffer[seq].eventData.reset();
+                }
+                this->_ringBuffer[seq].enqueuedTimeInNs = this->_updateTime();
+            };
+        }
+    }
 
     /**
      * @brief internalPublish
@@ -93,16 +117,9 @@ public:
     {
         try {
             int64_t seq = _ringBuffer.try_next();
-            if (_ringBuffer[seq].eventData) {
-                spdlog::warn(
-                    "Unexpected non-nullptr pointer in ringbuffer with address: {}. For index: {}",
-                    _ringBuffer[seq].eventData.get(),
-                    seq);
-                _ringBuffer[seq].eventData.reset();
-            }
+            _prePublishingStep(seq);
             _ringBuffer[seq].eventData = std::static_pointer_cast<const void>(event);
             _ringBuffer[seq].eventName = _eventName;
-            _ringBuffer[seq].enqueuedTimeInNs = TimeUtils::getCurrentNanosecondsAsLlu();
             _ringBuffer.publish(seq);
         } catch (disruptor4cpp::insufficient_capacity_exception &ice) {
             spdlog::info("EventLoopPublisher::internalPublish. no more capacity.{}", _eventName);
@@ -119,6 +136,8 @@ private:
     RingBuffer &_ringBuffer;
     std::string _eventName;
     int _poolSize;
+    std::function<void(int64_t seq)> _prePublishingStep;
+    std::function<long long unsigned int(void)> _updateTime;
 };
 } // namespace high_performance
 } // namespace kpsr

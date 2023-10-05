@@ -22,7 +22,7 @@
 #include <spdlog/spdlog.h>
 
 #include <klepsydra/core/cache_listener.h>
-#include <klepsydra/core/container.h>
+#include <klepsydra/core/core_container.h>
 #include <klepsydra/core/smart_object_pool.h>
 
 #include <klepsydra/high_performance/event_loop_middleware_provider.h>
@@ -30,11 +30,11 @@
 
 #include "gtest/gtest.h"
 
-class DummyContainer : public kpsr::Container
+class DummyContainer : public kpsr::CoreContainer
 {
 public:
     DummyContainer()
-        : kpsr::Container(nullptr, "dummy")
+        : kpsr::CoreContainer(nullptr, "dummy")
     {}
 };
 
@@ -400,6 +400,9 @@ TEST_F(EventLoopTest, FullSingleEventEmitterTwoTopicsWithPool)
 
 TEST_F(EventLoopTest, FullSetContainerSuccessTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -407,16 +410,16 @@ TEST_F(EventLoopTest, FullSetContainerSuccessTest)
                  {},
                  kpsr::EventEmitterType::SAFE);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
-
     provider.setContainer(&testContainer);
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
-    ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
+    ASSERT_EQ(&testContainer, dummySubscriberTest->container);
 }
 
 TEST_F(EventLoopTest, FullSetContainerAfterStartTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -424,22 +427,21 @@ TEST_F(EventLoopTest, FullSetContainerAfterStartTest)
                  {},
                  kpsr::EventEmitterType::SAFE);
     provider.start();
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
 
     provider.setContainer(&testContainer);
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    ASSERT_EQ(nullptr, dummySubscriberTest->_container);
+    ASSERT_EQ(nullptr, dummySubscriberTest->container);
     provider.stop();
 }
 
 TEST_F(EventLoopTest, FullSetContainerAfterSubscribersTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber");
 
     std::stringstream programLogStream;
@@ -449,7 +451,7 @@ TEST_F(EventLoopTest, FullSetContainerAfterSubscribersTest)
     spdlog::set_default_logger(logger);
     provider.setContainer(&testContainer);
 
-    ASSERT_NE(&testContainer, dummySubscriberTest->_container);
+    ASSERT_NE(&testContainer, dummySubscriberTest->container);
     std::string spdlogString = programLogStream.str();
 
     ASSERT_NE(spdlogString.size(), 0);
@@ -460,6 +462,9 @@ TEST_F(EventLoopTest, FullSetContainerAfterSubscribersTest)
 
 TEST_F(EventLoopTest, FullSetContainerAfterPublisherTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -467,8 +472,6 @@ TEST_F(EventLoopTest, FullSetContainerAfterPublisherTest)
                  {},
                  kpsr::EventEmitterType::SAFE);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
     auto dummyPublisherTest
         __attribute__((unused)) = provider.getPublisher<int>("testSubscriber", 0, nullptr, nullptr);
 
@@ -490,6 +493,9 @@ TEST_F(EventLoopTest, FullSetContainerAfterPublisherTest)
 
 TEST_F(EventLoopTest, FullSetContainerWithScheduler)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -497,8 +503,6 @@ TEST_F(EventLoopTest, FullSetContainerWithScheduler)
                  {},
                  kpsr::EventEmitterType::SAFE);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
     auto dummyScheduler __attribute__((unused)) = provider.getScheduler("testScheduler");
 
     std::stringstream programLogStream;
@@ -778,6 +782,9 @@ TEST_F(EventLoopTest, FixedSingleEventEmitterTwoTopicsWithPool)
 
 TEST_F(EventLoopTest, FixedSetContainerSuccessTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -785,17 +792,17 @@ TEST_F(EventLoopTest, FixedSetContainerSuccessTest)
                  {},
                  kpsr::EventEmitterType::UNSAFE_MULTI);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
-
     provider.setContainer(&testContainer);
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber",
                                                            kpsr::EventEmitterType::UNSAFE_MULTI);
-    ASSERT_EQ(&testContainer, dummySubscriberTest->_container);
+    ASSERT_EQ(&testContainer, dummySubscriberTest->container);
 }
 
 TEST_F(EventLoopTest, FixedSetContainerAfterStartTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -803,23 +810,22 @@ TEST_F(EventLoopTest, FixedSetContainerAfterStartTest)
                  {},
                  kpsr::EventEmitterType::UNSAFE_MULTI);
     provider.start();
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
 
     provider.setContainer(&testContainer);
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber",
                                                            kpsr::EventEmitterType::UNSAFE_MULTI);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    ASSERT_EQ(nullptr, dummySubscriberTest->_container);
+    ASSERT_EQ(nullptr, dummySubscriberTest->container);
     provider.stop();
 }
 
 TEST_F(EventLoopTest, FixedSetContainerAfterSubscribersTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4> provider(nullptr);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
     auto dummySubscriberTest = provider.getSubscriber<int>("testSubscriber",
                                                            kpsr::EventEmitterType::UNSAFE_MULTI);
 
@@ -830,7 +836,7 @@ TEST_F(EventLoopTest, FixedSetContainerAfterSubscribersTest)
     spdlog::set_default_logger(logger);
     provider.setContainer(&testContainer);
 
-    ASSERT_NE(&testContainer, dummySubscriberTest->_container);
+    ASSERT_NE(&testContainer, dummySubscriberTest->container);
     std::string spdlogString = programLogStream.str();
 
     ASSERT_NE(spdlogString.size(), 0);
@@ -841,6 +847,9 @@ TEST_F(EventLoopTest, FixedSetContainerAfterSubscribersTest)
 
 TEST_F(EventLoopTest, FixedSetContainerAfterPublisherTest)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -848,8 +857,6 @@ TEST_F(EventLoopTest, FixedSetContainerAfterPublisherTest)
                  {},
                  kpsr::EventEmitterType::UNSAFE_MULTI);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
     auto dummyPublisherTest
         __attribute__((unused)) = provider.getPublisher<int>("testSubscriber", 0, nullptr, nullptr);
 
@@ -871,6 +878,9 @@ TEST_F(EventLoopTest, FixedSetContainerAfterPublisherTest)
 
 TEST_F(EventLoopTest, FixedSetContainerWithScheduler)
 {
+    kpsr::mem::MemEnv environment;
+    kpsr::CoreContainer testContainer(&environment, "testContainer");
+
     kpsr::high_performance::EventLoopMiddlewareProvider<4>
         provider(nullptr,
                  "test_event_loop",
@@ -878,8 +888,6 @@ TEST_F(EventLoopTest, FixedSetContainerWithScheduler)
                  {},
                  kpsr::EventEmitterType::UNSAFE_MULTI);
 
-    kpsr::mem::MemEnv environment;
-    kpsr::Container testContainer(&environment, "testContainer");
     auto dummyScheduler __attribute__((unused)) = provider.getScheduler("testScheduler");
 
     std::stringstream programLogStream;
@@ -943,10 +951,9 @@ TEST_F(EventLoopTest, StartTwiceTest)
     auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     logger->set_pattern("%v");
-    logger->set_level(spdlog::level::debug);
-
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
+    spdlog::set_level(spdlog::level::debug);
     ASSERT_NO_THROW(eventLoop.start());
     ASSERT_NO_THROW(eventLoop.start());
     std::string spdlogString = programLogStream.str();
@@ -956,6 +963,7 @@ TEST_F(EventLoopTest, StartTwiceTest)
     spdlog::drop("my_logger");
 
     auto found = spdlogString.find(messageToCheck);
+
     ASSERT_NE(found, std::string::npos);
     ASSERT_EQ(spdlogString.find(messageToCheck, ++found), std::string::npos);
 }
@@ -977,17 +985,18 @@ TEST_F(EventLoopTest, StartStopTwiceTest)
     auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(programLogStream);
     auto logger = std::make_shared<spdlog::logger>("my_logger", ostream_sink);
     logger->set_pattern("%v");
-    logger->set_level(spdlog::level::debug);
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
+    spdlog::set_level(spdlog::level::debug);
     ASSERT_NO_THROW(eventLoop.start());
     ASSERT_TRUE(eventLoop.isStarted());
     std::string spdlogString = programLogStream.str();
+    ASSERT_NO_THROW(eventLoop.stop());
     auto console = spdlog::stdout_color_mt("default");
     spdlog::set_default_logger(console);
     spdlog::drop("my_logger");
-    eventLoop.stop();
 
     auto found = spdlogString.find(messageToCheck);
+
     ASSERT_NE(found, std::string::npos);
 }

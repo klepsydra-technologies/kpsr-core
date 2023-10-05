@@ -17,7 +17,7 @@
 #ifndef EVENT_FORWARDER_H
 #define EVENT_FORWARDER_H
 
-#include <klepsydra/core/publisher.h>
+#include <klepsydra/sdk/publisher.h>
 
 namespace kpsr {
 template<class T>

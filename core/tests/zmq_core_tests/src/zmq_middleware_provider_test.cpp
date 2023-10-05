@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <getopt.h>
-#include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
+#include <memory>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
@@ -44,7 +42,7 @@ class WeatherDataClient
 public:
     void onWeatherDataReceived(const WeatherData &weatherData)
     {
-        _totalTemp += weatherData.currentTemp.value;
+        _totalTemp += static_cast<int>(weatherData.currentTemp.value);
         _numSamples++;
         if (_numSamples == 100) {
             spdlog::info("Average temperature was {}F", (int) (_totalTemp / _numSamples));
@@ -120,8 +118,8 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool)
         toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
 
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> *_jsonFromZMQProvider =
-        _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    auto _jsonFromZMQProvider = _fromZmqMiddlewareProvider
+                                    .getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData>
         _safeQueueProvider(nullptr, "weatherData", 4, 0, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -138,7 +136,7 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     //  Initialize random number generator
-    srandom((unsigned) time(NULL));
+    srandom((unsigned) time(nullptr));
     for (int i = 0; i < 100; i++) {
         std::vector<int> historyRelHumidity(0);
         historyRelHumidity.push_back(within(50) + 10);
@@ -146,9 +144,9 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicNoPool)
 
         std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
 
         Temperature temperature(within(215) - 80, Temperature::CELSIUS);
 
@@ -187,8 +185,8 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool)
         toZMQMiddlewareProvider.getJsonToMiddlewareChannel<WeatherData>(topic, 0);
 
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<std::string> *_jsonFromZMQProvider =
-        _fromZmqMiddlewareProvider.getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    auto _jsonFromZMQProvider = _fromZmqMiddlewareProvider
+                                    .getJsonFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData>
         _safeQueueProvider(nullptr, "weatherData", 4, 6, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -205,7 +203,7 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     //  Initialize random number generator
-    srandom((unsigned) time(NULL));
+    srandom((unsigned) time(nullptr));
     for (int i = 0; i < 100; i++) {
         std::vector<int> historyRelHumidity(0);
         historyRelHumidity.push_back(within(50) + 10);
@@ -213,9 +211,9 @@ TEST_F(ZMQMiddlewareTest, JsonSingleTopicBasicWithPool)
 
         std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
 
         Temperature temperature(within(215) - 80, Temperature::CELSIUS);
 
@@ -254,8 +252,8 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool)
         toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
 
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<Base> *_binaryFromZMQProvider =
-        _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    auto _binaryFromZMQProvider = _fromZmqMiddlewareProvider
+                                      .getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData>
         _safeQueueProvider(nullptr, "weatherData", 4, 0, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -272,7 +270,7 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     //  Initialize random number generator
-    srandom((unsigned) time(NULL));
+    srandom((unsigned) time(nullptr));
     for (int i = 0; i < 100; i++) {
         std::vector<int> historyRelHumidity(0);
         historyRelHumidity.push_back(within(50) + 10);
@@ -280,9 +278,9 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicNoPool)
 
         std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
 
         Temperature temperature(within(215) - 80, Temperature::CELSIUS);
 
@@ -321,8 +319,8 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool)
         toZMQMiddlewareProvider.getBinaryToMiddlewareChannel<WeatherData>(topic, 0);
 
     //  Process 100 updates
-    kpsr::zmq_mdlw::FromZmqChannel<Base> *_binaryFromZMQProvider =
-        _fromZmqMiddlewareProvider.getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
+    auto _binaryFromZMQProvider = _fromZmqMiddlewareProvider
+                                      .getBinaryFromMiddlewareChannel<WeatherData>(subscriber, 10);
     kpsr::mem::BasicMiddlewareProvider<WeatherData>
         _safeQueueProvider(nullptr, "weatherData", 4, 6, nullptr, nullptr, false);
     _safeQueueProvider.start();
@@ -339,7 +337,7 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     //  Initialize random number generator
-    srandom((unsigned) time(NULL));
+    srandom((unsigned) time(nullptr));
     for (int i = 0; i < 100; i++) {
         std::vector<int> historyRelHumidity(0);
         historyRelHumidity.push_back(within(50) + 10);
@@ -347,9 +345,9 @@ TEST_F(ZMQMiddlewareTest, BinarySingleTopicBasicWithPool)
 
         std::vector<std::shared_ptr<Temperature>> historyTemperature(0);
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
         historyTemperature.push_back(
-            std::shared_ptr<Temperature>(new Temperature(within(215) - 80, Temperature::CELSIUS)));
+            std::make_shared<Temperature>(within(215) - 80, Temperature::CELSIUS));
 
         Temperature temperature(within(215) - 80, Temperature::CELSIUS);
 

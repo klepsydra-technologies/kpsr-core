@@ -25,6 +25,7 @@
 #include <spdlog/spdlog.h>
 
 #include <klepsydra/core/event_emitter_interface.h>
+#include <klepsydra/sdk/time_utils.h>
 
 namespace kpsr {
 /**
@@ -61,6 +62,10 @@ public:
                     const std::string &subscriberName,
                     std::function<void(const Event &event)> callback) override
     {
+        spdlog::trace("{}. listenerName: {}, subscriberName: {}",
+                      __PRETTY_FUNCTION__,
+                      listenerName,
+                      subscriberName);
         return addListener(container, listenerName, subscriberName, false, callback);
     }
 
@@ -111,6 +116,7 @@ public:
                    long long unsigned int enqueuedTimeNs,
                    const Event &event) override
     {
+        spdlog::trace("{}. subscriberName: {}", __PRETTY_FUNCTION__, subscriberName);
         std::vector<std::shared_ptr<ListenerBase>> handlers(listeners.size());
         {
             std::lock_guard<std::mutex> lock(mutex);
@@ -249,7 +255,8 @@ private:
         if (!isOnce) {
             listenerStats = std::make_shared<kpsr::SubscriptionStats>(subscriberName,
                                                                       listenerName,
-                                                                      EVENT_EMITTER_NAME);
+                                                                      EVENT_EMITTER_NAME,
+                                                                      container);
             if (container != nullptr) {
                 container->attach(listenerStats.get());
             }
@@ -274,7 +281,7 @@ private:
     const SafeEventEmitter &operator=(const SafeEventEmitter &) = delete;
 
     const std::string SINGLE_EXECUTING_LISTENER{"once"};
-    const std::string EVENT_EMITTER_NAME{"EVENT_EMITTER"};
+    const std::string EVENT_EMITTER_NAME{"SAFE_EVENT_EMITTER"};
 };
 } // namespace kpsr
 

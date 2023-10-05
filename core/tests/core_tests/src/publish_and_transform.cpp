@@ -20,8 +20,8 @@
 #include <klepsydra/core/cache_listener.h>
 #include <klepsydra/core/event_emitter_publisher.h>
 #include <klepsydra/core/event_emitter_subscriber.h>
-#include <klepsydra/core/event_transform_forwarder.h>
 #include <klepsydra/core/safe_event_emitter.h>
+#include <klepsydra/sdk/event_transform_forwarder.h>
 
 #include "gtest/gtest.h"
 

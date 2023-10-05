@@ -73,14 +73,18 @@ public:
      */
     SmartObjectPool(const std::string &name,
                     int size,
-                    std::function<void(T &)> initializerFunction = nullptr)
-        : this_ptr_(std::make_shared<SmartObjectPool<T, D> *>(this))
+                    std::function<void(T &)> initializerFunction = nullptr,
+                    std::function<void(T &)> finalizerFunction = nullptr)
+        : _finalizerFunction(finalizerFunction)
+        , this_ptr_(std::make_shared<SmartObjectPool<T, D> *>(this))
         , _name(name)
     {
         std::function<void(std::unique_ptr<T, D> &)> poolInitializer =
             [&](std::unique_ptr<T, D> &data) {
-                data.release();
-                data.reset(nullptr);
+                data.reset(new T());
+                if (initializerFunction != nullptr) {
+                    initializerFunction(*data);
+                }
             };
 
         pool_ = new LockFreeStack<std::unique_ptr<T, D>>(size, poolInitializer);
@@ -89,19 +93,15 @@ public:
                       __PRETTY_FUNCTION__,
                       name,
                       size);
-        for (int i = 0; i < size; i++) {
-            std::unique_ptr<T, D> t(new T());
-            if (initializerFunction != nullptr) {
-                initializerFunction(*t);
-            }
-            add(std::move(t));
-        }
     }
 
     virtual ~SmartObjectPool()
     {
         std::unique_ptr<T, D> t_ptr;
         while (pool_->pop(t_ptr)) {
+            if (_finalizerFunction) {
+                _finalizerFunction(*t_ptr);
+            }
             t_ptr.reset();
         }
         delete pool_;
@@ -142,6 +142,7 @@ public:
     long objectPoolFails = 0;
 
 private:
+    std::function<void(T &)> _finalizerFunction;
     std::shared_ptr<SmartObjectPool<T, D> *> this_ptr_;
     LockFreeStack<std::unique_ptr<T, D>> *pool_;
     const std::string _name;

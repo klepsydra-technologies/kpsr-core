@@ -74,6 +74,10 @@ public:
      */
     void on_event(EventloopDataWrapper &event, int64_t sequence, bool end_of_batch)
     {
+        spdlog::debug("{}. event.eventName: {}, sequence: {}",
+                      __PRETTY_FUNCTION__,
+                      event.eventName,
+                      sequence);
         _externalEventEmitter->emitEvent(event.eventName + "_external",
                                          event.enqueuedTimeInNs,
                                          event);

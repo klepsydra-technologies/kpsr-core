@@ -20,7 +20,7 @@
 #include <exception>
 #include <functional>
 
-#include <klepsydra/core/publisher.h>
+#include <klepsydra/sdk/publisher.h>
 #include <klepsydra/serialization/mapper.h>
 
 namespace kpsr {
@@ -46,9 +46,9 @@ public:
      */
     ToMiddlewareChannel(Container *container,
                         const std::string &name,
-                        Publisher<MddlwClass> *middlewarePublisher)
+                        std::unique_ptr<Publisher<MddlwClass>> middlewarePublisher)
         : Publisher<KpsrClass>(container, name, "TO_MDLWR_CHANNEL")
-        , _middlewarePublisher(middlewarePublisher)
+        , _middlewarePublisher(std::move(middlewarePublisher))
         , _middlewareMapper()
         , _transformFunction(std::bind(&Mapper<KpsrClass, MddlwClass>::toMiddleware,
                                        &_middlewareMapper,
@@ -62,11 +62,10 @@ public:
      */
     void processAndPublish(std::function<void(KpsrClass &)> process)
     {
-        std::shared_ptr<KpsrClass> newEvent = std::shared_ptr<KpsrClass>(new KpsrClass());
-        this->_publicationStats._totalEventAllocations++;
-        process(*newEvent.get());
+        std::shared_ptr<KpsrClass> newEvent = std::make_shared<KpsrClass>();
+        this->publicationStats._totalEventAllocations++;
+        process(*newEvent);
         internalPublish(newEvent);
-        return;
     }
 
 protected:
@@ -97,7 +96,7 @@ protected:
     }
 
 private:
-    Publisher<MddlwClass> *_middlewarePublisher;
+    std::unique_ptr<Publisher<MddlwClass>> _middlewarePublisher;
     Mapper<KpsrClass, MddlwClass> _middlewareMapper;
     std::function<void(const KpsrClass &, MddlwClass &)> _transformFunction;
 };
