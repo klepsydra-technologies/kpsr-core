@@ -64,7 +64,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: builddebug-logs
           path: |
@@ -124,7 +124,7 @@ jobs:
         working-directory: build
 
       - name: Store deb packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deb-packages-${{ matrix.name }}
           path: build/*.deb
@@ -135,14 +135,14 @@ jobs:
         working-directory: build
 
       - name: Store tarballs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tgz-packages-${{ matrix.name }}
           path: build/*.tar.gz
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: builddebug-logs
           path: |
