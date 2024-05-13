@@ -47,9 +47,7 @@ public:
                             int after,
                             bool repeat,
                             std::function<void()> task) override;
-    void startScheduledService(int after,
-                               bool repeat,
-                               Service *service) override;
+    void startScheduledService(int after, bool repeat, Service *service) override;
     void stopScheduledTask(const std::string &name) override;
     void stopScheduledService(Service *service) override;
 

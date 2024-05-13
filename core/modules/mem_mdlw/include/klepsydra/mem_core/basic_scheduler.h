@@ -55,9 +55,7 @@ public:
      * @param repeat Repeat service function
      * @param service Service to execute
      */
-    void startScheduledService(int after,
-                               bool repeat,
-                               Service *service) override;
+    void startScheduledService(int after, bool repeat, Service *service) override;
     /**
      * @brief Stop Task
      * @param name Name of task
@@ -84,10 +82,7 @@ private:
          * @param repeat Repeat task
          * @param task Task
          */
-        ScheduledThread(const std::string &name,
-                        int after,
-                        bool repeat,
-                        std::function<void()> task);
+        ScheduledThread(const std::string &name, int after, bool repeat, std::function<void()> task);
 
         /**
          * @brief
