@@ -157,8 +157,7 @@ public:
         _publisher.setContainer(_container);
         for (auto subscriberNamePairs : _subscriberMap) {
             if (subscriberNamePairs.second->batchEventProcessor->is_running()) {
-                spdlog::info(
-                    "Cannot attach container to Subscriber listeners which are running.");
+                spdlog::info("Cannot attach container to Subscriber listeners which are running.");
             }
             subscriberNamePairs.second->setContainer(_container);
         }

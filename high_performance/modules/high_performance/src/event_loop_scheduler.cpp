@@ -19,19 +19,19 @@ kpsr::high_performance::EventLoopScheduler::EventLoopScheduler(
     : _publisher(publisher)
 {}
 
-void kpsr::high_performance::EventLoopScheduler::startScheduledTask(
-    const std::string &name,
-    int after,
-    bool repeat,
-    std::function<void()> task)
+void kpsr::high_performance::EventLoopScheduler::startScheduledTask(const std::string &name,
+                                                                    int after,
+                                                                    bool repeat,
+                                                                    std::function<void()> task)
 {
     std::function<void()> eventloopTask = std::function<void()>(
         [task, this]() { _publisher->publish(task); });
     _decorableScheduler.startScheduledTask(name, after, repeat, eventloopTask);
 }
 
-void kpsr::high_performance::EventLoopScheduler::startScheduledService(
-    int after, bool repeat, Service *service)
+void kpsr::high_performance::EventLoopScheduler::startScheduledService(int after,
+                                                                       bool repeat,
+                                                                       Service *service)
 {
     std::string name = service->serviceStats.name;
     std::function<void()> task = std::function<void()>(std::bind(&Service::runOnce, service));
