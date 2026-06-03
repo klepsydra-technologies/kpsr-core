@@ -17,18 +17,15 @@
 #ifndef EVENT_LOOP_MIDDLEWARE_PROVIDER_H
 #define EVENT_LOOP_MIDDLEWARE_PROVIDER_H
 
-#include "disruptor4cpp/disruptor4cpp.h"
-
 #include <functional>
 
 #include <klepsydra/core/event_emitter_interface.h>
-
-#include "event_loop.h"
-#include "event_loop_publisher.h"
-#include "event_loop_subscriber.h"
-
-#include "event_loop_function_exec_listener.h"
-#include "event_loop_scheduler.h"
+#include <klepsydra/high_performance/disruptor4cpp/disruptor4cpp.h>
+#include <klepsydra/high_performance/event_loop.h>
+#include <klepsydra/high_performance/event_loop_function_exec_listener.h>
+#include <klepsydra/high_performance/event_loop_publisher.h>
+#include <klepsydra/high_performance/event_loop_scheduler.h>
+#include <klepsydra/high_performance/event_loop_subscriber.h>
 
 namespace kpsr {
 namespace high_performance {
